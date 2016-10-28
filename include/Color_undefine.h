@@ -1,0 +1,13 @@
+/////////////////////////////////////////////////////////////////////////////
+// Name:        Color_undefine.h
+// Purpose:     Undefines the color defined by Color_define.h
+// Author:      Balázs Tóth
+// Modified by:
+// Created:     10/07/2016
+// Copyright:   (c) LEMPS-project
+// Licence:     GPL
+/////////////////////////////////////////////////////////////////////////////
+
+#ifdef COLOR
+#undef COLOR
+#endif //COLOR

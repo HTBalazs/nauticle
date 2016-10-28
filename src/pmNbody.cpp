@@ -1,0 +1,108 @@
+/////////////////////////////////////////////////////////////////////////////
+// Name:        pmNbody.cpp
+// Purpose:     pmNbody class
+// Author:      Balázs Tóth
+// Modified by:
+// Created:     10/07/2016
+// Copyright:   (c) LEMPS-project
+// Licence:     GPL
+/////////////////////////////////////////////////////////////////////////////
+
+#include "pmNbody.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Constructor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmNbody::pmNbody(std::array<std::shared_ptr<pmExpression>,2> op) {
+	operand = std::move(op);
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Copy constructor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmNbody::pmNbody(pmNbody const& other) {
+	this->assigned = false;
+	for(int i=0; i<this->operand.size(); i++) {
+		this->operand[i] = other.operand[i]->clone();
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Move constructor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmNbody::pmNbody(pmNbody&& other) {
+	this->psys = std::move(other.psys);
+	this->assigned = std::move(other.assigned);
+	this->operand = std::move(other.operand);
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Copy assignment operator.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmNbody& pmNbody::operator=(pmNbody const& other) {
+	if(this!=&other) {
+		this->assigned = false;
+		for(int i=0; i<this->operand.size(); i++) {
+			this->operand[i] = other.operand[i]->clone();
+		}
+	}
+	return *this;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Move assignment operator.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmNbody& pmNbody::operator=(pmNbody&& other) {
+	if(this!=&other) {
+		this->psys = std::move(other.psys);
+		this->assigned = std::move(other.assigned);
+		this->operand = std::move(other.operand);
+	}
+	return *this;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Clone implementation.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmExpression> pmNbody::clone_impl() const {
+	return std::make_shared<pmNbody>(*this);
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the copy of the object.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmNbody> pmNbody::clone() const {
+	return std::static_pointer_cast<pmNbody, pmExpression>(clone_impl());
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints N-body content.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmNbody::print() const {
+	pLogger::logf<COLOR>("nbody");
+	print_operands();
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Evaluates the interaction.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmNbody::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
+	if(!assigned) { pLogger::error_msgf("N-body model is not assigned to any particle system.\n"); }
+	std::shared_ptr<pmParticle_system> ps = psys.lock();
+
+	pmTensor pos_i = ps->evaluate(i,eval_type);
+	pmTensor mass_i = operand[0]->evaluate(i,eval_type);
+	pmTensor coef_i = operand[1]->evaluate(i,eval_type);
+
+	pmTensor force;
+	for(int j=0; j<ps->get_field_size(); j++) {
+		if(i==j) { continue; }
+		pmTensor mass_j = operand[0]->evaluate(j,eval_type);
+		pmTensor coef_j = operand[1]->evaluate(j,eval_type);
+		pmTensor pos_j = ps->evaluate(j,eval_type);
+		pmTensor rel_pos = pos_j-pos_i;
+		float distance = rel_pos.norm();
+		pmTensor norm = rel_pos / distance;
+		force += (coef_i+coef_j)/2*mass_i*mass_j/distance/distance*norm;
+	}
+	return force;
+}
+void pmNbody::write_to_string(std::ostream& os) const {
+	os << "nbody(" << operand[0] << "," << operand[1] << ")";
+}
+
+int pmNbody::get_field_size() const {
+	return psys.lock()->get_field_size();
+}

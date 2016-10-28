@@ -1,0 +1,80 @@
+/////////////////////////////////////////////////////////////////////////////
+// Name:        pmCommand_parser.cpp
+// Purpose:     pmCommand_parser class
+// Author:      Balázs Tóth
+// Modified by:
+// Created:     10/07/2016
+// Copyright:   (c) LEMPS-project
+// Licence:     GPL
+/////////////////////////////////////////////////////////////////////////////
+
+#include "pmCommand_parser.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Constructor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmCommand_parser::pmCommand_parser(int argc_, char * argv_[],bool switches_on_) {
+	argc=argc_;
+	argv.resize(argc);
+	std::copy(argv_,argv_+argc,argv.begin());
+	switches_on=switches_on_;
+	if(switches_on) {
+		std::vector<std::string>::iterator it1,it2;
+		it1=argv.begin();
+		it2=it1+1;
+		while (true) {
+			if (it1==argv.end()) break;
+			if (it2==argv.end()) break;
+			if ((*it1)[0]=='-') {
+				switch_map[*it1]=*(it2);
+			}
+			it1++;
+			it2++;
+		}
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the argument by number.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::string pmCommand_parser::get_arg(int i) {
+	if(i>=0&&i<argc) {
+		return argv[i];
+	}
+	return "";
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the argument by switch.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::string pmCommand_parser::get_arg(std::string s) {
+	if (!switches_on) {
+		return "";
+	}
+	if (switch_map.find(s)!=switch_map.end()) {
+		return switch_map[s];
+	}
+	return "";
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints the list of available commands.
+/////////////////////////////////////////////////////////////////////////////////////////
+/*static*/ void pmCommand_parser::print_command_list() {
+	print_header();
+	pLogger::log<WHT>("LEMPS can recieve the following optianal commands:\n");
+	pLogger::log<WHT>("1) -help                  Display LEMPS information.\n");
+	pLogger::log<WHT>("2) -wsres                 Lists all reserved names in worksapce.\n");
+	pLogger::log<WHT>("3) -xmlname <filename>    Defines the name of the XML input file.\n");
+	pLogger::log<WHT>("4) -wdir <directory>      Defines the working directory. FULL path of an EXISTING directory is required.\n");
+	pLogger::log<WHT>("5) -version               Prints the version number.\n");
+	pLogger::line_feed(1);
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints header.
+/////////////////////////////////////////////////////////////////////////////////////////
+/*static*/ void pmCommand_parser::print_header() {
+	static bool already_written=false;
+	if(already_written) { return; }
+	pLogger::log<WHT>("LEMPS version %i.%i\n", MAJOR_VERSION, MINOR_VERSION);
+	pLogger::log<WHT>("Copyright Balazs Toth 2016\n");
+	pLogger::line_feed(1);
+	already_written = true;
+}
