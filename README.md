@@ -39,5 +39,5 @@ For detailed programming reference please visit:
 ![2d_heat_square.png](https://bitbucket.org/repo/yraAqM/images/3091408574-2d_heat_square.png)
 ## Two dimensional basic DEM simulation ##
 ![anim.gif](https://bitbucket.org/repo/yraAqM/images/1876226342-anim.gif)
-## Relaxation (e.g. for initial conditions)
+## Relaxation (e.g. for initial configuration)
 ![tessellation.gif](https://bitbucket.org/repo/yraAqM/images/647679836-tessellation.gif)
