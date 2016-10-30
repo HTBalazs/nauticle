@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simulation>
+<!-- 	<initial_condition>
+		<file value="eightshaped.vtk"/>
+	</initial_condition> -->
+	<function_space>
+		<workspace>
+			<particle_system>
+				<cell_size value="csize"/>
+				<domain min="-1000|-1000" max="1000|1000"/>
+				<grid>
+					<gid value="0"/>
+					<gpos value="-0.5|-0.5"/>
+					<gsize value="1|1"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<grid>
+					<gid value="100"/>
+					<gpos value="-0.55|-0.55"/>
+					<gsize value="0.05|1.1"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<grid>
+					<gid value="-10"/>
+					<gpos value="-0.5|-0.55"/>
+					<gsize value="1|0.05"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<grid>
+					<gid value="20"/>
+					<gpos value="0.5|-0.55"/>
+					<gsize value="0.05|1.1"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<grid>
+					<gid value="50"/>
+					<gpos value="-0.5|0.5"/>
+					<gsize value="1|0.05"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+			</particle_system>
+			<fields>
+				<Temp value="gid"/>
+				<Temp_dot value="0"/>
+			</fields>
+			<constants>
+				<csize value="0.05"/>
+				<dx value="csize/2.1"/>
+				<rho0 value="1000"/>
+				<mass value="dx^2*rho0"/>
+				<dt value="0.002"/>
+				<a value="0.1"/>
+			</constants>
+			<variables>
+				<T value="0"/>
+			</variables>
+		</workspace>
+	    <functions>
+	    	<eq0 value="T=T+dt"/>
+	    	<eq1 value="Temp_dot=if(gid,0,a*sph_L00(Temp,mass,rho0,Wp22220))"/>
+	    	<p2 value="Temp=Temp+int1(Temp_dot,dt)"/>
+	    </functions>
+	</function_space>
+	<parameter_space>
+		<simulated_time value="5"/>
+		<print_interval value="0.02"/>
+		<confirm_on_exit value="0"/>
+	</parameter_space>
+</simulation>
