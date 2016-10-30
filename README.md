@@ -32,3 +32,12 @@ int the terminal or open the **<LEMPS dir>/examples** directory.
 For detailed programming reference please visit:
 
 # Examples #
+
+## Three body-problem : 8 shaped choreography ##
+![anim.gif](https://bitbucket.org/repo/yraAqM/images/2159458539-anim.gif)
+## Two dimensional heat conduction problem ##
+![2d_heat_square.png](https://bitbucket.org/repo/yraAqM/images/3091408574-2d_heat_square.png)
+## Two dimensional basic DEM simulation ##
+![anim.gif](https://bitbucket.org/repo/yraAqM/images/1876226342-anim.gif)
+## Relaxation (e.g. for initial conditions)
+![tessellation.gif](https://bitbucket.org/repo/yraAqM/images/647679836-tessellation.gif)
