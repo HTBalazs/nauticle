@@ -29,7 +29,7 @@ protected:
 	bool assigned=false;
 protected:
 	virtual ~pmInteraction() {}
-	void assign(std::weak_ptr<pmParticle_system> ps);
+	void assign(std::weak_ptr<pmParticle_system> ps) override;
 	bool is_assigned() const override;
 	pmTensor interact(int const& i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_ith contribute) const;
 	pmTensor interact(pmTensor const& pos_i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_pos contribute) const;
@@ -44,6 +44,7 @@ void pmInteraction<S>::assign(std::weak_ptr<pmParticle_system> ps) {
 	if(!this->psys.expired()) {
 		this->assigned = true;
 	}
+	pmOperator<S>::assign(ps);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the SPH object is assigned to a particle system.
