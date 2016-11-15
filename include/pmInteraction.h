@@ -31,6 +31,7 @@ protected:
 	virtual ~pmInteraction() {}
 	void assign(std::weak_ptr<pmParticle_system> ps) override;
 	bool is_assigned() const override;
+	int get_field_size() const override;
 	pmTensor interact(int const& i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_ith contribute) const;
 	pmTensor interact(pmTensor const& pos_i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_pos contribute) const;
 };
@@ -52,6 +53,16 @@ void pmInteraction<S>::assign(std::weak_ptr<pmParticle_system> ps) {
 template <size_t S>
 bool pmInteraction<S>::is_assigned() const {
 	return this->assigned;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the size of the particle system assigned to the interaction.
+/////////////////////////////////////////////////////////////////////////////////////////
+template <size_t S>
+int pmInteraction<S>::get_field_size() const {
+	if(psys.expired()) {
+		return 1;
+	}
+	return psys.lock()->get_field_size();
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Calculates the interaction between adjacent particles using the given contribution lambda-function.

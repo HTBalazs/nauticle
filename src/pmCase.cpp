@@ -59,7 +59,9 @@ pmCase& pmCase::operator=(pmCase&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Runs the calculation.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::simulate() {
+void pmCase::simulate(size_t const& num_threads) {
+	size_t max_num_threads = std::thread::hardware_concurrency();
+	pLogger::logf<LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
 	pLogger::pLog_stream log_stream{};
 	log_stream.print_start();
 	float current_time=0;
@@ -75,7 +77,7 @@ void pmCase::simulate() {
 			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,print_interval});
 			dt = print_interval;
 		}
-		function_space->solve();
+		function_space->solve(num_threads);
 		current_time += dt;
 		substeps++;
 		if(current_time > (float)(n+1)*print_interval) {
@@ -85,7 +87,6 @@ void pmCase::simulate() {
 			log_stream.print_step_info(n, dt, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0f);
 			substeps=0;
 		}
-		// log_stream.print_substep_info(dt,substeps);
 	}
 	write_step();
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
@@ -128,11 +129,11 @@ void pmCase::write_step() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Forwards the xmlname to a pmCase object and executes the simulation.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCase::execute(std::string const& xmlname, std::string const& working_dir) {
+/*static*/ void pmCase::execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads/*=8*/) {
 	set_working_directory(working_dir);
 	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
 	cas->read_file(xmlname);
 	cas->print();
-	cas->simulate();
+	cas->simulate(num_threads);
 }
 

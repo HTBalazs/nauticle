@@ -36,7 +36,7 @@ public:
 	pmFunction_space& operator=(pmFunction_space const& rhs);
 	pmFunction_space& operator=(pmFunction_space&& rhs);
 	void print() const;
-	void solve(std::string const& name="");
+	void solve(size_t const& num_threads, std::string const& name="");
 	void assign_particle_system_to_functions();
 	std::shared_ptr<pmFunction_space> clone() const;
 	void merge(std::shared_ptr<pmFunction_space> const& other);

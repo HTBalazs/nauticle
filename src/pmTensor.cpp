@@ -425,7 +425,7 @@ void pmTensor::write_to_string(std::ostream& os) const {
 	for(int i=0; i<rows; i++) {
 		if(i!=0) os << "|";
 		for(int j=0; j<columns; j++) {
-			if(j!=0) os << ":";
+			if(j!=0) os << ";";
 			os << (*this)[i*columns+j];
 		}
 	}

@@ -42,7 +42,7 @@ public:
 	pmFunction& operator=(pmFunction&&);
 	virtual ~pmFunction() {}
 	void print() const;
-	void solve();
+	void solve(size_t const& num_threads);
 	std::string get_name() const;
 	void evaluate(int const& p_begin, int const& p_end);
 	void assign_particle_system(std::weak_ptr<pmParticle_system> psys);

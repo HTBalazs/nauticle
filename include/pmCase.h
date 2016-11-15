@@ -34,7 +34,7 @@ private:
 	std::shared_ptr<pmFunction_space> function_space;
 	std::shared_ptr<pmParameter_space> parameter_space;
 	void print() const;
-	void simulate();
+	void simulate(size_t const& num_threads);
 	void write_step() const;
 	void read_file(std::string const& filename);
 	static void set_working_directory(std::string const& working_dir);
@@ -45,7 +45,7 @@ public:
 	pmCase& operator=(pmCase const& other);
 	pmCase& operator=(pmCase&& other);
 	~pmCase() {}
-	static void execute(std::string const& xmlname, std::string const& working_dir);
+	static void execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads=8);
 };
 
 #endif //_CASE_H_

@@ -12,7 +12,7 @@
 #include "pmRandom.h"
 #include "prolog/pLogger.h"
 
-enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, ELEM, EXP, FLOOR, GT, IF, INT1, INT2, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY};
+enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, IF, INT1, INT2, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY};
 
 /** This class implements the following operations for the expression tree: summation, subtraction,
 //  multiplication, division, power, term-by-term product for two operands furthermore summation and 
@@ -50,6 +50,7 @@ pmArithmetic_function<ARI_TYPE,S>::pmArithmetic_function(std::array<std::shared_
 		case COSH : op_name="cosh("; break;
 		case COT : op_name="cot("; break;
 		case COTH : op_name="coth("; break;
+		case CROSS : op_name="cross("; break;
 		case ELEM : op_name="elem("; break;
 		case EXP : op_name="exp("; break;
 		case FLOOR : op_name="floor("; break;
@@ -141,6 +142,7 @@ pmTensor pmArithmetic_function<ARI_TYPE,S>::evaluate(int const& i, Eval_type eva
 		case COSH : return cosh(this->operand[0]->evaluate(i, eval_type));
 		case COT : return cot(this->operand[0]->evaluate(i, eval_type));
 		case COTH : return coth(this->operand[0]->evaluate(i, eval_type));
+		case CROSS : return cross(this->operand[0]->evaluate(i, eval_type),this->operand[1]->evaluate(i, eval_type));
 		case ELEM : {
 						pmTensor t1 = this->operand[0]->evaluate(i, eval_type);
 						pmTensor row = this->operand[1]->evaluate(i, eval_type);

@@ -159,14 +159,16 @@ inline pmTensor operator*(pmTensor const& lhs, pmTensor const& rhs) {
 			return pmTensor{};
 		}
 	}
-	pmTensor tensor{lhs.get_numrows(), rhs.get_numcols()};
-	for(int i=0; i<lhs.get_numrows(); i++) {
-		for(int k=0; k<rhs.get_numcols(); k++) {
-			float sum;
-			for(int j=0; j<lhs.get_numcols(); j++) {
-				sum += lhs(i,j) * rhs(j,k);
+	int imax = lhs.get_numrows();
+	int jmax = rhs.get_numcols();
+	pmTensor tensor{imax, jmax};
+	for(int i=0; i<imax; i++) {
+		for(int j=0; j<jmax; j++) {
+			float sum = 0;
+			for(int k=0; k<lhs.get_numcols(); k++) {
+				sum += lhs(i,k)*rhs(k,j);
 			}
-			tensor[i*tensor.get_numcols()+k] = sum;
+			tensor[i*jmax+j] = sum;
 		}
 	}
 	return tensor;
@@ -422,6 +424,20 @@ inline pmTensor pow(pmTensor const& T1, pmTensor const& T2) {
 		tensor = tensor * T1;
 	}
 	return tensor;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the cross product of the given vectors.
+/////////////////////////////////////////////////////////////////////////////////////////
+inline pmTensor cross(pmTensor const& lhs, pmTensor const& rhs) {
+	if(lhs.numel()!=3 || rhs.numel()!=3) {
+		pLogger::error_msgf("Cross product can be calculated for 3D vectors.\n");
+	}
+	pmTensor result{3,1,0};
+	result[0] = lhs[1]*rhs[2]-lhs[2]*rhs[1];
+	result[1] = lhs[2]*rhs[0]-lhs[0]*rhs[2];
+	result[2] = lhs[0]*rhs[1]-lhs[1]*rhs[0];
+	return result;
 }
 
 #endif //_TENSOR_H_

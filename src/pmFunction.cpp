@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "pmFunction.h"
+#include <thread>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
@@ -77,11 +78,27 @@ void pmFunction::evaluate(int const& p_begin, int const& p_end) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solves equation for all nodes included in the field inside the variables of the rhs.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction::solve() {
+void pmFunction::solve(size_t const& num_threads) {
 	if(lhs->get_field_size()!=rhs->get_field_size() || lhs->get_field_size()==-1 || rhs->get_field_size()==-1) {
 		pLogger::error_msgf("Inconsistent function fields.\n");
 	}
-	this->evaluate(0, lhs->get_field_size());
+	int p_end = lhs->get_field_size();
+	if(p_end==1) {
+		this->evaluate(0, 1);
+		return;
+	}
+	auto process = [&](int const& p_start, int const& p_end){
+		this->evaluate(p_start, p_end);
+	};
+	std::vector<std::thread> th;
+	int ppt = p_end/num_threads;
+	int p_start = 0;
+	for(int i=p_start; i<p_end; i+=ppt) {
+		th.push_back(std::thread{process, i, i+ppt-1});
+	}
+	for(auto& it:th) {
+		it.join();
+	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the name of the function.

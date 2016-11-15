@@ -231,6 +231,11 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				e.push(std::make_shared<pmArithmetic_operator<':',2>>(operands));
 			}
 		} else if(is_function(it)) {
+			if(it=="cross") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<CROSS,2>>(operands));
+			}
 			if(it=="nbody") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
@@ -297,198 +302,136 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				e.push(std::make_shared<pmSph_operator<LAPLACE,0,0>>(operands));
 			}
 			if(it=="transpose") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmTranspose>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<TRANSPOSE,1>>(operands));
 			}
 			if(it=="trace") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmTrace>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<TRACE,1>>(operands));
 			}
 			if(it=="sin") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmSin>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<SIN,1>>(operands));
 			}
 			if(it=="cos") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmCos>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<COS,1>>(operands));
 			}
 			if(it=="tan") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmTan>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<TAN,1>>(operands));
 			}
 			if(it=="cot") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmCot>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<COT,1>>(operands));
 			}
 			if(it=="asin") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmAsin>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<ASIN,1>>(operands));
 			}
 			if(it=="acos") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmAcos>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<ACOS,1>>(operands));
 			}
 			if(it=="atan") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmAtan>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<ATAN,1>>(operands));
 			}
 			if(it=="acot") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmAcot>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<ACOT,1>>(operands));
 			}
 			if(it=="exp") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmExp>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<EXP,1>>(operands));
 			}
 			if(it=="log") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmLog>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<LOG,1>>(operands));
 			}
 			if(it=="sinh") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmSinh>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<SINH,1>>(operands));
 			}
 			if(it=="cosh") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmCosh>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<COSH,1>>(operands));
 			}
 			if(it=="tanh") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmTanh>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<TANH,1>>(operands));
 			}
 			if(it=="coth") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmCoth>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<COTH,1>>(operands));
 			}
 			if(it=="sqrt") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmSqrt>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<SQRT,1>>(operands));
 			}
 			if(it=="sgn") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmSgn>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<SGN,1>>(operands));
 			}
 			if(it=="abs") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmAbs>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<ABS,1>>(operands));
 			}
 			if(it=="floor") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmFloor>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<FLOOR,1>>(operands));
 			}
 			if(it=="trunc") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmTrunc>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<TRUNC,1>>(operands));
 			}
 			if(it=="lt") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmLess>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<LT,2>>(operands));
 			}
 			if(it=="gt") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmGreater>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<GT,2>>(operands));
 			}
 			if(it=="min") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmMin>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<MIN,2>>(operands));
 			}
 			if(it=="max") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmMax>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<MAX,2>>(operands));
 			}
 			if(it=="mod") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmMod>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<MOD,2>>(operands));
 			}
 			if(it=="int1") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// o1->double_steps(false);
-				// o2->double_steps(false);
-				// e.push(std::make_shared<pmInt1>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				operands[0]->double_steps(false);
@@ -496,11 +439,6 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				e.push(std::make_shared<pmArithmetic_function<INT1,2>>(operands));
 			}
 			if(it=="int2") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// o1->double_steps(true);
-				// o2->double_steps(true);
-				// e.push(std::make_shared<pmInt2>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				operands[0]->double_steps(true);
@@ -520,72 +458,46 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				e.push(std::make_shared<pmFmean>(operand));
 			}
 			if(it=="not") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmNot>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<NOT,1>>(operands));
 			}
 			if(it=="magnitude") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmMagnitude>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<MAGNITUDE,1>>(operands));
 			}
 			if(it=="rand") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmRand>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<RAND,2>>(operands));
 			}
 			if(it=="and") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmAnd>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<AND,2>>(operands));
 			}
 			if(it=="or") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmOr>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<OR,2>>(operands));
 			}
 			if(it=="xor") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// e.push(std::make_shared<pmXor>(o2,o1));
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<XOR,2>>(operands));
 			}
 			if(it=="if") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o3 = e.top(); e.pop();
-				// e.push(std::make_shared<pmIf>(o3,o2,o1));
 				std::array<std::shared_ptr<pmExpression>,3> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<IF,3>>(operands));
 			}
 			if(it=="elem") {
-				// std::shared_ptr<pmExpression> o1 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o2 = e.top(); e.pop();
-				// std::shared_ptr<pmExpression> o3 = e.top(); e.pop();
-				// e.push(std::make_shared<pmElem>(o3,o2,o1));
 				std::array<std::shared_ptr<pmExpression>,3> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<ELEM,3>>(operands));
 			}
 			if(it=="identity") {
-				// std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				// e.push(std::make_shared<pmIdentity>(operand));
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<IDENTITY,1>>(operands));

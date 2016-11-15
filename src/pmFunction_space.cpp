@@ -112,16 +112,16 @@ std::vector<std::shared_ptr<pmFunction>> pmFunction_space::get_functions() const
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solves all function in order.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction_space::solve(std::string const& name/*=""*/) {
+void pmFunction_space::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 	workspace->sort_all_by_position();
 	if(name=="") {
 		for(auto const& it:functions) {
-			it->solve();
+			it->solve(num_threads);
 		}
 	} else {
 		for(auto const& it:functions) {
 			if(it->get_name()==name) {
-				it->solve();
+				it->solve(num_threads);
 				return;
 			}
 		}

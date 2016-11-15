@@ -13,7 +13,8 @@ int main(int argc, char* argv[]) {
 	std::string xml_name = default_xml_name;
 	std::string working_dir = default_working_dir;
 	bool exec = false;
-	auto exec_fptr=[&](){if(exec){pmCase::execute(xml_name,working_dir);}};
+	size_t num_threads = 8;
+	auto exec_fptr=[&](){ if(exec){ pmCase::execute(xml_name,working_dir,num_threads); } };
 	if(argc<2) {
 		exec = true;
 		exec_fptr();
@@ -25,6 +26,10 @@ int main(int argc, char* argv[]) {
 				pmWorkspace::print_reserved_names();
 			} else if(cp.get_arg(i)=="-help") {
 				pmCommand_parser::print_command_list();
+			} else if(cp.get_arg(i)=="-numthreads") {
+				num_threads = stoi(cp.get_arg(i+1));
+				exec = true;
+				i++;
 			} else if(cp.get_arg(i)=="-version") {
 				pLogger::logf("Version number: %i.%i\n",MAJOR_VERSION,MINOR_VERSION);
 			} else if(cp.get_arg(i)=="-wdir") {

@@ -37,7 +37,7 @@ void pmVTK_writer::push_fields_to_polydata() {
 	bool scalar_set = false;
 	size_t n = function_space->get_workspace()->get_number_of_nodes();
 	for(auto const& it:function_space->get_workspace()->get_definitions()) {
-		if(it->get_field_size()==n) {
+		if(it->get_field_size()==n && !it->is_hidden()) {
 			vtkSmartPointer<vtkFloatArray> field = vtkSmartPointer<vtkFloatArray>::New();
 			field->SetName(it->get_name().c_str());
 			if(it->get_type()=="SCALAR") {
@@ -172,9 +172,6 @@ void pmVTK_writer::update() {
 void pmVTK_writer::set_write_mode(write_mode wm) {
 	mode = wm;
 }
-
-
-
 
 void pmVTK_writer::push_variables_to_polydata() {
 	vtkSmartPointer<vtkStringArray> string_array = vtkSmartPointer<vtkStringArray>::New();
