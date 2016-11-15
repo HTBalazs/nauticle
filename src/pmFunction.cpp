@@ -94,7 +94,7 @@ void pmFunction::solve(size_t const& num_threads) {
 	int ppt = p_end/num_threads;
 	int p_start = 0;
 	for(int i=p_start; i<p_end; i+=ppt) {
-		th.push_back(std::thread{process, i, i+ppt-1});
+		th.push_back(std::thread{process, i, i+ppt});
 	}
 	for(auto& it:th) {
 		it.join();
