@@ -1,5 +1,5 @@
 # Introduction #
-**LEMPS** (Langrangian Engine for Methods of ParticleS) is a particle based **general purpose** explicit numerical solver. It is designed to make the implementation of particle based models easy and efficient. Some of the particle based solvers are already implemented (SPH, basic DEM, n-body problem) and **new contributions are welcome**.  
+**LEMPS** (Langrangian Engine for Methods of ParticleS) is a parallel particle based **general purpose** explicit numerical solver under the GNU Lesser General Public License (LGPL). It is designed to make the implementation of particle based models easy and efficient. Some of the particle based solvers are already implemented (SPH, basic DEM, n-body problem) and **new contributions are welcome**.  
 The implemented schemes can be employed to build **system of differential and algebraic equations** depending on functions which are interpreted in a spatial distribution of particles.
 # Installation #
 
