@@ -1,0 +1,6 @@
+<map id="pmSingle" name="pmSingle">
+<area shape="rect" id="node4" href="$classpm_constant.html" title="pmConstant" alt="" coords="5,229,99,256"/>
+<area shape="rect" id="node5" href="$classpm_variable.html" title="pmVariable" alt="" coords="123,229,210,256"/>
+<area shape="rect" id="node2" href="$classpm_term.html" title="pmTerm" alt="" coords="74,80,145,107"/>
+<area shape="rect" id="node3" href="$classpm_expression.html" title="pmExpression" alt="" coords="57,5,162,32"/>
+</map>
