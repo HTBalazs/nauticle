@@ -67,7 +67,7 @@ pmParameter_space& pmParameter_space::operator=(pmParameter_space&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParameter_space::add_parameter(std::string const& n, pmTensor const& v) {
 	for(auto const& it:parameters) {
-		if(it->name==n) {
+		if(it->get_name()==n) {
 			pLogger::warning_msgf("Parameter is already defined.\n");
 			return;
 		}
@@ -80,7 +80,7 @@ void pmParameter_space::add_parameter(std::string const& n, pmTensor const& v) {
 void pmParameter_space::delete_parameter(std::string const& n) {
 	std::vector<std::shared_ptr<pmParameter>>::iterator it = parameters.begin();
 	for(; it<parameters.end(); it++) {
-		if((*it)->name==n) {
+		if((*it)->get_name()==n) {
 			parameters.erase(it);
 		}
 	}
@@ -92,8 +92,8 @@ void pmParameter_space::delete_parameter(std::string const& n) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmParameter_space::get_parameter_value(std::string const& n) const {
 	for(int i=0; i<parameters.size(); i++) {
-		if(parameters[i]->name==n) {
-			return parameters[i]->value;
+		if(parameters[i]->get_name()==n) {
+			return parameters[i]->get_value();
 		}
 	}
 	pLogger::warning_msgf("No such parameter: \"%s\"\n", n.c_str());
@@ -123,4 +123,12 @@ void pmParameter_space::pmParameter::print() const {
 	pLogger::logf<WHT>("%s = ", name.c_str());
 	value.print();
 	pLogger::logf<WHT>("\n");	
+}
+
+std::string pmParameter_space::pmParameter::get_name() const {
+	return name;
+}
+
+pmTensor pmParameter_space::pmParameter::get_value() const {
+	return value;
 }

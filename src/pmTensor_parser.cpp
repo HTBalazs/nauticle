@@ -91,7 +91,6 @@ pmTensor pmTensor_parser::string_to_tensor(std::string const& raw_data, std::sha
 		return pmTensor{};
 	}
 	std::vector<std::string> table = build_table(data);
-
 	return build_tensor(table, workspace);
 }
 /////////////////////////////////////////////////////////////////////////////////////////

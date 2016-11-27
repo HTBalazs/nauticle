@@ -36,7 +36,6 @@ class pmParameter_space final {
 	/** This class holds the name and value of a parameter.
 	*/
 	class pmParameter {
-	public:
 		std::string name = "";
 		pmTensor value = pmTensor{};
 	public:
@@ -46,10 +45,11 @@ class pmParameter_space final {
 		pmParameter(pmParameter&&)=default;
 		pmParameter& operator=(pmParameter const&)=default;
 		pmParameter& operator=(pmParameter&&)=default;
+		std::string get_name() const;
+		pmTensor get_value() const;
 		void print() const;
 	};
 	std::vector<std::shared_ptr<pmParameter>> parameters;
-	// std::shared_ptr<pmDomain> domain;
 public:
 	~pmParameter_space() {}
 	pmParameter_space() {}
