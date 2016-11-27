@@ -37,7 +37,7 @@ For detailed programming reference please visit:
 
 ## Three body-problem : 8 shaped choreography ##
 ![anim.gif](https://bitbucket.org/repo/yraAqM/images/2159458539-anim.gif)
-## Two dimensional heat conduction problem ##
+## Two dimensional heat equation ##
 ![2d_heat_square.png](https://bitbucket.org/repo/yraAqM/images/3091408574-2d_heat_square.png)
 ## Two dimensional linear wave equation ##
 ![compressed.gif](https://bitbucket.org/repo/yraAqM/images/1570771457-compressed.gif)
@@ -45,7 +45,7 @@ For detailed programming reference please visit:
 ![anim.gif](https://bitbucket.org/repo/yraAqM/images/1876226342-anim.gif)
 ## Two dimensional dam break simulation with SPH ##
 ![compressed.gif](https://bitbucket.org/repo/yraAqM/images/4117212104-compressed.gif)
-## Two dimensional solution of the Cahn-Hilliard equation ##
+## Two dimensional Cahn-Hilliard equation ##
 ![compressed.gif](https://bitbucket.org/repo/yraAqM/images/1337375559-compressed.gif)
 ## Relaxation (e.g. for special initial configuration)
 ![tessellation.gif](https://bitbucket.org/repo/yraAqM/images/647679836-tessellation.gif)
