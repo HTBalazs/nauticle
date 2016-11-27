@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simulation>
+	<initial_condition>
+		<file value="eightshaped.vtk"/>
+	</initial_condition>
+	<parameter_space>
+		<simulated_time value="20"/>
+		<print_interval value="0.1"/>
+		<confirm_on_exit value="0"/>
+	</parameter_space>
+</simulation>

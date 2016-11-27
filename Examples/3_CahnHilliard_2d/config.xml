@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simulation>
+<!-- 	<initial_condition>
+		<file value="eightshaped.vtk"/>
+	</initial_condition> -->
+	<function_space>
+		<workspace>
+			<particle_system>
+				<cell_size value="csize"/>
+				<domain min="-dsize/2/csize-2|-dsize/2/csize-2" max="dsize/2/csize+2|dsize/2/csize+2"/>
+				<grid>
+					<gid value="0"/>
+					<gpos value="-dsize/2|-dsize/2"/>
+					<gsize value="dsize|dsize"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+			</particle_system>
+			<fields>
+				<phi value="rand(0,1)"/>
+				<phi_d value="0"/>
+				<phi_old value="phi"/>
+				<psi value="0"/>
+				<f value="(a^2/2)*phi^2*(1-phi)^2"/>
+				<df value="a^2*phi*(2*phi^2-3*phi+1)"/>
+				<ddf value="a^2*(6*phi^2-6*phi+1)"/>
+			</fields>
+			<constants>
+				<dsize value="50"/>
+				<csize value="dsize/25"/>
+				<dx value="csize/2.1"/>
+				<rho0 value="1000"/>
+				<mass value="dx^2*rho0"/>
+				<a value="2"/>
+				<D value="1"/>
+				<eps value="1"/>
+			</constants>
+			<variables>
+				<T value="0"/>
+				<dt value="0.01"/>
+			</variables>
+		</workspace>
+	    <functions>
+	    	<total_time value="T=T+dt"/>
+	    	<eqf value="f=(a^2/2)*phi^2*(1-phi)^2"/>
+			<eqdf value="df=a^2*phi*(2*phi^2-3*phi+1)"/>
+			<eqddf value="ddf=a^2*(6*phi^2-6*phi+1)"/>
+	    	<store_phi value="phi_old=phi"/>
+	    	<eq2 value="psi=ddf*(phi-phi_old)+df-eps^2*sph_L00(phi,mass,rho0,Wp22220)"/>
+	    	<eq1 value="phi_d=D*sph_L00(psi,mass,rho0,Wp22220)"/>
+	    	<p2 value="phi=phi+int1(phi_d,dt)"/>
+	    </functions>
+	</function_space>
+	<parameter_space>
+		<simulated_time value="50"/>
+		<print_interval value="0.1"/>
+		<confirm_on_exit value="0"/>
+	</parameter_space>
+</simulation>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simulation>
+	<function_space>
+		<workspace>
+			<particle_system>
+				<cell_size value="csize"/>
+				<domain min="-1000|-1000" max="1000|1000"/>
+				<grid>
+					<gid value="1"/>
+					<gpos value="-0.125|-0.125"/>
+					<gsize value="0.25|0.25"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<!-- <grid>
+					<gid value="0"/>
+					<gpos value="-0.55|-0.55"/>
+					<gsize value="0.05|1.1"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid> -->
+				<grid>
+					<gid value="0"/>
+					<gpos value="-0.5|-0.255"/>
+					<gsize value="1|0.05"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<!-- <grid>
+					<gid value="0"/>
+					<gpos value="0.5|-0.55"/>
+					<gsize value="0.05|1.1"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid> -->
+				<!-- <grid>
+					<gid value="0"/>
+					<gpos value="-0.5|0.5"/>
+					<gsize value="1|0.05"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid> -->
+			</particle_system>
+			<fields>
+				<a value="0|0"/>
+				<dist value="magnitude(r)"/>
+				<v value="-elem(r,1,0)*om*gid|elem(r,0,0)*om*gid"/>
+				<rho_dot value="0"/>
+				<rho value="rho0"/>
+				<p value="0"/>
+				<A value="0;0|0;0"/>
+				<OM value="0;0|0;0"/>
+				<EPS value="0;0|0;0"/>
+				<S_dot value="0;0|0;0"/>
+				<S value="0;0|0;0"/>
+				<sigma value="0;0|0;0"/>
+			</fields>
+			<constants>
+				<rho0 value="1000"/>
+				<csize value="0.05"/>
+				<dx value="csize/2"/>
+				<mass value="dx^2*rho0"/>
+				<dt value="0.0001"/>
+				<g value="0|-9.81"/>
+				<c value="80"/>
+				<mu value="300000"/>
+				<om value="1"/>
+			</constants>
+			<variables>
+				<T value="0"/>
+			</variables>
+		</workspace>
+	    <functions>
+	    	<time value="T=T+dt"/>
+	    	<vgt value="A=sph_G00(v,mass,rho,Wp52220)*gid"/>
+	    	<vgt_sym value="EPS=(A+transpose(A))/2"/>
+	    	<vgt_asym value="OM=(A-transpose(A))/2"/>
+	    	<constitutive value="S_dot=2*mu*(EPS-trace(EPS)*identity(2)/2)+S*transpose(OM)+OM*S"/>
+	    	<intS value="S=S+int1(S_dot,dt)*gid"/>
+	    	<conti value="rho_dot=-rho*sph_D00(v,mass,rho,Wp52220)"/>
+	    	<intdens value="rho=rho+int1(rho_dot,dt)"/>
+	    	<eos value="p=c^2*(rho-rho0)"/>
+	    	<calc_sigma value="sigma=-p*identity(2)+S"/>
+	    	<acc value="a=(1/rho*sph_D11(sigma,mass,rho,Wp52220)+0.02*sph_L00(v,mass,rho,Wp52220)+g)*gid"/>
+	    	<vel value="v=v+int1(a,dt)"/>
+	    	<pos value="r=r+int1(v,dt)"/>
+	    </functions>
+	</function_space>
+	<parameter_space>
+		<simulated_time value="5"/>
+		<print_interval value="0.002"/>
+		<confirm_on_exit value="0"/>
+	</parameter_space>
+</simulation>
