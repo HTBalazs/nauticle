@@ -41,5 +41,9 @@ For detailed programming reference please visit:
 ![2d_heat_square.png](https://bitbucket.org/repo/yraAqM/images/3091408574-2d_heat_square.png)
 ## Two dimensional basic DEM simulation ##
 ![anim.gif](https://bitbucket.org/repo/yraAqM/images/1876226342-anim.gif)
-## Relaxation (e.g. for initial configuration)
+## Two dimensional dam break simulation with SPH ##
+![compressed.gif](https://bitbucket.org/repo/yraAqM/images/4117212104-compressed.gif)
+## Two dimensional solution of the Cahn-Hilliard equation ##
+![compressed.gif](https://bitbucket.org/repo/yraAqM/images/1337375559-compressed.gif)
+## Relaxation (e.g. for special initial configuration)
 ![tessellation.gif](https://bitbucket.org/repo/yraAqM/images/647679836-tessellation.gif)
