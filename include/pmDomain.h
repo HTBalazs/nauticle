@@ -39,6 +39,9 @@ public:
 	float get_cell_size() const;
 	size_t get_num_cells() const;
 	size_t get_dimensions() const;
+	pmTensor get_physical_minimum() const;
+	pmTensor get_physical_maximum() const;
+	pmTensor get_physical_size() const;
 	void set_minimum(pmTensor const& mn);
 	void set_maximum(pmTensor const& mx);
 	void set_cell_size(float const& csize);

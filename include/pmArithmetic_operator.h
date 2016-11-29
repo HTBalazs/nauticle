@@ -17,8 +17,12 @@
 
     For more information please visit: https://BalazsToth@bitbucket.org/BalazsToth/lemps
 */
+
+#ifndef _ARITHMOP_H_
+#define _ARITHMOP_H_
     
 #include "pmOperator.h"
+#include "pmConstant.h"
 #include "prolog/pLogger.h"
 
 /** This class implements the following operations for the expression tree: summation, subtraction,
@@ -126,7 +130,7 @@ pmTensor pmArithmetic_operator<ARI_TYPE,S>::evaluate(int const& i, Eval_type eva
 /////////////////////////////////////////////////////////////////////////////////////////
 template <char ARI_TYPE, size_t S>
 std::shared_ptr<pmExpression> pmArithmetic_operator<ARI_TYPE,S>::clone_impl() const {
-	return std::make_shared<pmArithmetic_operator>(*this);
+	return std::make_shared<pmArithmetic_operator<ARI_TYPE,S>>(*this);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the deep copy of the object.
@@ -151,3 +155,5 @@ void pmArithmetic_operator<ARI_TYPE,S>::write_to_string(std::ostream& os) const 
 	}
 	os << "(" << this->operand[0] << ARI_TYPE << this->operand[1] << ")";
 }
+
+#endif // _ARITHMOP_H_

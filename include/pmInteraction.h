@@ -32,7 +32,7 @@
 */
 template <size_t S>
 class pmInteraction : public pmOperator<S> {
-	using Func_ith = std::function<pmTensor(pmTensor const&, pmTensor const&, int const&, int const&, float const&)>;
+	using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, float const&)>;
 	using Func_pos = std::function<pmTensor(pmTensor const&, int const&, float const&)>;
 protected:
 	std::weak_ptr<pmParticle_system> psys;
@@ -75,7 +75,8 @@ int pmInteraction<S>::get_field_size() const {
 	return psys.lock()->get_field_size();
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Calculates the interaction between adjacent particles using the given contribution lambda-function.
+/// Calculates the interaction between adjacent particles using the given contribution 
+/// lambda-function.
 /////////////////////////////////////////////////////////////////////////////////////////
 template <size_t S>
 pmTensor pmInteraction<S>::interact(int const& i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_ith contribute) const {
@@ -87,13 +88,21 @@ pmTensor pmInteraction<S>::interact(int const& i, std::array<std::shared_ptr<pmE
 	pmTensor grid_pos_i = ps->get_particle_space()->get_grid_position(pos_i);
 	pmTensor result;
 	std::vector<pmTensor> const& cell_iterator = ps->get_particle_space()->get_cell_iterator();
+		pmDomain domain = ps->get_particle_space()->get_domain();
+		pmTensor domain_cells = domain.get_maximum()-domain.get_minimum();
+		pmTensor domain_minimum = domain.get_minimum();
+		pmTensor domain_physical_minimum = domain.get_physical_minimum();
+		pmTensor domain_size = domain.get_physical_size();
 	for(auto const& it:cell_iterator) {
 		pmTensor grid_pos_j{grid_pos_i+it};
+		grid_pos_j = grid_pos_j-floor((grid_pos_j-domain_minimum).divide_term_by_term(domain_cells)).multiply_term_by_term(domain_cells);
 		int hash_j = ps->get_particle_space()->calculate_hash_key_from_grid_position(grid_pos_j);
 		if(start[hash_j]!=0xFFFFFFFF) {
 			for(int j=start[hash_j]; j<=end[hash_j]; j++) {
 				pmTensor pos_j = ps->get_value(j);
-				result += contribute(pos_i, pos_j, i, j, cell_size);
+				pmTensor rel_pos = pos_j-pos_i;
+				rel_pos -= floor((rel_pos-domain_physical_minimum).divide_term_by_term(domain_size)).multiply_term_by_term(domain_size);
+				result += contribute(rel_pos, i, j, cell_size);
 			}
 		}
 	}

@@ -17,7 +17,11 @@
 
     For more information please visit: https://BalazsToth@bitbucket.org/BalazsToth/lemps
 */
-    
+
+
+#ifndef _ARITHMFC_H_  
+#define _ARITHMFC_H_  
+
 #include "pmOperator.h"
 #include "pmRandom.h"
 #include "prolog/pLogger.h"
@@ -219,3 +223,5 @@ void pmArithmetic_function<ARI_TYPE,S>::write_to_string(std::ostream& os) const 
 	os<<op_name;
 	this->write_operands_to_string(os);
 }
+
+#endif //_ARITHMFC_H_

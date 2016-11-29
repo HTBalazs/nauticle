@@ -76,7 +76,10 @@ void pmParticle_system::set_value(pmTensor const& value, int const& i/*=0*/) {
 /// Implements a sorting based on the hash key of the particles.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::sort_field(std::vector<int>& sorted_idx) {
-	particle_space->sort_index(current_value, sorted_idx);
+	// shift particles due to the perioidic domain
+	particle_space->restrict_particles(current_value, previous_value, two_step);
+	particle_space->update_neighbour_list(current_value, sorted_idx);
+	// reorder particle positions due to sorted_idx
 	pmField::sort_field(sorted_idx);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -182,6 +185,21 @@ pmParticle_system::pmParticle_space& pmParticle_system::pmParticle_space::operat
 	return *this;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Restrict particles to the domain.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_system::pmParticle_space::restrict_particles(std::vector<pmTensor>& current_value, std::vector<pmTensor>& previous_value, bool const& two_step) const {
+	if(up_to_date) { return; }
+	pmTensor domain_size = domain.get_physical_size();
+	pmTensor domain_minimum = domain.get_physical_minimum();
+	for(int i=0; i<current_value.size(); i++) {
+		pmTensor shift = floor((current_value[i]-domain_minimum).divide_term_by_term(domain_size)).multiply_term_by_term(domain_size);
+		current_value[i] = current_value[i] - shift;
+		if(two_step) {
+			previous_value[i] = previous_value[i] - shift;
+		}
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Sets the neighbour list expired.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::pmParticle_space::expire() {
@@ -218,12 +236,13 @@ int pmParticle_system::pmParticle_space::calculate_hash_key_from_position(pmTens
 /// Sorts the field of the particle system (position) and the given sorted_idx vector.
 /// Implements a sorting based on the hash key of the particles.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::sort_index(std::vector<pmTensor> const& current_value, std::vector<int>& sorted_idx) {
+void pmParticle_system::pmParticle_space::update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& sorted_idx) {
+	// perform neighbour search only when particle positions are changed
 	if(up_to_date) { return; }
 	for(int i=0; i<current_value.size(); ++i) {
 		hash_key[i] = calculate_hash_key_from_position(current_value[i]);
 		if(hash_key[i]<0 || hash_key[i]>=domain.get_num_cells()) { 
-			pLogger::error_msgf("Particle is out of domain.\n"); 
+			pLogger::error_msgf("Particle is out of domain.\n");
 		}
 	}
 	pmSort::sort_by_vector(sorted_idx, hash_key, pmSort::ascending);

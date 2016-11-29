@@ -162,17 +162,17 @@ pmTensor pmSph_operator<OP_TYPE,VAR,K>::evaluate(int const& i, Eval_type eval_ty
 	pmTensor A_i = operand[0]->evaluate(i,eval_type);
 	float m_i = operand[1]->evaluate(i,eval_type)[0];
 	float rho_i = operand[2]->evaluate(i,eval_type)[0];
-	auto contribute = [&A_i, &m_i, &rho_i, &eval_type, this](pmTensor const& pos_i, pmTensor const& pos_j, int const& i, int const& j, float const& cell_size)->pmTensor{
+	auto contribute = [&A_i, &m_i, &rho_i, &eval_type, this](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size)->pmTensor{
 		pmTensor contribution;
 		if(i!=j || OP_TYPE==SAMPLE) {
-			pmTensor r_ji = pos_j-pos_i;
-			float d_ji = r_ji.norm();
+			// pmTensor rel_pos = pos_j-pos_i;
+			float d_ji = rel_pos.norm();
 			if(d_ji < cell_size && (d_ji > 1e-6f || OP_TYPE==SAMPLE)) {
 				pmTensor A_j = operand[0]->evaluate(j,eval_type);
 				float m_j = operand[1]->evaluate(j,eval_type)[0];
 				float rho_j = operand[2]->evaluate(j,eval_type)[0];
 				float W_ij = kernel->evaluate(d_ji, cell_size);
-				contribution += this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, r_ji, d_ji, W_ij);
+				contribution += this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
 			}
 		}
 		return contribution;
@@ -185,14 +185,14 @@ pmTensor pmSph_operator<OP_TYPE,VAR,K>::evaluate(pmTensor const& pos_i, Eval_typ
 	if(OP_TYPE!=SAMPLE) { pLogger::error_msgf("Not supported for nodes out of particle system.\n", op_name.c_str()); }
 	auto contribute = [&pos_i, &eval_type, this](pmTensor const& pos_j, int const& j, float const& cell_size)->pmTensor{
 		pmTensor contribution;
-		pmTensor r_ji = pos_j-pos_i;
-		float d_ji = r_ji.norm();
+		pmTensor rel_pos = pos_j-pos_i;
+		float d_ji = rel_pos.norm();
 		if(d_ji < cell_size && (d_ji > 1e-6f || OP_TYPE==SAMPLE)) {
 			pmTensor A_j = operand[0]->evaluate(j,eval_type);
 			float m_j = operand[1]->evaluate(j,eval_type)[0];
 			float rho_j = operand[2]->evaluate(j,eval_type)[0];
 			float W_ij = kernel->evaluate(d_ji, cell_size);
-			contribution += this->process(A_j, A_j, rho_j, rho_j, m_j, m_j, r_ji, d_ji, W_ij);
+			contribution += this->process(A_j, A_j, rho_j, rho_j, m_j, m_j, rel_pos, d_ji, W_ij);
 		}
 		return contribution;
 	};

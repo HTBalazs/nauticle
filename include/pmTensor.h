@@ -70,6 +70,7 @@ public:
 	bool is_vector() const;
 	bool is_scalar() const;
 	bool is_empty() const;
+	bool is_zero() const;
 	float productum() const;
 	float summation() const;
 	int numel() const;
@@ -232,7 +233,18 @@ inline pmTensor operator<(pmTensor const& lhs, pmTensor const& rhs) {
 	}
 	return pmTensor{1,1,(float)(lhs[0] < rhs[0])};
 }
-
+inline bool operator==(pmTensor const& lhs, pmTensor const& rhs) {
+	if(lhs.numel() == rhs.numel()) {
+		for(int i=0; i<lhs.numel(); i++) {
+			if(lhs[i] != rhs[i]) {
+				return false;
+			}
+		}
+		return true;
+	} else {
+		return false;
+	}
+}
 
 
 
@@ -385,6 +397,14 @@ inline pmTensor trunc(pmTensor const& tensor) {
 	pmTensor tmp{tensor};
 	for(int i=0; i<tmp.numel(); i++) {
 		tmp[i] = std::trunc(tmp[i]);
+	}
+	return tmp;
+}
+
+inline pmTensor round(pmTensor const& tensor) {
+	pmTensor tmp{tensor};
+	for(int i=0; i<tmp.numel(); i++) {
+		tmp[i] = std::round(tmp[i]);
 	}
 	return tmp;
 }

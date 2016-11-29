@@ -56,7 +56,8 @@ class pmParticle_system final : public pmField {
 		pmParticle_space& operator=(pmParticle_space&& other);
 		void expire();
 		bool is_up_to_date() const;
-		void sort_index(std::vector<pmTensor> const& current_value, std::vector<int>& idx);
+		void restrict_particles(std::vector<pmTensor>& current_value, std::vector<pmTensor>& previous_value, bool const& two_step) const;
+		void update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& idx);
 		std::vector<unsigned int> const& get_start() const;
 		std::vector<unsigned int> const& get_end() const;
 		int get_hash_key(int const& i) const;
@@ -68,7 +69,6 @@ class pmParticle_system final : public pmField {
 		void set_number_of_nodes(size_t const& N);
 	};
 	std::shared_ptr<pmParticle_space> particle_space;
-
 protected:
 	virtual std::shared_ptr<pmExpression> clone_impl() const override;
 public:
@@ -92,6 +92,5 @@ inline std::ostream& operator<<(std::ostream& os, pmParticle_system const* obj) 
 	obj->write_to_string(os);
 	return os;
 }
-
 
 #endif //_PARTICLE_SYSTEM_H_
