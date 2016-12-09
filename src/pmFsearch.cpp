@@ -17,30 +17,29 @@
 
     For more information please visit: https://BalazsToth@bitbucket.org/BalazsToth/lemps
 */
-    
-#ifndef _FMEAN_H_
-#define _FMEAN_H_
 
 #include "pmFsearch.h"
 
-class pmFmean : public pmFsearch {
-	std::shared_ptr<pmExpression> clone_impl() const;
-private:
-	void process(pmTensor& value, Eval_type eval_type=current) const override;
-public:
-	pmFmean(std::shared_ptr<pmExpression>);
-	pmFmean(pmFmean const& other);
-	pmFmean(pmFmean&& other);
-	pmFmean& operator=(pmFmean const& other);
-	pmFmean& operator=(pmFmean&& other);
-	std::shared_ptr<pmFmean> clone() const;
-	void print() const;
-	virtual void write_to_string(std::ostream& os) const override;
-};
+pmTensor pmFsearch::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
+    // std::mutex m;
+    // std::lock_guard<std::mutex> lg{m};
+    // process(value, eval_type);
+    // done = true;
+    // pmTensor value{1,1};
+    // value = process(eval_type);
+    // result += value;
+    // while(!thr.done()) {}
+    // return result;
 
-inline std::ostream& operator<<(std::ostream& os, pmFmean const* obj) {
-	obj->write_to_string(os);
-	return os;
+	static pmTensor value{1,1};
+	if(i==0) {
+		process(value, eval_type);
+	}
+	return value;
 }
-
-#endif //_FMEAN_H_
+int pmFsearch::get_field_size() const {
+	return 1;
+}
+bool pmFsearch::is_assigned() const {
+	return true;
+}

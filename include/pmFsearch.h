@@ -17,30 +17,22 @@
 
     For more information please visit: https://BalazsToth@bitbucket.org/BalazsToth/lemps
 */
-    
-#ifndef _FMEAN_H_
-#define _FMEAN_H_
 
-#include "pmFsearch.h"
+#ifndef _FSEARCH_H_
+#define _FSEARCH_H_
 
-class pmFmean : public pmFsearch {
-	std::shared_ptr<pmExpression> clone_impl() const;
+#include "pmInteraction.h"
+
+class pmFsearch : public pmInteraction<1> {
+    bool done = false;
+    pmTensor result;
 private:
-	void process(pmTensor& value, Eval_type eval_type=current) const override;
+	virtual void process(pmTensor& value, Eval_type eval_type=current) const=0;
 public:
-	pmFmean(std::shared_ptr<pmExpression>);
-	pmFmean(pmFmean const& other);
-	pmFmean(pmFmean&& other);
-	pmFmean& operator=(pmFmean const& other);
-	pmFmean& operator=(pmFmean&& other);
-	std::shared_ptr<pmFmean> clone() const;
-	void print() const;
-	virtual void write_to_string(std::ostream& os) const override;
+	virtual ~pmFsearch() {}
+	int get_field_size() const override;
+	bool is_assigned() const override;
+	pmTensor evaluate(int const& i, Eval_type eval_type=current) const override;
 };
 
-inline std::ostream& operator<<(std::ostream& os, pmFmean const* obj) {
-	obj->write_to_string(os);
-	return os;
-}
-
-#endif //_FMEAN_H_
+#endif //_FSEARCH_H_

@@ -21,10 +21,12 @@
 #ifndef _FMAX_H_
 #define _FMAX_H_
 
-#include "pmInteraction.h"
+#include "pmFsearch.h"
 
-class pmFmax : public pmInteraction<1> {
+class pmFmax : public pmFsearch {
 	std::shared_ptr<pmExpression> clone_impl() const;
+private:
+	void process(pmTensor& value, Eval_type eval_type=current) const override;
 public:
 	pmFmax(std::shared_ptr<pmExpression>);
 	pmFmax(pmFmax const& other);
@@ -33,9 +35,6 @@ public:
 	pmFmax& operator=(pmFmax&& other);
 	std::shared_ptr<pmFmax> clone() const;
 	void print() const;
-	pmTensor evaluate(int const& i, Eval_type eval_type/*=current*/) const;
-	int get_field_size() const override;
-	bool is_assigned() const override;
 	virtual void write_to_string(std::ostream& os) const override;
 };
 

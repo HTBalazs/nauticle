@@ -181,7 +181,7 @@ float pmKernel::Wp32220(float const& distance, float const& cell_size) const {
 float pmKernel::Wp32230(float const& distance, float const& cell_size) const {
 	float h = cell_size/2;
 	float q = distance/h;
-	float coeff = coeff = 1.0f/constant_pi/h/h/h;
+	float coeff = 1.0f/constant_pi/h/h/h;
 	return coeff*Wp3220_raw(q);
 }
 

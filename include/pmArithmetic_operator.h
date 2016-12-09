@@ -152,8 +152,9 @@ void pmArithmetic_operator<ARI_TYPE,S>::write_to_string(std::ostream& os) const 
 			os<<"(-"<<this->operand[0]<<")";
 			return;
 		}
+	} else {
+		os << "(" << this->operand[0] << ARI_TYPE << this->operand[1] << ")";
 	}
-	os << "(" << this->operand[0] << ARI_TYPE << this->operand[1] << ")";
 }
 
 #endif // _ARITHMOP_H_

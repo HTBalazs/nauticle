@@ -22,6 +22,7 @@
 #define _INTERACTION_H_
 
 #include <memory>
+#include <mutex>
 #include <functional>
 #include "pmOperator.h"
 #include "pmParticle_system.h"

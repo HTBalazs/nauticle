@@ -21,10 +21,12 @@
 #ifndef _FMIN_H_
 #define _FMIN_H_
 
-#include "pmInteraction.h"
+#include "pmFsearch.h"
 
-class pmFmin : public pmInteraction<1> {
+class pmFmin : public pmFsearch {
 	std::shared_ptr<pmExpression> clone_impl() const;
+private:
+	void process(pmTensor& value, Eval_type eval_type=current) const override;
 public:
 	pmFmin(std::shared_ptr<pmExpression>);
 	pmFmin(pmFmin const& other);
@@ -33,9 +35,6 @@ public:
 	pmFmin& operator=(pmFmin&& other);
 	std::shared_ptr<pmFmin> clone() const;
 	void print() const;
-	pmTensor evaluate(int const& i, Eval_type eval_type/*=current*/) const;
-	int get_field_size() const override;
-	bool is_assigned() const override;
 	virtual void write_to_string(std::ostream& os) const override;
 };
 

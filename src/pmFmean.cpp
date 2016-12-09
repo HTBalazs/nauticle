@@ -55,24 +55,13 @@ void pmFmean::print() const {
 	operand[0]->print();
 	pLogger::logf<COLOR>(")");
 }
-pmTensor pmFmean::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
-	static pmTensor mean_value{1,1,0};
-	if(i!=0) return mean_value;
-
-	mean_value = operand[0]->evaluate(0, eval_type);
+void pmFmean::process(pmTensor& value, Eval_type eval_type/*=current*/) const {
+	value = operand[0]->evaluate(0, eval_type);
 	int num_points = operand[0]->get_field_size();
 	for(int j=1; j<num_points; j++) {
-		mean_value += operand[0]->evaluate(j, eval_type);
+		value += operand[0]->evaluate(j, eval_type);
 	}
-	mean_value/=pmTensor{1,1,(float)num_points};
-
-	return mean_value;
-}
-int pmFmean::get_field_size() const {
-	return 1;
-}
-bool pmFmean::is_assigned() const {
-	return true;
+	value/=pmTensor{1,1,(float)num_points};
 }
 void pmFmean::write_to_string(std::ostream& os) const {
 	os << "fmean(" << operand[0] << ")";
