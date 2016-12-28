@@ -34,7 +34,7 @@ template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K>
 class pmSph_operator : public pmSph<4> {
 	std::string op_name;
 private:
-	std::shared_ptr<pmExpression> clone_impl() const;
+	std::shared_ptr<pmExpression> clone_impl() const override;
 public:
 	pmSph_operator() {}
 	pmSph_operator(std::array<std::shared_ptr<pmExpression>,4> op);

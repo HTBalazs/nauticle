@@ -19,6 +19,7 @@
 */
 
 #include "pmWorkspace.h"
+#include <numeric>
 
 std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "domain_min", "domain_max", "cell_size"};
 

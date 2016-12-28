@@ -24,7 +24,7 @@
 #include "pmFsearch.h"
 
 class pmFmin : public pmFsearch {
-	std::shared_ptr<pmExpression> clone_impl() const;
+	std::shared_ptr<pmExpression> clone_impl() const override;
 private:
 	void process(pmTensor& value, Eval_type eval_type=current) const override;
 public:
@@ -34,7 +34,7 @@ public:
 	pmFmin& operator=(pmFmin const& other);
 	pmFmin& operator=(pmFmin&& other);
 	std::shared_ptr<pmFmin> clone() const;
-	void print() const;
+	void print() const override;
 	virtual void write_to_string(std::ostream& os) const override;
 };
 

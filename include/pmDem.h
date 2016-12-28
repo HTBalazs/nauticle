@@ -29,7 +29,7 @@
 */
 class pmDem : public pmInteraction<6> {
 private:
-	std::shared_ptr<pmExpression> clone_impl() const;
+	std::shared_ptr<pmExpression> clone_impl() const override;
 public:
 	pmDem() {}
 	pmDem(std::array<std::shared_ptr<pmExpression>,6> op);

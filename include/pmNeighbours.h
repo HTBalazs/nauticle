@@ -25,7 +25,7 @@
 #include "prolog/pLogger.h"
 
 class pmNeighbours : public pmInteraction<0> {
-	std::shared_ptr<pmExpression> clone_impl() const;
+	std::shared_ptr<pmExpression> clone_impl() const override;
 public:
 	pmNeighbours() {}
 	pmNeighbours(std::array<std::shared_ptr<pmExpression>,0> op);

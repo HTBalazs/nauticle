@@ -18,8 +18,8 @@
     For more information please visit: https://BalazsToth@bitbucket.org/BalazsToth/lemps
 */
 
-#ifndef _NBODY_H_
-#define _NBODY_H_
+#ifndef _FEM_INTERFACE_H_
+#define _FEM_INTERFACE_H_
 
 #include <iostream>
 #include <memory>
@@ -27,23 +27,23 @@
 #include "pmInteraction.h"
 #include "pmTensor.h"
 
-class pmNbody : public pmInteraction<2> {
+class pmFem_interface : public pmInteraction<1> {
 private:
-	std::shared_ptr<pmExpression> clone_impl() const override;
+	std::shared_ptr<pmExpression> clone_impl() const;
 public:
-	pmNbody() {}
-	pmNbody(std::array<std::shared_ptr<pmExpression>,2> op);
-	pmNbody(pmNbody const& other);
-	pmNbody(pmNbody&& other);
-	pmNbody& operator=(pmNbody const& other);
-	pmNbody& operator=(pmNbody&& other);
-	virtual ~pmNbody() {}
+	pmFem_interface() {}
+	pmFem_interface(std::array<std::shared_ptr<pmExpression>,1> op);
+	pmFem_interface(pmFem_interface const& other);
+	pmFem_interface(pmFem_interface&& other);
+	pmFem_interface& operator=(pmFem_interface const& other);
+	pmFem_interface& operator=(pmFem_interface&& other);
+	virtual ~pmFem_interface() {}
 	void print() const override;
 	pmTensor process(pmTensor const& A_i, pmTensor const& A_j, float const& rho_i, float const& rho_j, float const& m_i, float const& m_j, pmTensor const& r_ji, float const& d_ji, float const& W_ij) const;
 	pmTensor evaluate(int const& i, Eval_type eval_type/*=current*/) const override;
-	std::shared_ptr<pmNbody> clone() const;
+	std::shared_ptr<pmFem_interface> clone() const;
 	virtual void write_to_string(std::ostream& os) const override;
 	int get_field_size() const override;
 };
 
-#endif // _NBODY_H_
+#endif // _FEM_INTERFACE_H_

@@ -78,6 +78,7 @@ pmTensor::pmTensor(pmTensor&& other) {
 		case 9: return pmTensor{3,3,0};
 		default: pLogger::error_msgf("Cannot create tensor with %i components.\n", num_components); break;
 	}
+	return pmTensor{1,1,0};
 }
 
 /*static*/ pmTensor pmTensor::Tensor11() {

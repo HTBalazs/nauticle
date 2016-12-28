@@ -180,7 +180,7 @@ void pmField::set_number_of_nodes(size_t const& N) {
 }
 
 pmTensor pmField::interpolate(pmTensor const& position) const {
-	
+	return pmTensor{1,1,0};
 }
 
 void pmField::write_to_string(std::ostream& os) const {

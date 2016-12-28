@@ -21,16 +21,6 @@
 #include "pmFsearch.h"
 
 pmTensor pmFsearch::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
-    // std::mutex m;
-    // std::lock_guard<std::mutex> lg{m};
-    // process(value, eval_type);
-    // done = true;
-    // pmTensor value{1,1};
-    // value = process(eval_type);
-    // result += value;
-    // while(!thr.done()) {}
-    // return result;
-
 	static pmTensor value{1,1};
 	if(i==0) {
 		process(value, eval_type);

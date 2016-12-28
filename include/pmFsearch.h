@@ -24,8 +24,6 @@
 #include "pmInteraction.h"
 
 class pmFsearch : public pmInteraction<1> {
-    bool done = false;
-    pmTensor result;
 private:
 	virtual void process(pmTensor& value, Eval_type eval_type=current) const=0;
 public:

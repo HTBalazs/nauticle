@@ -45,7 +45,7 @@ protected:
 	pmOperator& operator=(pmOperator const& other);
 	pmOperator& operator=(pmOperator&& other);
 	virtual ~pmOperator() override {};
-	virtual void double_steps(bool const&);
+	virtual void double_steps(bool const&) override;
 	virtual int get_field_size() const override;
 	void assign(std::weak_ptr<pmParticle_system> ps) override;
 	bool is_assigned() const override;

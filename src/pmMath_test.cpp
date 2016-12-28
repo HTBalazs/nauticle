@@ -52,7 +52,7 @@ bool pmMath_test::is_operator(char const& s) const {
 /// Checks if the given character is a letter.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmMath_test::is_letter(char const& c) const {
-	return (c>='a' && c<='z') || (c>='A' && c<='Z' || c=='_');
+	return (c>='a' && c<='z') || ((c>='A' && c<='Z') || c=='_');
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the given character is a letter or digit.
