@@ -131,13 +131,12 @@ void pmCase::print() const {
 /// Writes case data to file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::write_step() const {
-	std::string file_name = "step_";
 	static int counter=0;
     char ch[4];
-    sprintf(ch, "%04i", counter);
+    sprintf(&ch[0], "%04i", counter);
+	std::string file_name{"step_"};
     file_name += ch;
     file_name += ".vtk";
-
     std::unique_ptr<pmVTK_writer> vtk_writer{new pmVTK_writer{}};
     vtk_writer->set_function_space(function_space);
     vtk_writer->set_file_name(file_name);

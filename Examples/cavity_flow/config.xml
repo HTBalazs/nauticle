@@ -4,46 +4,74 @@
 		<workspace>
 			<particle_system>
 				<cell_size value="csize"/>
-				<domain min="-xsize/2/csize-5|-ysize/2/csize-5" max="xsize/2/csize+5|3*ysize/csize+5"/>
+				<domain min="-xsize/2/csize|-ysize/2/csize-5" max="xsize/2/csize|ysize/2/csize+5"/>
 				<grid>
 					<gid value="0"/>
-					<gpos value="-xsize/2|-ysize/2"/>
-					<gsize value="0.7|0.9"/>
+					<gpos value="-xsize/2|0"/>
+					<gsize value="xsize|ysize/2"/>
 					<goffset value="0|0"/>
 					<gip_dist value="dx|dx"/>
 				</grid>
 				<grid>
-					<gid value="1"/>
-					<gpos value="-xsize/2-csize|-ysize/2-csize"/>
-					<gsize value="csize|ysize*3+2*csize"/>
+					<gid value="0"/>
+					<gpos value="-xsize/4|-ysize/2+csize"/>
+					<gsize value="xsize/2|ysize/2-csize"/>
 					<goffset value="0|0"/>
 					<gip_dist value="dx|dx"/>
 				</grid>
+<!-- 				<grid>
+					<gid value="2"/>
+					<gpos value="-xsize/4|-csize/2"/>
+					<gsize value="xsize/2|csize/2"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid> -->
 				<grid>
 					<gid value="1"/>
-					<gpos value="-xsize/2|-ysize/2-csize"/>
+					<gpos value="-xsize/2|ysize/2"/>
 					<gsize value="xsize|csize"/>
 					<goffset value="0|0"/>
 					<gip_dist value="dx|dx"/>
 				</grid>
 				<grid>
 					<gid value="1"/>
-					<gpos value="xsize/2|-ysize/2-csize"/>
-					<gsize value="csize|ysize*3+2*csize"/>
+					<gpos value="-xsize/2|-csize"/>
+					<gsize value="xsize/4-csize|csize"/>
 					<goffset value="0|0"/>
 					<gip_dist value="dx|dx"/>
 				</grid>
 				<grid>
 					<gid value="1"/>
-					<gpos value="xsize/4*0.8|-ysize/2"/>
-					<gsize value="csize|ysize/2*0.65"/>
+					<gpos value="-xsize/4-csize|-ysize/2"/>
+					<gsize value="csize|ysize/2"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<grid>
+					<gid value="1"/>
+					<gpos value="-xsize/4|-ysize/2"/>
+					<gsize value="xsize/2|csize"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<grid>
+					<gid value="1"/>
+					<gpos value="xsize/4|-ysize/2"/>
+					<gsize value="csize|ysize/2"/>
+					<goffset value="0|0"/>
+					<gip_dist value="dx|dx"/>
+				</grid>
+				<grid>
+					<gid value="1"/>
+					<gpos value="xsize/4+csize|-csize"/>
+					<gsize value="xsize/4-csize|csize"/>
 					<goffset value="0|0"/>
 					<gip_dist value="dx|dx"/>
 				</grid>
 			</particle_system>
 			<fields>
 				<a value="0|0"/>
-				<v value="0|0"/>
+				<v value="if(gid,0,if(gt(elem(r,0,1),0),2,0))|0"/>
 				<rho value="rho0"/>
 				<rho_dot value="0"/>
 				<p value="0"/>
@@ -56,7 +84,7 @@
 				<h value="csize/2"/>
 				<rho0 value="1000"/>
 				<mass value="dx^2*rho0"/>
-				<g value="0|-9.81"/>
+				<g value="1|0"/>
 				<c value="10*sqrt(magnitude(g)*0.9*2)"/>
 				<CFL value="0.2"/>
 			</constants>
@@ -69,7 +97,7 @@
 	    	<time value="T=T+dt"/>
 	    	<continuity value="rho_dot=-rho*sph_D00(v,mass,rho,Wp52220)+0.1*c*h*sph_L00(rho,mass,rho,Wp52220)"/>
 	    	<irho value="rho=rho+int1(rho_dot,dt)"/>
-	    	<EOS value="p=c^2*(rho-rho0)"/>
+	    	<EOS value="p=c^2*(rho-rho0)+10000"/>
 	    	<euler value="a=if(gid,0*v,-1/rho*sph_G11(p,mass,rho,Wp52220)+0.01*sph_L00(v,mass,rho,Wp52220)+g)"/>
 	    	<vel value="v=v+int1(a,dt)"/>
 	    	<pos value="r=r+int1(v,dt)"/>
