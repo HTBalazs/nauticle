@@ -106,7 +106,7 @@ void pmCase::simulate(size_t const& num_threads) {
 		print_interval = calculate_print_interval();
 		current_time += dt;
 		substeps++;
-		if(current_time > previous_time+print_interval) {
+		if(current_time > previous_time+print_interval-dt/10.0) {
 			write_step();
 			n++;
 			all_steps+=substeps;
