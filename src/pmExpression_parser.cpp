@@ -426,6 +426,11 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<GT,2>>(operands));
 			}
+			if(it=="equal") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<EQUAL,2>>(operands));
+			}
 			if(it=="min") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
