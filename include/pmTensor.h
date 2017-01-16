@@ -71,6 +71,8 @@ public:
 	bool is_scalar() const;
 	bool is_empty() const;
 	bool is_zero() const;
+	bool is_square() const;
+	bool is_singular() const;
 	float productum() const;
 	float summation() const;
 	int numel() const;
@@ -88,6 +90,11 @@ public:
 	static pmTensor make_tensor(pmTensor const& base, float const& value);
 	static pmTensor make_identity(int const& size);
 	void write_to_string(std::ostream& os) const;
+	pmTensor sub_tensor(int rmin, int rmax, int cmin, int cmax) const;
+	pmTensor sub_tensor(int r, int c) const;
+	pmTensor determinant() const;
+	pmTensor adjugate() const;
+	pmTensor inverse() const;
 };
 
 inline std::ostream& operator<<(std::ostream& os, pmTensor const* obj) {

@@ -219,7 +219,7 @@ int pmTensor::get_numcols() const {
 /// Implements indexing with () brackets.
 /////////////////////////////////////////////////////////////////////////////////////////
 float pmTensor::operator()(int const& i, int const& j) const {
-	if(i*columns+j>=numel()) { return float{0}; }
+	if(i*columns+j>=numel() || i>=rows || j>=columns) { return float{0}; }
 	return elements[i*columns+j];
 }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -284,6 +284,20 @@ bool pmTensor::is_zero() const {
 		}
 	}
 	return true;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Checks if the tensor is square (numcols=numrows)
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmTensor::is_square() const {
+	return rows==columns;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Checks if the tensor is singular.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmTensor::is_singular() const {
+	pmTensor det = determinant();
+	if(det.is_empty()) { return true; }
+	return std::abs(det[0])<1e-12f;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Converts vector to row. If the object is scalar or tensor, it does nothing.
@@ -357,6 +371,90 @@ pmTensor pmTensor::trace() const {
 		tensor[0] += (*this)(i,i);
 	}
 	return tensor;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the subtensor given by the ranges. If ranges are invalid, it returns an empty
+/// tensor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmTensor::sub_tensor(int rmin, int rmax, int cmin, int cmax) const {
+	if(rmin<0 || cmin<0 || rmax>=rows || cmax>=columns || rmax<rmin || cmax<cmin) { return pmTensor{0,0}; }
+	int scolumns = cmax-cmin+1;
+	int srows = rmax-rmin+1;
+	pmTensor tensor{srows,scolumns,0};
+	int sidx = 0;
+	for(int i=rmin; i<=rmax; i++) {
+		for(int j=cmin; j<=cmax; j++, sidx++) {
+			tensor.elements[sidx] = this->operator()(i,j);
+		}
+	}
+	return tensor;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the subtensor without the r row and c column.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmTensor::sub_tensor(int r, int c) const {
+	if(r<0 || c<0 || r>=rows || c>=columns) { return pmTensor{0,0}; }
+	pmTensor tensor{rows-1,columns-1,0};
+	int sidx = 0;
+	for(int i=0; i<rows; i++) {
+		if(i==r) { continue; }
+		for(int j=0; j<columns; j++) {
+			if(j==c) { continue; }
+			tensor.elements[sidx] = this->operator()(i,j);
+			sidx++;
+		}
+	}
+	return tensor;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the determinant of the tensor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmTensor::determinant() const {
+	if(!is_square() || is_empty()) { 
+		pLogger::error_msgf("Matrix is not square, determinant does not exist.\n");
+		return pmTensor{0,0};
+	}
+	if(numel()==1) { return elements[0]; }
+	if(numel()==4) { return elements[0]*elements[3]-elements[1]*elements[2]; }
+	pmTensor det{1,1,0};
+	int sign = 1;
+	for(int i=0; i<rows; i++) {
+		det += sign*this->operator()(i,0)*sub_tensor(i,0).determinant();
+		sign = -sign;
+	}
+	return det;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the adjugate of the tensor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmTensor::adjugate() const {
+	if(!is_square() || is_empty()) {
+		pLogger::error_msgf("Matrix is not square, adjugate does not exist.\n");
+		return pmTensor{0,0};
+	}
+	pmTensor tensor{rows, columns, 0};
+	for(int i=0; i<rows; i++) {
+		for(int j=0; j<columns; j++) {
+			tensor[i*columns+j] = ((i%2)*2-1)*((j%2)*2-1)*sub_tensor(i,j).determinant()[0];
+		}
+	}
+	return tensor.transpose();
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the inverse of the tensor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmTensor::inverse() const {
+	if(!is_square() || is_empty()) { 
+		pLogger::error_msgf("Matrix is not square, inverse does not exist.\n");
+		return pmTensor{0,0};
+	}
+	if(numel()==1) { return 1/elements[0]; }
+	if(is_singular()) { 
+		pLogger::warning_msgf("Matrix is singular, inverse cannot be calculated with real values. Identity is returned.\n");
+		return make_identity(columns);
+	}
+	pmTensor inv;
+	return 1.0f/determinant()*adjugate();
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints tensor content.

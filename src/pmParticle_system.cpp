@@ -100,6 +100,7 @@ void pmParticle_system::print() const {
 void pmParticle_system::printv() const {
 	print();
 	pLogger::logf("   ");
+	pLogger::logf<LMA>("[%i by %i]   ", this->evaluate(0).get_numrows(), this->evaluate(0).get_numcols());
 	particle_space->print();
 }
 /////////////////////////////////////////////////////////////////////////////////////////

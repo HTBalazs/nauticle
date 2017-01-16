@@ -26,7 +26,7 @@
 #include "pmRandom.h"
 #include "prolog/pLogger.h"
 
-enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, IF, INT1, INT2, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY};
+enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, IF, INT1, INT2, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE};
 
 /** This class implements the following operations for the expression tree: summation, subtraction,
 //  multiplication, division, power, term-by-term product for two operands furthermore summation and 
@@ -92,6 +92,8 @@ pmArithmetic_function<ARI_TYPE,S>::pmArithmetic_function(std::array<std::shared_
 		case TRUNC : op_name="trunc"; break;
 		case XOR : op_name="xor"; break;
 		case IDENTITY : op_name="identity"; break;
+		case DETERMINANT : op_name="determinant"; break;
+		case INVERSE : op_name="inverse"; break;
 	}
 }
 template <Ari_fn_type ARI_TYPE, size_t S>
@@ -194,6 +196,8 @@ pmTensor pmArithmetic_function<ARI_TYPE,S>::evaluate(int const& i, Eval_type eva
 		case TRANSPOSE : return this->operand[0]->evaluate(i, eval_type).transpose();
 		case TRUNC : return trunc(this->operand[0]->evaluate(i, eval_type));
 		case XOR : return (this->operand[0]->evaluate(i, eval_type) != this->operand[1]->evaluate(i, eval_type));
+		case DETERMINANT : return this->operand[0]->evaluate(i, eval_type).determinant();
+		case INVERSE : return this->operand[0]->evaluate(i, eval_type).inverse();
 		case IDENTITY : {
 							pmTensor t3 = this->operand[0]->evaluate(i, eval_type);
 							if(!t3.is_scalar()) { pLogger::error_msgf("Not scalar in identity.\n"); }

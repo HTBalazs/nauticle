@@ -511,7 +511,16 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<IDENTITY,1>>(operands));
-
+			}
+			if(it=="determinant") {
+				std::array<std::shared_ptr<pmExpression>,1> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<DETERMINANT,1>>(operands));
+			}
+			if(it=="inverse") {
+				std::array<std::shared_ptr<pmExpression>,1> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<INVERSE,1>>(operands));
 			}
 			if(it=="neighbours") {
 				e.push(std::make_shared<pmNeighbours>());
