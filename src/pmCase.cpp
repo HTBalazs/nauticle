@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Balazs Toth
+    Copyright 2017 Balazs Toth
     This file is part of LEMPS.
 
     LEMPS is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 */
     
 #include "pmCase.h"
+#include "pmLog_stream.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Reads the configureation file.
@@ -86,7 +87,7 @@ float pmCase::calculate_print_interval() const {
 void pmCase::simulate(size_t const& num_threads) {
 	size_t max_num_threads = std::thread::hardware_concurrency();
 	pLogger::logf<LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
-	pLogger::pLog_stream log_stream{};
+	pmLog_stream log_stream{};
 	log_stream.print_start();
 	float current_time=0;
 	float previous_time=0;
