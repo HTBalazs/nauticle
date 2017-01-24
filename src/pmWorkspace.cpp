@@ -21,7 +21,7 @@
 #include "pmWorkspace.h"
 #include <numeric>
 
-std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "domain_min", "domain_max", "cell_size"};
+std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -42,6 +42,8 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("Wp52210", pmTensor{1,1,6}, true);
 	this->add_constant("Wp52220", pmTensor{1,1,7}, true);
 	this->add_constant("Wp52230", pmTensor{1,1,8}, true);
+	this->add_constant("ASCII", pmTensor{1,1,0}, true);
+	this->add_constant("BINARY", pmTensor{1,1,1}, true);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.

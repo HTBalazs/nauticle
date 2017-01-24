@@ -97,7 +97,7 @@ pmTensor pmParameter_space::get_parameter_value(std::string const& n) const {
 		}
 	}
 	pLogger::warning_msgf("No such parameter: \"%s\"\n", n.c_str());
-	return pmTensor{1};
+	return pmTensor{1,1,0};
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the content of the parameter space.

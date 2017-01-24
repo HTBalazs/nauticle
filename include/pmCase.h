@@ -43,6 +43,7 @@ class pmCase final {
 private:
 	std::shared_ptr<pmFunction_space> function_space;
 	std::shared_ptr<pmParameter_space> parameter_space;
+	write_mode vtk_write_mode = ASCII;
 	void print() const;
 	float calculate_print_interval() const;
 	void simulate(size_t const& num_threads);

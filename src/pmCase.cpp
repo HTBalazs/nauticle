@@ -29,6 +29,7 @@ void pmCase::read_file(std::string const& filename) {
 	xml_loader->read_file(filename);
 	function_space = xml_loader->get_function_space();
 	parameter_space = xml_loader->get_parameter_space(function_space->get_workspace());
+	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	pLogger::log<LCY>("  Case initialization is completed.\n");
 	pLogger::footer<LCY>();
 	pLogger::line_feed(1);
@@ -139,6 +140,7 @@ void pmCase::write_step() const {
     file_name += ch;
     file_name += ".vtk";
     std::unique_ptr<pmVTK_writer> vtk_writer{new pmVTK_writer{}};
+    vtk_writer->set_write_mode(vtk_write_mode);
     vtk_writer->set_function_space(function_space);
     vtk_writer->set_file_name(file_name);
     vtk_writer->update();
