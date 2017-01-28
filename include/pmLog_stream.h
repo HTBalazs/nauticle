@@ -25,9 +25,11 @@
 
 class pmLog_stream {
 	std::unique_ptr<pTimer> timer;
+    int num_steps=0;
+    int num_total_steps=0;
 public:
 	pmLog_stream();
-	void print_step_info(int const& steps, float const& dt, int const& substeps, int const& all_steps, float const& current_time, float const& progress) const;
+	void print_step_info(int const& steps, float const& dt, int const& substeps, int const& all_steps, float const& current_time, float const& progress);
 	void print_substep_info(float const& dt, int const& substeps) const;
 	void print_finish(bool const& confirm) const;
 	void print_start() const;

@@ -25,7 +25,7 @@ using namespace pLogger;
 pmLog_stream::pmLog_stream() {
 	timer = std::unique_ptr<pTimer>{new pTimer{}};
 }
-void pmLog_stream::print_step_info(int const& steps, float const& dt, int const& substeps, int const& all_steps, float const& current_time, float const& progress) const {
+void pmLog_stream::print_step_info(int const& steps, float const& dt, int const& substeps, int const& all_steps, float const& current_time, float const& progress) {
 	static int counter = 51;
 
 	if(counter==51) {
@@ -55,16 +55,28 @@ void pmLog_stream::print_step_info(int const& steps, float const& dt, int const&
 	logf<WHT>(" %5i   %1.3e      %5i      %6i   %.3f   %06.2f   %02i.%02i.%4i %02i:%02i\n", steps, (double)dt, substeps, all_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
 	timer->tic();
 	counter++;
+	num_steps++;
+	num_total_steps=all_steps;
 }
 void pmLog_stream::print_substep_info(float const& dt, int const& substeps) const {
 	logf<MAG>(" %5i   %1.3e\n", substeps, dt);
 }
 void pmLog_stream::print_finish(bool const& confirm) const {
 	struct tm finish = timer->get_current();
+	struct tm start = timer->get_start();
 	footerf<MAG>();
 	logf<LMA>("                         System time: %02i.%02i.%4i %02i:%02i\n", finish.tm_mday, finish.tm_mon+1, finish.tm_year+1900, finish.tm_hour, finish.tm_min);
 	footerf<MAG>();
 	logf<LGN>("\n  Calculation is successfully finished.\n");
+	footer<LGN>();
+	logf<LGN>("   Simulation summary:\n");
+	logf<LGN>("     Start                       :   %02i.%02i.%4i %02i:%02i\n", start.tm_mday, start.tm_mon+1, start.tm_year+1900, start.tm_hour, start.tm_min);
+	logf<LGN>("     End                         :   %02i.%02i.%4i %02i:%02i\n", finish.tm_mday, finish.tm_mon+1, finish.tm_year+1900, finish.tm_hour, finish.tm_min);
+	logf<LGN>("     Number of result files      :   %i\n", num_steps+1);
+	logf<LGN>("     Number of simulation steps  :   %i\n", num_total_steps);
+	logf<LGN>("     Number of warning messages  :   %i\n", warning_counter);
+	logf<LGN>("     Log file                    :   \"%s\"\n", logfile.c_str());
+	footer<LGN>();
 	if(confirm) {
 		finish_prompt<LGN>();
 		std::cin.get();
