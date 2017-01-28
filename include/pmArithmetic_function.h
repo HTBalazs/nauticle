@@ -94,7 +94,7 @@ pmArithmetic_function<ARI_TYPE,S>::pmArithmetic_function(std::array<std::shared_
 		case IDENTITY : op_name="identity"; break;
 		case DETERMINANT : op_name="determinant"; break;
 		case INVERSE : op_name="inverse"; break;
-		case EQUAL : op_name="equal"; break;
+		case EQUAL : op_name="eq"; break;
 	}
 }
 template <Ari_fn_type ARI_TYPE, size_t S>
