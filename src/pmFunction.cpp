@@ -134,3 +134,23 @@ std::shared_ptr<pmFunction> pmFunction::clone() const {
 void pmFunction::write_to_string(std::ostream& os) const {
 	os << lhs << "=" << rhs;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

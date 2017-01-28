@@ -85,7 +85,7 @@ std::string pmCommand_parser::get_arg(std::string s) {
 	static bool already_written=false;
 	if(already_written) { return; }
 	pLogger::log<WHT>("LEMPS version %i.%i\n", MAJOR_VERSION, MINOR_VERSION);
-	pLogger::log<WHT>("Copyright Balazs Toth 2016\n");
+	pLogger::log<WHT>("Copyright Balazs Toth 2016-2017\n");
 	pLogger::line_feed(1);
 	already_written = true;
 }
