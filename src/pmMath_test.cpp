@@ -20,7 +20,7 @@
 
 #include "pmMath_test.h"
 
-std::string const pmMath_test::list_of_functions[72] = {"abs", "acos", "acot", "and", "asin", "atan", "cos", "cosh", "cot", "coth", "dem", "div", "elem", "exp", "floor", "fmax", "fmean", "fmin", "grad", "gt", "if", "int1", "int2", "log", "lt", "magnitude", "max", "min", "mod", "not", "or", "rand", "sgn", "sin", "sinh", "sph_D00", "sph_D01", "sph_D10", "sph_D11", "sph_G00", "sph_G01", "sph_G10", "sph_G11", "sph_L00", "sph_S00", "sph_X00", "sqrt", "tan", "tanh", "trace", "transpose", "trunc", "xor", "identity", "neighbours", "simulation", "workspace", "function_space", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "cell_size", "grid", "functions", "nbody", "cross", "inverse", "determinant", "eq"};
+std::string const pmMath_test::list_of_functions[73] = {"abs", "acos", "acot", "and", "asin", "atan", "cos", "cosh", "cot", "coth", "dem", "div", "elem", "exp", "floor", "fmax", "fmean", "fmin", "grad", "gt", "if", "log", "lt", "magnitude", "max", "min", "mod", "not", "or", "rand", "sgn", "sin", "sinh", "sph_D00", "sph_D01", "sph_D10", "sph_D11", "sph_G00", "sph_G01", "sph_G10", "sph_G11", "sph_L00", "sph_S00", "sph_X00", "sqrt", "tan", "tanh", "trace", "transpose", "trunc", "xor", "identity", "neighbours", "simulation", "workspace", "function_space", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "cell_size", "grid", "functions", "nbody", "cross", "inverse", "determinant", "eq", "euler", "predictor", "corrector"};
 std::string const pmMath_test::list_of_operators[] = {	"+", "-", "*", "/", "^", "#", ":"};
 
 /////////////////////////////////////////////////////////////////////////////////////////

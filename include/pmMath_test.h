@@ -26,7 +26,7 @@
 class pmMath_test {
 protected:
 	// list of functions and operators
-	static std::string const list_of_functions[72];
+	static std::string const list_of_functions[73];
 	static std::string const list_of_operators[];
 protected:
 	virtual ~pmMath_test()=default;

@@ -446,19 +446,28 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<MOD,2>>(operands));
 			}
-			if(it=="int1") {
-				std::array<std::shared_ptr<pmExpression>,2> operands;
+			if(it=="euler") {
+				std::array<std::shared_ptr<pmExpression>,3> operands;
 				stack_extract(e, operands);
 				operands[0]->double_steps(false);
 				operands[1]->double_steps(false);
-				e.push(std::make_shared<pmArithmetic_function<INT1,2>>(operands));
+				e.push(std::make_shared<pmArithmetic_function<EULER,3>>(operands));
 			}
-			if(it=="int2") {
-				std::array<std::shared_ptr<pmExpression>,2> operands;
+			if(it=="predictor") {
+				std::array<std::shared_ptr<pmExpression>,3> operands;
 				stack_extract(e, operands);
 				operands[0]->double_steps(true);
 				operands[1]->double_steps(true);
-				e.push(std::make_shared<pmArithmetic_function<INT2,2>>(operands));
+				operands[2]->double_steps(true);
+				e.push(std::make_shared<pmArithmetic_function<PREDICTOR,3>>(operands));
+			}
+			if(it=="corrector") {
+				std::array<std::shared_ptr<pmExpression>,3> operands;
+				stack_extract(e, operands);
+				operands[0]->double_steps(true);
+				operands[1]->double_steps(true);
+				operands[2]->double_steps(true);
+				e.push(std::make_shared<pmArithmetic_function<CORRECTOR,3>>(operands));
 			}
 			if(it=="fmin") {
 				std::shared_ptr<pmExpression> operand = e.top(); e.pop();

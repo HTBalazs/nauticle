@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Balazs Toth
+    0000 2017 Balazs Toth
     This file is part of LEMPS.
 
     LEMPS is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #include "pmRandom.h"
 #include "prolog/pLogger.h"
 
-enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, IF, INT1, INT2, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL};
+enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, IF, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, EULER, PREDICTOR, CORRECTOR};
 
 /** This class implements the following operations for the expression tree: summation, subtraction,
 //  multiplication, division, power, term-by-term product for two operands furthermore summation and 
@@ -70,8 +70,6 @@ pmArithmetic_function<ARI_TYPE,S>::pmArithmetic_function(std::array<std::shared_
 		case FLOOR : op_name="floor"; break;
 		case GT : op_name="gt"; break;
 		case IF : op_name="if"; break;
-		case INT1 : op_name="int1"; break;
-		case INT2 : op_name="int2"; break;
 		case LOG : op_name="log"; break;
 		case LT : op_name="lt"; break;
 		case MAGNITUDE : op_name="magnitude"; break;
@@ -95,6 +93,9 @@ pmArithmetic_function<ARI_TYPE,S>::pmArithmetic_function(std::array<std::shared_
 		case DETERMINANT : op_name="determinant"; break;
 		case INVERSE : op_name="inverse"; break;
 		case EQUAL : op_name="eq"; break;
+		case EULER : op_name="euler"; break;
+		case PREDICTOR : op_name="predictor"; break;
+		case CORRECTOR : op_name="corrector"; break;
 	}
 }
 template <Ari_fn_type ARI_TYPE, size_t S>
@@ -177,8 +178,6 @@ pmTensor pmArithmetic_function<ARI_TYPE,S>::evaluate(int const& i, Eval_type eva
 						if(!t2.is_scalar()) { pLogger::error_msgf("Logical value should be scalar.\n"); }
 						return (bool)t2[0] ? this->operand[1]->evaluate(i, eval_type) : this->operand[2]->evaluate(i, eval_type);
 					}
-		case INT1 : return this->operand[0]->evaluate(i, current) * this->operand[1]->evaluate(i, current);
-		case INT2 : return (3*this->operand[0]->evaluate(i, current)-this->operand[0]->evaluate(i, previous)) / 2 * this->operand[1]->evaluate(i, current);
 		case LOG : return log(this->operand[0]->evaluate(i, eval_type));
 		case LT : return (this->operand[0]->evaluate(i, eval_type) < this->operand[1]->evaluate(i, eval_type));
 		case MAGNITUDE : return this->operand[0]->evaluate(i, eval_type).norm();
@@ -205,6 +204,9 @@ pmTensor pmArithmetic_function<ARI_TYPE,S>::evaluate(int const& i, Eval_type eva
 							if(!t3.is_scalar()) { pLogger::error_msgf("Not scalar in identity.\n"); }
 							return pmTensor::make_identity((int)t3[0]); 
 						}
+		case EULER : return this->operand[0]->evaluate(i, current)+this->operand[1]->evaluate(i, current) * this->operand[2]->evaluate(i, current);
+		case PREDICTOR : return this->operand[0]->evaluate(i, current)+this->operand[1]->evaluate(i, current) * this->operand[2]->evaluate(i, current);
+		case CORRECTOR : return this->operand[0]->evaluate(i, previous)+this->operand[1]->evaluate(i, current) * this->operand[2]->evaluate(i, current);
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////
