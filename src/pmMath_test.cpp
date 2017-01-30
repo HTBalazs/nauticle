@@ -65,7 +65,7 @@ bool pmMath_test::is_letter_or_digit(char const& c) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmMath_test::is_number(std::string const& s) const {
 	for(auto const& it : s) {
-		if(!is_digit(it) && it!='.') {
+		if(!is_digit(it) && it!='.' && it!='e' && it!='+' && it!='-') {
 			return false;
 		}
 	}

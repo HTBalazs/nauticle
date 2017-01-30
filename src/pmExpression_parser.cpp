@@ -95,7 +95,7 @@ std::vector<std::string> pmExpression_parser::build_table(std::string const& s) 
 	while(it!=s.cend()) {
 		if(is_digit(*it)) {
 			std::string word;
-			while((is_digit(*it) || *it=='.') && it!=s.cend()) {
+			while((is_digit(*it) || *it=='.' || *it=='e' || *it=='-' || *it=='+') && it!=s.cend()) {
 				word+=*it;
 				it++;
 			}
