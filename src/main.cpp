@@ -45,6 +45,10 @@ int main(int argc, char* argv[]) {
 				pmWorkspace::print_reserved_names();
 			} else if(cp.get_arg(i)=="-help") {
 				pmCommand_parser::print_command_list();
+			} else if(cp.get_arg(i)=="-logfile") {
+				pLogger::logfile = cp.get_arg(i+1);
+				exec = true;
+				i++;
 			} else if(cp.get_arg(i)=="-numthreads") {
 				num_threads = stoi(cp.get_arg(i+1));
 				exec = true;

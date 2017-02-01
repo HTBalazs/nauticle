@@ -74,8 +74,9 @@ std::string pmCommand_parser::get_arg(std::string s) {
 	pLogger::log<WHT>("2) -wsres                 Lists all reserved names in worksapce.\n");
 	pLogger::log<WHT>("3) -numthreads            Defines the number of threads to use.\n");
 	pLogger::log<WHT>("4) -xmlname <filename>    Defines the name of the XML input file.\n");
-	pLogger::log<WHT>("5) -wdir <directory>      Defines the working directory. FULL path of an EXISTING directory is required.\n");
-	pLogger::log<WHT>("6) -version               Prints the version number.\n");
+	pLogger::log<WHT>("5) -logfile <filename>    Defines the name of the output log file.\n");
+	pLogger::log<WHT>("6) -wdir <directory>      Defines the working directory. FULL path of an EXISTING directory is required.\n");
+	pLogger::log<WHT>("7) -version               Prints the version number.\n");
 	pLogger::line_feed(1);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
