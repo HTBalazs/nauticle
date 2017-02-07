@@ -15,7 +15,7 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://BalazsToth@bitbucket.org/BalazsToth/lemps
+    For more information please visit: https://bitbucket.org/lempsproject/
 */
 
 #include "pmTensor_parser.h"
