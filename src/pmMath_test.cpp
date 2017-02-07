@@ -64,9 +64,19 @@ bool pmMath_test::is_letter_or_digit(char const& c) const {
 /// Checks if the given std::string object is a number.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmMath_test::is_number(std::string const& s) const {
-	for(auto const& it : s) {
-		if(!is_digit(it) && it!='.') {
-			return false;
+	if(s.empty()) return false;
+	if(!is_digit(s[0])) return false;
+	for(int i=0; i<s.size(); i++) {
+		if(!is_digit(s[i]) && s[i]!='.') {
+			if(s[i]=='E' || s[i]=='e') {
+				if(s[i+1]!='+' && s[i+1]!='-') {
+					return false;
+				}
+			} else if(s[i]=='+' || s[i+1]=='-') {
+				if(s[i-1]!='E' && s[i-1]!='e') {
+					return false;
+				}
+			}
 		}
 	}
 	return true;

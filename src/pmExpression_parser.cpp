@@ -95,9 +95,21 @@ std::vector<std::string> pmExpression_parser::build_table(std::string const& s) 
 	while(it!=s.cend()) {
 		if(is_digit(*it)) {
 			std::string word;
-			while((is_digit(*it) || *it=='.' || *it=='e') && it!=s.cend()) {
-				word+=*it;
-				it++;
+			while((is_digit(*it) || *it=='.' || *it=='e' || *it=='E') && it!=s.cend()) {
+				if(*it=='e' || *it=='E') {
+					it++;
+					word+='e';
+					if(*it=='+' || is_digit(*it)) {
+						word+='+';
+						if(*it=='+') it++;
+					} else if(*it=='-') {
+						word+='-';
+						it++;
+					}
+				} else {
+					word+=*it;
+					it++;
+				}
 			}
 			words.push_back(word);
 		}
@@ -235,7 +247,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_operator<'^',2>>(operands));
-			}  else if(it==":") {
+			} else if(it==":") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_operator<':',2>>(operands));

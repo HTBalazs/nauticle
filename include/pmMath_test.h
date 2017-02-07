@@ -25,6 +25,7 @@
 
 class pmMath_test {
 protected:
+	std::string const one_op_minus = "#";
 	// list of functions and operators
 	static std::string const list_of_functions[73];
 	static std::string const list_of_operators[];
