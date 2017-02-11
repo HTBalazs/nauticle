@@ -92,7 +92,11 @@ void pmField::printv() const {
 	for(int i=0; i<20-name.size(); i++) {
 		pLogger::logf<LMA>(" ");
 	}
-	pLogger::logf<LMA>("[%i by %i]", this->evaluate(0).get_numrows(), this->evaluate(0).get_numcols());
+	pmTensor tensor = this->evaluate(0);
+	pLogger::logf<LMA>("[%i by %i]", tensor.get_numrows(), tensor.get_numcols());
+	if(tensor.is_scalar()) {
+		pLogger::logf<LMA>(" S");
+	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the size of the field.

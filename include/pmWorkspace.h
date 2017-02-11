@@ -50,6 +50,7 @@ private:
 	bool is_constant(std::shared_ptr<pmTerm> term) const;
 	bool is_variable(std::shared_ptr<pmTerm> term) const;
 	bool is_constant_or_variable(std::shared_ptr<pmTerm> term) const;
+	void define_bases();
 public:
 	pmWorkspace();
 	pmWorkspace(pmWorkspace const& other);

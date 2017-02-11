@@ -39,8 +39,10 @@ std::vector<pmTensor> pmVTK_reader::pop_array_from_polydata(int const& i, size_t
 		case 3 : real_dim = domain_dim; break;
 		case 9 : real_dim = domain_dim*domain_dim; break;
 	}
+	bool scalar = dim==1 ? true : false;
 	for(int a=0; a<array_size; a+=dim) {
 		pmTensor tensor = pmTensor::Tensor(real_dim);
+		tensor.set_scalar(scalar);
 		for(int t=0; t<real_dim; t++) {
 			tensor[t] = array->GetValue(a+t);
 		}
@@ -93,6 +95,7 @@ pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> wor
 				if(inst_name=="domain_min") { domain.set_minimum(tp->string_to_tensor(inst_value,workspace)); }
 				if(inst_name=="domain_max") { domain.set_maximum(tp->string_to_tensor(inst_value,workspace)); }
 				if(inst_name=="cell_size") { domain.set_cell_size(tp->string_to_tensor(inst_value,workspace)[0]); }
+				if(inst_name=="boundary") { domain.set_boundary(tp->string_to_tensor(inst_value,workspace)); }
 			}
 		}
 	}

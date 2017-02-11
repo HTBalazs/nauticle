@@ -72,12 +72,14 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 			std::string str_min = dm->get_entry("minimum").back()->get_value("value");
 			std::string str_max = dm->get_entry("maximum").back()->get_value("value");
 			std::string str_cell_size = dm->get_entry("cell_size").back()->get_value("value");
+			std::string str_bnd = dm->get_entry("boundary").back()->get_value("value");
 			pmTensor_parser tensor_parser{};
 			pmTensor minimum = tensor_parser.string_to_tensor(str_min, workspace);
 			pmTensor maximum = tensor_parser.string_to_tensor(str_max, workspace);
 			pmTensor cell_size = tensor_parser.string_to_tensor(str_cell_size, workspace);
+			pmTensor boundary = tensor_parser.string_to_tensor(str_bnd, workspace);
 			if(!cell_size.is_scalar()) { pLogger::error_msgf("Cell size must be scalar!\n"); }
-			domain = pmDomain{minimum, maximum, cell_size[0]};
+			domain = pmDomain{minimum, maximum, cell_size[0], boundary};
 		}
 		std::shared_ptr<pmGrid_space> grid_space = get_grid_space(ps,workspace);
 		std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();

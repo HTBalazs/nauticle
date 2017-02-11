@@ -34,10 +34,11 @@ class pmTensor final {
 	int rows;
 	int columns;
 	float* elements;
+	bool scalar;
 public:
 	pmTensor();
 	pmTensor(float const& s);
-	pmTensor(int const& r, int const& c, float const& init=0);
+	pmTensor(int const& r, int const& c, float const& init=0, bool const& sc=true);
 	pmTensor(pmTensor const& other);
 	pmTensor(pmTensor&& other);
 	static pmTensor Tensor(int const& num_components);
@@ -95,6 +96,8 @@ public:
 	pmTensor determinant() const;
 	pmTensor adjugate() const;
 	pmTensor inverse() const;
+	void set_scalar(bool const& sc);
+	pmTensor reflect(pmTensor const& guide) const;
 };
 
 inline std::ostream& operator<<(std::ostream& os, pmTensor const* obj) {
@@ -110,7 +113,7 @@ inline pmTensor operator+(pmTensor const& lhs, pmTensor const& rhs) {
 	if(lhs.numel()==0) { return rhs; }
 	if(rhs.numel()==0) { return lhs; }
 	if(lhs.get_numrows()!=rhs.get_numrows() || lhs.get_numcols()!=rhs.get_numcols()) {
-		pLogger::error_msgf("Unable to add tensors of different sizes.\n");
+		pLogger::error_msgf("Unable to add tensors of different sizes or types.\n");
 	}
 	pmTensor tensor = pmTensor{lhs};
 	for(int i=0; i<tensor.numel(); i++) {
@@ -123,7 +126,7 @@ inline pmTensor operator-(pmTensor const& lhs, pmTensor const& rhs) {
 	if(lhs.numel()==0) { return rhs; }
 	if(rhs.numel()==0) { return lhs; }
 	if(lhs.get_numrows()!=rhs.get_numrows() || lhs.get_numcols()!=rhs.get_numcols()) {
-		pLogger::error_msgf("Unable to subtract tensors of different sizes.\n");
+		pLogger::error_msgf("Unable to subtract tensors of different sizes or types.\n");
 	}
 	pmTensor tensor = pmTensor{lhs};
 	for(int i=0; i<tensor.numel(); i++) {
@@ -165,13 +168,14 @@ inline pmTensor operator/(pmTensor const& lhs, float const& rhs) {
 }
 
 inline pmTensor operator*(pmTensor const& lhs, pmTensor const& rhs) {
-	if(lhs.is_scalar() && !rhs.is_scalar()) {
+	if(lhs.numel()==1 && rhs.numel()!=1) {
 		return lhs[0]*rhs;
 	}
-	if(!lhs.is_scalar() && rhs.is_scalar()) {
+	if(lhs.numel()!=1 && rhs.numel()==1) {
 		return lhs*rhs[0];
 	}
-	if(!lhs.is_scalar() && !rhs.is_scalar()) {
+	bool sc = !lhs.is_scalar() || !rhs.is_scalar() ? false : true;
+	if(lhs.numel()!=1 && rhs.numel()!=1) {
 		if(lhs.get_numcols()!=rhs.get_numrows()) {
 			pLogger::error_msgf("Unable to multiply these tensors.\n");
 			return pmTensor{};
@@ -179,7 +183,7 @@ inline pmTensor operator*(pmTensor const& lhs, pmTensor const& rhs) {
 	}
 	int imax = lhs.get_numrows();
 	int jmax = rhs.get_numcols();
-	pmTensor tensor{imax, jmax};
+	pmTensor tensor{imax, jmax, 0, sc};
 	for(int i=0; i<imax; i++) {
 		for(int j=0; j<jmax; j++) {
 			float sum = 0;

@@ -23,13 +23,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, float const& csize) {
+pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, float const& csize, pmTensor const& bnd) {
 	if(dmin.numel()!=dmax.numel()) {
 		pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
 	minimum = dmin;
 	maximum = dmax;
 	cell_size = csize;
+	boundary = bnd;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the minimum coordinate of the domain.
@@ -82,15 +83,22 @@ pmTensor pmDomain::get_physical_size() const {
 	return (maximum-minimum)*cell_size;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the boundary type of the domain (periodic or symmetric).
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmDomain::get_boundary() const {
+	return boundary;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the domain object content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDomain::print() const {
 	pLogger::logf<LYW>("Domain: ");
 	pLogger::logf<COLOR>("min: ");
 	minimum.print();
-	pLogger::logf<COLOR>(", ");
-	pLogger::logf<COLOR>("max: ");
+	pLogger::logf<COLOR>(", max: ");
 	maximum.print();
+	pLogger::logf<COLOR>(", boundary: ");
+	boundary.print();
 	pLogger::logf<COLOR>(", cell size: %g", cell_size);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -111,5 +119,10 @@ void pmDomain::set_maximum(pmTensor const& mx) {
 void pmDomain::set_cell_size(float const& csize) {
 	cell_size = csize;
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Setter for boundary.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::set_boundary(pmTensor const& bnd) {
+	boundary = bnd;
+}
 

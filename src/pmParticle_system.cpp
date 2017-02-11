@@ -76,7 +76,7 @@ void pmParticle_system::set_value(pmTensor const& value, int const& i/*=0*/) {
 /// Implements a sorting based on the hash key of the particles.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::sort_field(std::vector<int>& sorted_idx) {
-	// shift particles due to the perioidic domain
+	// shift particles due to the periodic domain
 	particle_space->restrict_particles(current_value, previous_value, two_step);
 	particle_space->update_neighbour_list(current_value, sorted_idx);
 	// reorder particle positions due to sorted_idx

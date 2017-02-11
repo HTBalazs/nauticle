@@ -123,16 +123,19 @@ void pmVTK_writer::push_domain_to_polydata() {
 	std::stringstream smin;
 	std::stringstream smax;
 	std::stringstream scsize;
+	std::stringstream sbnd;
 	smin << "domain_min:" << domain.get_minimum();
 	smax << "domain_max:" << domain.get_maximum();
 	scsize << "cell_size:" << domain.get_cell_size();
+	sbnd << "boundary:" << domain.get_boundary();
 	vtkSmartPointer<vtkStringArray> string_array = vtkSmartPointer<vtkStringArray>::New();
 	string_array->SetName("domain");
 	string_array->SetNumberOfComponents(1);
-	string_array->SetNumberOfValues(3);
+	string_array->SetNumberOfValues(4);
 	string_array->SetValue(0,smin.str().c_str());
 	string_array->SetValue(1,smax.str().c_str());
 	string_array->SetValue(2,scsize.str().c_str());
+	string_array->SetValue(3,sbnd.str().c_str());
 	polydata->GetFieldData()->AddArray(string_array);
 }
 /////////////////////////////////////////////////////////////////////////////////////////

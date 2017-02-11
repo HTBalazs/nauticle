@@ -31,9 +31,10 @@ class pmDomain {
 	pmTensor minimum;
 	pmTensor maximum;
 	float cell_size;
+	pmTensor boundary;
 public:
 	pmDomain() {}
-	pmDomain(pmTensor const& dmin, pmTensor const& dmax, float const& csize);
+	pmDomain(pmTensor const& dmin, pmTensor const& dmax, float const& csize, pmTensor const& bnd);
 	pmTensor get_minimum() const;
 	pmTensor get_maximum() const;
 	float get_cell_size() const;
@@ -42,9 +43,11 @@ public:
 	pmTensor get_physical_minimum() const;
 	pmTensor get_physical_maximum() const;
 	pmTensor get_physical_size() const;
+	pmTensor get_boundary() const;
 	void set_minimum(pmTensor const& mn);
 	void set_maximum(pmTensor const& mx);
 	void set_cell_size(float const& csize);
+	void set_boundary(pmTensor const& bnd);
 	void print() const;
 };
 

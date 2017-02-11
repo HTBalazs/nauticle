@@ -21,7 +21,7 @@
 #include "pmWorkspace.h"
 #include <numeric>
 
-std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY"};
+std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "e_i", "e_j", "e_k"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -44,6 +44,8 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("Wp52230", pmTensor{1,1,8}, true);
 	this->add_constant("ASCII", pmTensor{1,1,0}, true);
 	this->add_constant("BINARY", pmTensor{1,1,1}, true);
+	this->add_constant("periodic", pmTensor{1,1,0}, true);
+	this->add_constant("symmetric", pmTensor{1,1,1}, true);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
@@ -197,6 +199,22 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmField>(name, values)));
 }
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Defines the bases unit vectors for the domain.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmWorkspace::define_bases() {
+	float dims = this->get_particle_system().lock()->get_particle_space()->get_domain().get_dimensions();
+	if(dims==1) {
+		this->add_constant("e_i", pmTensor{1,1,1,false}, true);
+	} else if(dims==2) {
+		this->add_constant("e_i", pmTensor::make_identity(dims).sub_tensor(0,1,0,0), true);
+		this->add_constant("e_j", pmTensor::make_identity(dims).sub_tensor(0,1,1,1), true);
+	} else if(dims==3) {
+		this->add_constant("e_i", pmTensor::make_identity(dims).sub_tensor(0,2,0,0), true);
+		this->add_constant("e_j", pmTensor::make_identity(dims).sub_tensor(0,2,1,1), true);
+		this->add_constant("e_k", pmTensor::make_identity(dims).sub_tensor(0,2,2,2), true);
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new particle system to the workspace with an initialization tensor field. If an 
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -206,6 +224,7 @@ void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, pmDom
 		set_number_of_nodes(values.size());
 	}
 	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmParticle_system>("r", values, domain)));
+	define_bases();
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Deletes an instance with the given name. If no instance is existing with the name it

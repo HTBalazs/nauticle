@@ -46,7 +46,6 @@ public:
 	void print() const override;
 	pmTensor process(pmTensor const& A_i, pmTensor const& A_j, float const& rho_i, float const& rho_j, float const& m_i, float const& m_j, pmTensor const& r_ji, float const& d_ji, float const& W_ij) const;
 	pmTensor evaluate(int const& i, Eval_type eval_type/*=current*/) const override;
-	pmTensor evaluate(pmTensor const& pos_i, Eval_type eval_type/*=current*/) const;
 	std::shared_ptr<pmSph_operator> clone() const;
 	virtual void write_to_string(std::ostream& os) const override;
 };
@@ -162,13 +161,12 @@ pmTensor pmSph_operator<OP_TYPE,VAR,K>::evaluate(int const& i, Eval_type eval_ty
 	pmTensor A_i = operand[0]->evaluate(i,eval_type);
 	float m_i = operand[1]->evaluate(i,eval_type)[0];
 	float rho_i = operand[2]->evaluate(i,eval_type)[0];
-	auto contribute = [&A_i, &m_i, &rho_i, &eval_type, this](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size)->pmTensor{
+	auto contribute = [&A_i, &m_i, &rho_i, &eval_type, this](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor contribution;
-		if(i!=j || OP_TYPE==SAMPLE) {
-			// pmTensor rel_pos = pos_j-pos_i;
-			float d_ji = rel_pos.norm();
-			if(d_ji < cell_size && (d_ji > 1e-6f || OP_TYPE==SAMPLE)) {
-				pmTensor A_j = operand[0]->evaluate(j,eval_type);
+		float d_ji = rel_pos.norm();
+		if(d_ji > 1e-6f || OP_TYPE==SAMPLE) {
+			if(d_ji < cell_size) {
+				pmTensor A_j = operand[0]->evaluate(j,eval_type).reflect(guide);
 				float m_j = operand[1]->evaluate(j,eval_type)[0];
 				float rho_j = operand[2]->evaluate(j,eval_type)[0];
 				float W_ij = kernel->evaluate(d_ji, cell_size);
@@ -178,25 +176,6 @@ pmTensor pmSph_operator<OP_TYPE,VAR,K>::evaluate(int const& i, Eval_type eval_ty
 		return contribution;
 	};
 	return interact(i, operand, contribute);
-}
-template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K>
-pmTensor pmSph_operator<OP_TYPE,VAR,K>::evaluate(pmTensor const& pos_i, Eval_type eval_type/*=current*/) const {
-	if(!assigned) { pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
-	if(OP_TYPE!=SAMPLE) { pLogger::error_msgf("Not supported for nodes out of particle system.\n", op_name.c_str()); }
-	auto contribute = [&pos_i, &eval_type, this](pmTensor const& pos_j, int const& j, float const& cell_size)->pmTensor{
-		pmTensor contribution;
-		pmTensor rel_pos = pos_j-pos_i;
-		float d_ji = rel_pos.norm();
-		if(d_ji < cell_size && (d_ji > 1e-6f || OP_TYPE==SAMPLE)) {
-			pmTensor A_j = operand[0]->evaluate(j,eval_type);
-			float m_j = operand[1]->evaluate(j,eval_type)[0];
-			float rho_j = operand[2]->evaluate(j,eval_type)[0];
-			float W_ij = kernel->evaluate(d_ji, cell_size);
-			contribution += this->process(A_j, A_j, rho_j, rho_j, m_j, m_j, rel_pos, d_ji, W_ij);
-		}
-		return contribution;
-	};
-	return interact(pos_i, operand, contribute);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the operator.

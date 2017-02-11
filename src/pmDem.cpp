@@ -98,25 +98,24 @@ pmTensor pmDem::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
 	float damping_i = operand[4]->evaluate(i,eval_type)[0];
 	float shear_i = operand[5]->evaluate(i,eval_type)[0];
 
-	auto contribute = [&vel_i, &radius_i, &mass_i, &spring_i, &damping_i, &shear_i, &eval_type, this](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size)->pmTensor{
+	auto contribute = [&vel_i, &radius_i, &mass_i, &spring_i, &damping_i, &shear_i, &eval_type, this](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor force;
-		if(i!=j) {
-			// pmTensor rel_pos = pos_j-pos_i;
-			float distance = rel_pos.norm();
+		float d_ji = rel_pos.norm();
+		if(d_ji > 1e-6f) {
 			float radius_j = operand[1]->evaluate(j,eval_type)[0];
 			float min_dist = radius_i + radius_j;
-			if(distance < min_dist) {
+			if(d_ji < min_dist) {
 				float mass_j = operand[2]->evaluate(j,eval_type)[0];
 				float spring_j = operand[3]->evaluate(j,eval_type)[0];
 				float damping_j = operand[4]->evaluate(j,eval_type)[0];
 				float shear_j = operand[5]->evaluate(j,eval_type)[0];
-				pmTensor norm = rel_pos / distance;
-				pmTensor vel_j = operand[0]->evaluate(j,eval_type);
+				pmTensor norm = rel_pos / d_ji;
+				pmTensor vel_j = operand[0]->evaluate(j,eval_type).reflect(guide);
 				pmTensor rel_vel = vel_j-vel_i;
 				// relative tangential velocity
 				pmTensor tan_vel = rel_vel - (rel_vel.transpose()*norm) * norm;
 				// spring force
-				force += -(spring_i*mass_i+spring_j*mass_j)/2*(min_dist-distance)*norm;
+				force += -(spring_i*mass_i+spring_j*mass_j)/2*(min_dist-d_ji)*norm;
 				// dashpot (damping) force
 				force += (damping_i*mass_i+damping_j*mass_j)/2*rel_vel;
 				// tangential shear force

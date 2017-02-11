@@ -33,7 +33,7 @@
 */
 template <size_t S>
 class pmInteraction : public pmOperator<S> {
-	using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, float const&)>;
+	using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, float const&, pmTensor const& guide)>;
 	using Func_pos = std::function<pmTensor(pmTensor const&, int const&, float const&)>;
 protected:
 	std::weak_ptr<pmParticle_system> psys;
@@ -89,21 +89,29 @@ pmTensor pmInteraction<S>::interact(int const& i, std::array<std::shared_ptr<pmE
 	pmTensor grid_pos_i = ps->get_particle_space()->get_grid_position(pos_i);
 	pmTensor result;
 	std::vector<pmTensor> const& cell_iterator = ps->get_particle_space()->get_cell_iterator();
-		pmDomain domain = ps->get_particle_space()->get_domain();
-		pmTensor domain_cells = domain.get_maximum()-domain.get_minimum();
-		pmTensor domain_minimum = domain.get_minimum();
-		pmTensor domain_physical_minimum = domain.get_physical_minimum();
-		pmTensor domain_size = domain.get_physical_size();
+	pmDomain domain = ps->get_particle_space()->get_domain();
+	pmTensor domain_cells = domain.get_maximum()-domain.get_minimum();
+	pmTensor domain_minimum = domain.get_minimum();
+	pmTensor domain_maximum = domain.get_maximum();
+	pmTensor domain_physical_minimum = domain.get_physical_minimum();
+	pmTensor domain_physical_maximum = domain.get_physical_maximum();
+	pmTensor domain_physical_size = domain.get_physical_size();
+	pmTensor const beta = domain.get_boundary();
+	pmTensor const ones = pmTensor::make_tensor(beta,1);
 	for(auto const& it:cell_iterator) {
 		pmTensor grid_pos_j{grid_pos_i+it};
-		grid_pos_j = grid_pos_j-floor((grid_pos_j-domain_minimum).divide_term_by_term(domain_cells)).multiply_term_by_term(domain_cells);
+		pmTensor delta = -floor((grid_pos_j-domain_minimum).divide_term_by_term(domain_cells));
+		pmTensor guide = delta.multiply_term_by_term(beta);
+		// look for periodic & symmetric neighbour cells (ensemble formula)
+		grid_pos_j = grid_pos_j+delta.multiply_term_by_term(domain_cells-beta.multiply_term_by_term(domain_cells)+beta);
 		int hash_j = ps->get_particle_space()->calculate_hash_key_from_grid_position(grid_pos_j);
 		if(start[hash_j]!=0xFFFFFFFF) {
 			for(int j=start[hash_j]; j<=end[hash_j]; j++) {
 				pmTensor pos_j = ps->get_value(j);
 				pmTensor rel_pos = pos_j-pos_i;
-				rel_pos -= floor((rel_pos-domain_physical_minimum).divide_term_by_term(domain_size)).multiply_term_by_term(domain_size);
-				result += contribute(rel_pos, i, j, cell_size);
+				// look for periodic & symmetric neighbour particles (ensemble formula)
+				rel_pos += beta.multiply_term_by_term(delta.multiply_term_by_term((delta-ones).multiply_term_by_term(domain_physical_maximum-pos_j) + (delta+ones).multiply_term_by_term(domain_physical_minimum-pos_j))) + (beta-ones).multiply_term_by_term(floor((rel_pos-domain_physical_minimum).divide_term_by_term(domain_physical_size)).multiply_term_by_term(domain_physical_size));
+				result += contribute(rel_pos, i, j, cell_size, guide);
 			}
 		}
 	}

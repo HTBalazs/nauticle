@@ -69,11 +69,14 @@ pmTensor pmTensor_parser::build_tensor(std::vector<std::string> const& table, st
 			std::shared_ptr<pmExpression_parser> parser = std::make_shared<pmExpression_parser>();
 			std::shared_ptr<pmExpression> expression{parser->analyse_expression<pmExpression>(it, workspace)};
 			pmTensor tmp = expression->evaluate(i);
-			if(!tmp.is_scalar()) {
-				pLogger::error_msg("Member is not scalar.\n");
+			if(tmp.numel()>1) {
+				pLogger::error_msg("Component has more that one element.\n");
 				return pmTensor{};
 			}
 			tensor[count] = tmp[0];
+			if(!tmp.is_scalar()) {
+				tensor.set_scalar(false);
+			}
 			count++;
 		}
 	}
@@ -110,3 +113,17 @@ std::vector<pmTensor> pmTensor_parser::string_to_tensor_field(std::string const&
 	}
 	return values;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
