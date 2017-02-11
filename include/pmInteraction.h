@@ -110,7 +110,14 @@ pmTensor pmInteraction<S>::interact(int const& i, std::array<std::shared_ptr<pmE
 				pmTensor pos_j = ps->get_value(j);
 				pmTensor rel_pos = pos_j-pos_i;
 				// look for periodic & symmetric neighbour particles (ensemble formula)
-				rel_pos += beta.multiply_term_by_term(delta.multiply_term_by_term((delta-ones).multiply_term_by_term(domain_physical_maximum-pos_j) + (delta+ones).multiply_term_by_term(domain_physical_minimum-pos_j))) + (beta-ones).multiply_term_by_term(floor((rel_pos-domain_physical_minimum).divide_term_by_term(domain_physical_size)).multiply_term_by_term(domain_physical_size));
+				// rel_pos += beta.multiply_term_by_term(delta.multiply_term_by_term((delta-ones).multiply_term_by_term(domain_physical_maximum-pos_j) + (delta+ones).multiply_term_by_term(domain_physical_minimum-pos_j))) + (beta-ones).multiply_term_by_term(floor((rel_pos-domain_physical_minimum).divide_term_by_term(domain_physical_size)).multiply_term_by_term(domain_physical_size));
+				for(int k=0; k<beta.numel(); k++) {
+					if(beta[k]==1) {
+						rel_pos[k] += delta[k]*(delta[k]-1)*(domain_physical_maximum[k]-pos_j[k]) + delta[k]*(delta[k]+1)*(domain_physical_minimum[k]-pos_j[k]);
+					} else {
+						rel_pos[k] -= floor((rel_pos[k]-domain_physical_minimum[k])/domain_physical_size[k])*domain_physical_size[k];
+					}
+				}
 				result += contribute(rel_pos, i, j, cell_size, guide);
 			}
 		}
