@@ -69,10 +69,13 @@ pmTensor pmTensor_parser::build_tensor(std::vector<std::string> const& table, st
 			std::shared_ptr<pmExpression_parser> parser = std::make_shared<pmExpression_parser>();
 			std::shared_ptr<pmExpression> expression{parser->analyse_expression<pmExpression>(it, workspace)};
 			pmTensor tmp = expression->evaluate(i);
-			// if(tmp.numel()>1) {
-			// 	pLogger::error_msg("Component has more that one element.\n");
-			// 	return pmTensor{};
-			// }
+			if(tmp.numel()>1 && (numrow>1 || numcol>1)) {
+				pLogger::error_msg("Component has more that one element.\n");
+				return pmTensor{};
+			} else if(numrow==1 && numcol==1) {
+				tensor = tmp;
+				break;
+			}
 			tensor[count] = tmp[0];
 			if(!tmp.is_scalar()) {
 				tensor.set_scalar(false);
