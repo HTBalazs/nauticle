@@ -203,15 +203,9 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::define_bases() {
 	float dims = this->get_particle_system().lock()->get_particle_space()->get_domain().get_dimensions();
-	if(dims==1) {
-		this->add_constant("e_i", pmTensor{1,1,1,false}, true);
-	} else if(dims==2) {
-		this->add_constant("e_i", pmTensor::make_identity(dims).sub_tensor(0,1,0,0), true);
-		this->add_constant("e_j", pmTensor::make_identity(dims).sub_tensor(0,1,1,1), true);
-	} else if(dims==3) {
-		this->add_constant("e_i", pmTensor::make_identity(dims).sub_tensor(0,2,0,0), true);
-		this->add_constant("e_j", pmTensor::make_identity(dims).sub_tensor(0,2,1,1), true);
-		this->add_constant("e_k", pmTensor::make_identity(dims).sub_tensor(0,2,2,2), true);
+	std::string bases[] = {"e_i", "e_j", "e_k"};
+	for(int i=0; i<dims; i++) {
+		this->add_constant(bases[i], pmTensor::make_identity(dims).sub_tensor(0,dims-1,i,i), true);
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////
