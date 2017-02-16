@@ -1,8 +1,0 @@
-<map id="pmTerm" name="pmTerm">
-<area shape="rect" id="node3" href="$classpm_field.html" title="pmField" alt="" coords="60,155,128,181"/>
-<area shape="rect" id="node5" href="$classpm_single.html" title="pmSingle" alt="" coords="173,155,249,181"/>
-<area shape="rect" id="node2" href="$classpm_expression.html" title="pmExpression" alt="" coords="111,5,216,32"/>
-<area shape="rect" id="node4" href="$classpm_particle__system.html" title="pmParticle_system" alt="" coords="5,229,140,256"/>
-<area shape="rect" id="node6" href="$classpm_constant.html" title="pmConstant" alt="" coords="165,229,258,256"/>
-<area shape="rect" id="node7" href="$classpm_variable.html" title="pmVariable" alt="" coords="283,229,369,256"/>
-</map>
