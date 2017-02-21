@@ -30,12 +30,15 @@ endif()
 if(UNIX AND NOT APPLE)
 	message("Building on Linux machine.")
 	set(BINDIR bin/Linux)
-	set(EXEC ${BINDIR}/${EXECUTABLE})
 elseif(APPLE)
 	message("Building on Apple machine.")	
 	set(BINDIR bin/Mac)
-	set(EXEC ${BINDIR}/${EXECUTABLE})
 endif()
+
+file(MAKE_DIRECTORY ${BINDIR})
+set(EXEC ${BINDIR}/${EXECUTABLE})
+
+add_custom_target(build-time-make-directory ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${BINDIR})
 
 message("Build dir: " ${EXEC})
 
