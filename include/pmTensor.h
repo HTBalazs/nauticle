@@ -174,7 +174,6 @@ inline pmTensor operator*(pmTensor const& lhs, pmTensor const& rhs) {
 	if(lhs.numel()!=1 && rhs.numel()==1) {
 		return lhs*rhs[0];
 	}
-	bool sc = !lhs.is_scalar() || !rhs.is_scalar() ? false : true;
 	if(lhs.numel()!=1 && rhs.numel()!=1) {
 		if(lhs.get_numcols()!=rhs.get_numrows()) {
 			pLogger::error_msgf("Unable to multiply these tensors.\n");
@@ -183,6 +182,7 @@ inline pmTensor operator*(pmTensor const& lhs, pmTensor const& rhs) {
 	}
 	int imax = lhs.get_numrows();
 	int jmax = rhs.get_numcols();
+	bool sc = !lhs.is_scalar() || !rhs.is_scalar() ? (imax*jmax==1?true:false) : true;
 	pmTensor tensor{imax, jmax, 0, sc};
 	for(int i=0; i<imax; i++) {
 		for(int j=0; j<jmax; j++) {
