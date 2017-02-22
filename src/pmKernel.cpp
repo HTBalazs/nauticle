@@ -92,35 +92,35 @@ float pmKernel::Wp2220_raw(float const& q) const {
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
 float pmKernel::Wp3220_raw(float const& q) const {
-	if(q<1) { return 1-3/2*q*q+3/4*q*q*q; }
-	else { return 0.25*(2-q)*(2-q)*(2-q); }
+	if(q<1) { return 1.0f-3.0f/2.0f*q*q+3.0f/4.0f*q*q*q; }
+	else { return 0.25*(2.0f-q)*(2.0f-q)*(2.0f-q); }
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
 float pmKernel::Wp5220_raw(float const& q) const {
-	float val = (1-q/2);
+	float val = (1.0f-q/2.0f);
 	val*=val; val*=val;
-	return val*(2*q+1);
+	return val*(2.0f*q+1.0f);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
 float pmKernel::dWp2220_raw(float const& q) const {
-	return (q/2-1);
+	return (q/2.0f-1.0f);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
 float pmKernel::dWp3220_raw(float const& q) const {
-	if(q<1) { return (-4*q+3*q*q); }
-	else { return -(2-q)*(2-q); }
+	if(q<1) { return (-4.0f*q+3.0f*q*q); }
+	else { return -(2.0f-q)*(2.0f-q); }
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
 float pmKernel::dWp5220_raw(float const& q) const {
-	float val = (1-q/2);
+	float val = (1.0f-q/2.0f);
 	return val*val*val*q;
 }
 
@@ -128,38 +128,38 @@ float pmKernel::dWp5220_raw(float const& q) const {
 
 
 float pmKernel::Wp22210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 1.0f/h;
 	return coeff*Wp2220_raw(q);
 }
 float pmKernel::Wp22220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 2.0f/constant_pi/h/h;
 	return coeff*Wp2220_raw(q);
 }
 float pmKernel::Wp22230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 5.0f/4.0f/constant_pi/h/h/h;
 	return coeff*Wp2220_raw(q);
 }
 
 float pmKernel::dWp22210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 3.0f/4.0f/h/h;
 	return coeff*dWp2220_raw(q);
 }
 float pmKernel::dWp22220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 6.0f/4.0f/constant_pi/h/h/h;
 	return coeff*dWp2220_raw(q);
 }
 float pmKernel::dWp22230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 15.0f/16.0f/constant_pi/h/h/h/h;
 	return coeff*dWp2220_raw(q);
@@ -167,38 +167,38 @@ float pmKernel::dWp22230(float const& distance, float const& cell_size) const {
 
 
 float pmKernel::Wp32210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 2.0f/3.0f/h;
 	return coeff*Wp3220_raw(q);
 }
 float pmKernel::Wp32220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 10.0f/7.0f/constant_pi/h/h;
 	return coeff*Wp3220_raw(q);
 }
 float pmKernel::Wp32230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 1.0f/constant_pi/h/h/h;
 	return coeff*Wp3220_raw(q);
 }
 
 float pmKernel::dWp32210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 6.0f/12.0f/h/h;
 	return coeff*dWp3220_raw(q);
 }
 float pmKernel::dWp32220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 30.0f/28.0f/constant_pi/h/h/h;
 	return coeff*dWp3220_raw(q);
 }
 float pmKernel::dWp32230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 3.0f/4.0f/constant_pi/h/h/h/h;
 	return coeff*dWp3220_raw(q);
@@ -206,19 +206,19 @@ float pmKernel::dWp32230(float const& distance, float const& cell_size) const {
 
 
 float pmKernel::Wp52210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 3.0f/4.0f/h;
 	return coeff*Wp5220_raw(q);
 }
 float pmKernel::Wp52220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 7.0f/4.0f/constant_pi/h/h;
 	return coeff*Wp5220_raw(q);
 }
 float pmKernel::Wp52230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
 	float coeff = 21.0f/16.0f/constant_pi/h/h/h;
 	return coeff*Wp5220_raw(q);
@@ -226,21 +226,21 @@ float pmKernel::Wp52230(float const& distance, float const& cell_size) const {
 
 
 float pmKernel::dWp52210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
-	float coeff = -30/8/h/h;
+	float coeff = -30.0f/8.0f/h/h;
 	return coeff*dWp5220_raw(q);
 }
 float pmKernel::dWp52220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
-	float coeff = -70/8/constant_pi/h/h/h;
+	float coeff = -70.0f/8.0f/constant_pi/h/h/h;
 	return coeff*dWp5220_raw(q);
 }
 float pmKernel::dWp52230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2;
+	float h = cell_size/2.0f;
 	float q = distance/h;
-	float coeff = -105/16/constant_pi/h/h/h/h;
+	float coeff = -105.0f/16.0f/constant_pi/h/h/h/h;
 	return coeff*dWp5220_raw(q);
 }
 
