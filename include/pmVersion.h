@@ -23,5 +23,6 @@
 
 #define MAJOR_VERSION 1
 #define MINOR_VERSION 0
+#define RELEASE_DATE 170221
 
 #endif //_VERSION_H_
