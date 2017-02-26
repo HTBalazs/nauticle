@@ -104,11 +104,15 @@ void pmCase::simulate(size_t const& num_threads) {
 			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,print_interval});
 			dt = print_interval;
 		}
+		bool printing = current_time+dt > previous_time+print_interval-dt/100.0f ? true : false;
+		if(printing) {
+			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,current_time-previous_time-print_interval});
+		}
 		function_space->solve(num_threads);
 		print_interval = calculate_print_interval();
 		current_time += dt;
 		substeps++;
-		if(current_time > previous_time+print_interval-dt/10.0) {
+		if(printing) {
 			write_step();
 			n++;
 			all_steps+=substeps;
