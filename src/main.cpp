@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 				exec = true;
 				i++;
 			} else if(cp.get_arg(i)=="-version") {
-				pLogger::logf("Version number: %i.%i\n",MAJOR_VERSION,MINOR_VERSION);
+				pmCommand_parser::print_version();
 			} else if(cp.get_arg(i)=="-wdir") {
 				if(argc>i+1) {
 					working_dir = cp.get_arg(i+1);

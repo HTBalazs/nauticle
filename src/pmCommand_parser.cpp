@@ -72,7 +72,7 @@ std::string pmCommand_parser::get_arg(std::string s) {
 	pLogger::log<WHT>("LEMPS can recieve the following optianal commands:\n");
 	pLogger::log<WHT>("1) -help                  Display LEMPS information.\n");
 	pLogger::log<WHT>("2) -wsres                 Lists all reserved names in workspace.\n");
-	pLogger::log<WHT>("3) -numthreads            Defines the number of threads to use.\n");
+	pLogger::log<WHT>("3) -numthreads <number>   Defines the number of threads to use. Default is detected.\n");
 	pLogger::log<WHT>("4) -xmlname <filename>    Defines the name of the XML input file.\n");
 	pLogger::log<WHT>("5) -logfile <filename>    Defines the name of the output log file.\n");
 	pLogger::log<WHT>("6) -wdir <directory>      Defines the working directory. FULL path of an EXISTING directory is required.\n");
@@ -85,8 +85,11 @@ std::string pmCommand_parser::get_arg(std::string s) {
 /*static*/ void pmCommand_parser::print_header() {
 	static bool already_written=false;
 	if(already_written) { return; }
-	pLogger::log<WHT>("LEMPS version %i.%i.%i\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
+	print_version();
 	pLogger::log<WHT>("Copyright Balazs Toth 2016-2017\n");
 	pLogger::line_feed(1);
 	already_written = true;
+}
+/*static*/ void pmCommand_parser::print_version() {
+	pLogger::log<WHT>("LEMPS version %i.%i.%i\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
 }
