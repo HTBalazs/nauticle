@@ -20,6 +20,7 @@
     
 #include "pmFunction.h"
 #include <thread>
+#include <algorithm>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
@@ -101,7 +102,8 @@ void pmFunction::solve(size_t const& num_threads) {
 		this->evaluate(p_start, p_end);
 	};
 	std::vector<std::thread> th;
-	int ppt = p_end/num_threads;
+	int number_of_threads = std::min((int)num_threads,p_end);
+	int ppt = p_end/number_of_threads;
 	int p_start = 0;
 	for(int i=p_start; i<p_end; i+=ppt) {
 		th.push_back(std::thread{process, i, i+ppt});
