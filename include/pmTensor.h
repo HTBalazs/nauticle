@@ -23,7 +23,6 @@
 
 #include <iostream>
 #include <cmath>
-#include "pmComplex.h"
 #include "prolog/pLogger.h"
 
 /** This class represents a 0th, 1st or 2nd order tensor of arbitrary shape.
