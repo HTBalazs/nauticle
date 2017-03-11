@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Balazs Toth
+    Copyright 2016-2017 Balazs Toth
     This file is part of LEMPS.
 
     LEMPS is free software: you can redistribute it and/or modify
