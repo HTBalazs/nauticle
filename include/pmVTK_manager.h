@@ -37,11 +37,11 @@
 #include <vtkPolyDataWriter.h>
 #include "prolog/pLogger.h"
 #include "pmFunction_parser.h"
-#include "pmFile_parser.h"
 #include "pmFunction_space.h"
 #include "pmNoncopyable.h"
 
-
+/** This abstract class stores vtk-formatted data of pmFunction_space.
+*/
 class pmVTK_manager : public pmNoncopyable {
 protected:
 	std::string file_name;

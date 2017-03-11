@@ -60,9 +60,11 @@ public:
 	virtual void sort_field(std::vector<int>& sorted_idx);
 	virtual void set_number_of_nodes(size_t const& N);
 	virtual void write_to_string(std::ostream& os) const override;
-	virtual pmTensor interpolate(pmTensor const& position) const;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Implementaton of << operator.
+/////////////////////////////////////////////////////////////////////////////////////////
 inline std::ostream& operator<<(std::ostream& os, pmField const* obj) {
 	obj->write_to_string(os);
 	return os;

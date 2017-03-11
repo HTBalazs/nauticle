@@ -27,6 +27,8 @@
 #include "prolog/pLogger.h"
 #include "pmNoncopyable.h"
 
+/** This class implements the particle generation over a uniform spatial grid.
+*/
 class pmGrid {
 	pmTensor position;
 	pmTensor size;

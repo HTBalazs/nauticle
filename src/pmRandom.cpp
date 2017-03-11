@@ -31,6 +31,7 @@ namespace pmRandom {
 		}
 		return ((float)(rand()%10000))/1e4f*(maximum-minimum)+minimum;
 	}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Generates a uniform distributed random tensor between minimum and maximum. If the 
 /// dimensions of the given tensors do not match it returns an empty tensor.

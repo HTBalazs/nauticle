@@ -28,6 +28,8 @@
 
 enum write_mode { ASCII, BINARY };
 
+/** This class writes vtk-data from files of ASCII and BINNARY format.
+*/
 class pmVTK_writer : public pmVTK_manager {
 	write_mode mode=ASCII;
 private:

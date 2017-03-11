@@ -23,6 +23,8 @@
 
 #include "prolog/pLogger.h"
 
+/** This class performs logging procedures based on ProLog
+*/
 class pmLog_stream {
 	std::unique_ptr<pTimer> timer;
     int num_steps=0;

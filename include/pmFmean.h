@@ -23,6 +23,8 @@
 
 #include "pmFsearch.h"
 
+/** This class calculates the mean value of a pmField over a pmParticle_system
+*/
 class pmFmean : public pmFsearch {
 	std::shared_ptr<pmExpression> clone_impl() const override;
 private:
@@ -38,6 +40,9 @@ public:
 	virtual void write_to_string(std::ostream& os) const override;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Implementaton of << operator.
+/////////////////////////////////////////////////////////////////////////////////////////
 inline std::ostream& operator<<(std::ostream& os, pmFmean const* obj) {
 	obj->write_to_string(os);
 	return os;

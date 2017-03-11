@@ -26,7 +26,8 @@
 #include "prolog/pLogger.h"
 #include "pmTensor_parser.h"
 
-
+/** This class reads vtk-data from files of ASCII and BINNARY format.
+*/
 class pmVTK_reader : public pmVTK_manager {
 private:
 	std::vector<pmTensor> pop_array_from_polydata(int const& i, size_t const& domain_dim) const;

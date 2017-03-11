@@ -43,6 +43,9 @@ public:
 	virtual void write_to_string(std::ostream& os) const override;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Implementation of << operator for pmTensor.
+/////////////////////////////////////////////////////////////////////////////////////////
 inline std::ostream& operator<<(std::ostream& os, pmVariable const* obj) {														\
 	obj->write_to_string(os);																					\
 	return os;																									\

@@ -47,6 +47,7 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("periodic", pmTensor{1,1,0}, true);
 	this->add_constant("symmetric", pmTensor{1,1,1}, true);
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +60,7 @@ pmWorkspace::pmWorkspace(pmWorkspace const& other) {
 	this->num_variables = other.num_variables;
 	this->deleted_ids = other.deleted_ids;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -74,6 +76,7 @@ pmWorkspace& pmWorkspace::operator=(pmWorkspace const& other) {
 	}
 	return *this;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +87,7 @@ pmWorkspace::pmWorkspace(pmWorkspace&& other) {
 	this->num_variables = other.num_variables;
 	this->deleted_ids = std::move(other.deleted_ids);
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -97,24 +101,28 @@ pmWorkspace& pmWorkspace::operator=(pmWorkspace&& other) {
 	}
 	return *this;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the term is a constant.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmWorkspace::is_constant(std::shared_ptr<pmTerm> term) const {
 	return std::dynamic_pointer_cast<pmConstant>(term).use_count()!=0;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the term is a variable.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmWorkspace::is_variable(std::shared_ptr<pmTerm> term) const {
 	return std::dynamic_pointer_cast<pmVariable>(term).use_count()!=0;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the term is a constant or variable.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmWorkspace::is_constant_or_variable(std::shared_ptr<pmTerm> term) const {
 	return is_constant(term) || is_variable(term);
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Merges the given workspace to the object. Conflicting instances are skipped.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -139,6 +147,7 @@ void pmWorkspace::merge(std::shared_ptr<pmWorkspace> other) {
 		}
 	}
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Verifies the given instance name.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +159,7 @@ bool pmWorkspace::verify_name(std::string const& name) const {
 		return true;
 	}
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the given name is existing in the workspace.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -161,6 +171,7 @@ bool pmWorkspace::is_existing(std::string const& name) const {
 	}
 	return false;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new constant to the workspace with a value. If an instance is
 /// already existing with the same name it does nothing.
@@ -170,6 +181,7 @@ void pmWorkspace::add_constant(std::string const& name, pmTensor const& value, b
 	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmConstant>(name, value, hidden)));
 	num_constants++;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new variable to the workspace with an optional initialization value. If an 
 /// instance is already existing with the same name it does nothing.
@@ -179,6 +191,7 @@ void pmWorkspace::add_variable(std::string const& name, pmTensor const& value/*=
 	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmVariable>(name, value)));
 	num_variables++;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new field to the workspace with an optional initialization value. If an 
 /// instance is already existing with the same name it does nothing.
@@ -187,6 +200,7 @@ void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmT
 	if(!verify_name(name)) return;
 	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmField>(name, num_nodes, value)));
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new field to the workspace with an initialization tensor field. If an 
 /// instance is already existing with the same name it does nothing.
@@ -198,6 +212,7 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 	}
 	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmField>(name, values)));
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Defines the bases unit vectors for the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -208,6 +223,7 @@ void pmWorkspace::define_bases() {
 		this->add_constant(bases[i], pmTensor::make_identity(dims).sub_tensor(0,dims-1,i,i), true);
 	}
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new particle system to the workspace with an initialization tensor field. If an 
 /// instance is already existing with the same name it does nothing.
@@ -220,6 +236,7 @@ void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, pmDom
 	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmParticle_system>("r", values, domain)));
 	define_bases();
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Deletes an instance with the given name. If no instance is existing with the name it
 /// does nothing.
@@ -242,6 +259,7 @@ void pmWorkspace::delete_instance(std::string const& name) {
 		}
 	}
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the number of nodes registered in the workspace. For more information see e.g.
 /// pmField and pmVariable classes.
@@ -249,6 +267,7 @@ void pmWorkspace::delete_instance(std::string const& name) {
 size_t pmWorkspace::get_number_of_nodes() const {
 	return num_nodes;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of an instance with the given name. The optional index argument 
 /// helps to refer to the desired element of a field. Returns an empty tensor if no 
@@ -263,6 +282,7 @@ pmTensor pmWorkspace::get_value(std::string const& name, int const& i/*=0*/) con
 	pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
 	return pmTensor{};
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns an instance with the given name. Returns an empty pointer if no such instance
 //  found.
@@ -276,6 +296,7 @@ std::weak_ptr<pmTerm> pmWorkspace::get_instance(std::string const& name) const {
 	pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
 	return std::weak_ptr<pmTerm>{};
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the particle system of the workspace object.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -283,6 +304,7 @@ std::weak_ptr<pmParticle_system> pmWorkspace::get_particle_system() const {
 	std::shared_ptr<pmTerm> psys = get_instance("r").lock();
 	return std::static_pointer_cast<pmParticle_system>(psys);
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the content of the workspace.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -293,6 +315,7 @@ void pmWorkspace::print() const {
 	print_content<pmField>("Fields");
 	pLogger::footerf<LGY>();
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sorts all fields and particle systems in the workspace based on the positions of the 
 /// particles.
@@ -314,12 +337,14 @@ void pmWorkspace::sort_all_by_position() {
 		}
 	}
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the vector of definitions
 /////////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<pmTerm>> pmWorkspace::get_definitions() {
 	return definitions;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints reserved names.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -335,24 +360,28 @@ std::vector<std::shared_ptr<pmTerm>> pmWorkspace::get_definitions() {
 		i++;
 	}
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns deep copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmWorkspace> pmWorkspace::clone() const {
 	return std::make_shared<pmWorkspace>(*this);
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the number of variables stored in the workspace.
 /////////////////////////////////////////////////////////////////////////////////////////
 size_t pmWorkspace::get_number_of_variables() const {
 	return num_variables;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the number of constants stored in the workspace.
 /////////////////////////////////////////////////////////////////////////////////////////
 size_t pmWorkspace::get_number_of_constants() const {
 	return num_constants;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if any new instance can get the given name.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -369,6 +398,7 @@ size_t pmWorkspace::get_number_of_constants() const {
 	}
 	return false;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Resets the number of nodes. If new size is smaller, the remaining nodes are destroyed.
 /// If new size is larger, the formerly deleted id-s are re-used first.

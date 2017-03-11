@@ -28,7 +28,6 @@
 //  A constant can be named or anonymous. The value of a constant cannot be changed
 //  after definition so the set_value function does not do anything.
 */
-
 class pmConstant final : public pmSingle {
 	bool hidden=false;
 protected:
@@ -47,6 +46,9 @@ public:
 	virtual void write_to_string(std::ostream& os) const override;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Implementaton of << operator.
+/////////////////////////////////////////////////////////////////////////////////////////
 inline std::ostream& operator<<(std::ostream& os, pmConstant const* obj) {
 	obj->write_to_string(os);
 	return os;

@@ -31,7 +31,6 @@
 
 /** This class contains parameters for the calculations.
 */
-
 class pmParameter_space final {
 	/** This class holds the name and value of a parameter.
 	*/

@@ -23,6 +23,8 @@
 
 #include <string>
 
+/** This class checks std::string formatted objects of mathematical operators.
+*/
 class pmMath_test {
 protected:
 	std::string const one_op_minus = "#";

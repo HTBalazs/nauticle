@@ -29,7 +29,6 @@
 /** This interface realizes the most important functions for the mathematical
 //  parsing classes.
 */
-
 class pmMath_parser : public pmMath_test {
 public:
 	pmMath_parser() {}

@@ -23,9 +23,9 @@
 
 #include "pmTensor.h"
 
-/** An object of this class represents the domain in which a particle system can be
+/** This class represents the domain in which a particle system can be
 //  interpreted. The domain can be of any dimensions (1..3). The domain is axis-aligned 
-//  in the Cartesian coordinate system.
+//  in the Cartesian coordinate system. The domain boundaries can be periodic and symmetric.
 */
 class pmDomain {
 	pmTensor minimum;

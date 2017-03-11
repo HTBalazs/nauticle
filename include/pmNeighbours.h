@@ -24,6 +24,9 @@
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
 
+/** This class calculates the number of neighbouring particles within the given range.
+//  It requires a pmParticle_system assigned to it.
+*/
 class pmNeighbours : public pmInteraction<0> {
 	std::shared_ptr<pmExpression> clone_impl() const override;
 public:
@@ -41,6 +44,9 @@ public:
 	virtual void write_to_string(std::ostream& os) const override;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Implementaton of << operator.
+/////////////////////////////////////////////////////////////////////////////////////////
 inline std::ostream& operator<<(std::ostream& os, pmNeighbours const* obj) {
 	obj->write_to_string(os);
 	return os;

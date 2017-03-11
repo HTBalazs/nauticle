@@ -15,6 +15,8 @@
 #include <memory>
 #include "pmGrid.h"
 
+/** This class forms a group of grids used by pmParticle_system.
+*/
 class pmGrid_space {
 	std::vector<std::shared_ptr<pmGrid>> grid;
 public:

@@ -50,6 +50,7 @@ std::vector<pmTensor> pmVTK_reader::pop_array_from_polydata(int const& i, size_t
 	}
 	return field;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns a tensor for the given field name.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +63,10 @@ pmTensor pmVTK_reader::pop_single_from_polydata(vtkSmartPointer<vtkPolyData> pol
 	}
 	return field_data;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the functions stored in the polydata.
+/////////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<pmFunction>> pmVTK_reader::pop_functions_from_polydata(std::shared_ptr<pmWorkspace> workspace) const {
 	std::vector<std::shared_ptr<pmFunction>> functions;
 	vtkSmartPointer<vtkFieldData> function_data = polydata->GetFieldData();
@@ -79,6 +84,9 @@ std::vector<std::shared_ptr<pmFunction>> pmVTK_reader::pop_functions_from_polyda
 	return functions;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the domain stored in the polydata.
+/////////////////////////////////////////////////////////////////////////////////////////
 pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const {
 	pmDomain domain;
 	vtkSmartPointer<vtkFieldData> field_data = polydata->GetFieldData();
@@ -102,6 +110,9 @@ pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> wor
 	return domain;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the singles (pmVariable and pmConstant) stored in the polydata.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_reader::pop_singles_from_polydata(std::string const& type, std::shared_ptr<pmWorkspace> workspace) const {
 	vtkSmartPointer<vtkFieldData> field_data = polydata->GetFieldData();
 	int i=0;
@@ -120,6 +131,7 @@ void pmVTK_reader::pop_singles_from_polydata(std::string const& type, std::share
 		}
 	}
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Reads the file with the given name. All previously stored data are destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////

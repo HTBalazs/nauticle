@@ -26,7 +26,7 @@
 #include "prolog/pLogger.h"
 #include "pmKernel.h"
 
-/** This class implements the conventianal Discrete element method as 
+/** This abstract class implements the conventianal Smoothed Particle Hydrodynamics
 //  through interactions between particles.
 */
 template <size_t S>

@@ -83,6 +83,9 @@ public:
 	void set_number_of_nodes(size_t const& N);
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints the workspace content.
+/////////////////////////////////////////////////////////////////////////////////////////
 template<typename T> void pmWorkspace::print_content(std::string const& title) const {
 	pLogger::titlef<LMA>(title.c_str());
 	int count=0;
@@ -98,6 +101,9 @@ template<typename T> void pmWorkspace::print_content(std::string const& title) c
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the instances of type T (stored in pmWorkspace) in an std::vector<T>.
+/////////////////////////////////////////////////////////////////////////////////////////
 template <typename T> std::vector<std::shared_ptr<T>> pmWorkspace::get() const {
 	std::vector<std::shared_ptr<T>> vecT;
 	for(auto const& it:definitions) {

@@ -27,6 +27,9 @@
 #include "pmInteraction.h"
 #include "pmTensor.h"
 
+/** This class implements an N-body interaction between particles defined in the assigned
+//  pmParticle_system. This interaction has N^2 complexity.
+*/
 class pmNbody : public pmInteraction<2> {
 private:
 	std::shared_ptr<pmExpression> clone_impl() const override;
@@ -45,5 +48,13 @@ public:
 	virtual void write_to_string(std::ostream& os) const override;
 	int get_field_size() const override;
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Implementaton of << operator.
+/////////////////////////////////////////////////////////////////////////////////////////
+inline std::ostream& operator<<(std::ostream& os, pmNbody const* obj) {
+	obj->write_to_string(os);
+	return os;
+}
 
 #endif // _NBODY_H_

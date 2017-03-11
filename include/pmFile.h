@@ -14,6 +14,8 @@
 #include <cstdarg>
 #include <string>
 
+/** This class wraps a FILE object and performs printing operations.
+*/
 class pmFile final {
 	FILE* file;
 public:

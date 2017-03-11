@@ -23,12 +23,14 @@
 
 #include "pmInteraction.h"
 
+/** This abstract class forms a parent class for pmField operations.
+*/
 class pmFsearch : public pmInteraction<1> {
 private:
 	virtual void process(pmTensor& value, Eval_type eval_type=current) const=0;
 public:
 	virtual ~pmFsearch() {}
-	int get_field_size() const override;
+	virtual int get_field_size() const override;
 	bool is_assigned() const override;
 	pmTensor evaluate(int const& i, Eval_type eval_type=current) const override;
 };
