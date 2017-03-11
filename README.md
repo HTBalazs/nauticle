@@ -1,4 +1,4 @@
-![nauticle_logo.png](https://bitbucket.org/repo/yraAqM/images/3153723005-nauticle_logo.png)
+![nauticle_logo_small.png](https://bitbucket.org/repo/yraAqM/images/4040395855-nauticle_logo_small.png)
 
 # Introduction #
 **LEMPS** (Langrangian Engine for Methods of ParticleS) is a parallel particle based **general purpose** explicit numerical solver under the GNU Lesser General Public License (LGPL). It is designed to make the implementation of particle based models easy and efficient. Some of the particle based solvers are already implemented (SPH, basic DEM, n-body problem) and **new contributions are welcome**.  
