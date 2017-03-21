@@ -279,57 +279,62 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			if(it=="sph_X00") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<XSAMPLE,0,0>>(operands));
+				e.push(std::make_shared<pmSph_operator<XSAMPLE,0,0,4>>(operands));
 			}
 			if(it=="sph_S00") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<SAMPLE,0,0>>(operands));
+				e.push(std::make_shared<pmSph_operator<SAMPLE,0,0,4>>(operands));
 			}
 			if(it=="sph_G00") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,0,0>>(operands));
+				e.push(std::make_shared<pmSph_operator<GRADIENT,0,0,4>>(operands));
 			}
 			if(it=="sph_G01") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,0,1>>(operands));
+				e.push(std::make_shared<pmSph_operator<GRADIENT,0,1,4>>(operands));
 			}
 			if(it=="sph_G10") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,1,0>>(operands));
+				e.push(std::make_shared<pmSph_operator<GRADIENT,1,0,4>>(operands));
 			}
 			if(it=="sph_G11") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,1,1>>(operands));
+				e.push(std::make_shared<pmSph_operator<GRADIENT,1,1,4>>(operands));
 			}
 			if(it=="sph_D00") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,0,0>>(operands));
+				e.push(std::make_shared<pmSph_operator<DIVERGENCE,0,0,4>>(operands));
 			}
 			if(it=="sph_D01") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,0,1>>(operands));
+				e.push(std::make_shared<pmSph_operator<DIVERGENCE,0,1,4>>(operands));
 			}
 			if(it=="sph_D10") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,1,0>>(operands));
+				e.push(std::make_shared<pmSph_operator<DIVERGENCE,1,0,4>>(operands));
 			}
 			if(it=="sph_D11") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,1,1>>(operands));
+				e.push(std::make_shared<pmSph_operator<DIVERGENCE,1,1,4>>(operands));
 			}
 			if(it=="sph_L00") {
 				std::array<std::shared_ptr<pmExpression>,4> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<LAPLACE,0,0>>(operands));
+				e.push(std::make_shared<pmSph_operator<LAPLACE,0,0,4>>(operands));
+			}
+			if(it=="sph_L10") {
+				std::array<std::shared_ptr<pmExpression>,5> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmSph_operator<LAPLACE,1,0,5>>(operands));
 			}
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
