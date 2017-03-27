@@ -100,34 +100,31 @@ pmTensor pmDem::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
 	if(!assigned) { pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
 
 	pmTensor vel_i = operand[0]->evaluate(i,eval_type);
-	float radius_i = operand[1]->evaluate(i,eval_type)[0];
-	float mass_i = operand[2]->evaluate(i,eval_type)[0];
-	float spring_i = operand[3]->evaluate(i,eval_type)[0];
-	float damping_i = operand[4]->evaluate(i,eval_type)[0];
-	float shear_i = operand[5]->evaluate(i,eval_type)[0];
+	float Ri = operand[1]->evaluate(i,eval_type)[0];
+	float mi = operand[2]->evaluate(i,eval_type)[0];
+	float ks = operand[3]->evaluate(i,eval_type)[0];
+	float kd = operand[4]->evaluate(i,eval_type)[0];
+	float kf = operand[5]->evaluate(i,eval_type)[0];
 
-	auto contribute = [&vel_i, &radius_i, &mass_i, &spring_i, &damping_i, &shear_i, &eval_type, this](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&vel_i, &Ri, &mi, &ks, &kd, &kf, &eval_type, this](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor force;
 		float d_ji = rel_pos.norm();
 		if(d_ji > 1e-6f) {
-			float radius_j = operand[1]->evaluate(j,eval_type)[0];
-			float min_dist = radius_i + radius_j;
+			float Rj = operand[1]->evaluate(j,eval_type)[0];
+			float min_dist = Ri + Rj;
 			if(d_ji < min_dist) {
-				float mass_j = operand[2]->evaluate(j,eval_type)[0];
-				float spring_j = operand[3]->evaluate(j,eval_type)[0];
-				float damping_j = operand[4]->evaluate(j,eval_type)[0];
-				float shear_j = operand[5]->evaluate(j,eval_type)[0];
+				float mj = operand[2]->evaluate(j,eval_type)[0];
 				pmTensor norm = rel_pos / d_ji;
 				pmTensor vel_j = operand[0]->evaluate(j,eval_type).reflect(guide);
 				pmTensor rel_vel = vel_j-vel_i;
 				// relative tangential velocity
 				pmTensor tan_vel = rel_vel - (rel_vel.transpose()*norm) * norm;
 				// spring force
-				force += -(spring_i*mass_i+spring_j*mass_j)/2*(min_dist-d_ji)*norm;
+				force += -ks*rel_pos*(min_dist/d_ji-1.0);
 				// dashpot (damping) force
-				force += (damping_i*mass_i+damping_j*mass_j)/2*rel_vel;
+				force += kd*(rel_vel.transpose()*rel_pos)*norm;
 				// tangential shear force
-				force += (shear_i*mass_i+shear_j*mass_j)/2*tan_vel;
+				force += kf*tan_vel;
 			}
 		}
 		return force;
