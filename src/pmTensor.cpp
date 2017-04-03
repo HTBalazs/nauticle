@@ -661,7 +661,20 @@ pmTensor pmTensor::reflect(pmTensor const& guide) const {
 	return R*(*this);
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns a tensor appended with zeros to the size row*col.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmTensor::append(int const& row, int const& col) const {
+	if(this->rows==row && this->columns==col) {
+		return *this;
+	}
+	if(this->rows>row || this->columns>col) {
+		pLogger::error_msgf("Appended size is smaller than the original.\n");
+	}
+	pmTensor tensor{row,col,0};
+	memcpy(&tensor.elements[0], &this->elements[0], sizeof(float)*this->numel());
+	return tensor;
+}
 
 
 

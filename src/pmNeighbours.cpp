@@ -107,7 +107,7 @@ pmTensor pmNeighbours::evaluate(int const& i, Eval_type eval_type/*=current*/) c
 		}
 		return num_neighbours;
 	};
-	return interact(i, operand, contribute);
+	return interact(i, contribute);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

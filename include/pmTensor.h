@@ -97,6 +97,7 @@ public:
 	pmTensor inverse() const;
 	void set_scalar(bool const& sc);
 	pmTensor reflect(pmTensor const& guide) const;
+	pmTensor append(int const& row, int const& col) const;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -598,14 +599,48 @@ inline pmTensor pow(pmTensor const& T1, pmTensor const& T2) {
 /// Returns the cross product of the given vectors.
 /////////////////////////////////////////////////////////////////////////////////////////
 inline pmTensor cross(pmTensor const& lhs, pmTensor const& rhs) {
-	if(lhs.numel()!=3 || rhs.numel()!=3) {
-		pLogger::error_msgf("Cross product can be calculated for 3D vectors.\n");
+	if(!lhs.is_column() || !rhs.is_column() || lhs.numel()!=rhs.numel()) {
+		pLogger::error_msgf("Cross product requires column vectors.\n");
 	}
-	pmTensor result{3,1,0};
-	result[0] = lhs[1]*rhs[2]-lhs[2]*rhs[1];
-	result[1] = lhs[2]*rhs[0]-lhs[0]*rhs[2];
-	result[2] = lhs[0]*rhs[1]-lhs[1]*rhs[0];
-	return result;
+	pmTensor L = lhs;
+	pmTensor R = rhs;
+	if(lhs.numel()<3) {
+		L = L.append(3,1);
+		R = R.append(3,1);
+	}
+	pmTensor tensor{3,1,0};
+	tensor[0] = L[1]*R[2]-L[2]*R[1];
+	tensor[1] = L[2]*R[0]-L[0]*R[2];
+	tensor[2] = L[0]*R[1]-L[1]*R[0];
+	if(lhs.numel()<3) {
+		return pmTensor{1,1,tensor[2]};
+	} else {
+		return tensor;
+	}
 }
 
 #endif //_TENSOR_H_
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

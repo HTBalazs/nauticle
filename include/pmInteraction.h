@@ -43,8 +43,8 @@ protected:
 	void assign(std::weak_ptr<pmParticle_system> ps) override;
 	bool is_assigned() const override;
 	int get_field_size() const override;
-	pmTensor interact(int const& i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_ith contribute) const;
-	pmTensor interact(pmTensor const& pos_i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_pos contribute) const;
+	pmTensor interact(int const& i, Func_ith contribute) const;
+	pmTensor interact(pmTensor const& pos_i, Func_pos contribute) const;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ int pmInteraction<S>::get_field_size() const {
 /// lambda-function.
 /////////////////////////////////////////////////////////////////////////////////////////
 template <size_t S>
-pmTensor pmInteraction<S>::interact(int const& i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_ith contribute) const {
+pmTensor pmInteraction<S>::interact(int const& i, Func_ith contribute) const {
 	std::shared_ptr<pmParticle_system> ps = psys.lock();
 	std::vector<unsigned int> const& start = ps->get_particle_space()->get_start();
 	std::vector<unsigned int> const& end = ps->get_particle_space()->get_end();
@@ -112,8 +112,9 @@ pmTensor pmInteraction<S>::interact(int const& i, std::array<std::shared_ptr<pmE
 			for(int j=start[hash_j]; j<=end[hash_j]; j++) {
 				pmTensor pos_j = ps->get_value(j);
 				pmTensor rel_pos = pos_j-pos_i;
-				// look for periodic & symmetric neighbour particles (ensemble formula)
+				// look for periodic & symmetric neighbour particles (ensemble formula) - too slow...
 				// rel_pos += beta.multiply_term_by_term(delta.multiply_term_by_term((delta-ones).multiply_term_by_term(domain_physical_maximum-pos_j) + (delta+ones).multiply_term_by_term(domain_physical_minimum-pos_j))) + (beta-ones).multiply_term_by_term(floor((rel_pos-domain_physical_minimum).divide_term_by_term(domain_physical_size)).multiply_term_by_term(domain_physical_size));
+				// look for periodic & symmetric neighbour particles (separated formulae)
 				for(int k=0; k<beta.numel(); k++) {
 					if(beta[k]==1) {
 						rel_pos[k] += delta[k]*(delta[k]-1)*(domain_physical_maximum[k]-pos_j[k]) + delta[k]*(delta[k]+1)*(domain_physical_minimum[k]-pos_j[k]);
@@ -132,7 +133,7 @@ pmTensor pmInteraction<S>::interact(int const& i, std::array<std::shared_ptr<pmE
 /// Calculates the interaction between adjacent particles using the given contribution lambda-function.
 /////////////////////////////////////////////////////////////////////////////////////////
 template <size_t S>
-pmTensor pmInteraction<S>::interact(pmTensor const& pos_i, std::array<std::shared_ptr<pmExpression>, S> operand, Func_pos contribute) const {
+pmTensor pmInteraction<S>::interact(pmTensor const& pos_i, Func_pos contribute) const {
 	std::shared_ptr<pmParticle_system> ps = psys.lock();
 	std::vector<unsigned int> const& start = ps->get_particle_space()->get_start();
 	std::vector<unsigned int> const& end = ps->get_particle_space()->get_end();

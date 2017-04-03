@@ -189,7 +189,7 @@ pmTensor pmSph_operator<OP_TYPE,VAR,K,NOPS>::evaluate(int const& i, Eval_type ev
 		}
 		return contribution;
 	};
-	return this->interact(i, this->operand, contribute);
+	return this->interact(i, contribute);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the operator.

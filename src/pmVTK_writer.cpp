@@ -56,6 +56,9 @@ void pmVTK_writer::push_fields_to_polydata() {
 				field->SetNumberOfTuples(n);
 				for(int i=0; i<n; i++) {
 					pmTensor t = it->evaluate(i);
+					if(t.numel()==0){
+						t = pmTensor{1,1,0};
+					}
 					field->SetTuple(i, &t[0]);
 				}
 				if(!scalar_set) {
@@ -167,7 +170,6 @@ void pmVTK_writer::update() {
 	push_functions_to_polydata();
 	push_nodes_to_polydata();
 	push_fields_to_polydata();
-	
 	// Write vtk file.
 	vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
 	writer->SetFileName(file_name.c_str());
