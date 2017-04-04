@@ -156,7 +156,7 @@ pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) co
 		float Ri = operand[2]->evaluate(i,eval_type)[0];
 		float ks = operand[3]->evaluate(i,eval_type)[0];
 		float kd = operand[4]->evaluate(i,eval_type)[0];
-		float kf = -operand[5]->evaluate(i,eval_type)[0];
+		float kf = operand[5]->evaluate(i,eval_type)[0];
 
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor force;
