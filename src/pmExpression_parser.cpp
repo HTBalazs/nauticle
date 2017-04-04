@@ -272,12 +272,12 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				e.push(std::make_shared<pmNbody>(operands));
 			}
 			if(it=="dem_l") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
+				std::array<std::shared_ptr<pmExpression>,6> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmDem<LINEAR>>(operands));
 			}
 			if(it=="dem_a") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
+				std::array<std::shared_ptr<pmExpression>,6> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmDem<ANGULAR>>(operands));
 			}

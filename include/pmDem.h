@@ -34,12 +34,12 @@ enum DEM_TYPE {
 };
 
 template <DEM_TYPE TYPE>
-class pmDem : public pmInteraction<5> {
+class pmDem : public pmInteraction<6> {
 private:
 	std::shared_ptr<pmExpression> clone_impl() const override;
 public:
 	pmDem() {}
-	pmDem(std::array<std::shared_ptr<pmExpression>,5> op);
+	pmDem(std::array<std::shared_ptr<pmExpression>,6> op);
 	pmDem(pmDem const& other);
 	pmDem(pmDem&& other);
 	pmDem& operator=(pmDem const& other);
@@ -64,7 +64,7 @@ inline std::ostream& operator<<(std::ostream& os, pmDem<TYPE> const* obj) {
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 template <DEM_TYPE TYPE>
-pmDem<TYPE>::pmDem(std::array<std::shared_ptr<pmExpression>,5> op) {
+pmDem<TYPE>::pmDem(std::array<std::shared_ptr<pmExpression>,6> op) {
 	operand = std::move(op);
 }
 
@@ -152,32 +152,51 @@ pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) co
 
 	if(TYPE==LINEAR) {
 		pmTensor vi = operand[0]->evaluate(i,eval_type);
-		float Ri = operand[1]->evaluate(i,eval_type)[0];
-		float ks = operand[2]->evaluate(i,eval_type)[0];
-		float kd = operand[3]->evaluate(i,eval_type)[0];
-		float kf = operand[4]->evaluate(i,eval_type)[0];
+		pmTensor omi = operand[1]->evaluate(i,eval_type);
+		float Ri = operand[2]->evaluate(i,eval_type)[0];
+		float ks = operand[3]->evaluate(i,eval_type)[0];
+		float kd = operand[4]->evaluate(i,eval_type)[0];
+		float kf = -operand[5]->evaluate(i,eval_type)[0];
 
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor force;
 			float d_ji = rel_pos.norm();
 			if(d_ji > 1e-6f) {
-				float Rj = operand[1]->evaluate(j,eval_type)[0];
+				float Rj = operand[2]->evaluate(j,eval_type)[0];
 				float min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
 					// overlap
 					float delta = min_dist-d_ji;
 					pmTensor vj = operand[0]->evaluate(j,eval_type).reflect(guide);
+					pmTensor omj = operand[1]->evaluate(j,eval_type).reflect(guide);
 					pmTensor rel_vel = vj-vi;
-					// relative tangential velocity
-					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
 					// spring force
 					// force += -ks*rel_pos*(min_dist/d_ji-1.0);
 					force += -ks*delta*e_ji;
 					// damping force
 					force += kd*(rel_vel.transpose()*rel_pos)*e_ji;
+					
+					// // relative tangential velocity
+					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
+
+					// relative tangential velocity
+					float rci = Ri-delta/2.0;
+					float rcj = Rj-delta/2.0;
+					pmTensor wi = omi;
+					pmTensor wj = omj;
+					if(dimension==2) {
+						wi = pmTensor{3,1,0};
+						wi[2] = omi[0];
+						wj = pmTensor{3,1,0};
+						wj[2] = omj[0];
+						tan_vel += (rci*cross(wi,e_ji.append(3,1)) + rcj*cross(wj,e_ji.append(3,1))).sub_tensor(0,1,0,0);
+					} else if(dimension==3) {
+						tan_vel += rci*cross(wi,e_ji) + rcj*cross(wj,e_ji);
+					}
 					// tangential shear force
 					force += kf*tan_vel;
+
 				}
 			}
 			return force;
