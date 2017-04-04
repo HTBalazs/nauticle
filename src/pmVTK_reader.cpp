@@ -76,10 +76,20 @@ std::vector<std::shared_ptr<pmFunction>> pmVTK_reader::pop_functions_from_polyda
 	int num_values = array->GetNumberOfValues();
 	for(int j=0; j<num_values; j++) {
 		std::string vtkfunction = array->GetValue(j);
-		std::string function_name = vtkfunction.substr(0, vtkfunction.find(":"));
-		std::string function_value = vtkfunction.substr(vtkfunction.find(":")+1);
+		// set separators for function and condition
+		size_t sp_f = vtkfunction.find(":");
+		size_t sp_c = vtkfunction.find("#");
+		// pull name, function and condition
+		std::string function_name = vtkfunction.substr(0, sp_f);
+		std::string function_value = vtkfunction.substr(sp_f+1, sp_c-1-sp_f);
+		std::string function_condition = vtkfunction.substr(sp_c+1);
+
+		std::cout << function_name << std::endl;
+		std::cout << function_value << std::endl;
+		std::cout << function_condition << std::endl;
+
 		std::unique_ptr<pmFunction_parser> fp{new pmFunction_parser};
-		functions.push_back(fp->analyse_function(function_name, function_value, workspace));
+		functions.push_back(fp->analyse_function(function_name, function_value, function_condition, workspace));
 	}
 	return functions;
 }

@@ -25,10 +25,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFunction::pmFunction(std::string n, std::shared_ptr<pmTerm> ex1, std::shared_ptr<pmExpression> ex2) {
+pmFunction::pmFunction(std::string n, std::shared_ptr<pmTerm> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond) {
 	name = n;
 	lhs = ex1;
 	rhs = ex2;
+	condition = cond;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,7 @@ pmFunction::pmFunction(pmFunction const& other) {
 	this->name = other.name;
 	lhs = other.lhs->clone();
 	rhs = other.rhs->clone();
+	condition = other.condition->clone();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +50,7 @@ pmFunction& pmFunction::operator=(pmFunction const& other) {
 		this->name = other.name;
 		lhs = other.lhs->clone();
 		rhs = other.rhs->clone();
+		condition = other.condition->clone();
 	}
 	return *this;
 }
@@ -59,6 +62,7 @@ pmFunction::pmFunction(pmFunction&& other) {
 	this->name = other.name;
 	lhs = std::move(other.lhs);
 	rhs = std::move(other.rhs);
+	condition = other.condition->clone();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +73,7 @@ pmFunction& pmFunction::operator=(pmFunction&& other) {
 		this->name = other.name;
 		lhs = std::move(other.lhs);
 		rhs = std::move(other.rhs);
+		condition = other.condition->clone();
 	}
 	return *this;
 }
@@ -81,6 +86,8 @@ void pmFunction::print() const {
 	lhs->print();
 	pLogger::logf(" = ");
 	rhs->print();
+	pLogger::logf<LMA>("  # ");
+	condition->print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +96,9 @@ void pmFunction::print() const {
 void pmFunction::evaluate(int const& p_begin, int const& p_end) {
 	int end = p_end>rhs->get_field_size() ? rhs->get_field_size() : p_end;
 	for(int i=p_begin; i<end; i++) {
-		lhs->set_value(rhs->evaluate(i, current), i);
+		if(condition->evaluate(i, current)[0]) {
+			lhs->set_value(rhs->evaluate(i, current), i);
+		}
 	}
 }
 
@@ -145,7 +154,7 @@ std::shared_ptr<pmFunction> pmFunction::clone() const {
 /// Writes the function to the stream.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmFunction::write_to_string(std::ostream& os) const {
-	os << lhs << "=" << rhs;
+	os << lhs << "=" << rhs << "#" << condition;
 }
 
 

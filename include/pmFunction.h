@@ -44,8 +44,9 @@ protected:
 	std::string name = "";
 	std::shared_ptr<pmTerm> lhs;
 	std::shared_ptr<pmExpression> rhs;
+	std::shared_ptr<pmExpression> condition;
 public:
-	pmFunction(std::string n, std::shared_ptr<pmTerm> ex1, std::shared_ptr<pmExpression> ex2);
+	pmFunction(std::string n, std::shared_ptr<pmTerm> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond);
 	pmFunction(pmFunction const&);
 	pmFunction(pmFunction&&);
 	pmFunction& operator=(pmFunction const&);

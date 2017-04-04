@@ -39,7 +39,7 @@ private:
 public:
 	pmFunction_parser() {}
 	virtual ~pmFunction_parser() override {}
-	std::shared_ptr<pmFunction> analyse_function(std::string const& name, std::string const& raw_data, std::shared_ptr<pmWorkspace> workspace);
+	std::shared_ptr<pmFunction> analyse_function(std::string const& name, std::string const& function_data, std::string const& condition_data, std::shared_ptr<pmWorkspace> workspace);
 };
 
 #endif //_FUNCTION_PARSER_H_

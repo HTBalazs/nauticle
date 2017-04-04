@@ -261,14 +261,10 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, Eval_type eval_type/*=current
 template <DEM_TYPE TYPE, size_t NOPS>
 void pmDem<TYPE, NOPS>::write_to_string(std::ostream& os) const {
 	if(TYPE==LINEAR) {
-		os << "dem_l(";
+		os<<"dem_l("<<this->operand[0]<<","<<this->operand[1]<<","<<this->operand[2]<<","<<this->operand[3]<<","<<this->operand[4]<<","<<this->operand[5]<<")";
 	} else {
-		os << "dem_a(";
+		os<<"dem_a("<<this->operand[0]<<","<<this->operand[1]<<","<<this->operand[2]<<","<<this->operand[3]<<")";
 	}
-	for(auto const& it:this->operand) {
-		os << it;
-	}
-	os << ")";
 }
 
 #endif //_DEM_H_

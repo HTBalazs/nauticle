@@ -140,7 +140,8 @@ std::vector<std::shared_ptr<pmFunction>> pmXML_processor::get_functions(std::sha
 			if(it->get_name()=="functions") {
 				for(auto const& fcs:it->get_children()) {
 					std::unique_ptr<pmFunction_parser> ep{new pmFunction_parser};
-					std::shared_ptr<pmFunction> fc = ep->analyse_function(fcs->get_name(), std::dynamic_pointer_cast<pmEntry>(fcs)->get_value("value"), workspace);
+					std::unique_ptr<pmTensor_parser> tp{new pmTensor_parser};
+					std::shared_ptr<pmFunction> fc = ep->analyse_function(fcs->get_name(), std::dynamic_pointer_cast<pmEntry>(fcs)->get_value("value"), std::dynamic_pointer_cast<pmEntry>(fcs)->get_value("condition"), workspace);
 					if(fc.use_count()>0) { functions.push_back(fc); }
 				}
 			}

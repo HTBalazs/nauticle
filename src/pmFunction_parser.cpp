@@ -51,15 +51,46 @@ std::string pmFunction_parser::get_rhs_infix(std::string const& data) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Analyses the equation given by the infix.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmFunction> pmFunction_parser::analyse_function(std::string const& name, std::string const& infix, std::shared_ptr<pmWorkspace> workspace) {
-	if(!verify_sides(infix)) return std::shared_ptr<pmFunction>(nullptr);
-	std::string lhs_infix = get_lhs_infix(infix);
-	std::string rhs_infix = get_rhs_infix(infix);
+std::shared_ptr<pmFunction> pmFunction_parser::analyse_function(std::string const& name, std::string const& function_data, std::string const& condition_data, std::shared_ptr<pmWorkspace> workspace) {
+	if(!verify_sides(function_data)) return std::shared_ptr<pmFunction>(nullptr);
+	std::string lhs_infix = get_lhs_infix(function_data);
+	std::string rhs_infix = get_rhs_infix(function_data);
 	std::shared_ptr<pmTerm> lhs = analyse_expression<pmTerm>(lhs_infix, workspace);
 	if(!lhs) { 
-		pLogger::warning_msgf("\"%s\" is not a function and ignored.\n", infix.c_str());
+		pLogger::warning_msgf("\"%s\" is not a function and ignored.\n", function_data.c_str());
 		return std::shared_ptr<pmFunction>(nullptr);
 	}
 	std::shared_ptr<pmExpression> rhs = analyse_expression<pmExpression>(rhs_infix, workspace);
-	return std::make_shared<pmFunction>(name, lhs, rhs);
+	std::shared_ptr<pmExpression> condition;
+	if(condition_data.empty()) {
+		condition = std::make_shared<pmConstant>(pmTensor{1});
+	} else {
+		condition = analyse_expression<pmExpression>(condition_data, workspace);
+	}
+	return std::make_shared<pmFunction>(name, lhs, rhs, condition);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
