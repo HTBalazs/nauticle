@@ -17,7 +17,7 @@
 
     For more information please visit: https://bitbucket.org/lempsproject/
 */
-    
+
 #include "pmCase.h"
 #include "pmLog_stream.h"
 

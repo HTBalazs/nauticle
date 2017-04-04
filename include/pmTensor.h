@@ -599,24 +599,14 @@ inline pmTensor pow(pmTensor const& T1, pmTensor const& T2) {
 /// Returns the cross product of the given vectors.
 /////////////////////////////////////////////////////////////////////////////////////////
 inline pmTensor cross(pmTensor const& lhs, pmTensor const& rhs) {
-	if(!lhs.is_column() || !rhs.is_column() || lhs.numel()!=rhs.numel()) {
-		pLogger::error_msgf("Cross product requires column vectors.\n");
-	}
-	pmTensor L = lhs;
-	pmTensor R = rhs;
-	if(lhs.numel()<3) {
-		L = L.append(3,1);
-		R = R.append(3,1);
+	if(!lhs.is_column() || !rhs.is_column() || lhs.numel()<3 || rhs.numel()<3) {
+		pLogger::error_msgf("Cross product requires [3 by 1] vectors.\n");
 	}
 	pmTensor tensor{3,1,0};
-	tensor[0] = L[1]*R[2]-L[2]*R[1];
-	tensor[1] = L[2]*R[0]-L[0]*R[2];
-	tensor[2] = L[0]*R[1]-L[1]*R[0];
-	if(lhs.numel()<3) {
-		return pmTensor{1,1,tensor[2]};
-	} else {
-		return tensor;
-	}
+	tensor[0] = lhs[1]*rhs[2]-lhs[2]*rhs[1];
+	tensor[1] = lhs[2]*rhs[0]-lhs[0]*rhs[2];
+	tensor[2] = lhs[0]*rhs[1]-lhs[1]*rhs[0];
+	return tensor;
 }
 
 #endif //_TENSOR_H_

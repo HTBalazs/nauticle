@@ -148,6 +148,8 @@ template <DEM_TYPE TYPE>
 pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
 	if(!assigned) { pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
 
+	size_t dimension = psys.lock()->get_particle_space()->get_domain().get_dimensions();
+
 	if(TYPE==LINEAR) {
 		pmTensor vi = operand[0]->evaluate(i,eval_type);
 		float Ri = operand[1]->evaluate(i,eval_type)[0];
@@ -163,13 +165,16 @@ pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) co
 				float min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
+					// overlap
+					float delta = min_dist-d_ji;
 					pmTensor vj = operand[0]->evaluate(j,eval_type).reflect(guide);
 					pmTensor rel_vel = vj-vi;
 					// relative tangential velocity
 					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
 					// spring force
-					force += -ks*rel_pos*(min_dist/d_ji-1.0);
-					// dashpot (damping) force
+					// force += -ks*rel_pos*(min_dist/d_ji-1.0);
+					force += -ks*delta*e_ji;
+					// damping force
 					force += kd*(rel_vel.transpose()*rel_pos)*e_ji;
 					// tangential shear force
 					force += kf*tan_vel;
@@ -193,21 +198,35 @@ pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) co
 				float min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
+					// overlap
+					float delta = min_dist-d_ji;
 					pmTensor vj = operand[0]->evaluate(j,eval_type).reflect(guide);
 					pmTensor omj = operand[1]->evaluate(j,eval_type);
 					pmTensor rel_vel = vj-vi;
+
 					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
-					pmTensor norm = tan_vel/tan_vel.norm();
 					// relative tangential velocity
-					pmTensor rcj =  e_ji*Rj/min_dist*d_ji;
-					pmTensor rci = -e_ji*Ri/min_dist*d_ji;
-					pmTensor vti = omi.is_scalar() ? rci.norm()*omi*norm : cross(omi,rci);
-					pmTensor vtj = omj.is_scalar() ? -rcj.norm()*omj*norm : cross(omj,rcj);
-					tan_vel += vti+vtj;
-					// tangential shear force
-					pmTensor force = kf*tan_vel;
-					// torque
-					torque += cross(e_ji*Ri,force);
+					float rci = Ri-delta/2.0;
+					float rcj = Rj-delta/2.0;
+					pmTensor wi = omi;
+					pmTensor wj = omj;
+					if(dimension==2) {
+						wi = pmTensor{3,1,0};
+						wi[2] = omi[0];
+						wj = pmTensor{3,1,0};
+						wj[2] = omj[0];
+						tan_vel += (rci*cross(wi,e_ji.append(3,1)) + rcj*cross(wj,e_ji.append(3,1))).sub_tensor(0,1,0,0);
+						// tangential shear force
+						pmTensor force = kf*tan_vel;
+						// torque
+						torque += cross(e_ji.append(3,1)*rci,force.append(3,1)).sub_tensor(2,2,0,0);
+					} else if(dimension==3) {
+						tan_vel += rci*cross(wi,e_ji) + rcj*cross(wj,e_ji);
+						// tangential shear force
+						pmTensor force = kf*tan_vel;
+						// torque
+						torque += cross(e_ji*Ri,force);
+					}
 				}
 			}
 			return torque;
@@ -221,7 +240,11 @@ pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) co
 /////////////////////////////////////////////////////////////////////////////////////////
 template <DEM_TYPE TYPE>
 void pmDem<TYPE>::write_to_string(std::ostream& os) const {
-	os << "dem(";
+	if(TYPE==LINEAR) {
+		os << "dem_l(";
+	} else {
+		os << "dem_a(";
+	}
 	for(auto const& it:operand) {
 		os << it;
 	}
