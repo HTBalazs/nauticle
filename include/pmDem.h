@@ -33,13 +33,13 @@ enum DEM_TYPE {
 	ANGULAR
 };
 
-template <DEM_TYPE TYPE>
-class pmDem : public pmInteraction<6> {
+template <DEM_TYPE TYPE, size_t NOPS>
+class pmDem : public pmInteraction<NOPS> {
 private:
 	std::shared_ptr<pmExpression> clone_impl() const override;
 public:
 	pmDem() {}
-	pmDem(std::array<std::shared_ptr<pmExpression>,6> op);
+	pmDem(std::array<std::shared_ptr<pmExpression>,NOPS> op);
 	pmDem(pmDem const& other);
 	pmDem(pmDem&& other);
 	pmDem& operator=(pmDem const& other);
@@ -54,8 +54,8 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implementaton of << operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-inline std::ostream& operator<<(std::ostream& os, pmDem<TYPE> const* obj) {
+template <DEM_TYPE TYPE, size_t NOPS>
+inline std::ostream& operator<<(std::ostream& os, pmDem<TYPE, NOPS> const* obj) {
 	obj->write_to_string(os);
 	return os;
 }
@@ -63,16 +63,16 @@ inline std::ostream& operator<<(std::ostream& os, pmDem<TYPE> const* obj) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-pmDem<TYPE>::pmDem(std::array<std::shared_ptr<pmExpression>,6> op) {
-	operand = std::move(op);
+template <DEM_TYPE TYPE, size_t NOPS>
+pmDem<TYPE, NOPS>::pmDem(std::array<std::shared_ptr<pmExpression>,NOPS> op) {
+	this->operand = std::move(op);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-pmDem<TYPE>::pmDem(pmDem<TYPE> const& other) {
+template <DEM_TYPE TYPE, size_t NOPS>
+pmDem<TYPE, NOPS>::pmDem(pmDem<TYPE, NOPS> const& other) {
 	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
@@ -82,8 +82,8 @@ pmDem<TYPE>::pmDem(pmDem<TYPE> const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-pmDem<TYPE>::pmDem(pmDem<TYPE>&& other) {
+template <DEM_TYPE TYPE, size_t NOPS>
+pmDem<TYPE, NOPS>::pmDem(pmDem<TYPE, NOPS>&& other) {
 	this->psys = std::move(other.psys);
 	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
@@ -92,8 +92,8 @@ pmDem<TYPE>::pmDem(pmDem<TYPE>&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-pmDem<TYPE>& pmDem<TYPE>::operator=(pmDem<TYPE> const& other) {
+template <DEM_TYPE TYPE, size_t NOPS>
+pmDem<TYPE, NOPS>& pmDem<TYPE, NOPS>::operator=(pmDem<TYPE, NOPS> const& other) {
 	if(this!=&other) {
 		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
@@ -106,8 +106,8 @@ pmDem<TYPE>& pmDem<TYPE>::operator=(pmDem<TYPE> const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-pmDem<TYPE>& pmDem<TYPE>::operator=(pmDem<TYPE>&& other) {
+template <DEM_TYPE TYPE, size_t NOPS>
+pmDem<TYPE, NOPS>& pmDem<TYPE, NOPS>::operator=(pmDem<TYPE, NOPS>&& other) {
 	if(this!=&other) {
 		this->psys = std::move(other.psys);
 		this->assigned = std::move(other.assigned);
@@ -119,67 +119,64 @@ pmDem<TYPE>& pmDem<TYPE>::operator=(pmDem<TYPE>&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Clone implementation.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-std::shared_ptr<pmExpression> pmDem<TYPE>::clone_impl() const {
-	return std::make_shared<pmDem<TYPE>>(*this);
+template <DEM_TYPE TYPE, size_t NOPS>
+std::shared_ptr<pmExpression> pmDem<TYPE, NOPS>::clone_impl() const {
+	return std::make_shared<pmDem<TYPE, NOPS>>(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-std::shared_ptr<pmDem<TYPE>> pmDem<TYPE>::clone() const {
-	return std::static_pointer_cast<pmDem<TYPE>, pmExpression>(clone_impl());
+template <DEM_TYPE TYPE, size_t NOPS>
+std::shared_ptr<pmDem<TYPE, NOPS>> pmDem<TYPE, NOPS>::clone() const {
+	return std::static_pointer_cast<pmDem<TYPE, NOPS>, pmExpression>(clone_impl());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints DEM content.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-void pmDem<TYPE>::print() const {
+template <DEM_TYPE TYPE, size_t NOPS>
+void pmDem<TYPE, NOPS>::print() const {
 	pLogger::logf<COLOR>("dem");
-	print_operands();
+	this->print_operands();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
-	if(!assigned) { pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
+template <DEM_TYPE TYPE, size_t NOPS>
+pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
+	if(!this->assigned) { pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
 
-	size_t dimension = psys.lock()->get_particle_space()->get_domain().get_dimensions();
+	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 
 	if(TYPE==LINEAR) {
-		pmTensor vi = operand[0]->evaluate(i,eval_type);
-		pmTensor omi = operand[1]->evaluate(i,eval_type);
-		float Ri = operand[2]->evaluate(i,eval_type)[0];
-		float ks = operand[3]->evaluate(i,eval_type)[0];
-		float kd = operand[4]->evaluate(i,eval_type)[0];
-		float kf = operand[5]->evaluate(i,eval_type)[0];
+		pmTensor vi = this->operand[0]->evaluate(i,eval_type);
+		pmTensor omi = this->operand[1]->evaluate(i,eval_type);
+		float Ri = this->operand[2]->evaluate(i,eval_type)[0];
+		float ks = this->operand[3]->evaluate(i,eval_type)[0];
+		float kd = this->operand[4]->evaluate(i,eval_type)[0];
+		float kf = this->operand[5]->evaluate(i,eval_type)[0];
 
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor force;
 			float d_ji = rel_pos.norm();
 			if(d_ji > 1e-6f) {
-				float Rj = operand[2]->evaluate(j,eval_type)[0];
+				float Rj = this->operand[2]->evaluate(j,eval_type)[0];
 				float min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
 					// overlap
 					float delta = min_dist-d_ji;
-					pmTensor vj = operand[0]->evaluate(j,eval_type).reflect(guide);
-					pmTensor omj = operand[1]->evaluate(j,eval_type).reflect(guide);
+					pmTensor vj = this->operand[0]->evaluate(j,eval_type).reflect(guide);
+					pmTensor omj = this->operand[1]->evaluate(j,eval_type).reflect(guide);
 					pmTensor rel_vel = vj-vi;
 					// spring force
-					// force += -ks*rel_pos*(min_dist/d_ji-1.0);
 					force += -ks*delta*e_ji;
 					// damping force
 					force += kd*(rel_vel.transpose()*rel_pos)*e_ji;
-					
-					// // relative tangential velocity
+					// relative tangential velocity
 					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
-
 					// relative tangential velocity
 					float rci = Ri-delta/2.0;
 					float rcj = Rj-delta/2.0;
@@ -190,9 +187,9 @@ pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) co
 						wi[2] = omi[0];
 						wj = pmTensor{3,1,0};
 						wj[2] = omj[0];
-						tan_vel += (rci*cross(wi,e_ji.append(3,1)) + rcj*cross(wj,e_ji.append(3,1))).sub_tensor(0,1,0,0);
+						tan_vel += (cross(wi,rci*e_ji.append(3,1)) + cross(wj,rcj*e_ji.append(3,1))).sub_tensor(0,1,0,0);
 					} else if(dimension==3) {
-						tan_vel += rci*cross(wi,e_ji) + rcj*cross(wj,e_ji);
+						tan_vel += cross(wi,rci*e_ji) + cross(wj,rcj*e_ji);
 					}
 					// tangential shear force
 					force += kf*tan_vel;
@@ -201,26 +198,26 @@ pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) co
 			}
 			return force;
 		};
-		return interact(i, contribute);
+		return this->interact(i, contribute);
 	} else {
-		pmTensor vi = operand[0]->evaluate(i,eval_type);
-		pmTensor omi = operand[1]->evaluate(i,eval_type);
-		float Ri = operand[2]->evaluate(i,eval_type)[0];
-		float kf = operand[3]->evaluate(i,eval_type)[0];
+		pmTensor vi = this->operand[0]->evaluate(i,eval_type);
+		pmTensor omi = this->operand[1]->evaluate(i,eval_type);
+		float Ri = this->operand[2]->evaluate(i,eval_type)[0];
+		float kf = this->operand[3]->evaluate(i,eval_type)[0];
 
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor torque;
 			torque.set_scalar(false);
 			float d_ji = rel_pos.norm();
 			if(d_ji > 1e-6f) {
-				float Rj = operand[2]->evaluate(j,eval_type)[0];
+				float Rj = this->operand[2]->evaluate(j,eval_type)[0];
 				float min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
 					// overlap
 					float delta = min_dist-d_ji;
-					pmTensor vj = operand[0]->evaluate(j,eval_type).reflect(guide);
-					pmTensor omj = operand[1]->evaluate(j,eval_type);
+					pmTensor vj = this->operand[0]->evaluate(j,eval_type).reflect(guide);
+					pmTensor omj = this->operand[1]->evaluate(j,eval_type);
 					pmTensor rel_vel = vj-vi;
 
 					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
@@ -234,37 +231,37 @@ pmTensor pmDem<TYPE>::evaluate(int const& i, Eval_type eval_type/*=current*/) co
 						wi[2] = omi[0];
 						wj = pmTensor{3,1,0};
 						wj[2] = omj[0];
-						tan_vel += (rci*cross(wi,e_ji.append(3,1)) + rcj*cross(wj,e_ji.append(3,1))).sub_tensor(0,1,0,0);
+						tan_vel += (cross(wi,rci*e_ji.append(3,1)) + cross(wj,rcj*e_ji.append(3,1))).sub_tensor(0,1,0,0);
 						// tangential shear force
 						pmTensor force = kf*tan_vel;
 						// torque
-						torque += cross(e_ji.append(3,1)*rci,force.append(3,1)).sub_tensor(2,2,0,0);
+						torque += cross(force.append(3,1),e_ji.append(3,1)*rci).sub_tensor(2,2,0,0);
 					} else if(dimension==3) {
-						tan_vel += rci*cross(wi,e_ji) + rcj*cross(wj,e_ji);
+						tan_vel += cross(wi,rci*e_ji) + cross(wj,rcj*e_ji);
 						// tangential shear force
 						pmTensor force = kf*tan_vel;
 						// torque
-						torque += cross(e_ji*Ri,force);
+						torque += cross(force,rci*e_ji);
 					}
 				}
 			}
 			return torque;
 		};
-		return interact(i, contribute);
+		return this->interact(i, contribute);
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Writes operator to string.
 /////////////////////////////////////////////////////////////////////////////////////////
-template <DEM_TYPE TYPE>
-void pmDem<TYPE>::write_to_string(std::ostream& os) const {
+template <DEM_TYPE TYPE, size_t NOPS>
+void pmDem<TYPE, NOPS>::write_to_string(std::ostream& os) const {
 	if(TYPE==LINEAR) {
 		os << "dem_l(";
 	} else {
 		os << "dem_a(";
 	}
-	for(auto const& it:operand) {
+	for(auto const& it:this->operand) {
 		os << it;
 	}
 	os << ")";
