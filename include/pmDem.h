@@ -137,7 +137,11 @@ std::shared_ptr<pmDem<TYPE, NOPS>> pmDem<TYPE, NOPS>::clone() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 template <DEM_TYPE TYPE, size_t NOPS>
 void pmDem<TYPE, NOPS>::print() const {
-	pLogger::logf<COLOR>("dem");
+	if(TYPE==LINEAR) {
+		pLogger::logf<COLOR>("dem_l");
+	} else {
+		pLogger::logf<COLOR>("dem_a");
+	}
 	this->print_operands();
 }
 
