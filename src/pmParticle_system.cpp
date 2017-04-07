@@ -107,9 +107,11 @@ void pmParticle_system::print() const {
 /// Prints particle system and particle space content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::printv() const {
-	print();
-	pLogger::logf("   ");
-	pLogger::logf<LMA>("[%i by %i]   ", this->evaluate(0).get_numrows(), this->evaluate(0).get_numcols());
+	pmField::printv();
+	// print();
+	// pLogger::logf("   ");
+	// pLogger::logf<LMA>("[%i by %i]   ", this->evaluate(0).get_numrows(), this->evaluate(0).get_numcols());
+	pLogger::line_feed(1);
 	particle_space->print();
 }
 

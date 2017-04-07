@@ -102,14 +102,14 @@ pmTensor pmDomain::get_boundary() const {
 /// Prints the domain object content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDomain::print() const {
-	pLogger::logf<LYW>("Domain: ");
-	pLogger::logf<COLOR>("min: ");
+	pLogger::logf<LYW>("            Domain:");
+	pLogger::logf<COLOR>("\n               min: ");
 	minimum.print();
-	pLogger::logf<COLOR>(", max: ");
+	pLogger::logf<COLOR>("\n               max: ");
 	maximum.print();
-	pLogger::logf<COLOR>(", boundary: ");
+	pLogger::logf<COLOR>("\n               boundary: ");
 	boundary.print();
-	pLogger::logf<COLOR>(", cell size: %g", cell_size);
+	pLogger::logf<COLOR>("\n               cell size: %g", cell_size);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -94,7 +94,7 @@ pmField& pmField::operator=(pmField&& other) {
 /// Prints the whole content of the field.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::printv() const {
-	print();
+	this->print();
 	for(int i=0; i<20-name.size(); i++) {
 		pLogger::logf<LMA>(" ");
 	}
