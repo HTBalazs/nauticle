@@ -84,10 +84,6 @@ std::vector<std::shared_ptr<pmFunction>> pmVTK_reader::pop_functions_from_polyda
 		std::string function_value = vtkfunction.substr(sp_f+1, sp_c-1-sp_f);
 		std::string function_condition = vtkfunction.substr(sp_c+1);
 
-		std::cout << function_name << std::endl;
-		std::cout << function_value << std::endl;
-		std::cout << function_condition << std::endl;
-
 		std::unique_ptr<pmFunction_parser> fp{new pmFunction_parser};
 		functions.push_back(fp->analyse_function(function_name, function_value, function_condition, workspace));
 	}
