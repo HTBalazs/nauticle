@@ -105,7 +105,7 @@ void pmCase::simulate(size_t const& num_threads) {
 	write_step();
 	while(current_time < simulated_time) {
 		dt = function_space->get_workspace()->get_value("dt")[0];
-		float dt_real = dt;
+		float dt_old = dt;
 		bool printing = current_time+dt >= previous_time+print_interval ? true : false;
 		if(printing) {
 			dt = print_interval+previous_time-current_time;
@@ -119,12 +119,13 @@ void pmCase::simulate(size_t const& num_threads) {
 			write_step();
 			n++;
 			all_steps+=substeps;
-			log_stream.print_step_info(n, dt_real, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0f);
+			log_stream.print_step_info(n, dt_old, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0f);
 			substeps=0;
 			previous_time = current_time;
 		}
-		dt = dt_real;
-		function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
+		if(function_space->get_workspace()->get_value("dt")[0]==dt) {
+			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt_old});
+		}
 	}
 	write_step();
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
