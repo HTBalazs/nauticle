@@ -41,7 +41,6 @@ public:
 	virtual ~pmConstant() override {}
 	void print() const override;
 	std::shared_ptr<pmConstant> clone() const;
-	void set_value(pmTensor const& value, int const& i=0) override;
 	bool is_hidden() const override;
 	virtual void write_to_string(std::ostream& os) const override;
 };

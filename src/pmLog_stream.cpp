@@ -32,7 +32,7 @@ pmLog_stream::pmLog_stream() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the information relating to the current step.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLog_stream::print_step_info(int const& steps, double const& dt, int const& substeps, int const& all_steps, double const& current_time, double const& progress) {
+void pmLog_stream::print_step_info(double const& dt, int const& substeps, double const& current_time, double const& simulated_time) {
 	static int counter = 51;
 
 	if(counter==51) {
@@ -58,12 +58,12 @@ void pmLog_stream::print_step_info(int const& steps, double const& dt, int const
 	timer->tac();
 	double difference = timer->get_difference().count();
 	double fps = difference==0?0:(double)substeps/difference;
-	struct tm est_end = timer->get_estimated_finish(progress);
-	logf<WHT>(" %5i   %1.3e      %5i      %6i   %.3f   %06.2f   %02i.%02i.%4i %02i:%02i\n", steps, (double)dt, substeps, all_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
+	struct tm est_end = timer->get_estimated_finish((double)current_time/simulated_time*100.0);
+	logf<WHT>(" %5i   %1.3e      %5i      %6i   %.3f   %06.2f   %02i.%02i.%4i %02i:%02i\n", num_steps, (double)dt, substeps, num_total_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
 	timer->tic();
 	counter++;
 	num_steps++;
-	num_total_steps=all_steps;
+	num_total_steps+=substeps;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ void pmLog_stream::print_finish(bool const& confirm) const {
 	logf<LGN>("   Simulation summary:\n");
 	logf<LGN>("     Start                       :   %02i.%02i.%4i %02i:%02i\n", start.tm_mday, start.tm_mon+1, start.tm_year+1900, start.tm_hour, start.tm_min);
 	logf<LGN>("     End                         :   %02i.%02i.%4i %02i:%02i\n", finish.tm_mday, finish.tm_mon+1, finish.tm_year+1900, finish.tm_hour, finish.tm_min);
-	logf<LGN>("     Number of result files      :   %i\n", num_steps+1);
+	logf<LGN>("     Number of result files      :   %i\n", num_steps);
 	logf<LGN>("     Number of simulation steps  :   %i\n", num_total_steps);
 	if(warning_counter==0) logf<LGN>("     Number of warning messages  :   %i\n", warning_counter);
 	else logf<YEL>("     Number of warning messages  :   %i\n", warning_counter);

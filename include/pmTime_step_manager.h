@@ -17,24 +17,18 @@
 
     For more information please visit: https://bitbucket.org/lempsproject/
 */
+    
+#ifndef _TIME_STEP_H_
+#define _TIME_STEP_H_
 
-#ifndef _LOG_STREAM_H_
-#define _LOG_STREAM_H_
-
-#include "prolog/pLogger.h"
-
-/** This class performs logging procedures based on ProLog
-*/
-class pmLog_stream {
-	std::unique_ptr<pTimer> timer;
-    int num_steps=0;
-    int num_total_steps=0;
+class pmTime_step_manager {
+    double dt_old;
+    double dt_partition;
+    double 
 public:
-	pmLog_stream();
-	void print_step_info(double const& dt, int const& substeps, double const& current_time, double const& simulated_time);
-	void print_substep_info(double const& dt, int const& substeps) const;
-	void print_finish(bool const& confirm) const;
-	void print_start() const;
+    double get_next_time_step() {
+        
+    }
 };
 
-#endif // _LOG_STREAM_H_
+#endif //_TIME_STEP_H_

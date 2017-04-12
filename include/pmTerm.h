@@ -38,7 +38,7 @@ public:
 	virtual void double_steps(bool const&) override {}
 	virtual int get_field_size() const override;
 	std::shared_ptr<pmTerm> clone() const;
-	virtual void set_value(pmTensor const& value, int const& i=0)=0;
+	virtual void set_value(pmTensor const& value, int const& i=0) {}
 	bool is_assigned() const override;
 	virtual bool is_hidden() const;
 	virtual std::string get_type() const=0;

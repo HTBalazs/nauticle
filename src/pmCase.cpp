@@ -96,38 +96,41 @@ void pmCase::simulate(size_t const& num_threads) {
 	pmLog_stream log_stream{};
 	log_stream.print_start();
 	double current_time=0;
-	double previous_time=0;
-	int substeps=0, all_steps=0, n=0;
+	double previous_printing_time=0;
+	int substeps=0;
 	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
-	double print_interval = calculate_print_interval();
 	double dt = function_space->get_workspace()->get_value("dt")[0];
-	log_stream.print_step_info(n, dt, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0);
+	log_stream.print_step_info(dt, substeps, current_time, simulated_time);
 	write_step();
+	bool printing;
 	while(current_time < simulated_time) {
-		dt = function_space->get_workspace()->get_value("dt")[0];
-		double dt_old = dt;
-		bool printing = current_time+dt >= previous_time+print_interval ? true : false;
+		double dt = function_space->get_workspace()->get_value("dt")[0];
+		double next_dt = dt;
+		// get printing interval
+		double print_interval = calculate_print_interval();
+		// time to next printing
+		double to_next_print = previous_printing_time + print_interval - current_time;
+		// do we have to print?
+		printing = dt >= to_next_print-dt/1e4;
+		// calculate new dt (adaptive-constant dt or the time to next print)
 		if(printing) {
-			dt = print_interval+previous_time-current_time;
-			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
+			next_dt = to_next_print;
+			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
 		}
+		// Solve equations
 		function_space->solve(num_threads);
-		print_interval = calculate_print_interval();
-		current_time += dt;
+		current_time += next_dt;
 		substeps++;
 		if(printing) {
 			write_step();
-			n++;
-			all_steps+=substeps;
-			log_stream.print_step_info(n, dt_old, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0);
+			log_stream.print_step_info(dt, substeps, current_time, simulated_time);
 			substeps=0;
-			previous_time = current_time;
-		}
-		if(function_space->get_workspace()->get_value("dt")[0]==dt) {
-			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt_old});
+			previous_printing_time = current_time;
+			if(function_space->get_workspace()->get_value("dt")[0]==next_dt) {
+				function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
+			}
 		}
 	}
-	write_step();
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
 }
 
