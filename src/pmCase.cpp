@@ -123,7 +123,7 @@ void pmCase::simulate(size_t const& num_threads) {
 		substeps++;
 		if(printing) {
 			write_step();
-			log_stream.print_step_info(dt, substeps, current_time, simulated_time);
+			log_stream.print_step_info(dt>print_interval?print_interval:dt, substeps, current_time, simulated_time);
 			substeps=0;
 			previous_printing_time = current_time;
 			if(function_space->get_workspace()->get_value("dt")[0]==next_dt) {
