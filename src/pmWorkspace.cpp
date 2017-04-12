@@ -178,6 +178,9 @@ bool pmWorkspace::is_existing(std::string const& name) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_constant(std::string const& name, pmTensor const& value, bool const& hidden/*=false*/) {
 	if(!verify_name(name)) return;
+	if(name=="dt") {
+		pLogger::warning_msgf("Constant time step may cause problems. Use it as variable instead.");
+	}
 	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmConstant>(name, value, hidden)));
 	num_constants++;
 }
