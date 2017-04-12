@@ -44,34 +44,34 @@
 */
 class pmKernel {
 private:
-	// float (pmKernel::*kernel_ptr)(float const&, float const&) const;
-	typedef  float (pmKernel::*ptr)(float const&, float const&) const;
+	// double (pmKernel::*kernel_ptr)(double const&, double const&) const;
+	typedef  double (pmKernel::*ptr)(double const&, double const&) const;
 	ptr kernel_ptr;
-	float Wp2220_raw(float const& q) const;
-	float Wp3220_raw(float const& q) const;
-	float Wp5220_raw(float const& q) const;
-	float dWp2220_raw(float const& q) const;
-	float dWp3220_raw(float const& q) const;
-	float dWp5220_raw(float const& q) const;
+	double Wp2220_raw(double const& q) const;
+	double Wp3220_raw(double const& q) const;
+	double Wp5220_raw(double const& q) const;
+	double dWp2220_raw(double const& q) const;
+	double dWp3220_raw(double const& q) const;
+	double dWp5220_raw(double const& q) const;
 
-	float Wp22210(float const& distance, float const& cell_size) const;
-	float Wp22220(float const& distance, float const& cell_size) const;
-	float Wp22230(float const& distance, float const& cell_size) const;
-	float dWp22210(float const& distance, float const& cell_size) const;
-	float dWp22220(float const& distance, float const& cell_size) const;
-	float dWp22230(float const& distance, float const& cell_size) const;
-	float Wp32210(float const& distance, float const& cell_size) const;
-	float Wp32220(float const& distance, float const& cell_size) const;
-	float Wp32230(float const& distance, float const& cell_size) const;
-	float dWp32210(float const& distance, float const& cell_size) const;
-	float dWp32220(float const& distance, float const& cell_size) const;
-	float dWp32230(float const& distance, float const& cell_size) const;
-	float Wp52210(float const& distance, float const& cell_size) const;
-	float Wp52220(float const& distance, float const& cell_size) const;
-	float Wp52230(float const& distance, float const& cell_size) const;
-	float dWp52210(float const& distance, float const& cell_size) const;
-	float dWp52220(float const& distance, float const& cell_size) const;
-	float dWp52230(float const& distance, float const& cell_size) const;
+	double Wp22210(double const& distance, double const& cell_size) const;
+	double Wp22220(double const& distance, double const& cell_size) const;
+	double Wp22230(double const& distance, double const& cell_size) const;
+	double dWp22210(double const& distance, double const& cell_size) const;
+	double dWp22220(double const& distance, double const& cell_size) const;
+	double dWp22230(double const& distance, double const& cell_size) const;
+	double Wp32210(double const& distance, double const& cell_size) const;
+	double Wp32220(double const& distance, double const& cell_size) const;
+	double Wp32230(double const& distance, double const& cell_size) const;
+	double dWp32210(double const& distance, double const& cell_size) const;
+	double dWp32220(double const& distance, double const& cell_size) const;
+	double dWp32230(double const& distance, double const& cell_size) const;
+	double Wp52210(double const& distance, double const& cell_size) const;
+	double Wp52220(double const& distance, double const& cell_size) const;
+	double Wp52230(double const& distance, double const& cell_size) const;
+	double dWp52210(double const& distance, double const& cell_size) const;
+	double dWp52220(double const& distance, double const& cell_size) const;
+	double dWp52230(double const& distance, double const& cell_size) const;
 
 public:
 	enum kernel_type { Quadratic, Cubic, Wendland, Gaussian };
@@ -79,7 +79,7 @@ public:
 	pmKernel(pmKernel const& other);
 	pmKernel& operator=(pmKernel const& other);
 	void set_kernel_type(size_t const& i, bool const& derivative);
-	float evaluate(float const& distance, float const& cell_size) const;
+	double evaluate(double const& distance, double const& cell_size) const;
 };
 
 #endif //_KERNEL_H_

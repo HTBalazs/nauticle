@@ -42,7 +42,7 @@ public:
 	pmNbody& operator=(pmNbody&& other);
 	virtual ~pmNbody() {}
 	void print() const override;
-	pmTensor process(pmTensor const& A_i, pmTensor const& A_j, float const& rho_i, float const& rho_j, float const& m_i, float const& m_j, pmTensor const& r_ji, float const& d_ji, float const& W_ij) const;
+	pmTensor process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const;
 	pmTensor evaluate(int const& i, Eval_type eval_type/*=current*/) const override;
 	std::shared_ptr<pmNbody> clone() const;
 	virtual void write_to_string(std::ostream& os) const override;

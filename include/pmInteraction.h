@@ -33,8 +33,8 @@
 */
 template <size_t S>
 class pmInteraction : public pmOperator<S> {
-	using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, float const&, pmTensor const& guide)>;
-	using Func_pos = std::function<pmTensor(pmTensor const&, int const&, float const&)>;
+	using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, double const&, pmTensor const& guide)>;
+	using Func_pos = std::function<pmTensor(pmTensor const&, int const&, double const&)>;
 protected:
 	std::weak_ptr<pmParticle_system> psys;
 	bool assigned=false;
@@ -87,7 +87,7 @@ pmTensor pmInteraction<S>::interact(int const& i, Func_ith contribute) const {
 	std::shared_ptr<pmParticle_system> ps = psys.lock();
 	std::vector<unsigned int> const& start = ps->get_particle_space()->get_start();
 	std::vector<unsigned int> const& end = ps->get_particle_space()->get_end();
-	float cell_size = ps->get_particle_space()->get_domain().get_cell_size();
+	double cell_size = ps->get_particle_space()->get_domain().get_cell_size();
 	pmTensor pos_i = ps->get_value(i);
 	pmTensor grid_pos_i = ps->get_particle_space()->get_grid_position(pos_i);
 	pmTensor result;
@@ -137,7 +137,7 @@ pmTensor pmInteraction<S>::interact(pmTensor const& pos_i, Func_pos contribute) 
 	std::shared_ptr<pmParticle_system> ps = psys.lock();
 	std::vector<unsigned int> const& start = ps->get_particle_space()->get_start();
 	std::vector<unsigned int> const& end = ps->get_particle_space()->get_end();
-	float cell_size = ps->get_particle_space()->get_domain().get_cell_size();
+	double cell_size = ps->get_particle_space()->get_domain().get_cell_size();
 	pmTensor grid_pos_i = ps->get_particle_space()->get_grid_position(pos_i);
 	pmTensor result;
 	std::vector<pmTensor> const& cell_iterator = ps->get_particle_space()->get_cell_iterator();

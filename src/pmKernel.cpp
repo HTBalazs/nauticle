@@ -21,7 +21,7 @@
 #include <iostream>
 #include "pmKernel.h"
 
-#define constant_pi 3.14159265359f
+#define constant_pi 3.14159265359
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -83,54 +83,54 @@ void pmKernel::set_kernel_type(size_t const& i, bool const& derivative) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates kernel.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::evaluate(float const& distance, float const& cell_size) const {
+double pmKernel::evaluate(double const& distance, double const& cell_size) const {
 	return (this->*kernel_ptr)(distance, cell_size);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp2220_raw(float const& q) const {
-	return (3.0f/16.0f*q*q-0.75f*q+0.75f);
+double pmKernel::Wp2220_raw(double const& q) const {
+	return (3.0/16.0*q*q-0.75*q+0.75);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp3220_raw(float const& q) const {
-	if(q<1) { return 1.0f-3.0f/2.0f*q*q+3.0f/4.0f*q*q*q; }
-	else { return 0.25*(2.0f-q)*(2.0f-q)*(2.0f-q); }
+double pmKernel::Wp3220_raw(double const& q) const {
+	if(q<1) { return 1.0-3.0/2.0*q*q+3.0/4.0*q*q*q; }
+	else { return 0.25*(2.0-q)*(2.0-q)*(2.0-q); }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp5220_raw(float const& q) const {
-	float val = (1.0f-q/2.0f);
+double pmKernel::Wp5220_raw(double const& q) const {
+	double val = (1.0-q/2.0);
 	val*=val; val*=val;
-	return val*(2.0f*q+1.0f);
+	return val*(2.0*q+1.0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp2220_raw(float const& q) const {
-	return (q/2.0f-1.0f);
+double pmKernel::dWp2220_raw(double const& q) const {
+	return (q/2.0-1.0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp3220_raw(float const& q) const {
-	if(q<1) { return (-4.0f*q+3.0f*q*q); }
-	else { return -(2.0f-q)*(2.0f-q); }
+double pmKernel::dWp3220_raw(double const& q) const {
+	if(q<1) { return (-4.0*q+3.0*q*q); }
+	else { return -(2.0-q)*(2.0-q); }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp5220_raw(float const& q) const {
-	float val = (1.0f-q/2.0f);
+double pmKernel::dWp5220_raw(double const& q) const {
+	double val = (1.0-q/2.0);
 	return val*val*val*q;
 }
 
@@ -140,30 +140,30 @@ float pmKernel::dWp5220_raw(float const& q) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp22210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 1.0f/h;
+double pmKernel::Wp22210(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 1.0/h;
 	return coeff*Wp2220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp22220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 2.0f/constant_pi/h/h;
+double pmKernel::Wp22220(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 2.0/constant_pi/h/h;
 	return coeff*Wp2220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp22230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 5.0f/4.0f/constant_pi/h/h/h;
+double pmKernel::Wp22230(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 5.0/4.0/constant_pi/h/h/h;
 	return coeff*Wp2220_raw(q);
 }
 
@@ -173,30 +173,30 @@ float pmKernel::Wp22230(float const& distance, float const& cell_size) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp22210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 3.0f/4.0f/h/h;
+double pmKernel::dWp22210(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 3.0/4.0/h/h;
 	return coeff*dWp2220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp22220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 6.0f/4.0f/constant_pi/h/h/h;
+double pmKernel::dWp22220(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 6.0/4.0/constant_pi/h/h/h;
 	return coeff*dWp2220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp22230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 15.0f/16.0f/constant_pi/h/h/h/h;
+double pmKernel::dWp22230(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 15.0/16.0/constant_pi/h/h/h/h;
 	return coeff*dWp2220_raw(q);
 }
 
@@ -206,30 +206,30 @@ float pmKernel::dWp22230(float const& distance, float const& cell_size) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp32210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 2.0f/3.0f/h;
+double pmKernel::Wp32210(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 2.0/3.0/h;
 	return coeff*Wp3220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp32220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 10.0f/7.0f/constant_pi/h/h;
+double pmKernel::Wp32220(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 10.0/7.0/constant_pi/h/h;
 	return coeff*Wp3220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp32230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 1.0f/constant_pi/h/h/h;
+double pmKernel::Wp32230(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 1.0/constant_pi/h/h/h;
 	return coeff*Wp3220_raw(q);
 }
 
@@ -239,30 +239,30 @@ float pmKernel::Wp32230(float const& distance, float const& cell_size) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp32210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 6.0f/12.0f/h/h;
+double pmKernel::dWp32210(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 6.0/12.0/h/h;
 	return coeff*dWp3220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp32220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 30.0f/28.0f/constant_pi/h/h/h;
+double pmKernel::dWp32220(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 30.0/28.0/constant_pi/h/h/h;
 	return coeff*dWp3220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp32230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 3.0f/4.0f/constant_pi/h/h/h/h;
+double pmKernel::dWp32230(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 3.0/4.0/constant_pi/h/h/h/h;
 	return coeff*dWp3220_raw(q);
 }
 
@@ -272,30 +272,30 @@ float pmKernel::dWp32230(float const& distance, float const& cell_size) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp52210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 3.0f/4.0f/h;
+double pmKernel::Wp52210(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 3.0/4.0/h;
 	return coeff*Wp5220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp52220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 7.0f/4.0f/constant_pi/h/h;
+double pmKernel::Wp52220(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 7.0/4.0/constant_pi/h/h;
 	return coeff*Wp5220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::Wp52230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = 21.0f/16.0f/constant_pi/h/h/h;
+double pmKernel::Wp52230(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = 21.0/16.0/constant_pi/h/h/h;
 	return coeff*Wp5220_raw(q);
 }
 
@@ -305,30 +305,30 @@ float pmKernel::Wp52230(float const& distance, float const& cell_size) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp52210(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = -30.0f/8.0f/h/h;
+double pmKernel::dWp52210(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = -30.0/8.0/h/h;
 	return coeff*dWp5220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp52220(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = -70.0f/8.0f/constant_pi/h/h/h;
+double pmKernel::dWp52220(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = -70.0/8.0/constant_pi/h/h/h;
 	return coeff*dWp5220_raw(q);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmKernel::dWp52230(float const& distance, float const& cell_size) const {
-	float h = cell_size/2.0f;
-	float q = distance/h;
-	float coeff = -105.0f/16.0f/constant_pi/h/h/h/h;
+double pmKernel::dWp52230(double const& distance, double const& cell_size) const {
+	double h = cell_size/2.0;
+	double q = distance/h;
+	double coeff = -105.0/16.0/constant_pi/h/h/h/h;
 	return coeff*dWp5220_raw(q);
 }
 

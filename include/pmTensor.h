@@ -32,12 +32,12 @@
 class pmTensor final { 
 	int rows;
 	int columns;
-	float* elements;
+	double* elements;
 	bool scalar;
 public:
 	pmTensor();
-	pmTensor(float const& s);
-	pmTensor(int const& r, int const& c, float const& init=0, bool const& sc=true);
+	pmTensor(double const& s);
+	pmTensor(int const& r, int const& c, double const& init=0, bool const& sc=true);
 	pmTensor(pmTensor const& other);
 	pmTensor(pmTensor&& other);
 	static pmTensor Tensor(int const& num_components);
@@ -58,10 +58,10 @@ public:
 	pmTensor& operator--();
 	pmTensor operator++(int);
 	pmTensor operator--(int);
-	float operator()(int const& i, int const& j) const;
-	float operator()(int const& i) const;
-	float& operator[](int const& i);
-	float const& operator[](int const& i) const;
+	double operator()(int const& i, int const& j) const;
+	double operator()(int const& i) const;
+	double& operator[](int const& i);
+	double const& operator[](int const& i) const;
 	~pmTensor();
 	int get_numrows() const;
 	int get_numcols() const;
@@ -73,8 +73,8 @@ public:
 	bool is_zero() const;
 	bool is_square() const;
 	bool is_singular() const;
-	float productum() const;
-	float summation() const;
+	double productum() const;
+	double summation() const;
 	int numel() const;
 	pmTensor transpose() const;
 	pmTensor trace() const;
@@ -82,12 +82,12 @@ public:
 	pmTensor copy() const;
 	pmTensor divide_term_by_term(pmTensor const& rhs) const;
 	pmTensor multiply_term_by_term(pmTensor const& rhs) const;
-	float norm() const;
-	void fill(float const& scalar);
+	double norm() const;
+	void fill(double const& scalar);
 	pmTensor to_row() const;
 	pmTensor to_column() const;
-	static pmTensor make_tensor(int const& r, int const& c, float const& value);
-	static pmTensor make_tensor(pmTensor const& base, float const& value);
+	static pmTensor make_tensor(int const& r, int const& c, double const& value);
+	static pmTensor make_tensor(pmTensor const& base, double const& value);
 	static pmTensor make_identity(int const& size);
 	void write_to_string(std::ostream& os) const;
 	pmTensor sub_tensor(int rmin, int rmax, int cmin, int cmax) const;
@@ -169,7 +169,7 @@ inline pmTensor operator+(pmTensor const& rhs) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implementation of * operator for pmTensor.
 /////////////////////////////////////////////////////////////////////////////////////////
-inline pmTensor operator*(pmTensor const& lhs, float const& rhs) {
+inline pmTensor operator*(pmTensor const& lhs, double const& rhs) {
 	pmTensor tensor{lhs};
 	for(int i=0; i<lhs.numel(); i++) {
 		tensor[i] *= rhs;
@@ -180,14 +180,14 @@ inline pmTensor operator*(pmTensor const& lhs, float const& rhs) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implementation of * operator for pmTensor.
 /////////////////////////////////////////////////////////////////////////////////////////
-inline pmTensor operator*(float const& lhs, pmTensor const& rhs) {
+inline pmTensor operator*(double const& lhs, pmTensor const& rhs) {
 	return rhs*lhs;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implementation of / operator for pmTensor.
 /////////////////////////////////////////////////////////////////////////////////////////
-inline pmTensor operator/(pmTensor const& lhs, float const& rhs) {
+inline pmTensor operator/(pmTensor const& lhs, double const& rhs) {
 	pmTensor t{lhs};
 	for(int i=0; i<lhs.numel(); i++) {
 		t[i] = lhs[i]/rhs;
@@ -217,7 +217,7 @@ inline pmTensor operator*(pmTensor const& lhs, pmTensor const& rhs) {
 	pmTensor tensor{imax, jmax, 0, sc};
 	for(int i=0; i<imax; i++) {
 		for(int j=0; j<jmax; j++) {
-			float sum = 0;
+			double sum = 0;
 			for(int k=0; k<lhs.get_numcols(); k++) {
 				sum += lhs(i,k)*rhs(k,j);
 			}
@@ -246,7 +246,7 @@ inline pmTensor operator&&(pmTensor const& lhs, pmTensor const& rhs) {
 	if(!lhs.is_scalar() || !rhs.is_scalar()) {
 		pLogger::error_msgf("Logical \"and\" works only with scalars.\n");
 	}
-	return pmTensor{1,1,(float)(lhs[0] && rhs[0])};
+	return pmTensor{1,1,(double)(lhs[0] && rhs[0])};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -256,7 +256,7 @@ inline pmTensor operator||(pmTensor const& lhs, pmTensor const& rhs) {
 	if(!lhs.is_scalar() || !rhs.is_scalar()) {
 		pLogger::error_msgf("Logical \"or\" works only with scalars.\n");
 	}
-	return pmTensor{1,1,(float)(lhs[0] || rhs[0])};
+	return pmTensor{1,1,(double)(lhs[0] || rhs[0])};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +266,7 @@ inline pmTensor operator!=(pmTensor const& lhs, pmTensor const& rhs) {
 	if(!lhs.is_scalar() || !rhs.is_scalar()) {
 		pLogger::error_msgf("Logical \"xor\" works only with scalars.\n");
 	}
-	return pmTensor{1,1,(float)(lhs[0] != rhs[0])};
+	return pmTensor{1,1,(double)(lhs[0] != rhs[0])};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -276,7 +276,7 @@ inline pmTensor operator!(pmTensor const& tensor) {
 	if(!tensor.is_scalar()) {
 		pLogger::error_msgf("Logical \"not\" works only with scalars.\n");
 	}
-	return pmTensor{1,1,(float)!tensor[0]};
+	return pmTensor{1,1,(double)!tensor[0]};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -286,7 +286,7 @@ inline pmTensor operator>(pmTensor const& lhs, pmTensor const& rhs) {
 	if(!lhs.is_scalar() || !rhs.is_scalar()) {
 		pLogger::error_msgf("Logical \"greater\" works only with scalars.\n");
 	}
-	return pmTensor{1,1,(float)(lhs[0] > rhs[0])};
+	return pmTensor{1,1,(double)(lhs[0] > rhs[0])};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -296,7 +296,7 @@ inline pmTensor operator<(pmTensor const& lhs, pmTensor const& rhs) {
 	if(!lhs.is_scalar() || !rhs.is_scalar()) {
 		pLogger::error_msgf("Logical \"less\" works only with scalars.\n");
 	}
-	return pmTensor{1,1,(float)(lhs[0] < rhs[0])};
+	return pmTensor{1,1,(double)(lhs[0] < rhs[0])};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -572,7 +572,7 @@ inline pmTensor exp(pmTensor const& tensor) {
 inline pmTensor sgn(pmTensor const& tensor) {
 	pmTensor tmp{tensor};
 	for(int i=0; i<tmp.numel(); i++) {
-		tmp[i] = (0.0f < tmp[i])-(tmp[i] < 0.0f);
+		tmp[i] = (0.0 < tmp[i])-(tmp[i] < 0.0);
 	}
 	return tmp;
 }
@@ -585,7 +585,7 @@ inline pmTensor pow(pmTensor const& T1, pmTensor const& T2) {
 		pLogger::error_msgf("Unable to evaluate expression with non-scalar power.");
 	}
 	if(T1.is_scalar()) {
-		return pmTensor{(float)std::pow(T1[0],T2[0])};
+		return pmTensor{(double)std::pow(T1[0],T2[0])};
 	}
 	int power = (int)T2[0];
 	pmTensor tensor{T1};

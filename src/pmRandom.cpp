@@ -24,12 +24,12 @@ namespace pmRandom {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Generates a uniform distributed random number between minimum and maximum.
 /////////////////////////////////////////////////////////////////////////////////////////
-	float random(float const& minimum, float const& maximum) {
+	double random(double const& minimum, double const& maximum) {
 		if(minimum>=maximum) {
 			pLogger::warning_msgf("Random number cannot be generated if the range is incorrect. Returns zero.\n");
-			return 0.0f;
+			return 0.0;
 		}
-		return ((float)(rand()%10000))/1e4f*(maximum-minimum)+minimum;
+		return ((double)(rand()%10000))/1e4*(maximum-minimum)+minimum;
 	}
 
 /////////////////////////////////////////////////////////////////////////////////////////

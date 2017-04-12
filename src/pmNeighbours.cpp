@@ -99,9 +99,9 @@ void pmNeighbours::print() const {
 pmTensor pmNeighbours::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
 	if(!assigned) { pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
 
-	auto contribute = [this](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [this](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor num_neighbours{1,1,0};
-		float distance = rel_pos.norm();
+		double distance = rel_pos.norm();
 		if(distance < cell_size) {
 			num_neighbours[0]++;
 		}

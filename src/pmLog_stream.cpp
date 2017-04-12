@@ -32,7 +32,7 @@ pmLog_stream::pmLog_stream() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the information relating to the current step.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLog_stream::print_step_info(int const& steps, float const& dt, int const& substeps, int const& all_steps, float const& current_time, float const& progress) {
+void pmLog_stream::print_step_info(int const& steps, double const& dt, int const& substeps, int const& all_steps, double const& current_time, double const& progress) {
 	static int counter = 51;
 
 	if(counter==51) {
@@ -56,10 +56,10 @@ void pmLog_stream::print_step_info(int const& steps, float const& dt, int const&
 		counter = 0;
 	}
 	timer->tac();
-	float difference = timer->get_difference().count();
-	float fps = difference==0?0:(float)substeps/difference;
+	double difference = timer->get_difference().count();
+	double fps = difference==0?0:(double)substeps/difference;
 	struct tm est_end = timer->get_estimated_finish(progress);
-	logf<WHT>(" %5i   %1.3e      %5i      %6i   %.3f   %06.2f   %02i.%02i.%4i %02i:%02i\n", steps, (double)dt, substeps, all_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
+	logf<WHT>(" %5i   %1.3e      %5i      %6i   %.3   %06.2   %02i.%02i.%4i %02i:%02i\n", steps, (double)dt, substeps, all_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
 	timer->tic();
 	counter++;
 	num_steps++;
@@ -69,7 +69,7 @@ void pmLog_stream::print_step_info(int const& steps, float const& dt, int const&
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the substep information.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLog_stream::print_substep_info(float const& dt, int const& substeps) const {
+void pmLog_stream::print_substep_info(double const& dt, int const& substeps) const {
 	logf<MAG>(" %5i   %1.3e\n", substeps, dt);
 }
 

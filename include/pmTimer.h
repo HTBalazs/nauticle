@@ -27,9 +27,9 @@ public:
 	~pmTimer()=default;
 	void tic();
 	void tac();
-	float get_difference() const;
+	double get_difference() const;
 	struct tm get_start() const;
-	struct tm get_estimated_finish(float const& progress);
+	struct tm get_estimated_finish(double const& progress);
 	struct tm get_current() const;
 };
 

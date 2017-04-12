@@ -94,7 +94,7 @@ void pmFmean::process(pmTensor& value, Eval_type eval_type/*=current*/) const {
 	for(int j=1; j<num_points; j++) {
 		value += operand[0]->evaluate(j, eval_type);
 	}
-	value/=pmTensor{1,1,(float)num_points};
+	value/=pmTensor{1,1,(double)num_points};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

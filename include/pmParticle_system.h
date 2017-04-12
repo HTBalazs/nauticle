@@ -41,7 +41,7 @@ class pmParticle_system final : public pmField {
 		bool up_to_date=false;
 	private:
 		void build_cell_arrays();
-		float flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
+		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
 		int calculate_hash_key_from_position(pmTensor const& position) const;
 		void combinations_recursive(const std::vector<int> &elems, size_t comb_len, std::vector<size_t> &pos, size_t depth);
 		void combinations(const std::vector<int> &elems, size_t comb_len);

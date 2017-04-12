@@ -111,7 +111,7 @@ pmTensor pmNbody::evaluate(int const& i, Eval_type eval_type/*=current*/) const 
 		pmTensor coef_j = operand[1]->evaluate(j,eval_type);
 		pmTensor pos_j = ps->evaluate(j,eval_type);
 		pmTensor rel_pos = pos_j-pos_i;
-		float distance = rel_pos.norm();
+		double distance = rel_pos.norm();
 		pmTensor norm = rel_pos / distance;
 		force += (coef_i+coef_j)/2*mass_i*mass_j/distance/distance*norm;
 	}

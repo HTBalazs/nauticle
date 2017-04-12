@@ -28,7 +28,7 @@
 /** This namespace contains functions for random number generation.
 */
 namespace pmRandom {
-	float random(float const& minimum, float const& maximum);
+	double random(double const& minimum, double const& maximum);
 	pmTensor random(pmTensor const& minimum, pmTensor const& maximum);
 }
 

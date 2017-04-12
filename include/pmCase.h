@@ -45,7 +45,7 @@ private:
 	std::shared_ptr<pmParameter_space> parameter_space;
 	write_mode vtk_write_mode = ASCII;
 	void print() const;
-	float calculate_print_interval() const;
+	double calculate_print_interval() const;
 	void simulate(size_t const& num_threads);
 	void write_step() const;
 	void read_file(std::string const& filename);

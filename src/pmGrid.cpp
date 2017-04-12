@@ -125,7 +125,7 @@ void pmGrid::n_level_loop(std::vector<int>& indexes, const std::vector<int>& end
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Calculates the distance between nodes considering the offset value. It also calculates the number of nodes.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmGrid::initialize_direction(float const& ofs, float& s, float& d, float& n) const {
+void pmGrid::initialize_direction(double const& ofs, double& s, double& d, double& n) const {
 	size_t num = 0;
 	if(std::abs(ofs)>d*1e-6) { 
 		num = 1;

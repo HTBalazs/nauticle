@@ -49,7 +49,7 @@ void pmVTK_writer::push_fields_to_polydata() {
 	size_t n = function_space->get_workspace()->get_number_of_nodes();
 	for(auto const& it:function_space->get_workspace()->get_definitions()) {
 		if(it->get_field_size()==n && !it->is_hidden()) {
-			vtkSmartPointer<vtkFloatArray> field = vtkSmartPointer<vtkFloatArray>::New();
+			vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
 			field->SetName(it->get_name().c_str());
 			if(it->get_type()=="SCALAR") {
 				field->SetNumberOfComponents(1);
@@ -74,7 +74,7 @@ void pmVTK_writer::push_fields_to_polydata() {
 				field->SetNumberOfTuples(n);
 				for(int i=0; i<n; i++) {
 					pmTensor t = it->evaluate(i);
-					float data[3] = {0,0,0};
+					double data[3] = {0,0,0};
 					for(int j=0; j<t.numel(); j++) {
 						data[j] = t[j];
 					}
@@ -106,11 +106,11 @@ void pmVTK_writer::push_fields_to_polydata() {
 /// Push single data to polydata object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata, std::string const& name, pmTensor const& field_data) {
-	vtkSmartPointer<vtkFloatArray> float_array = vtkSmartPointer<vtkFloatArray>::New();
-	float_array->SetNumberOfComponents(field_data.numel());
-	float_array->SetName(name.c_str());
-	float_array->InsertNextTuple(&field_data[0]);
-	polydata->GetFieldData()->AddArray(float_array);
+	vtkSmartPointer<vtkDoubleArray> double_array = vtkSmartPointer<vtkDoubleArray>::New();
+	double_array->SetNumberOfComponents(field_data.numel());
+	double_array->SetName(name.c_str());
+	double_array->InsertNextTuple(&field_data[0]);
+	polydata->GetFieldData()->AddArray(double_array);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, float const& csize, pmTensor const& bnd) {
+pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, double const& csize, pmTensor const& bnd) {
 	if(dmin.numel()!=dmax.numel()) {
 		pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
@@ -50,7 +50,7 @@ pmTensor pmDomain::get_maximum() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the cell size of the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmDomain::get_cell_size() const {
+double pmDomain::get_cell_size() const {
 	return cell_size;
 }
 
@@ -129,7 +129,7 @@ void pmDomain::set_maximum(pmTensor const& mx) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Setter for cell_size.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_cell_size(float const& csize) {
+void pmDomain::set_cell_size(double const& csize) {
 	cell_size = csize;
 }
 

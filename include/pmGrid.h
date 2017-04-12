@@ -39,7 +39,7 @@ class pmGrid {
 	using Func = std::function<void(std::vector<int>&)>;
 private:
 	void n_level_loop(std::vector<int>& indexes, const std::vector<int>& endPerIndex, int idx, Func process);
-	void initialize_direction(float const& ofs, float& s, float& dist, float& n) const;
+	void initialize_direction(double const& ofs, double& s, double& dist, double& n) const;
 	void initialize_grid(pmTensor& S, pmTensor& D, pmTensor& N) const;
 public:
 	pmGrid() {}

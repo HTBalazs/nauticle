@@ -72,9 +72,9 @@ pmCase& pmCase::operator=(pmCase&& other) {
 	}
 	return *this;
 }
-float pmCase::calculate_print_interval() const {
+double pmCase::calculate_print_interval() const {
 	static bool constant = false;
-	static float interval = 0;
+	static double interval = 0;
 	if(!constant) {
 		bool governed_by_workspace = function_space->get_workspace()->is_existing("print_interval");
 		if(governed_by_workspace) {
@@ -95,17 +95,17 @@ void pmCase::simulate(size_t const& num_threads) {
 	pLogger::logf<LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
 	pmLog_stream log_stream{};
 	log_stream.print_start();
-	float current_time=0;
-	float previous_time=0;
+	double current_time=0;
+	double previous_time=0;
 	int substeps=0, all_steps=0, n=0;
-	float simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
-	float print_interval = calculate_print_interval();
-	float dt = function_space->get_workspace()->get_value("dt")[0];
-	log_stream.print_step_info(n, dt, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0f);
+	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
+	double print_interval = calculate_print_interval();
+	double dt = function_space->get_workspace()->get_value("dt")[0];
+	log_stream.print_step_info(n, dt, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0);
 	write_step();
 	while(current_time < simulated_time) {
 		dt = function_space->get_workspace()->get_value("dt")[0];
-		float dt_old = dt;
+		double dt_old = dt;
 		bool printing = current_time+dt >= previous_time+print_interval ? true : false;
 		if(printing) {
 			dt = print_interval+previous_time-current_time;
@@ -119,7 +119,7 @@ void pmCase::simulate(size_t const& num_threads) {
 			write_step();
 			n++;
 			all_steps+=substeps;
-			log_stream.print_step_info(n, dt_old, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0f);
+			log_stream.print_step_info(n, dt_old, substeps, all_steps, current_time, (double)current_time/simulated_time*100.0);
 			substeps=0;
 			previous_time = current_time;
 		}

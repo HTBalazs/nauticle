@@ -27,7 +27,7 @@ std::vector<pmTensor> pmVTK_reader::pop_array_from_polydata(int const& i, size_t
 	size_t size = polydata->GetNumberOfPoints();
 	std::vector<pmTensor> field;
 	field.reserve(size);
-	vtkSmartPointer<vtkFloatArray> array = vtkFloatArray::SafeDownCast(polydata->GetPointData()->GetArray(i));
+	vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::SafeDownCast(polydata->GetPointData()->GetArray(i));
 	int array_size = array->GetSize();
 	int dim = array_size/size;
 	array->SetNumberOfComponents(dim);
@@ -55,7 +55,7 @@ std::vector<pmTensor> pmVTK_reader::pop_array_from_polydata(int const& i, size_t
 /// Returns a tensor for the given field name.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmVTK_reader::pop_single_from_polydata(vtkSmartPointer<vtkPolyData> polydata, std::string name, int const& i) const {
-	vtkSmartPointer<vtkFloatArray> array = vtkFloatArray::SafeDownCast(polydata->GetFieldData()->GetArray(i));
+	vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::SafeDownCast(polydata->GetFieldData()->GetArray(i));
 	int dim = array->GetNumberOfComponents();
 	pmTensor field_data = pmTensor::Tensor(dim);
 	for(int a=0; a<dim; a++) {

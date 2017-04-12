@@ -29,7 +29,7 @@
 #include <vtkPolyData.h>
 #include <vtkFieldData.h>
 #include <vtkPointData.h>
-#include <vtkFloatArray.h>
+#include <vtkDoubleArray.h>
 #include <vtkStringArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkPolyDataReader.h>

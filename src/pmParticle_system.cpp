@@ -237,8 +237,8 @@ bool pmParticle_system::pmParticle_space::is_up_to_date() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the flatten index in the domain grid.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmParticle_system::pmParticle_space::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const {
-	if(i>=cells.numel()) { return 0.0f; }
+double pmParticle_system::pmParticle_space::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const {
+	if(i>=cells.numel()) { return 0.0; }
 	return cells[i]*flatten(cells, grid_pos, i+1)+grid_pos[i];
 }
 

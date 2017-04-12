@@ -34,10 +34,10 @@ pmTensor::pmTensor() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor::pmTensor(float const& s) {
+pmTensor::pmTensor(double const& s) {
 	rows = 1;
 	columns = 1;
-	elements = new float[1];
+	elements = new double[1];
 	elements[0] = s;
 	scalar = true;
 }
@@ -45,11 +45,11 @@ pmTensor::pmTensor(float const& s) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor::pmTensor(int const& r, int const& c, float const& init/*=0*/, bool const& sc/*=true*/) {
+pmTensor::pmTensor(int const& r, int const& c, double const& init/*=0*/, bool const& sc/*=true*/) {
 	if(r<1 || c<1) { return; }
 	rows = r;
 	columns = c;
-	elements = new float[r*c];
+	elements = new double[r*c];
 	for(int i=0; i<r*c; i++) {
 		elements[i] = init;
 	}
@@ -63,8 +63,8 @@ pmTensor::pmTensor(pmTensor const& other) {
 	this->rows = other.rows;
 	this->columns = other.columns;
 	this->scalar = other.scalar;
-	elements = new float[rows*columns];
-	memcpy(this->elements, other.elements, sizeof(float)*rows*columns);
+	elements = new double[rows*columns];
+	memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -158,8 +158,8 @@ pmTensor& pmTensor::operator=(pmTensor const& other) {
 		this->columns = other.columns;
 		this->scalar = other.scalar;
 		delete [] elements;
-		elements = new float[rows*columns];
-		memcpy(this->elements, other.elements, sizeof(float)*rows*columns);
+		elements = new double[rows*columns];
+		memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
 	}
 	return *this;
 }
@@ -222,18 +222,18 @@ pmTensor& pmTensor::operator/=(pmTensor const& other) {
 /// Increments all elements (prefix).
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor& pmTensor::operator++() {
-	// *this += float{1};
+	// *this += double{1};
 	// return *this;
-	return this->operator+=(float{1});
+	return this->operator+=(double{1});
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Decrements all elements (prefix).
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor& pmTensor::operator--() {
-	// *this -= float{1};
+	// *this -= double{1};
 	// return *this;
-	return this->operator-=(float{1});
+	return this->operator-=(double{1});
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -271,23 +271,23 @@ int pmTensor::get_numcols() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implements indexing with () brackets.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmTensor::operator()(int const& i, int const& j) const {
-	if(i*columns+j>=numel() || i>=rows || j>=columns) { return float{0}; }
+double pmTensor::operator()(int const& i, int const& j) const {
+	if(i*columns+j>=numel() || i>=rows || j>=columns) { return double{0}; }
 	return elements[i*columns+j];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implements continuous indexing with () brackets.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmTensor::operator()(int const& i) const {
-	if(i>=numel()) { return float{0}; }
+double pmTensor::operator()(int const& i) const {
+	if(i>=numel()) { return double{0}; }
 	return elements[i];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implements continuous indexing with [] brackets.
 /////////////////////////////////////////////////////////////////////////////////////////
-float& pmTensor::operator[](int const& i) {
+double& pmTensor::operator[](int const& i) {
 	if(i>=numel()) { pLogger::error_msgf("Index is out of bounds.\n"); }
 	return elements[i];
 }
@@ -295,7 +295,7 @@ float& pmTensor::operator[](int const& i) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implements continuous indexing with [] brackets.
 /////////////////////////////////////////////////////////////////////////////////////////
-float const& pmTensor::operator[](int const& i) const {
+double const& pmTensor::operator[](int const& i) const {
 	if(i>=numel()) { pLogger::error_msgf("Index is out of bounds.\n"); }
 	return elements[i];
 }
@@ -361,7 +361,7 @@ bool pmTensor::is_square() const {
 bool pmTensor::is_singular() const {
 	pmTensor det = determinant();
 	if(det.is_empty()) { return true; }
-	return std::abs(det[0])<1e-12f;
+	return std::abs(det[0])<1e-12;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -389,8 +389,8 @@ pmTensor pmTensor::to_column() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the product of the tensor elements.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmTensor::productum() const {
-	float prod{elements[0]};
+double pmTensor::productum() const {
+	double prod{elements[0]};
 	for(int i=1; i<numel(); i++) {
 		prod *= elements[i];
 	}
@@ -400,8 +400,8 @@ float pmTensor::productum() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the summation of the tensor elements.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmTensor::summation() const {
-	float sum = elements[0];
+double pmTensor::summation() const {
+	double sum = elements[0];
 	for(int i=1; i<numel(); i++) {
 		sum += elements[i];
 	}
@@ -530,7 +530,7 @@ pmTensor pmTensor::inverse() const {
 		return make_identity(columns);
 	}
 	pmTensor inv;
-	return 1.0f/determinant()*adjugate();
+	return 1.0/determinant()*adjugate();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -584,19 +584,19 @@ pmTensor pmTensor::multiply_term_by_term(pmTensor const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Vector length. If not vector, is returns zero. If scalar, it returns the scalar value.
 /////////////////////////////////////////////////////////////////////////////////////////
-float pmTensor::norm() const {
+double pmTensor::norm() const {
 	if(this->is_vector()) {
 		return sqrt((this->multiply_term_by_term(*this)).summation());
 	} else if(this->is_scalar()) {
 		return std::abs(elements[0]);
 	}
-	return float{0};
+	return double{0};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Fills the tensor with the given value. The size remains unchanged.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmTensor::fill(float const& s) {
+void pmTensor::fill(double const& s) {
 	for(int i=0; i<numel(); i++){
 		elements[i] = s;
 	}
@@ -605,14 +605,14 @@ void pmTensor::fill(float const& s) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns a tensor with the given sizes, filled by value.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ pmTensor pmTensor::make_tensor(int const& r, int const& c, float const& value) {
+/*static*/ pmTensor pmTensor::make_tensor(int const& r, int const& c, double const& value) {
 	return pmTensor{r,c,value};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns a tensor with the size of base, filled with value.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ pmTensor pmTensor::make_tensor(pmTensor const& base, float const& value) {
+/*static*/ pmTensor pmTensor::make_tensor(pmTensor const& base, double const& value) {
 	pmTensor tensor{base};
 	tensor.fill(value);
 	return tensor;
@@ -621,7 +621,7 @@ void pmTensor::fill(float const& s) {
 	if(size<1) { pLogger::error_msgf("Tensor size must be at least one by one."); }
 	pmTensor tensor{size,size,0};
 	for(int i=0; i<size*size; i+=size+1) {
-		tensor[i] = 1.0f;
+		tensor[i] = 1.0;
 	}
 	return tensor;
 }
@@ -672,7 +672,7 @@ pmTensor pmTensor::append(int const& row, int const& col) const {
 		pLogger::error_msgf("Appended size is smaller than the original.\n");
 	}
 	pmTensor tensor{row,col,0};
-	memcpy(&tensor.elements[0], &this->elements[0], sizeof(float)*this->numel());
+	memcpy(&tensor.elements[0], &this->elements[0], sizeof(double)*this->numel());
 	return tensor;
 }
 

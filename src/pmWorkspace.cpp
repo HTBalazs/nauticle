@@ -217,7 +217,7 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 /// Defines the bases unit vectors for the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::define_bases() {
-	float dims = this->get_particle_system().lock()->get_particle_space()->get_domain().get_dimensions();
+	double dims = this->get_particle_system().lock()->get_particle_space()->get_domain().get_dimensions();
 	std::string bases[] = {"e_i", "e_j", "e_k"};
 	for(int i=0; i<dims; i++) {
 		this->add_constant(bases[i], pmTensor::make_identity(dims).sub_tensor(0,dims-1,i,i), true);
@@ -418,9 +418,9 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 					field->set_number_of_nodes(N);
 					for(int i=num_nodes; i<N; i++) {
 						if(deleted_ids.empty()) {
-							field->set_value(pmTensor{1,1,(float)i},i);	
+							field->set_value(pmTensor{1,1,(double)i},i);	
 						} else {
-							field->set_value(pmTensor{1,1,(float)i},deleted_ids.top());
+							field->set_value(pmTensor{1,1,(double)i},deleted_ids.top());
 							deleted_ids.pop();
 						}
 					}

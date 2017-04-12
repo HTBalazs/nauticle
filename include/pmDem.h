@@ -157,21 +157,21 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, Eval_type eval_type/*=current
 	if(TYPE==LINEAR) {
 		pmTensor vi = this->operand[0]->evaluate(i,eval_type);
 		pmTensor omi = this->operand[1]->evaluate(i,eval_type);
-		float Ri = this->operand[2]->evaluate(i,eval_type)[0];
-		float ks = this->operand[3]->evaluate(i,eval_type)[0];
-		float kd = this->operand[4]->evaluate(i,eval_type)[0];
-		float kf = this->operand[5]->evaluate(i,eval_type)[0];
+		double Ri = this->operand[2]->evaluate(i,eval_type)[0];
+		double ks = this->operand[3]->evaluate(i,eval_type)[0];
+		double kd = this->operand[4]->evaluate(i,eval_type)[0];
+		double kf = this->operand[5]->evaluate(i,eval_type)[0];
 
-		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
+		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor force;
-			float d_ji = rel_pos.norm();
-			if(d_ji > 1e-6f) {
-				float Rj = this->operand[2]->evaluate(j,eval_type)[0];
-				float min_dist = Ri + Rj;
+			double d_ji = rel_pos.norm();
+			if(d_ji > 1e-6) {
+				double Rj = this->operand[2]->evaluate(j,eval_type)[0];
+				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
 					// overlap
-					float delta = min_dist-d_ji;
+					double delta = min_dist-d_ji;
 					pmTensor vj = this->operand[0]->evaluate(j,eval_type).reflect(guide);
 					pmTensor omj = this->operand[1]->evaluate(j,eval_type).reflect(guide);
 					pmTensor rel_vel = vj-vi;
@@ -182,8 +182,8 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, Eval_type eval_type/*=current
 					// relative tangential velocity
 					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
 					// relative tangential velocity
-					float rci = Ri-delta/2.0;
-					float rcj = Rj-delta/2.0;
+					double rci = Ri-delta/2.0;
+					double rcj = Rj-delta/2.0;
 					pmTensor wi = omi;
 					pmTensor wj = omj;
 					if(dimension==2) {
@@ -206,28 +206,28 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, Eval_type eval_type/*=current
 	} else {
 		pmTensor vi = this->operand[0]->evaluate(i,eval_type);
 		pmTensor omi = this->operand[1]->evaluate(i,eval_type);
-		float Ri = this->operand[2]->evaluate(i,eval_type)[0];
-		float kf = this->operand[3]->evaluate(i,eval_type)[0];
+		double Ri = this->operand[2]->evaluate(i,eval_type)[0];
+		double kf = this->operand[3]->evaluate(i,eval_type)[0];
 
-		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, float const& cell_size, pmTensor const& guide)->pmTensor{
+		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor torque;
 			torque.set_scalar(false);
-			float d_ji = rel_pos.norm();
-			if(d_ji > 1e-6f) {
-				float Rj = this->operand[2]->evaluate(j,eval_type)[0];
-				float min_dist = Ri + Rj;
+			double d_ji = rel_pos.norm();
+			if(d_ji > 1e-6) {
+				double Rj = this->operand[2]->evaluate(j,eval_type)[0];
+				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
 					// overlap
-					float delta = min_dist-d_ji;
+					double delta = min_dist-d_ji;
 					pmTensor vj = this->operand[0]->evaluate(j,eval_type).reflect(guide);
 					pmTensor omj = this->operand[1]->evaluate(j,eval_type);
 					pmTensor rel_vel = vj-vi;
 
 					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
 					// relative tangential velocity
-					float rci = Ri-delta/2.0;
-					float rcj = Rj-delta/2.0;
+					double rci = Ri-delta/2.0;
+					double rcj = Rj-delta/2.0;
 					pmTensor wi = omi;
 					pmTensor wj = omj;
 					if(dimension==2) {

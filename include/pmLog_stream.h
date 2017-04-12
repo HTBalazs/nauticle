@@ -31,8 +31,8 @@ class pmLog_stream {
     int num_total_steps=0;
 public:
 	pmLog_stream();
-	void print_step_info(int const& steps, float const& dt, int const& substeps, int const& all_steps, float const& current_time, float const& progress);
-	void print_substep_info(float const& dt, int const& substeps) const;
+	void print_step_info(int const& steps, double const& dt, int const& substeps, int const& all_steps, double const& current_time, double const& progress);
+	void print_substep_info(double const& dt, int const& substeps) const;
 	void print_finish(bool const& confirm) const;
 	void print_start() const;
 };
