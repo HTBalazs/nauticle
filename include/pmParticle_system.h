@@ -56,7 +56,7 @@ class pmParticle_system final : public pmField {
 		pmParticle_space& operator=(pmParticle_space&& other);
 		void expire();
 		bool is_up_to_date() const;
-		void restrict_particles(std::vector<pmTensor>& current_value, std::vector<pmTensor>& previous_value, bool const& two_step) const;
+		void restrict_particles(std::vector<std::vector<pmTensor>>& value) const;
 		void update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& idx);
 		std::vector<unsigned int> const& get_start() const;
 		std::vector<unsigned int> const& get_end() const;

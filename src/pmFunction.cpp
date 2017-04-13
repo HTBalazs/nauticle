@@ -96,8 +96,8 @@ void pmFunction::print() const {
 void pmFunction::evaluate(int const& p_begin, int const& p_end) {
 	int end = p_end>rhs->get_field_size() ? rhs->get_field_size() : p_end;
 	for(int i=p_begin; i<end; i++) {
-		if(condition->evaluate(i, current)[0]) {
-			lhs->set_value(rhs->evaluate(i, current), i);
+		if(condition->evaluate(i, 0)[0]) {
+			lhs->set_value(rhs->evaluate(i, 0), i);
 		}
 	}
 }

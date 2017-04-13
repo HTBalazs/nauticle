@@ -88,14 +88,14 @@ void pmFmin::print() const {
 /// This function performs the minimum search called by the member function evaluate(...)
 /// inherited from pmFsearch.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFmin::process(pmTensor& value, Eval_type eval_type/*=current*/) const {
-	pmTensor tensor = operand[0]->evaluate(0, eval_type);
+void pmFmin::process(pmTensor& value, size_t const& level/*=0*/) const {
+	pmTensor tensor = operand[0]->evaluate(0, level);
 	if(!tensor.is_scalar()) {
 		pLogger::error_msgf("Fmin can be evaluated only on scalar fields!\n");
 	}
-	value = operand[0]->evaluate(0, eval_type);
+	value = operand[0]->evaluate(0, level);
 	for(int j=1; j<operand[0]->get_field_size(); j++) {
-		pmTensor tj = operand[0]->evaluate(j, eval_type);
+		pmTensor tj = operand[0]->evaluate(j, level);
 		if(value(0,0)>tj(0,0)) {
 			value = tj;
 		}

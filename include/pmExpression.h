@@ -26,7 +26,6 @@
 #include "pmTensor.h"
 #include "prolog/pLogger.h"
 
-enum Eval_type { current, previous };
 class pmParticle_system;
 
 /** This interface represents an algebraic expression as an expression tree.
@@ -36,10 +35,10 @@ protected:
 	virtual std::shared_ptr<pmExpression> clone_impl() const=0;
 public:
 	virtual ~pmExpression() {}
-	virtual pmTensor evaluate(int const&, Eval_type=current) const=0;
+	virtual pmTensor evaluate(int const&, size_t const& level=0) const=0;
 	virtual void print() const=0;
 	virtual int get_field_size() const=0;
-	virtual void double_steps(bool const&)=0;
+	virtual void set_storage_depth(size_t const& d)=0;
 	std::shared_ptr<pmExpression> clone() const;
 	virtual void assign(std::weak_ptr<pmParticle_system> ps) {}
 	virtual bool is_assigned() const=0;

@@ -21,6 +21,7 @@
 #ifndef _SINGLE_H_
 #define _SINGLE_H_
 
+#include <vector>
 #include <string>
 #include "pmTerm.h"
 
@@ -28,11 +29,11 @@
 */
 class pmSingle : public pmTerm {
 protected:
-	pmTensor current_value;
+	std::vector<pmTensor> value;
 public:
 	virtual ~pmSingle() override {}
 	pmTensor get_value(int const& i=0) const override;
-	virtual pmTensor evaluate(int const&, Eval_type=current) const override;
+	virtual pmTensor evaluate(int const&, size_t const& level=0) const override;
 	void printv() const override;
 	std::shared_ptr<pmSingle> clone() const;
 	std::string get_type() const override;

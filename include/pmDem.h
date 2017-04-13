@@ -46,7 +46,7 @@ public:
 	pmDem& operator=(pmDem&& other);
 	virtual ~pmDem() {}
 	void print() const override;
-	pmTensor evaluate(int const& i, Eval_type eval_type/*=current*/) const override;
+	pmTensor evaluate(int const& i, size_t const& level=0) const override;
 	std::shared_ptr<pmDem> clone() const;
 	virtual void write_to_string(std::ostream& os) const override;
 };
@@ -149,31 +149,31 @@ void pmDem<TYPE, NOPS>::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 template <DEM_TYPE TYPE, size_t NOPS>
-pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
+pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
 
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 
 	if(TYPE==LINEAR) {
-		pmTensor vi = this->operand[0]->evaluate(i,eval_type);
-		pmTensor omi = this->operand[1]->evaluate(i,eval_type);
-		double Ri = this->operand[2]->evaluate(i,eval_type)[0];
-		double ks = this->operand[3]->evaluate(i,eval_type)[0];
-		double kd = this->operand[4]->evaluate(i,eval_type)[0];
-		double kf = this->operand[5]->evaluate(i,eval_type)[0];
+		pmTensor vi = this->operand[0]->evaluate(i,level);
+		pmTensor omi = this->operand[1]->evaluate(i,level);
+		double Ri = this->operand[2]->evaluate(i,level)[0];
+		double ks = this->operand[3]->evaluate(i,level)[0];
+		double kd = this->operand[4]->evaluate(i,level)[0];
+		double kf = this->operand[5]->evaluate(i,level)[0];
 
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor force;
 			double d_ji = rel_pos.norm();
 			if(d_ji > 1e-6) {
-				double Rj = this->operand[2]->evaluate(j,eval_type)[0];
+				double Rj = this->operand[2]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
 					// overlap
 					double delta = min_dist-d_ji;
-					pmTensor vj = this->operand[0]->evaluate(j,eval_type).reflect(guide);
-					pmTensor omj = this->operand[1]->evaluate(j,eval_type).reflect(guide);
+					pmTensor vj = this->operand[0]->evaluate(j,level).reflect(guide);
+					pmTensor omj = this->operand[1]->evaluate(j,level).reflect(guide);
 					pmTensor rel_vel = vj-vi;
 					// spring force
 					force += -ks*delta*e_ji;
@@ -204,24 +204,24 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, Eval_type eval_type/*=current
 		};
 		return this->interact(i, contribute);
 	} else {
-		pmTensor vi = this->operand[0]->evaluate(i,eval_type);
-		pmTensor omi = this->operand[1]->evaluate(i,eval_type);
-		double Ri = this->operand[2]->evaluate(i,eval_type)[0];
-		double kf = this->operand[3]->evaluate(i,eval_type)[0];
+		pmTensor vi = this->operand[0]->evaluate(i,level);
+		pmTensor omi = this->operand[1]->evaluate(i,level);
+		double Ri = this->operand[2]->evaluate(i,level)[0];
+		double kf = this->operand[3]->evaluate(i,level)[0];
 
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor torque;
 			torque.set_scalar(false);
 			double d_ji = rel_pos.norm();
 			if(d_ji > 1e-6) {
-				double Rj = this->operand[2]->evaluate(j,eval_type)[0];
+				double Rj = this->operand[2]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor e_ji = rel_pos / d_ji;
 					// overlap
 					double delta = min_dist-d_ji;
-					pmTensor vj = this->operand[0]->evaluate(j,eval_type).reflect(guide);
-					pmTensor omj = this->operand[1]->evaluate(j,eval_type);
+					pmTensor vj = this->operand[0]->evaluate(j,level).reflect(guide);
+					pmTensor omj = this->operand[1]->evaluate(j,level);
 					pmTensor rel_vel = vj-vi;
 
 					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;

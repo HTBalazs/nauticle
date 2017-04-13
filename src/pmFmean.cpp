@@ -88,11 +88,11 @@ void pmFmean::print() const {
 /// This function performs the mean calculation called by the member function evaluate(...)
 /// inherited from pmFsearch.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFmean::process(pmTensor& value, Eval_type eval_type/*=current*/) const {
-	value = operand[0]->evaluate(0, eval_type);
+void pmFmean::process(pmTensor& value, size_t const& level/*=0*/) const {
+	value = operand[0]->evaluate(0, level);
 	int num_points = operand[0]->get_field_size();
 	for(int j=1; j<num_points; j++) {
-		value += operand[0]->evaluate(j, eval_type);
+		value += operand[0]->evaluate(j, level);
 	}
 	value/=pmTensor{1,1,(double)num_points};
 }

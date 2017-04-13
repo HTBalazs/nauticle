@@ -45,7 +45,7 @@ protected:
 	pmOperator& operator=(pmOperator const& other);
 	pmOperator& operator=(pmOperator&& other);
 	virtual ~pmOperator() override {};
-	virtual void double_steps(bool const&) override;
+	virtual void set_storage_depth(size_t const& d) override;
 	virtual int get_field_size() const override;
 	void assign(std::weak_ptr<pmParticle_system> ps) override;
 	bool is_assigned() const override;
@@ -108,9 +108,9 @@ pmOperator<S>& pmOperator<S>::operator=(pmOperator&& other) {
 /// Option for two-step integrators.
 /////////////////////////////////////////////////////////////////////////////////////////
 template<size_t S>
-void pmOperator<S>::double_steps(bool const& use_double_steps) {
+void pmOperator<S>::set_storage_depth(size_t const& d) {
 	for(auto const& it:operand) {
-		it->double_steps(use_double_steps);
+		it->set_storage_depth(d);
 	}
 }
 

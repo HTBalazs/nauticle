@@ -35,7 +35,7 @@ public:
 	virtual pmTensor get_value(int const& i=0) const=0;
 	virtual void print() const override;
 	virtual void printv() const=0;
-	virtual void double_steps(bool const&) override {}
+	virtual void set_storage_depth(size_t const& d) override {}
 	virtual int get_field_size() const override;
 	std::shared_ptr<pmTerm> clone() const;
 	virtual void set_value(pmTensor const& value, int const& i=0) {}

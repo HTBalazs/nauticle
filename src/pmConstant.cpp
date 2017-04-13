@@ -23,16 +23,16 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor. It creates an anonymous constant object.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmConstant::pmConstant(pmTensor const& value) {
-	current_value = value;
+pmConstant::pmConstant(pmTensor const& v) {
+	value.push_back(v);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor. It creates a named constant object.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmConstant::pmConstant(std::string n, pmTensor const& value, bool const& hh/*=false*/) {
+pmConstant::pmConstant(std::string n, pmTensor const& v, bool const& hh/*=false*/) {
 	name = n;
-	current_value = value;
+	value.push_back(v);
 	hidden = hh;
 }
 
@@ -41,7 +41,7 @@ pmConstant::pmConstant(std::string n, pmTensor const& value, bool const& hh/*=fa
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmConstant::print() const {
 	if(name=="") {
-		current_value.print();
+		value[0].print();
 	} else {
 		pLogger::logf<COLOR>("%s", name.c_str());
 	}
@@ -73,7 +73,7 @@ bool pmConstant::is_hidden() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmConstant::write_to_string(std::ostream& os) const {
 	if(name=="") {
-		os << current_value;
+		os << value[0];
 	} else {
 		os << name;
 	}

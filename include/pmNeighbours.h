@@ -38,7 +38,7 @@ public:
 	pmNeighbours& operator=(pmNeighbours&& other);
 	virtual ~pmNeighbours() {}
 	void print() const override;
-	pmTensor evaluate(int const& i, Eval_type eval_type/*=current*/) const override;
+	pmTensor evaluate(int const& i, size_t const& level=0) const override;
 	std::shared_ptr<pmNeighbours> clone() const;
 	int get_field_size() const override;
 	virtual void write_to_string(std::ostream& os) const override;

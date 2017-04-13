@@ -45,7 +45,7 @@ public:
 	virtual ~pmSph_operator() {}
 	void print() const override;
 	pmTensor process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const;
-	pmTensor evaluate(int const& i, Eval_type eval_type/*=current*/) const override;
+	pmTensor evaluate(int const& i, size_t const& level=0) const override;
 	std::shared_ptr<pmSph_operator> clone() const;
 	virtual void write_to_string(std::ostream& os) const override;
 };
@@ -156,29 +156,29 @@ void pmSph_operator<OP_TYPE,VAR,K,NOPS>::print() const {
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
-pmTensor pmSph_operator<OP_TYPE,VAR,K,NOPS>::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
+pmTensor pmSph_operator<OP_TYPE,VAR,K,NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
 	size_t sh = 0;
 	pmTensor B_i{1,1,1};
 	if(NOPS==5) {
-		B_i = this->operand[0]->evaluate(i, eval_type);
+		B_i = this->operand[0]->evaluate(i, level);
 		sh++;
 	}
-	pmTensor A_i = this->operand[0+sh]->evaluate(i,eval_type);
-	double m_i = this->operand[1+sh]->evaluate(i,eval_type)[0];
-	double rho_i = this->operand[2+sh]->evaluate(i,eval_type)[0];
-	auto contribute = [&B_i, &sh, &A_i, &m_i, &rho_i, &eval_type, this](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
+	pmTensor A_i = this->operand[0+sh]->evaluate(i,level);
+	double m_i = this->operand[1+sh]->evaluate(i,level)[0];
+	double rho_i = this->operand[2+sh]->evaluate(i,level)[0];
+	auto contribute = [&B_i, &sh, &A_i, &m_i, &rho_i, &level, this](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor contribution;
 		double d_ji = rel_pos.norm();
 		if(d_ji > 1e-6 || OP_TYPE==SAMPLE) {
 			if(d_ji < cell_size) {
 				pmTensor B_j{1,1,1};
 				if(NOPS==5) {
-					B_j = this->operand[0]->evaluate(j, eval_type);
+					B_j = this->operand[0]->evaluate(j, level);
 				}
-				pmTensor A_j = this->operand[0+sh]->evaluate(j,eval_type).reflect(guide);
-				double m_j = this->operand[1+sh]->evaluate(j,eval_type)[0];
-				double rho_j = this->operand[2+sh]->evaluate(j,eval_type)[0];
+				pmTensor A_j = this->operand[0+sh]->evaluate(j,level).reflect(guide);
+				double m_j = this->operand[1+sh]->evaluate(j,level)[0];
+				double rho_j = this->operand[2+sh]->evaluate(j,level)[0];
 				double W_ij = this->kernel->evaluate(d_ji, cell_size);
 				pmTensor B_ij{1,1,1};
 				if(NOPS==5) {

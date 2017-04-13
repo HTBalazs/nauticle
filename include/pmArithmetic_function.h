@@ -45,7 +45,7 @@ public:
 	pmArithmetic_function& operator=(pmArithmetic_function&& other);
 	~pmArithmetic_function() override {}
 	void print() const override;
-	pmTensor evaluate(int const&, Eval_type=current) const override;
+	pmTensor evaluate(int const&, size_t const& level=0) const override;
 	std::shared_ptr<pmArithmetic_function> clone() const;
 	void write_to_string(std::ostream& os) const override;
 };
@@ -164,65 +164,65 @@ void pmArithmetic_function<ARI_TYPE,S>::print() const {
 /// Evaluates artihmetic operator.
 /////////////////////////////////////////////////////////////////////////////////////////
 template <Ari_fn_type ARI_TYPE, size_t S>
-pmTensor pmArithmetic_function<ARI_TYPE,S>::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
+pmTensor pmArithmetic_function<ARI_TYPE,S>::evaluate(int const& i, size_t const& level/*=0*/) const {
 	switch(ARI_TYPE) {
-		case ABS : return abs(this->operand[0]->evaluate(i, eval_type));
-		case ACOS : return acos(this->operand[0]->evaluate(i, eval_type));
-		case ACOT : return acot(this->operand[0]->evaluate(i, eval_type));
-		case AND : return (this->operand[0]->evaluate(i, eval_type) && this->operand[1]->evaluate(i, eval_type));
-		case ASIN : return asin(this->operand[0]->evaluate(i, eval_type));
-		case ATAN : return atan(this->operand[0]->evaluate(i, eval_type));
-		case COS : return cos(this->operand[0]->evaluate(i, eval_type));
-		case COSH : return cosh(this->operand[0]->evaluate(i, eval_type));
-		case COT : return cot(this->operand[0]->evaluate(i, eval_type));
-		case COTH : return coth(this->operand[0]->evaluate(i, eval_type));
-		case CROSS : return cross(this->operand[0]->evaluate(i, eval_type),this->operand[1]->evaluate(i, eval_type));
+		case ABS : return abs(this->operand[0]->evaluate(i, level));
+		case ACOS : return acos(this->operand[0]->evaluate(i, level));
+		case ACOT : return acot(this->operand[0]->evaluate(i, level));
+		case AND : return (this->operand[0]->evaluate(i, level) && this->operand[1]->evaluate(i, level));
+		case ASIN : return asin(this->operand[0]->evaluate(i, level));
+		case ATAN : return atan(this->operand[0]->evaluate(i, level));
+		case COS : return cos(this->operand[0]->evaluate(i, level));
+		case COSH : return cosh(this->operand[0]->evaluate(i, level));
+		case COT : return cot(this->operand[0]->evaluate(i, level));
+		case COTH : return coth(this->operand[0]->evaluate(i, level));
+		case CROSS : return cross(this->operand[0]->evaluate(i, level),this->operand[1]->evaluate(i, level));
 		case ELEM : {
-						pmTensor t1 = this->operand[0]->evaluate(i, eval_type);
-						pmTensor row = this->operand[1]->evaluate(i, eval_type);
-						pmTensor column = this->operand[2]->evaluate(i, eval_type);
+						pmTensor t1 = this->operand[0]->evaluate(i, level);
+						pmTensor row = this->operand[1]->evaluate(i, level);
+						pmTensor column = this->operand[2]->evaluate(i, level);
 						if(!row.is_scalar() || !column.is_scalar()) { pLogger::error_msgf("Element indices must be scalars.\n"); }
 						if(row[0]>t1.get_numrows() || column[0]>t1.get_numcols()) { pLogger::error_msgf("Element indices out of bounds.\n"); }
 						return pmTensor{1,1,t1(row(0,0),column(0,0))};
 					}
-		case EXP : return exp(this->operand[0]->evaluate(i, eval_type));
-		case FLOOR : return floor(this->operand[0]->evaluate(i, eval_type));
-		case GT : return (this->operand[0]->evaluate(i, eval_type) > this->operand[1]->evaluate(i, eval_type));
-		case EQUAL : return (this->operand[0]->evaluate(i, eval_type) == this->operand[1]->evaluate(i, eval_type));
+		case EXP : return exp(this->operand[0]->evaluate(i, level));
+		case FLOOR : return floor(this->operand[0]->evaluate(i, level));
+		case GT : return (this->operand[0]->evaluate(i, level) > this->operand[1]->evaluate(i, level));
+		case EQUAL : return (this->operand[0]->evaluate(i, level) == this->operand[1]->evaluate(i, level));
 		case IF : 	{
-						pmTensor t2 = this->operand[0]->evaluate(i, eval_type);
+						pmTensor t2 = this->operand[0]->evaluate(i, level);
 						if(!t2.is_scalar()) { pLogger::error_msgf("Logical value should be scalar.\n"); }
-						return (bool)t2[0] ? this->operand[1]->evaluate(i, eval_type) : this->operand[2]->evaluate(i, eval_type);
+						return (bool)t2[0] ? this->operand[1]->evaluate(i, level) : this->operand[2]->evaluate(i, level);
 					}
-		case LOG : return log(this->operand[0]->evaluate(i, eval_type));
-		case LT : return (this->operand[0]->evaluate(i, eval_type) < this->operand[1]->evaluate(i, eval_type));
-		case MAGNITUDE : return this->operand[0]->evaluate(i, eval_type).norm();
-		case MAX : return max(this->operand[0]->evaluate(i, eval_type), this->operand[1]->evaluate(i, eval_type));
-		case MIN : return min(this->operand[0]->evaluate(i, eval_type), this->operand[1]->evaluate(i, eval_type));
-		case MOD : return mod(this->operand[0]->evaluate(i, eval_type), this->operand[1]->evaluate(i, eval_type));
-		case NOT : return !this->operand[0]->evaluate(i, eval_type);
-		case OR : return (this->operand[0]->evaluate(i, eval_type) || this->operand[1]->evaluate(i, eval_type));
-		case RAND : return pmRandom::random(this->operand[0]->evaluate(i, eval_type), this->operand[1]->evaluate(i, eval_type));
-		case SGN : return sgn(this->operand[0]->evaluate(i, eval_type));
-		case SIN : return sin(this->operand[0]->evaluate(i, eval_type));
-		case SINH : return sinh(this->operand[0]->evaluate(i, eval_type));
-		case SQRT : return sqrt(this->operand[0]->evaluate(i, eval_type));
-		case TAN : return tan(this->operand[0]->evaluate(i, eval_type));
-		case TANH : return tanh(this->operand[0]->evaluate(i, eval_type));
-		case TRACE : return this->operand[0]->evaluate(i, eval_type).trace();
-		case TRANSPOSE : return this->operand[0]->evaluate(i, eval_type).transpose();
-		case TRUNC : return trunc(this->operand[0]->evaluate(i, eval_type));
-		case XOR : return (this->operand[0]->evaluate(i, eval_type) != this->operand[1]->evaluate(i, eval_type));
-		case DETERMINANT : return this->operand[0]->evaluate(i, eval_type).determinant();
-		case INVERSE : return this->operand[0]->evaluate(i, eval_type).inverse();
+		case LOG : return log(this->operand[0]->evaluate(i, level));
+		case LT : return (this->operand[0]->evaluate(i, level) < this->operand[1]->evaluate(i, level));
+		case MAGNITUDE : return this->operand[0]->evaluate(i, level).norm();
+		case MAX : return max(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+		case MIN : return min(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+		case MOD : return mod(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+		case NOT : return !this->operand[0]->evaluate(i, level);
+		case OR : return (this->operand[0]->evaluate(i, level) || this->operand[1]->evaluate(i, level));
+		case RAND : return pmRandom::random(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+		case SGN : return sgn(this->operand[0]->evaluate(i, level));
+		case SIN : return sin(this->operand[0]->evaluate(i, level));
+		case SINH : return sinh(this->operand[0]->evaluate(i, level));
+		case SQRT : return sqrt(this->operand[0]->evaluate(i, level));
+		case TAN : return tan(this->operand[0]->evaluate(i, level));
+		case TANH : return tanh(this->operand[0]->evaluate(i, level));
+		case TRACE : return this->operand[0]->evaluate(i, level).trace();
+		case TRANSPOSE : return this->operand[0]->evaluate(i, level).transpose();
+		case TRUNC : return trunc(this->operand[0]->evaluate(i, level));
+		case XOR : return (this->operand[0]->evaluate(i, level) != this->operand[1]->evaluate(i, level));
+		case DETERMINANT : return this->operand[0]->evaluate(i, level).determinant();
+		case INVERSE : return this->operand[0]->evaluate(i, level).inverse();
 		case IDENTITY : {
-							pmTensor t3 = this->operand[0]->evaluate(i, eval_type);
+							pmTensor t3 = this->operand[0]->evaluate(i, level);
 							if(!t3.is_scalar()) { pLogger::error_msgf("Not scalar in identity.\n"); }
 							return pmTensor::make_identity((int)t3[0]); 
 						}
-		case EULER : return this->operand[0]->evaluate(i, current)+this->operand[1]->evaluate(i, current) * this->operand[2]->evaluate(i, current);
-		case PREDICTOR : return this->operand[0]->evaluate(i, current)+this->operand[1]->evaluate(i, current) * this->operand[2]->evaluate(i, current);
-		case CORRECTOR : return this->operand[0]->evaluate(i, previous)+this->operand[1]->evaluate(i, current) * this->operand[2]->evaluate(i, current);
+		case EULER : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
+		case PREDICTOR : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
+		case CORRECTOR : return this->operand[0]->evaluate(i, 1)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
 	}
 }
 

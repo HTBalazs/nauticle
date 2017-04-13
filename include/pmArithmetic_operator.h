@@ -41,7 +41,7 @@ public:
 	pmArithmetic_operator& operator=(pmArithmetic_operator&& other);
 	~pmArithmetic_operator() override {}
 	void print() const override;
-	pmTensor evaluate(int const&, Eval_type=current) const override;
+	pmTensor evaluate(int const&, size_t const& level=0) const override;
 	std::shared_ptr<pmArithmetic_operator> clone() const;
 	void write_to_string(std::ostream& os) const override;
 };
@@ -113,21 +113,21 @@ void pmArithmetic_operator<ARI_TYPE,S>::print() const {
 /// Evaluates artihmetic operator.
 /////////////////////////////////////////////////////////////////////////////////////////
 template <char ARI_TYPE, size_t S>
-pmTensor pmArithmetic_operator<ARI_TYPE,S>::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
+pmTensor pmArithmetic_operator<ARI_TYPE,S>::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(S==1) {
 		if(ARI_TYPE=='+') {
-			return this->operand[0]->evaluate(i, eval_type);
+			return this->operand[0]->evaluate(i, level);
 		} else if(ARI_TYPE=='-') {
-			return -this->operand[0]->evaluate(i, eval_type);
+			return -this->operand[0]->evaluate(i, level);
 		}
 	}
 	switch(ARI_TYPE) {
-		case '+' : return this->operand[0]->evaluate(i, eval_type)+this->operand[1]->evaluate(i, eval_type); break;
-		case '-' : return this->operand[0]->evaluate(i, eval_type)-this->operand[1]->evaluate(i, eval_type); break;
-		case '*' : return this->operand[0]->evaluate(i, eval_type)*this->operand[1]->evaluate(i, eval_type); break;
-		case '/' : return this->operand[0]->evaluate(i, eval_type)/this->operand[1]->evaluate(i, eval_type); break;
-		case ':' : return this->operand[0]->evaluate(i, eval_type).multiply_term_by_term(this->operand[1]->evaluate(i, eval_type)); break;
-		case '^' : return pow(this->operand[0]->evaluate(i, eval_type), this->operand[1]->evaluate(i, eval_type)); break;
+		case '+' : return this->operand[0]->evaluate(i, level)+this->operand[1]->evaluate(i, level); break;
+		case '-' : return this->operand[0]->evaluate(i, level)-this->operand[1]->evaluate(i, level); break;
+		case '*' : return this->operand[0]->evaluate(i, level)*this->operand[1]->evaluate(i, level); break;
+		case '/' : return this->operand[0]->evaluate(i, level)/this->operand[1]->evaluate(i, level); break;
+		case ':' : return this->operand[0]->evaluate(i, level).multiply_term_by_term(this->operand[1]->evaluate(i, level)); break;
+		case '^' : return pow(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level)); break;
 	}
 }
 

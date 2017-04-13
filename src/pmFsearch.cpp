@@ -23,12 +23,12 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// This function performs the type-specific process (pmFmax, pmFmin, pmFmean).
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmFsearch::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
-	static pmTensor value{1,1};
+pmTensor pmFsearch::evaluate(int const& i, size_t const& level/*=0*/) const {
+	static pmTensor tensor{1,1};
 	if(i==0) {
-		process(value, eval_type);
+		process(tensor, level);
 	}
-	return value;
+	return tensor;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

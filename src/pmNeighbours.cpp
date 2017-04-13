@@ -96,7 +96,7 @@ void pmNeighbours::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmNeighbours::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
+pmTensor pmNeighbours::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!assigned) { pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
 
 	auto contribute = [this](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{

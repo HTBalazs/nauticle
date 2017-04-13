@@ -24,7 +24,7 @@
 /// Returns the value stored for constant or variable.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmSingle::get_value(int const& i/*=0*/) const {
-	return current_value;
+	return value[0];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -33,14 +33,14 @@ pmTensor pmSingle::get_value(int const& i/*=0*/) const {
 void pmSingle::printv() const {
 	this->print();
 	pLogger::logf<COLOR>(" = ");
-	current_value.print();
+	value[0].print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the single-valued constant or variable.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmSingle::evaluate(int const& i, Eval_type eval_type/*=current*/) const {
-	return current_value;
+pmTensor pmSingle::evaluate(int const& i, size_t const& level/*=0*/) const {
+	return value[0];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -54,8 +54,8 @@ std::shared_ptr<pmSingle> pmSingle::clone() const {
 /// Returns the type in pmSingle format. It returns on of the followings: SCALAR, VECTOR, TENSOR. 
 /////////////////////////////////////////////////////////////////////////////////////////
 std::string pmSingle::get_type() const {
-    if(current_value.is_scalar()) { return "SCALAR"; }
-    if(current_value.is_vector()) { return "VECTOR"; }
+    if(value[0].is_scalar()) { return "SCALAR"; }
+    if(value[0].is_vector()) { return "VECTOR"; }
     return "TENSOR";
 }
 

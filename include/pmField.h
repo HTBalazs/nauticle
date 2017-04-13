@@ -33,9 +33,10 @@
 */
 class pmField : public pmTerm {
 protected:
-	std::vector<pmTensor> current_value;
-	std::vector<pmTensor> previous_value;
-	bool two_step=false;
+	// std::vector<pmTensor> current_value;
+	// std::vector<pmTensor> previous_value;
+	std::vector<std::vector<pmTensor>> value;
+	size_t depth = 1;
 protected:
 	virtual std::shared_ptr<pmExpression> clone_impl() const override;
 public:
@@ -48,12 +49,12 @@ public:
 	pmField& operator=(pmField&&);
 	virtual ~pmField() override {}
 	void printv() const override;
-	pmTensor evaluate(int const& i, Eval_type=current) const override;
+	pmTensor evaluate(int const& i, size_t const& level=0) const override;
 	virtual void set_value(pmTensor const& value, int const& i=0) override;
 	pmTensor get_value(int const& i) const override;
 	int get_field_size() const override;
 	std::string get_type() const override;
-	void double_steps(bool const& use_double_steps) override;
+	void set_storage_depth(size_t const& d) override;
 	void push_back(pmTensor const& obj);
 	bool is_double_steps() const;
 	std::shared_ptr<pmField> clone() const;

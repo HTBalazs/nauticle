@@ -28,7 +28,7 @@
 class pmFmean : public pmFsearch {
 	std::shared_ptr<pmExpression> clone_impl() const override;
 private:
-	void process(pmTensor& value, Eval_type eval_type=current) const override;
+	void process(pmTensor& value, size_t const& level=0) const override;
 public:
 	pmFmean(std::shared_ptr<pmExpression>);
 	pmFmean(pmFmean const& other);

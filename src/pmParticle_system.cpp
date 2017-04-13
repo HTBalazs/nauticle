@@ -83,8 +83,8 @@ void pmParticle_system::set_value(pmTensor const& value, int const& i/*=0*/) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::sort_field(std::vector<int>& sorted_idx) {
 	// shift particles due to the periodic domain
-	particle_space->restrict_particles(current_value, previous_value, two_step);
-	particle_space->update_neighbour_list(current_value, sorted_idx);
+	particle_space->restrict_particles(value);
+	particle_space->update_neighbour_list(value[0], sorted_idx);
 	// reorder particle positions due to sorted_idx
 	pmField::sort_field(sorted_idx);
 }
@@ -130,7 +130,7 @@ std::shared_ptr<pmParticle_system> pmParticle_system::clone() const {
 }
 
 void pmParticle_system::set_number_of_nodes(size_t const& N) {
-	if(N!=current_value.size()) {
+	if(N!=value[0].size()) {
 		pmField::set_number_of_nodes(N);
 		particle_space->set_number_of_nodes(N);
 	}
@@ -207,15 +207,14 @@ pmParticle_system::pmParticle_space& pmParticle_system::pmParticle_space::operat
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Restrict particles to the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::restrict_particles(std::vector<pmTensor>& current_value, std::vector<pmTensor>& previous_value, bool const& two_step) const {
+void pmParticle_system::pmParticle_space::restrict_particles(std::vector<std::vector<pmTensor>>& value) const {
 	if(up_to_date) { return; }
 	pmTensor domain_size = domain.get_physical_size();
 	pmTensor domain_minimum = domain.get_physical_minimum();
-	for(int i=0; i<current_value.size(); i++) {
-		pmTensor shift = floor((current_value[i]-domain_minimum).divide_term_by_term(domain_size)).multiply_term_by_term(domain_size);
-		current_value[i] = current_value[i] - shift;
-		if(two_step) {
-			previous_value[i] = previous_value[i] - shift;
+	for(int i=0; i<value[0].size(); i++) {
+		pmTensor shift = floor((value[0][i]-domain_minimum).divide_term_by_term(domain_size)).multiply_term_by_term(domain_size);
+		for(auto& it:value) {
+			it[i] = it[i] - shift;
 		}
 	}
 }
