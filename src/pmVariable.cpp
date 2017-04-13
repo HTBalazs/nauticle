@@ -30,7 +30,7 @@ pmVariable::pmVariable(std::string const& n, pmTensor const& v/*=pmTensor{0}*/) 
 
 void pmVariable::set_storage_depth(size_t const& d) {
     depth = d;
-    value.resize(d);
+    value.resize(depth,value.back());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
