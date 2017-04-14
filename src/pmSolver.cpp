@@ -18,29 +18,29 @@
     For more information please visit: https://bitbucket.org/lempsproject/
 */
 
-#include "pmFunction_space.h"
+#include "pmSolver.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFunction_space::pmFunction_space(pmFunction_space const& other) {
+pmSolver::pmSolver(pmSolver const& other) {
 	this->workspace = other.workspace->clone();
-	for(auto const& it:other.functions) {
-		this->functions.push_back(it->clone());
+	for(auto const& it:other.equations) {
+		this->equations.push_back(it->clone());
 	}
-	assign_particle_system_to_functions();
+	assign_particle_system_to_equations();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFunction_space& pmFunction_space::operator=(pmFunction_space const& rhs) {
+pmSolver& pmSolver::operator=(pmSolver const& rhs) {
 	if(this!=&rhs) {
 		this->workspace = rhs.workspace->clone();
-		for(auto const& it:rhs.functions) {
-			this->functions.push_back(it->clone());
+		for(auto const& it:rhs.equations) {
+			this->equations.push_back(it->clone());
 		}
-		assign_particle_system_to_functions();
+		assign_particle_system_to_equations();
 	}
 	return *this;
 }
@@ -48,62 +48,62 @@ pmFunction_space& pmFunction_space::operator=(pmFunction_space const& rhs) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFunction_space::pmFunction_space(pmFunction_space&& other) {
+pmSolver::pmSolver(pmSolver&& other) {
 	this->workspace = std::move(other.workspace);
-	this->functions = std::move(other.functions);
-	assign_particle_system_to_functions();
+	this->equations = std::move(other.equations);
+	assign_particle_system_to_equations();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFunction_space& pmFunction_space::operator=(pmFunction_space&& rhs) {
+pmSolver& pmSolver::operator=(pmSolver&& rhs) {
 	if(this!=&rhs) {
 		this->workspace = std::move(rhs.workspace);
-		this->functions = std::move(rhs.functions);
-		assign_particle_system_to_functions();
+		this->equations = std::move(rhs.equations);
+		assign_particle_system_to_equations();
 	}
 	return *this;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Adds the given workspace to the function space. Previously stored workspace is destroyed.
+/// Adds the given workspace to the equation space. Previously stored workspace is destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction_space::add_workspace(std::shared_ptr<pmWorkspace> ws) {
+void pmSolver::add_workspace(std::shared_ptr<pmWorkspace> ws) {
 	workspace = ws;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Recives a function and pushes it to the functions vector.
+/// Recives a equation and pushes it to the equations vector.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction_space::add_function(std::shared_ptr<pmFunction> func) {
-	for(auto const& it:functions) {
+void pmSolver::add_equation(std::shared_ptr<pmEquation> func) {
+	for(auto const& it:equations) {
 		if(it->get_name()==func->get_name()){
-			pLogger::warning_msg("Function \"%s\" is already existing in the function space.\n",func->get_name().c_str());
+			pLogger::warning_msg("equation \"%s\" is already existing in the equation space.\n",func->get_name().c_str());
 			return;
 		}
 	}
-	functions.push_back(func);
+	equations.push_back(func);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Recieves a vector of functions and pushes it to the end of the functions vector.
+/// Recieves a vector of equations and pushes it to the end of the equations vector.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction_space::add_function(std::vector<std::shared_ptr<pmFunction>> func) {
+void pmSolver::add_equation(std::vector<std::shared_ptr<pmEquation>> func) {
 	for(auto const& it:func) {
-		this->add_function(it);
+		this->add_equation(it);
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Prints out the content of the pmFunction_space object.
+/// Prints out the content of the pmSolver object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction_space::print() const {
-	pLogger::headerf<LBL>("Function space");
+void pmSolver::print() const {
+	pLogger::headerf<LBL>("equation space");
 	workspace->print();
 	int f=0;
-	pLogger::titlef<LMA>("Functions");
-	for(auto const& it:functions) {
+	pLogger::titlef<LMA>("equations");
+	for(auto const& it:equations) {
 		f++;
 		pLogger::logf<YEL>("         %i) ", f);
 		it->print();
@@ -118,43 +118,43 @@ void pmFunction_space::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the workspace. 
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmWorkspace> pmFunction_space::get_workspace() const {
+std::shared_ptr<pmWorkspace> pmSolver::get_workspace() const {
 	return workspace;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the functions.
+/// Returns the equations.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::vector<std::shared_ptr<pmFunction>> pmFunction_space::get_functions() const {
-	return functions;
+std::vector<std::shared_ptr<pmEquation>> pmSolver::get_equations() const {
+	return equations;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Solves all function in order.
+/// Solves all equation in order.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction_space::solve(size_t const& num_threads, std::string const& name/*=""*/) {
+void pmSolver::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 	workspace->sort_all_by_position();
 	if(name=="") {
-		for(auto const& it:functions) {
+		for(auto const& it:equations) {
 			it->solve(num_threads);
 		}
 	} else {
-		for(auto const& it:functions) {
+		for(auto const& it:equations) {
 			if(it->get_name()==name) {
 				it->solve(num_threads);
 				return;
 			}
 		}
-		pLogger::warning_msg("No function found with name \"%s\"\n.", name.c_str());
+		pLogger::warning_msg("No equation found with name \"%s\"\n.", name.c_str());
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Assigns the particle system of the workspace to all functions.
+/// Assigns the particle system of the workspace to all equations.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction_space::assign_particle_system_to_functions() {
+void pmSolver::assign_particle_system_to_equations() {
 	std::weak_ptr<pmParticle_system> psys = std::dynamic_pointer_cast<pmParticle_system>(workspace->get_instance("r").lock());
-	for(auto const& it:functions) {
+	for(auto const& it:equations) {
 		it->assign_particle_system(psys);
 	}
 }
@@ -162,21 +162,21 @@ void pmFunction_space::assign_particle_system_to_functions() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the deep copy tof the object. 
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmFunction_space> pmFunction_space::clone() const {
-	return std::make_shared<pmFunction_space>(*this);
+std::shared_ptr<pmSolver> pmSolver::clone() const {
+	return std::make_shared<pmSolver>(*this);
 }
 
-void pmFunction_space::merge(std::shared_ptr<pmFunction_space> const& other) {
+void pmSolver::merge(std::shared_ptr<pmSolver> const& other) {
 	this->workspace->merge(other->workspace);
 	size_t i=0;
-	for(auto const& it:other->functions) {
-		this->add_function(it);
+	for(auto const& it:other->equations) {
+		this->add_equation(it);
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Assigns pmParticle_system object in the pmWorkspace to all functions.
+/// Assigns pmParticle_system object in the pmWorkspace to all equations.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFunction_space::initialize() {
-	this->assign_particle_system_to_functions();
+void pmSolver::initialize() {
+	this->assign_particle_system_to_equations();
 }

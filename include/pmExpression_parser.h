@@ -27,7 +27,7 @@
 #include <memory>
 #include "prolog/pLogger.h"
 #include "pmMath_parser.h"
-#include "pmFunction.h"
+#include "pmEquation.h"
 #include "pmNoncopyable.h"
 #include "pmConstant.h"
 #include "pmVariable.h"

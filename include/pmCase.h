@@ -27,21 +27,21 @@
 #include <string>
 #include "prolog/pLogger.h"
 #include "pmXML_processor.h"
-#include "pmFunction_space.h"
+#include "pmSolver.h"
 #include "pmVTK_manager.h"
 
 /** This class represents the problem to solve. The contructor recieves the file
 //  name of the *.XML configuration file.
 //	It contains three objects:
-//  	- function space: contains all the functions to solve
+//  	- solver: contains all the equations to solve
 //		- parameter space: this object holds the general constant values relating
-//		to the calculations but not come up in any of the functions.
-//		- particle system: if contains a particle cloud on which the functions
+//		to the calculations but not appear up in any of the equations.
+//		- particle system: if contains a particle cloud on which the equations and fields
 //		are interpreted.
 */
 class pmCase final {
 private:
-	std::shared_ptr<pmFunction_space> function_space;
+	std::shared_ptr<pmSolver> solver;
 	std::shared_ptr<pmParameter_space> parameter_space;
 	write_mode vtk_write_mode = ASCII;
 	void print() const;

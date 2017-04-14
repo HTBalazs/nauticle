@@ -27,8 +27,8 @@
 void pmCase::read_file(std::string const& filename) {
 	std::unique_ptr<pmXML_processor> xml_loader{new pmXML_processor};
 	xml_loader->read_file(filename);
-	function_space = xml_loader->get_function_space();
-	parameter_space = xml_loader->get_parameter_space(function_space->get_workspace());
+	solver = xml_loader->get_solver();
+	parameter_space = xml_loader->get_parameter_space(solver->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	pLogger::log<LCY>("  Case initialization is completed.\n");
 	pLogger::footer<LCY>();
@@ -39,7 +39,7 @@ void pmCase::read_file(std::string const& filename) {
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCase::pmCase(pmCase const& other) {
-	this->function_space = std::make_shared<pmFunction_space>(*other.function_space);
+	this->solver = std::make_shared<pmSolver>(*other.solver);
 	this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
 }
 
@@ -47,7 +47,7 @@ pmCase::pmCase(pmCase const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCase::pmCase(pmCase&& other) {
-	this->function_space = std::move(other.function_space);
+	this->solver = std::move(other.solver);
 	this->parameter_space = std::move(other.parameter_space);
 }
 
@@ -56,7 +56,7 @@ pmCase::pmCase(pmCase&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCase& pmCase::operator=(pmCase const& other) {
 	if(this!=&other) {
-		this->function_space = std::make_shared<pmFunction_space>(*other.function_space);
+		this->solver = std::make_shared<pmSolver>(*other.solver);
 		this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
 	}
 	return *this;
@@ -67,7 +67,7 @@ pmCase& pmCase::operator=(pmCase const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCase& pmCase::operator=(pmCase&& other) {
 	if(this!=&other) {
-		this->function_space = std::move(other.function_space);
+		this->solver = std::move(other.solver);
 		this->parameter_space = std::move(other.parameter_space);
 	}
 	return *this;
@@ -76,9 +76,9 @@ double pmCase::calculate_print_interval() const {
 	static bool constant = false;
 	static double interval = 0;
 	if(!constant) {
-		bool governed_by_workspace = function_space->get_workspace()->is_existing("print_interval");
+		bool governed_by_workspace = solver->get_workspace()->is_existing("print_interval");
 		if(governed_by_workspace) {
-			interval = function_space->get_workspace()->get_value("print_interval")[0];
+			interval = solver->get_workspace()->get_value("print_interval")[0];
 		} else {
 			interval = parameter_space->get_parameter_value("print_interval")[0];
 			constant = true;
@@ -99,12 +99,12 @@ void pmCase::simulate(size_t const& num_threads) {
 	double previous_printing_time=0;
 	int substeps=0;
 	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
-	double dt = function_space->get_workspace()->get_value("dt")[0];
+	double dt = solver->get_workspace()->get_value("dt")[0];
 	log_stream.print_step_info(dt, substeps, current_time, simulated_time);
 	write_step();
 	bool printing;
 	while(current_time < simulated_time) {
-		double dt = function_space->get_workspace()->get_value("dt")[0];
+		double dt = solver->get_workspace()->get_value("dt")[0];
 		double next_dt = dt;
 		// get printing interval
 		double print_interval = calculate_print_interval();
@@ -115,10 +115,10 @@ void pmCase::simulate(size_t const& num_threads) {
 		// calculate new dt (adaptive-constant dt or the time to next print)
 		if(printing) {
 			next_dt = to_next_print;
-			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
+			solver->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
 		}
 		// Solve equations
-		function_space->solve(num_threads);
+		solver->solve(num_threads);
 		current_time += next_dt;
 		substeps++;
 		if(printing) {
@@ -126,8 +126,8 @@ void pmCase::simulate(size_t const& num_threads) {
 			log_stream.print_step_info(dt>print_interval?print_interval:dt, substeps, current_time, simulated_time);
 			substeps=0;
 			previous_printing_time = current_time;
-			if(function_space->get_workspace()->get_value("dt")[0]==next_dt) {
-				function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
+			if(solver->get_workspace()->get_value("dt")[0]==next_dt) {
+				solver->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
 			}
 		}
 	}
@@ -139,7 +139,7 @@ void pmCase::simulate(size_t const& num_threads) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::print() const {
 	pLogger::headerf<LGN>("Case");
-	if(function_space!=nullptr)		function_space->print();
+	if(solver!=nullptr)		solver->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
 	pLogger::footerf<LGN>();
 }
@@ -156,7 +156,7 @@ void pmCase::write_step() const {
     file_name += ".vtk";
     std::unique_ptr<pmVTK_writer> vtk_writer{new pmVTK_writer{}};
     vtk_writer->set_write_mode(vtk_write_mode);
-    vtk_writer->set_function_space(function_space);
+    vtk_writer->set_solver(solver);
     vtk_writer->set_file_name(file_name);
     vtk_writer->update();
 	counter++;

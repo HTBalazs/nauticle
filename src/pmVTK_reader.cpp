@@ -65,29 +65,29 @@ pmTensor pmVTK_reader::pop_single_from_polydata(vtkSmartPointer<vtkPolyData> pol
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the functions stored in the polydata.
+/// Returns the equations stored in the polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::vector<std::shared_ptr<pmFunction>> pmVTK_reader::pop_functions_from_polydata(std::shared_ptr<pmWorkspace> workspace) const {
-	std::vector<std::shared_ptr<pmFunction>> functions;
-	vtkSmartPointer<vtkFieldData> function_data = polydata->GetFieldData();
+std::vector<std::shared_ptr<pmEquation>> pmVTK_reader::pop_equations_from_polydata(std::shared_ptr<pmWorkspace> workspace) const {
+	std::vector<std::shared_ptr<pmEquation>> equations;
+	vtkSmartPointer<vtkFieldData> equation_data = polydata->GetFieldData();
 	int i=0;
-	vtkSmartPointer<vtkStringArray> array = vtkStringArray::SafeDownCast(function_data->GetAbstractArray("functions",i));
-	if(!array) { return functions; }
+	vtkSmartPointer<vtkStringArray> array = vtkStringArray::SafeDownCast(equation_data->GetAbstractArray("equations",i));
+	if(!array) { return equations; }
 	int num_values = array->GetNumberOfValues();
 	for(int j=0; j<num_values; j++) {
-		std::string vtkfunction = array->GetValue(j);
-		// set separators for function and condition
-		size_t sp_f = vtkfunction.find(":");
-		size_t sp_c = vtkfunction.find("#");
-		// pull name, function and condition
-		std::string function_name = vtkfunction.substr(0, sp_f);
-		std::string function_value = vtkfunction.substr(sp_f+1, sp_c-1-sp_f);
-		std::string function_condition = vtkfunction.substr(sp_c+1);
+		std::string vtkequation = array->GetValue(j);
+		// set separators for equation and condition
+		size_t sp_f = vtkequation.find(":");
+		size_t sp_c = vtkequation.find("#");
+		// pull name, equation and condition
+		std::string equation_name = vtkequation.substr(0, sp_f);
+		std::string equation_value = vtkequation.substr(sp_f+1, sp_c-1-sp_f);
+		std::string equation_condition = vtkequation.substr(sp_c+1);
 
-		std::unique_ptr<pmFunction_parser> fp{new pmFunction_parser};
-		functions.push_back(fp->analyse_function(function_name, function_value, function_condition, workspace));
+		std::unique_ptr<pmEquation_parser> fp{new pmEquation_parser};
+		equations.push_back(fp->analyse_equation(equation_name, equation_value, equation_condition, workspace));
 	}
-	return functions;
+	return equations;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -169,10 +169,10 @@ void pmVTK_reader::update() {
 	}
 
 	workspace->add_particle_system(psys_data, domain);
-	// Read function data
-	std::vector<std::shared_ptr<pmFunction>> functions = pop_functions_from_polydata(workspace);
-	function_space = std::make_shared<pmFunction_space>();
-	function_space->add_workspace(workspace);
-	function_space->add_function(functions);
-	function_space->assign_particle_system_to_functions();
+	// Read equation data
+	std::vector<std::shared_ptr<pmEquation>> equations = pop_equations_from_polydata(workspace);
+	solver = std::make_shared<pmSolver>();
+	solver->add_workspace(workspace);
+	solver->add_equation(equations);
+	solver->assign_particle_system_to_equations();
 }

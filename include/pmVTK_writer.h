@@ -39,7 +39,7 @@ private:
 	void push_variables_to_polydata();
 	void push_constants_to_polydata();
 	void push_domain_to_polydata();
-	void push_functions_to_polydata();
+	void push_equations_to_polydata();
 public:	
 	virtual ~pmVTK_writer() {}
 	void set_write_mode(write_mode mode);

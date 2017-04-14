@@ -27,27 +27,27 @@
 #include "handyxml/hdyXML_parser.h"
 #include "pmWorkspace.h"
 #include "pmExpression_parser.h"
-#include "pmFunction_parser.h"
+#include "pmEquation_parser.h"
 #include "pmTensor_parser.h"
-#include "pmFunction.h"
-#include "pmFunction_space.h"
+#include "pmEquation.h"
+#include "pmSolver.h"
 #include "pmGrid_space.h"
 #include "pmParameter_space.h"
 #include "pmVTK_reader.h"
 #include "pmVTK_writer.h"
 #include "prolog/pLogger.h"
 
-/**	This class extends the hdyXML_parser class with further functions to process
+/**	This class extends the hdyXML_parser class with further equations to process
 //	the XML tree.
 */
 class pmXML_processor final : public hdyXML_parser {
 	std::shared_ptr<pmWorkspace> get_workspace() const;
-	std::vector<std::shared_ptr<pmFunction>> get_functions(std::shared_ptr<pmWorkspace> workspace) const;
-	std::shared_ptr<pmFunction_space> get_initial_condition_function_space() const;
+	std::vector<std::shared_ptr<pmEquation>> get_equations(std::shared_ptr<pmWorkspace> workspace) const;
+	std::shared_ptr<pmSolver> get_initial_condition_solver() const;
 public:
 	virtual ~pmXML_processor() override {}
 	std::shared_ptr<pmGrid_space> get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace) const;
-	std::shared_ptr<pmFunction_space> get_function_space() const;
+	std::shared_ptr<pmSolver> get_solver() const;
 	std::shared_ptr<pmParameter_space> get_parameter_space(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
 	std::shared_ptr<pmWorkspace> get_initial_condition() const;
 };

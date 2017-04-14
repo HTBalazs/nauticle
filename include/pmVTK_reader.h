@@ -32,7 +32,7 @@ class pmVTK_reader : public pmVTK_manager {
 private:
 	std::vector<pmTensor> pop_array_from_polydata(int const& i, size_t const& domain_dim) const;
 	pmTensor pop_single_from_polydata(vtkSmartPointer<vtkPolyData> poly_data, std::string name, int const& i) const;
-	std::vector<std::shared_ptr<pmFunction>> pop_functions_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
+	std::vector<std::shared_ptr<pmEquation>> pop_equations_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
 	
 	pmDomain pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
 	void pop_singles_from_polydata(std::string const& TYPE, std::shared_ptr<pmWorkspace> workspace) const;

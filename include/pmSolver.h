@@ -18,44 +18,44 @@
     For more information please visit: https://bitbucket.org/lempsproject/
 */
     
-#ifndef _FUNCTIONSPACE_H_
-#define _FUNCTIONSPACE_H_
+#ifndef _SOLVER_H_
+#define _SOLVER_H_
 
 #include <iostream>
 #include <string>
 #include <memory>
 #include "prolog/pLogger.h"
 #include "pmWorkspace.h"
-#include "pmFunction.h"
+#include "pmEquation.h"
 
 /** This class represents the mathematical problem to solve. It contains two 
 //	objects:
 //		- workspace: it manages all the variables and named constants,
-//		- functions: vector of functions governing the problem.
-//	Destroying a function space object destroys the workspace and functions
+//		- equations: vector of equations governing the problem.
+//	Destroying a equation space object destroys the workspace and equations
 //  either.
 */
-class pmFunction_space final {
+class pmSolver final {
 	std::shared_ptr<pmWorkspace> workspace;
-	std::vector<std::shared_ptr<pmFunction>> functions;
+	std::vector<std::shared_ptr<pmEquation>> equations;
 public:
-	pmFunction_space() {}
-	pmFunction_space(pmFunction_space const& other);
-	pmFunction_space(pmFunction_space&& other);
-	~pmFunction_space() {}
-	pmFunction_space& operator=(pmFunction_space const& rhs);
-	pmFunction_space& operator=(pmFunction_space&& rhs);
+	pmSolver() {}
+	pmSolver(pmSolver const& other);
+	pmSolver(pmSolver&& other);
+	~pmSolver() {}
+	pmSolver& operator=(pmSolver const& rhs);
+	pmSolver& operator=(pmSolver&& rhs);
 	void print() const;
 	void solve(size_t const& num_threads, std::string const& name="");
-	void assign_particle_system_to_functions();
-	std::shared_ptr<pmFunction_space> clone() const;
-	void merge(std::shared_ptr<pmFunction_space> const& other);
+	void assign_particle_system_to_equations();
+	std::shared_ptr<pmSolver> clone() const;
+	void merge(std::shared_ptr<pmSolver> const& other);
 	std::shared_ptr<pmWorkspace> get_workspace() const;
-	std::vector<std::shared_ptr<pmFunction>> get_functions() const;
+	std::vector<std::shared_ptr<pmEquation>> get_equations() const;
 	void add_workspace(std::shared_ptr<pmWorkspace> ws);
-	void add_function(std::shared_ptr<pmFunction> func);
-	void add_function(std::vector<std::shared_ptr<pmFunction>> func);
+	void add_equation(std::shared_ptr<pmEquation> func);
+	void add_equation(std::vector<std::shared_ptr<pmEquation>> func);
 	void initialize();
 };
 
-#endif //_FUNCTIONSPACE_H_
+#endif //_SOLVER_H_
