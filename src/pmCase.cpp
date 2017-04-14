@@ -104,7 +104,7 @@ void pmCase::simulate(size_t const& num_threads) {
 	write_step();
 	bool printing;
 	while(current_time < simulated_time) {
-		double dt = solver->get_workspace()->get_value("dt")[0];
+		dt = solver->get_workspace()->get_value("dt")[0];
 		double next_dt = dt;
 		// get printing interval
 		double print_interval = calculate_print_interval();

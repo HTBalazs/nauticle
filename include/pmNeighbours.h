@@ -27,11 +27,11 @@
 /** This class calculates the number of neighbouring particles within the given range.
 //  It requires a pmParticle_system assigned to it.
 */
-class pmNeighbours : public pmInteraction<0> {
+class pmNeighbours : public pmInteraction<1> {
 	std::shared_ptr<pmExpression> clone_impl() const override;
 public:
 	pmNeighbours() {}
-	pmNeighbours(std::array<std::shared_ptr<pmExpression>,0> op);
+	pmNeighbours(std::array<std::shared_ptr<pmExpression>,1> op);
 	pmNeighbours(pmNeighbours const& other);
 	pmNeighbours(pmNeighbours&& other);
 	pmNeighbours& operator=(pmNeighbours const& other);
