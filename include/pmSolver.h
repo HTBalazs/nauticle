@@ -32,7 +32,7 @@
 //	objects:
 //		- workspace: it manages all the variables and named constants,
 //		- equations: vector of equations governing the problem.
-//	Destroying a equation space object destroys the workspace and equations
+//	Destroying a solver object destroys the workspace and equations
 //  either.
 */
 class pmSolver final {

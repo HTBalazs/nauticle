@@ -67,7 +67,7 @@ pmSolver& pmSolver::operator=(pmSolver&& rhs) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Adds the given workspace to the equation space. Previously stored workspace is destroyed.
+/// Adds the given workspace to the solver. Previously stored workspace is destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSolver::add_workspace(std::shared_ptr<pmWorkspace> ws) {
 	workspace = ws;
@@ -79,7 +79,7 @@ void pmSolver::add_workspace(std::shared_ptr<pmWorkspace> ws) {
 void pmSolver::add_equation(std::shared_ptr<pmEquation> func) {
 	for(auto const& it:equations) {
 		if(it->get_name()==func->get_name()){
-			pLogger::warning_msg("equation \"%s\" is already existing in the equation space.\n",func->get_name().c_str());
+			pLogger::warning_msg("equation \"%s\" is already existing in the solver.\n",func->get_name().c_str());
 			return;
 		}
 	}
@@ -99,7 +99,7 @@ void pmSolver::add_equation(std::vector<std::shared_ptr<pmEquation>> func) {
 /// Prints out the content of the pmSolver object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSolver::print() const {
-	pLogger::headerf<LBL>("equation space");
+	pLogger::headerf<LBL>("solver");
 	workspace->print();
 	int f=0;
 	pLogger::titlef<LMA>("equations");

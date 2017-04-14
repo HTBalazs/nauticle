@@ -160,7 +160,7 @@ std::shared_ptr<pmSolver> pmXML_processor::get_solver() const {
 		pLogger::logf<COLOR>("    Initial conditions: from VTK file.\n");
 		return ic_solver;
 	}
-	// Read xml equation space if initial condition not found.
+	// Read xml solver if initial condition not found.
 	std::shared_ptr<pmWorkspace> workspace = get_workspace();
 	std::vector<std::shared_ptr<pmEquation>> equations = this->get_equations(workspace);
 	std::shared_ptr<pmSolver> solver = std::make_shared<pmSolver>();

@@ -157,11 +157,11 @@ void pmVTK_writer::push_equations_to_polydata() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Writes equation space into vtk file.
+/// Writes solver into vtk file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::update() {
 	if(solver.use_count()<1) {
-		pLogger::warning_msgf("No equation space added to VTK writer.\n");
+		pLogger::warning_msgf("No solver added to VTK writer.\n");
 		return;
 	}
 	push_domain_to_polydata();
