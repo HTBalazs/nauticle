@@ -122,13 +122,13 @@ void pmCase::simulate(size_t const& num_threads) {
 		current_time += next_dt;
 		substeps++;
 		if(printing) {
+			if(solver->get_workspace()->get_value("dt")[0]==next_dt) {
+				solver->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
+			}
 			write_step();
 			log_stream.print_step_info(dt>print_interval?print_interval:dt, substeps, current_time, simulated_time);
 			substeps=0;
 			previous_printing_time = current_time;
-			if(solver->get_workspace()->get_value("dt")[0]==next_dt) {
-				solver->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
-			}
 		}
 	}
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
