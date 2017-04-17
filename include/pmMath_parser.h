@@ -15,7 +15,7 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
 #ifndef _MATH_PARSER_H_
