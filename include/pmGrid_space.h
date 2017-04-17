@@ -4,7 +4,7 @@
 // Author:      Balázs Tóth
 // Modified by:
 // Created:     10/07/2016
-// Copyright:   (c) LEMPS-project
+// Copyright:   (c) Nauticle-project
 // Licence:     GPL
 /////////////////////////////////////////////////////////////////////////////
 
