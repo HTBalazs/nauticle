@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.9)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-project(LEMPS_project)
+project(nauticle_project)
 
 set(VTK_DIR /usr/local/VTK-7.0.0)
 set(EXECUTABLE pmsimple)
@@ -24,7 +24,7 @@ include_directories(include)
 file(GLOB SOURCES "src/*.cpp")
 
 if(WIN32)
-	message(FATAL_ERROR "LEMPS is not supported on Windows.")
+	message(FATAL_ERROR "Nauticle is not supported on Windows.")
 endif()
 
 if(UNIX AND NOT APPLE)
