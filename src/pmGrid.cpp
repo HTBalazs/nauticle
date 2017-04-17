@@ -19,6 +19,11 @@
 */
     
 #include "pmGrid.h"
+#include <vtkSmartPointer.h>
+#include <vtkSimplePointsReader.h>
+#include <vtkPolyData.h>
+#include <vtkDoubleArray.h>
+#include <vtkPointData.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
@@ -30,6 +35,7 @@ pmGrid::pmGrid(pmGrid const& other) {
 	this->distance = other.distance;
 	this->grid_id = other.grid_id;
 	this->grid = other.grid;
+	this->file_name = other.file_name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +48,7 @@ pmGrid::pmGrid(pmGrid&& other) {
 	this->distance = std::move(other.distance);
 	this->grid_id = std::move(other.grid_id);
 	this->grid = std::move(other.grid);
+	this->file_name = std::move(other.file_name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +61,8 @@ pmGrid& pmGrid::operator=(pmGrid const& other) {
 		this->offset = other.offset;
 		this->distance = other.distance;
 		this->grid_id = other.grid_id;
-		this->grid = other.grid;		
+		this->grid = other.grid;
+		this->file_name = other.file_name;
 	}
 	return *this;
 }
@@ -70,8 +78,16 @@ pmGrid& pmGrid::operator=(pmGrid&& other) {
 		this->distance = std::move(other.distance);
 		this->grid_id = std::move(other.grid_id);
 		this->grid = std::move(other.grid);
+		this->file_name = std::move(other.file_name);
 	}
 	return *this;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the file name of the xyz file.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmGrid::set_file_name(std::string const& fn) {
+	file_name = fn;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -149,24 +165,45 @@ void pmGrid::initialize_grid(pmTensor& S, pmTensor& D, pmTensor& N) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmGrid::generate() {
 	destroy_grid();
-	pmTensor S = size;
-	pmTensor D = distance;
-	pmTensor N = pmTensor::make_tensor(S,0);
-	initialize_grid(S,D,N);
-	std::vector<int> indexes(position.numel(),0);
-	std::vector<int> end_per_index;
-	for(int i=0; i<N.numel(); i++) {
-		end_per_index.push_back(N[i]);
-	}
-	auto process = [this,&D](std::vector<int>& indexes)->void {
-		// Innermost loop content. indexes[i] contains the ith index value.
-		pmTensor node{(int)indexes.size(),1,0};
-		for(int i=0; i<indexes.size(); i++) {
-			node[i] = indexes[i]*D[i]+position[i]+D[i]/2;
+	if(file_name=="") {
+		pmTensor S = size;
+		pmTensor D = distance;
+		pmTensor N = pmTensor::make_tensor(S,0);
+		initialize_grid(S,D,N);
+		std::vector<int> indexes(position.numel(),0);
+		std::vector<int> end_per_index;
+		for(int i=0; i<N.numel(); i++) {
+			end_per_index.push_back(N[i]);
 		}
-		grid.push_back(node);
-	};
-	n_level_loop(indexes,end_per_index,0, process);
+		auto process = [this,&D](std::vector<int>& indexes)->void {
+			// Innermost loop content. indexes[i] contains the ith index value.
+			pmTensor node{(int)indexes.size(),1,0};
+			for(int i=0; i<indexes.size(); i++) {
+				node[i] = indexes[i]*D[i]+position[i]+D[i]/2;
+			}
+			grid.push_back(node);
+		};
+		n_level_loop(indexes,end_per_index,0, process);
+	} else {
+		// Read the file
+		vtkSmartPointer<vtkSimplePointsReader> reader = vtkSmartPointer<vtkSimplePointsReader>::New();
+		reader->SetFileName(file_name.c_str());
+		reader->Update();
+		vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
+		poly_data = reader->GetOutput();
+		size_t size = poly_data->GetNumberOfPoints();
+		grid.reserve(size);
+		vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+		points = poly_data->GetPoints();
+		int num_points = (int)poly_data->GetNumberOfPoints();
+		for(int i=0; i<num_points; i++) {
+			double* p = points->GetPoint(i);
+			pmTensor tensor{2,1,0};
+			tensor[0] = p[0];
+			tensor[1] = p[1];
+			grid.push_back(tensor);
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

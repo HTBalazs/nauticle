@@ -112,17 +112,22 @@ std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pm
 	std::shared_ptr<pmGrid_space> grid_space = std::make_shared<pmGrid_space>();
 	for(auto const& gs:block_grid) {
 		pmTensor_parser tensor_parser{};
-		pmTensor grid_id = tensor_parser.string_to_tensor(gs->get_entry("gid").back()->get_value("value"),workspace);
-		pmTensor position = tensor_parser.string_to_tensor(gs->get_entry("gpos").back()->get_value("value"),workspace);
-		pmTensor size = tensor_parser.string_to_tensor(gs->get_entry("gsize").back()->get_value("value"),workspace);
-		pmTensor offset = tensor_parser.string_to_tensor(gs->get_entry("goffset").back()->get_value("value"),workspace);
-		pmTensor distance = tensor_parser.string_to_tensor(gs->get_entry("gip_dist").back()->get_value("value"),workspace);
 		std::shared_ptr<pmGrid> grid = std::make_shared<pmGrid>();
-		grid->set_position(position);
-		grid->set_size(size);
-		grid->set_offset(offset);
-		grid->set_distance(distance);
+		pmTensor grid_id = tensor_parser.string_to_tensor(gs->get_entry("gid").back()->get_value("value"),workspace);
 		grid->set_grid_id(grid_id[0]);
+		if(!gs->get_entry("file").empty()) {
+			std::string str_file_name = gs->get_entry("file").back()->get_value("value");
+			grid->set_file_name(str_file_name);
+		} else {
+			pmTensor position = tensor_parser.string_to_tensor(gs->get_entry("gpos").back()->get_value("value"),workspace);
+			pmTensor size = tensor_parser.string_to_tensor(gs->get_entry("gsize").back()->get_value("value"),workspace);
+			pmTensor offset = tensor_parser.string_to_tensor(gs->get_entry("goffset").back()->get_value("value"),workspace);
+			pmTensor distance = tensor_parser.string_to_tensor(gs->get_entry("gip_dist").back()->get_value("value"),workspace);
+			grid->set_position(position);
+			grid->set_size(size);
+			grid->set_offset(offset);
+			grid->set_distance(distance);
+		}
 		grid->generate();
 		grid_space->add_grid(grid);
 	}

@@ -30,6 +30,7 @@
 /** This class implements the particle generation over a uniform spatial grid.
 */
 class pmGrid {
+	std::string file_name="";
 	pmTensor position;
 	pmTensor size;
 	pmTensor offset;
@@ -48,6 +49,7 @@ public:
 	pmGrid& operator=(pmGrid const& other);
 	pmGrid& operator=(pmGrid&& other);
 	~pmGrid() {}
+	void set_file_name(std::string const& fn);
 	void set_position(pmTensor const& p);
 	void set_size(pmTensor const& s);
 	void set_offset(pmTensor const& o);
