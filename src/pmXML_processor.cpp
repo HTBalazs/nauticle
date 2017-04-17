@@ -187,14 +187,16 @@ std::shared_ptr<pmParameter_space> pmXML_processor::get_parameter_space(std::sha
 		std::string str_log_time = ps->get_entry("print_interval").back()->get_value("value");
 		std::string str_confirm = ps->get_entry("confirm_on_exit").back()->get_value("value");
 		std::string str_vtk_format = ps->get_entry("output_format").back()->get_value("value");
-		std::string str_file_start = ps->get_entry("file_start").back()->get_value("value");
 
 		pmTensor_parser tensor_parser{};
 		pmTensor sim_time = tensor_parser.string_to_tensor(str_sim_time, workspace);
 		pmTensor log_time = tensor_parser.string_to_tensor(str_log_time, workspace);
 		pmTensor confirm = tensor_parser.string_to_tensor(str_confirm, workspace);
 		pmTensor vtk_format = tensor_parser.string_to_tensor(str_vtk_format, workspace);
-		pmTensor file_start = str_file_start.empty() ? pmTensor{1,1,0} : tensor_parser.string_to_tensor(str_file_start, workspace);
+		pmTensor file_start = pmTensor{1,1,0};
+		if(!ps->get_entry("file_start").empty()) {
+			file_start = tensor_parser.string_to_tensor(ps->get_entry("file_start").back()->get_value("value"), workspace);
+		}
 
 		if(!sim_time.is_scalar()) { pLogger::error_msgf("Simulated time must be scalar!\n"); }
 		if(!log_time.is_scalar()) { pLogger::error_msgf("Print interval must be scalar!\n"); }
