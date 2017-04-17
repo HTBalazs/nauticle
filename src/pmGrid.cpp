@@ -36,6 +36,7 @@ pmGrid::pmGrid(pmGrid const& other) {
 	this->grid_id = other.grid_id;
 	this->grid = other.grid;
 	this->file_name = other.file_name;
+	this->dimensions = other.dimensions;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +50,7 @@ pmGrid::pmGrid(pmGrid&& other) {
 	this->grid_id = std::move(other.grid_id);
 	this->grid = std::move(other.grid);
 	this->file_name = std::move(other.file_name);
+	this->dimensions = std::move(other.dimensions);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +65,7 @@ pmGrid& pmGrid::operator=(pmGrid const& other) {
 		this->grid_id = other.grid_id;
 		this->grid = other.grid;
 		this->file_name = other.file_name;
+		this->dimensions = other.dimensions;
 	}
 	return *this;
 }
@@ -79,6 +82,7 @@ pmGrid& pmGrid::operator=(pmGrid&& other) {
 		this->grid_id = std::move(other.grid_id);
 		this->grid = std::move(other.grid);
 		this->file_name = std::move(other.file_name);
+		this->dimensions = std::move(other.dimensions);
 	}
 	return *this;
 }
@@ -88,6 +92,13 @@ pmGrid& pmGrid::operator=(pmGrid&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmGrid::set_file_name(std::string const& fn) {
 	file_name = fn;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the domensions of the grid for xyz file.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmGrid::set_dimensions(size_t const& d) {
+	dimensions = d;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -199,8 +210,9 @@ void pmGrid::generate() {
 		for(int i=0; i<num_points; i++) {
 			double* p = points->GetPoint(i);
 			pmTensor tensor{2,1,0};
-			tensor[0] = p[0];
-			tensor[1] = p[1];
+			for(int j=0; j<dimensions; j++) {
+				tensor[j] = p[j];
+			}
 			grid.push_back(tensor);
 		}
 	}

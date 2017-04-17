@@ -46,7 +46,7 @@ class pmXML_processor final : public hdyXML_parser {
 	std::shared_ptr<pmSolver> get_initial_condition_solver() const;
 public:
 	virtual ~pmXML_processor() override {}
-	std::shared_ptr<pmGrid_space> get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace) const;
+	std::shared_ptr<pmGrid_space> get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const;
 	std::shared_ptr<pmSolver> get_solver() const;
 	std::shared_ptr<pmParameter_space> get_parameter_space(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
 	std::shared_ptr<pmWorkspace> get_initial_condition() const;

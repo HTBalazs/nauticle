@@ -82,7 +82,7 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 			if(!cell_size.is_scalar()) { pLogger::error_msgf("Cell size must be scalar!\n"); }
 			domain = pmDomain{minimum, maximum, cell_size[0], boundary};
 		}
-		std::shared_ptr<pmGrid_space> grid_space = get_grid_space(ps,workspace);
+		std::shared_ptr<pmGrid_space> grid_space = get_grid_space(ps,workspace, domain);
 		std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();
 		std::vector<pmTensor> particle_grid = tmp->get_grid();
 		workspace->add_particle_system(particle_grid, domain);
@@ -104,7 +104,7 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid objects wrapped in grid space.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace) const {
+std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const {
 	std::vector<std::shared_ptr<pmBlock>> block_grid = particle_system->find_block("grid");
 	if(block_grid.empty()) {
 		pLogger::error_msgf("Grid must be defined if no initial condition is provided.\n");
@@ -115,6 +115,7 @@ std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pm
 		std::shared_ptr<pmGrid> grid = std::make_shared<pmGrid>();
 		pmTensor grid_id = tensor_parser.string_to_tensor(gs->get_entry("gid").back()->get_value("value"),workspace);
 		grid->set_grid_id(grid_id[0]);
+		grid->set_dimensions(domain.get_dimensions());
 		if(!gs->get_entry("file").empty()) {
 			std::string str_file_name = gs->get_entry("file").back()->get_value("value");
 			grid->set_file_name(str_file_name);
