@@ -148,7 +148,7 @@ void pmCase::print() const {
 /// Writes case data to file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::write_step() const {
-	static int counter=0;
+	static int counter = parameter_space->get_parameter_value("file_start")[0];
     char ch[4];
     sprintf(&ch[0], "%04i", counter);
 	std::string file_name{"step_"};
