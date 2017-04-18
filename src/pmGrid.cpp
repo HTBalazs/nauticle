@@ -209,7 +209,7 @@ void pmGrid::generate() {
 		int num_points = (int)poly_data->GetNumberOfPoints();
 		for(int i=0; i<num_points; i++) {
 			double* p = points->GetPoint(i);
-			pmTensor tensor{2,1,0};
+			pmTensor tensor{dimensions,1,0};
 			for(int j=0; j<dimensions; j++) {
 				tensor[j] = p[j];
 			}
