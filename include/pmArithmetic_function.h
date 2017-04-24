@@ -29,9 +29,10 @@
 enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, IF, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, EULER, PREDICTOR, CORRECTOR};
 
 /** This class implements the following operations for the expression tree: summation, subtraction,
-//  multiplication, division, power, term-by-term product for two operands furthermore summation and 
-//  subtraction with one operand.
+//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
+//  negation with one operand.
 */
+
 template <Ari_fn_type ARI_TYPE, size_t S>
 class pmArithmetic_function final : public pmOperator<S> {
 	std::string op_name;

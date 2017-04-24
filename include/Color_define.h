@@ -17,7 +17,10 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
+
+/** Defines the log color.
+*/
+
 #ifndef _COLOR_DEFINE_H
 #define _COLOR_DEFINE_H
 #define COLOR WHT

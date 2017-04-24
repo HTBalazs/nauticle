@@ -17,6 +17,10 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
+
+
+/** Undefines the log color.
+*/
     
 #ifdef COLOR
 #undef COLOR
