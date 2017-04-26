@@ -106,7 +106,7 @@ void pmEquation::evaluate(int const& p_begin, int const& p_end) {
 /// Solves equation for all nodes included in the field inside the variables of the rhs.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmEquation::solve(size_t const& num_threads) {
-	if(lhs->get_field_size()!=rhs->get_field_size() || lhs->get_field_size()==-1 || rhs->get_field_size()==-1) {
+	if((lhs->get_field_size()!=rhs->get_field_size() && 1!=rhs->get_field_size()) || lhs->get_field_size()==-1 || rhs->get_field_size()==-1) {
 		pLogger::error_msgf("Inconsistent function fields.\n");
 	}
 	int p_end = lhs->get_field_size();
