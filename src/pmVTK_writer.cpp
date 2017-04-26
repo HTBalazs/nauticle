@@ -24,7 +24,7 @@
 /// Push nodes to polydata object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_nodes_to_polydata() {
-	std::shared_ptr<pmWorkspace> workspace = solver->get_workspace();
+	std::shared_ptr<pmWorkspace> workspace = cas->get_workspace();
 	size_t n = workspace->get_number_of_nodes();
 	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 	points->SetNumberOfPoints(n);
@@ -46,8 +46,8 @@ void pmVTK_writer::push_nodes_to_polydata() {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_fields_to_polydata() {
 	bool scalar_set = false;
-	size_t n = solver->get_workspace()->get_number_of_nodes();
-	for(auto const& it:solver->get_workspace()->get_definitions()) {
+	size_t n = cas->get_workspace()->get_number_of_nodes();
+	for(auto const& it:cas->get_workspace()->get_definitions()) {
 		if(it->get_field_size()==n && !it->is_hidden()) {
 			vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
 			field->SetName(it->get_name().c_str());
@@ -117,7 +117,7 @@ void pmVTK_writer::push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata
 /// Pushes domain into polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_domain_to_polydata() {
-	pmDomain domain = solver->get_workspace()->get_particle_system().lock()->get_particle_space()->get_domain();
+	pmDomain domain = cas->get_workspace()->get_particle_system().lock()->get_particle_space()->get_domain();
 	std::stringstream smin;
 	std::stringstream smax;
 	std::stringstream scsize;
@@ -141,7 +141,7 @@ void pmVTK_writer::push_domain_to_polydata() {
 /// Pushes equations into polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_equations_to_polydata() {
-	std::vector<std::shared_ptr<pmEquation>> equations = solver->get_equations();
+	std::vector<std::shared_ptr<pmEquation>> equations = cas->get_equations();
 	vtkSmartPointer<vtkStringArray> string_array = vtkSmartPointer<vtkStringArray>::New();
 	string_array->SetNumberOfComponents(1);
 	string_array->SetNumberOfTuples(equations.size());
@@ -157,11 +157,11 @@ void pmVTK_writer::push_equations_to_polydata() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Writes solver into vtk file.
+/// Writes case into vtk file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::update() {
-	if(solver.use_count()<1) {
-		pLogger::warning_msgf("No solver added to VTK writer.\n");
+	if(cas.use_count()<1) {
+		pLogger::warning_msgf("No cas added to VTK writer.\n");
 		return;
 	}
 	push_domain_to_polydata();
@@ -189,11 +189,11 @@ void pmVTK_writer::set_write_mode(write_mode wm) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Pushes the variables stored in the pmSolver to the polydata.
+/// Pushes the variables stored in the pmCase to the polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_variables_to_polydata() {
 	vtkSmartPointer<vtkStringArray> string_array = vtkSmartPointer<vtkStringArray>::New();
-	std::vector<std::shared_ptr<pmVariable>> variables = solver->get_workspace()->get<pmVariable>();
+	std::vector<std::shared_ptr<pmVariable>> variables = cas->get_workspace()->get<pmVariable>();
 	string_array->SetName("variables");
 	string_array->SetNumberOfComponents(1);
 	string_array->SetNumberOfValues(variables.size());
@@ -208,11 +208,11 @@ void pmVTK_writer::push_variables_to_polydata() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Pushes the constants stored in the pmSolver to the polydata.
+/// Pushes the constants stored in the pmCase to the polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_constants_to_polydata() {
 	vtkSmartPointer<vtkStringArray> string_array = vtkSmartPointer<vtkStringArray>::New();
-	std::vector<std::shared_ptr<pmConstant>> constants = solver->get_workspace()->get<pmConstant>();
+	std::vector<std::shared_ptr<pmConstant>> constants = cas->get_workspace()->get<pmConstant>();
 	string_array->SetName("constants");
 	string_array->SetNumberOfComponents(1);
 	string_array->SetNumberOfValues(constants.size());

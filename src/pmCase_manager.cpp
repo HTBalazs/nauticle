@@ -18,17 +18,17 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmCase.h"
+#include "pmCase_manager.h"
 #include "pmLog_stream.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Reads the configureation file.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::read_file(std::string const& filename) {
+void pmCase_manager::read_file(std::string const& filename) {
 	std::unique_ptr<pmXML_processor> xml_loader{new pmXML_processor};
 	xml_loader->read_file(filename);
-	solver = xml_loader->get_solver();
-	parameter_space = xml_loader->get_parameter_space(solver->get_workspace());
+	cas = xml_loader->get_case();
+	parameter_space = xml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	pLogger::log<LCY>("  Case initialization is completed.\n");
 	pLogger::footer<LCY>();
@@ -38,25 +38,25 @@ void pmCase::read_file(std::string const& filename) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase::pmCase(pmCase const& other) {
-	this->solver = std::make_shared<pmSolver>(*other.solver);
+pmCase_manager::pmCase_manager(pmCase_manager const& other) {
+	this->cas = std::make_shared<pmCase>(*other.cas);
 	this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase::pmCase(pmCase&& other) {
-	this->solver = std::move(other.solver);
+pmCase_manager::pmCase_manager(pmCase_manager&& other) {
+	this->cas = std::move(other.cas);
 	this->parameter_space = std::move(other.parameter_space);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase& pmCase::operator=(pmCase const& other) {
+pmCase_manager& pmCase_manager::operator=(pmCase_manager const& other) {
 	if(this!=&other) {
-		this->solver = std::make_shared<pmSolver>(*other.solver);
+		this->cas = std::make_shared<pmCase>(*other.cas);
 		this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
 	}
 	return *this;
@@ -65,20 +65,20 @@ pmCase& pmCase::operator=(pmCase const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase& pmCase::operator=(pmCase&& other) {
+pmCase_manager& pmCase_manager::operator=(pmCase_manager&& other) {
 	if(this!=&other) {
-		this->solver = std::move(other.solver);
+		this->cas = std::move(other.cas);
 		this->parameter_space = std::move(other.parameter_space);
 	}
 	return *this;
 }
-double pmCase::calculate_print_interval() const {
+double pmCase_manager::calculate_print_interval() const {
 	static bool constant = false;
 	static double interval = 0;
 	if(!constant) {
-		bool governed_by_workspace = solver->get_workspace()->is_existing("print_interval");
+		bool governed_by_workspace = cas->get_workspace()->is_existing("print_interval");
 		if(governed_by_workspace) {
-			interval = solver->get_workspace()->get_value("print_interval")[0];
+			interval = cas->get_workspace()->get_value("print_interval")[0];
 		} else {
 			interval = parameter_space->get_parameter_value("print_interval")[0];
 			constant = true;
@@ -90,7 +90,7 @@ double pmCase::calculate_print_interval() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Runs the calculation.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::simulate(size_t const& num_threads) {
+void pmCase_manager::simulate(size_t const& num_threads) {
 	size_t max_num_threads = std::thread::hardware_concurrency();
 	pLogger::logf<LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
 	pmLog_stream log_stream{};
@@ -99,12 +99,12 @@ void pmCase::simulate(size_t const& num_threads) {
 	double previous_printing_time=0;
 	int substeps=0;
 	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
-	double dt = solver->get_workspace()->get_value("dt")[0];
+	double dt = cas->get_workspace()->get_value("dt")[0];
 	log_stream.print_step_info(dt, substeps, current_time, simulated_time);
 	write_step();
 	bool printing;
 	while(current_time < simulated_time) {
-		dt = solver->get_workspace()->get_value("dt")[0];
+		dt = cas->get_workspace()->get_value("dt")[0];
 		double next_dt = dt;
 		// get printing interval
 		double print_interval = calculate_print_interval();
@@ -115,15 +115,15 @@ void pmCase::simulate(size_t const& num_threads) {
 		// calculate new dt (adaptive-constant dt or the time to next print)
 		if(printing) {
 			next_dt = to_next_print;
-			solver->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
+			cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
 		}
 		// Solve equations
-		solver->solve(num_threads);
+		cas->solve(num_threads);
 		current_time += next_dt;
 		substeps++;
 		if(printing) {
-			if(solver->get_workspace()->get_value("dt")[0]==next_dt) {
-				solver->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
+			if(cas->get_workspace()->get_value("dt")[0]==next_dt) {
+				cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
 			}
 			write_step();
 			log_stream.print_step_info(dt>print_interval?print_interval:dt, substeps, current_time, simulated_time);
@@ -137,9 +137,9 @@ void pmCase::simulate(size_t const& num_threads) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints out the object content.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::print() const {
+void pmCase_manager::print() const {
 	pLogger::headerf<LGN>("Case");
-	if(solver!=nullptr)		solver->print();
+	if(cas!=nullptr)		cas->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
 	pLogger::footerf<LGN>();
 }
@@ -147,7 +147,7 @@ void pmCase::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Writes case data to file.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::write_step() const {
+void pmCase_manager::write_step() const {
 	static int counter = parameter_space->get_parameter_value("file_start")[0];
     char ch[4];
     sprintf(&ch[0], "%04i", counter);
@@ -156,7 +156,7 @@ void pmCase::write_step() const {
     file_name += ".vtk";
     std::unique_ptr<pmVTK_writer> vtk_writer{new pmVTK_writer{}};
     vtk_writer->set_write_mode(vtk_write_mode);
-    vtk_writer->set_solver(solver);
+    vtk_writer->set_case(cas);
     vtk_writer->set_file_name(file_name);
     vtk_writer->update();
 	counter++;
@@ -165,7 +165,7 @@ void pmCase::write_step() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets working directory.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCase::set_working_directory(std::string const& working_dir) {
+/*static*/ void pmCase_manager::set_working_directory(std::string const& working_dir) {
 	char directory[1024];
 	chdir(working_dir.c_str());
 	getcwd(directory, sizeof(directory));
@@ -173,11 +173,11 @@ void pmCase::write_step() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Forwards the xmlname to a pmCase object and executes the simulation.
+/// Forwards the xmlname to a pmCase_manager object and executes the simulation.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCase::execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads/*=8*/) {
+/*static*/ void pmCase_manager::execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads/*=8*/) {
 	set_working_directory(working_dir);
-	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
+	std::shared_ptr<pmCase_manager> cas = std::make_shared<pmCase_manager>();
 	cas->read_file(xmlname);
 	cas->print();
 	cas->simulate(num_threads);

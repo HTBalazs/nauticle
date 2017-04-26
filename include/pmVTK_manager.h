@@ -37,21 +37,21 @@
 #include <vtkPolyDataWriter.h>
 #include "prolog/pLogger.h"
 #include "pmEquation_parser.h"
-#include "pmSolver.h"
+#include "pmCase.h"
 #include "pmNoncopyable.h"
 
-/** This abstract class stores vtk-formatted data of pmSolver.
+/** This abstract class stores vtk-formatted data of pmCase.
 */
 class pmVTK_manager : public pmNoncopyable {
 protected:
 	std::string file_name;
 	vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
-	std::shared_ptr<pmSolver> solver;
+	std::shared_ptr<pmCase> cas;
 public:
 	pmVTK_manager() {}
 	virtual ~pmVTK_manager() {}
-	std::shared_ptr<pmSolver> get_solver() const;
-	void set_solver(std::shared_ptr<pmSolver> sol);
+	std::shared_ptr<pmCase> get_case() const;
+	void set_case(std::shared_ptr<pmCase> c);
 	virtual void update()=0;
 	void set_file_name(std::string const& file_name);
 };

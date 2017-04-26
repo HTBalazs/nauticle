@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns a workspace constructed based on the initial condition.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmSolver> pmXML_processor::get_initial_condition_solver() const {
+std::shared_ptr<pmCase> pmXML_processor::get_initial_condition_case() const {
 	pmVTK_reader reader;
 	std::vector<std::shared_ptr<pmBlock>> defs = block->find_block("initial_condition");
 	if(!defs.empty()) {
@@ -33,9 +33,9 @@ std::shared_ptr<pmSolver> pmXML_processor::get_initial_condition_solver() const 
 			reader.set_file_name(file_name);
 		}
 		reader.update();
-		return reader.get_solver();
+		return reader.get_case();
 	}
-	return std::shared_ptr<pmSolver>();
+	return std::shared_ptr<pmCase>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -43,8 +43,8 @@ std::shared_ptr<pmSolver> pmXML_processor::get_initial_condition_solver() const 
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 	std::shared_ptr<pmWorkspace> workspace = std::make_shared<pmWorkspace>();
-	std::vector<std::shared_ptr<pmBlock>> block_solver = block->find_block("solver");
-	std::shared_ptr<pmBlock> block_workspace = block_solver.back()->find_block("workspace").back();
+	std::vector<std::shared_ptr<pmBlock>> block_case = block->find_block("case");
+	std::shared_ptr<pmBlock> block_workspace = block_case.back()->find_block("workspace").back();
 	// Read constants
 	std::vector<std::shared_ptr<pmBlock>> block_constant = block_workspace->find_block("constants");
 	for(auto const& constants:block_constant) {
@@ -139,9 +139,9 @@ std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pm
 /// Returns the equation set constructed based on the configuration file.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<pmEquation>> pmXML_processor::get_equations(std::shared_ptr<pmWorkspace> workspace) const {
-	std::vector<std::shared_ptr<pmBlock>> block_solver = block->find_block("solver");
+	std::vector<std::shared_ptr<pmBlock>> block_case = block->find_block("case");
 	std::vector<std::shared_ptr<pmEquation>> equations;
-	for(auto const& eqs:block_solver) {
+	for(auto const& eqs:block_case) {
 		for(auto const& it:eqs->get_children()) {
 			if(it->get_name()=="equations") {
 				for(auto const& fcs:it->get_children()) {
@@ -157,24 +157,24 @@ std::vector<std::shared_ptr<pmEquation>> pmXML_processor::get_equations(std::sha
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the solver constructed based on the configuration file.
+/// Returns the case constructed based on the configuration file.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmSolver> pmXML_processor::get_solver() const {
+std::shared_ptr<pmCase> pmXML_processor::get_case() const {
 	// Read initial conditions
-	std::shared_ptr<pmSolver> ic_solver = get_initial_condition_solver();
-	if(ic_solver.use_count()>0) {
+	std::shared_ptr<pmCase> ic_case = get_initial_condition_case();
+	if(ic_case.use_count()>0) {
 		pLogger::logf<COLOR>("    Initial conditions: from VTK file.\n");
-		return ic_solver;
+		return ic_case;
 	}
-	// Read xml solver if initial condition not found.
+	// Read xml case if initial condition not found.
 	std::shared_ptr<pmWorkspace> workspace = get_workspace();
 	std::vector<std::shared_ptr<pmEquation>> equations = this->get_equations(workspace);
-	std::shared_ptr<pmSolver> solver = std::make_shared<pmSolver>();
-	solver->add_workspace(workspace);
-	solver->add_equation(equations);
-	solver->initialize();
+	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
+	cas->add_workspace(workspace);
+	cas->add_equation(equations);
+	cas->initialize();
 	pLogger::logf<COLOR>("    Initial conditions: from XML file.\n");
-	return solver;
+	return cas;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -18,46 +18,44 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _CASE_H_
-#define _CASE_H_
+#ifndef _SOLVER_H_
+#define _SOLVER_H_
 
-#include <unistd.h>
 #include <iostream>
-#include <memory>
 #include <string>
+#include <memory>
 #include "prolog/pLogger.h"
-#include "pmXML_processor.h"
-#include "pmSolver.h"
-#include "pmVTK_manager.h"
+#include "pmWorkspace.h"
+#include "pmEquation.h"
 
-/** This class represents the problem to solve. The contructor recieves the file
-//  name of the *.XML configuration file.
-//	It contains three objects:
-//  	- solver: contains all the equations to solve
-//		- parameter space: this object holds the general constant values relating
-//		to the calculations but not appear up in any of the equations.
-//		- particle system: if contains a particle cloud on which the equations and fields
-//		are interpreted.
+/** This class represents the mathematical problem to solve. It contains two 
+//	objects:
+//		- workspace: it manages all the variables and named constants,
+//		- equations: vector of equations governing the problem.
+//	Destroying a solver object destroys the workspace and equations
+//  either.
 */
 class pmCase final {
-private:
-	std::shared_ptr<pmSolver> solver;
-	std::shared_ptr<pmParameter_space> parameter_space;
-	write_mode vtk_write_mode = ASCII;
-	void print() const;
-	double calculate_print_interval() const;
-	void simulate(size_t const& num_threads);
-	void write_step() const;
-	void read_file(std::string const& filename);
-	static void set_working_directory(std::string const& working_dir);
+	std::shared_ptr<pmWorkspace> workspace;
+	std::vector<std::shared_ptr<pmEquation>> equations;
 public:
 	pmCase() {}
 	pmCase(pmCase const& other);
 	pmCase(pmCase&& other);
-	pmCase& operator=(pmCase const& other);
-	pmCase& operator=(pmCase&& other);
 	~pmCase() {}
-	static void execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads=8);
+	pmCase& operator=(pmCase const& rhs);
+	pmCase& operator=(pmCase&& rhs);
+	void print() const;
+	void solve(size_t const& num_threads, std::string const& name="");
+	void assign_particle_system_to_equations();
+	std::shared_ptr<pmCase> clone() const;
+	void merge(std::shared_ptr<pmCase> const& other);
+	std::shared_ptr<pmWorkspace> get_workspace() const;
+	std::vector<std::shared_ptr<pmEquation>> get_equations() const;
+	void add_workspace(std::shared_ptr<pmWorkspace> ws);
+	void add_equation(std::shared_ptr<pmEquation> func);
+	void add_equation(std::vector<std::shared_ptr<pmEquation>> func);
+	void initialize();
 };
 
-#endif //_CASE_H_
+#endif //_SOLVER_H_

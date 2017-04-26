@@ -18,12 +18,12 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmSolver.h"
+#include "pmCase.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSolver::pmSolver(pmSolver const& other) {
+pmCase::pmCase(pmCase const& other) {
 	this->workspace = other.workspace->clone();
 	for(auto const& it:other.equations) {
 		this->equations.push_back(it->clone());
@@ -34,7 +34,7 @@ pmSolver::pmSolver(pmSolver const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSolver& pmSolver::operator=(pmSolver const& rhs) {
+pmCase& pmCase::operator=(pmCase const& rhs) {
 	if(this!=&rhs) {
 		this->workspace = rhs.workspace->clone();
 		for(auto const& it:rhs.equations) {
@@ -48,7 +48,7 @@ pmSolver& pmSolver::operator=(pmSolver const& rhs) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSolver::pmSolver(pmSolver&& other) {
+pmCase::pmCase(pmCase&& other) {
 	this->workspace = std::move(other.workspace);
 	this->equations = std::move(other.equations);
 	assign_particle_system_to_equations();
@@ -57,7 +57,7 @@ pmSolver::pmSolver(pmSolver&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSolver& pmSolver::operator=(pmSolver&& rhs) {
+pmCase& pmCase::operator=(pmCase&& rhs) {
 	if(this!=&rhs) {
 		this->workspace = std::move(rhs.workspace);
 		this->equations = std::move(rhs.equations);
@@ -69,14 +69,14 @@ pmSolver& pmSolver::operator=(pmSolver&& rhs) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds the given workspace to the solver. Previously stored workspace is destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSolver::add_workspace(std::shared_ptr<pmWorkspace> ws) {
+void pmCase::add_workspace(std::shared_ptr<pmWorkspace> ws) {
 	workspace = ws;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Recives a equation and pushes it to the equations vector.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSolver::add_equation(std::shared_ptr<pmEquation> func) {
+void pmCase::add_equation(std::shared_ptr<pmEquation> func) {
 	for(auto const& it:equations) {
 		if(it->get_name()==func->get_name()){
 			pLogger::warning_msg("equation \"%s\" is already existing in the solver.\n",func->get_name().c_str());
@@ -89,16 +89,16 @@ void pmSolver::add_equation(std::shared_ptr<pmEquation> func) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Recieves a vector of equations and pushes it to the end of the equations vector.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSolver::add_equation(std::vector<std::shared_ptr<pmEquation>> func) {
+void pmCase::add_equation(std::vector<std::shared_ptr<pmEquation>> func) {
 	for(auto const& it:func) {
 		this->add_equation(it);
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Prints out the content of the pmSolver object.
+/// Prints out the content of the pmCase object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSolver::print() const {
+void pmCase::print() const {
 	pLogger::headerf<LBL>("solver");
 	workspace->print();
 	int f=0;
@@ -118,21 +118,21 @@ void pmSolver::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the workspace. 
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmWorkspace> pmSolver::get_workspace() const {
+std::shared_ptr<pmWorkspace> pmCase::get_workspace() const {
 	return workspace;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the equations.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::vector<std::shared_ptr<pmEquation>> pmSolver::get_equations() const {
+std::vector<std::shared_ptr<pmEquation>> pmCase::get_equations() const {
 	return equations;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solves all equation in order.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSolver::solve(size_t const& num_threads, std::string const& name/*=""*/) {
+void pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 	workspace->sort_all_by_position();
 	if(name=="") {
 		for(auto const& it:equations) {
@@ -152,7 +152,7 @@ void pmSolver::solve(size_t const& num_threads, std::string const& name/*=""*/) 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Assigns the particle system of the workspace to all equations.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSolver::assign_particle_system_to_equations() {
+void pmCase::assign_particle_system_to_equations() {
 	std::weak_ptr<pmParticle_system> psys = std::dynamic_pointer_cast<pmParticle_system>(workspace->get_instance("r").lock());
 	for(auto const& it:equations) {
 		it->assign_particle_system(psys);
@@ -162,11 +162,11 @@ void pmSolver::assign_particle_system_to_equations() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the deep copy tof the object. 
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmSolver> pmSolver::clone() const {
-	return std::make_shared<pmSolver>(*this);
+std::shared_ptr<pmCase> pmCase::clone() const {
+	return std::make_shared<pmCase>(*this);
 }
 
-void pmSolver::merge(std::shared_ptr<pmSolver> const& other) {
+void pmCase::merge(std::shared_ptr<pmCase> const& other) {
 	this->workspace->merge(other->workspace);
 	size_t i=0;
 	for(auto const& it:other->equations) {
@@ -177,6 +177,6 @@ void pmSolver::merge(std::shared_ptr<pmSolver> const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Assigns pmParticle_system object in the pmWorkspace to all equations.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSolver::initialize() {
+void pmCase::initialize() {
 	this->assign_particle_system_to_equations();
 }

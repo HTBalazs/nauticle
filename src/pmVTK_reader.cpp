@@ -171,8 +171,8 @@ void pmVTK_reader::update() {
 	workspace->add_particle_system(psys_data, domain);
 	// Read equation data
 	std::vector<std::shared_ptr<pmEquation>> equations = pop_equations_from_polydata(workspace);
-	solver = std::make_shared<pmSolver>();
-	solver->add_workspace(workspace);
-	solver->add_equation(equations);
-	solver->assign_particle_system_to_equations();
+	cas = std::make_shared<pmCase>();
+	cas->add_workspace(workspace);
+	cas->add_equation(equations);
+	cas->assign_particle_system_to_equations();
 }

@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	std::string working_dir = default_working_dir;
 	bool exec = false;
 	size_t num_threads = std::thread::hardware_concurrency();;
-	auto exec_fptr=[&](){ if(exec){ pmCase::execute(xml_name,working_dir,num_threads); } };
+	auto exec_fptr=[&](){ if(exec){ pmCase_manager::execute(xml_name,working_dir,num_threads); } };
 	if(argc<2) {
 		exec = true;
 		exec_fptr();
