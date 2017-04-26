@@ -79,7 +79,7 @@ void pmCase::add_workspace(std::shared_ptr<pmWorkspace> ws) {
 void pmCase::add_equation(std::shared_ptr<pmEquation> func) {
 	for(auto const& it:equations) {
 		if(it->get_name()==func->get_name()){
-			pLogger::warning_msg("equation \"%s\" is already existing in the solver.\n",func->get_name().c_str());
+			pLogger::warning_msg("Equation \"%s\" is already existing in the solver.\n",func->get_name().c_str());
 			return;
 		}
 	}
@@ -166,6 +166,9 @@ std::shared_ptr<pmCase> pmCase::clone() const {
 	return std::make_shared<pmCase>(*this);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Merge cases.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::merge(std::shared_ptr<pmCase> const& other) {
 	this->workspace->merge(other->workspace);
 	size_t i=0;
