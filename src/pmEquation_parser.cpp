@@ -55,7 +55,7 @@ std::shared_ptr<pmEquation> pmEquation_parser::analyse_equation(std::string cons
 	if(!verify_sides(equation_data)) return std::shared_ptr<pmEquation>(nullptr);
 	std::string lhs_infix = get_lhs_infix(equation_data);
 	std::string rhs_infix = get_rhs_infix(equation_data);
-	std::shared_ptr<pmTerm> lhs = analyse_expression<pmTerm>(lhs_infix, workspace);
+	std::shared_ptr<pmSymbol> lhs = analyse_expression<pmSymbol>(lhs_infix, workspace);
 	if(!lhs) { 
 		pLogger::warning_msgf("\"%s\" is not a function and ignored.\n", equation_data.c_str());
 		return std::shared_ptr<pmEquation>(nullptr);

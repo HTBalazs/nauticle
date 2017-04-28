@@ -51,7 +51,7 @@ private:
 	int get_associativity(std::string const& s) const;
 	std::vector<std::string> build_table(std::string const& s) override;
 	std::vector<std::string> parse(std::vector<std::string> const& words);
-	std::weak_ptr<pmTerm> assign(std::shared_ptr<pmWorkspace> workspace, std::string const& name);
+	std::weak_ptr<pmSymbol> assign(std::shared_ptr<pmWorkspace> workspace, std::string const& name);
 	std::shared_ptr<pmExpression> build_expression_tree(std::vector<std::string> const& postfix, std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>());
 	bool verify_infix(std::string const& infix) const override;
 	template <size_t S> void stack_extract(std::stack<std::shared_ptr<pmExpression>>& e, std::array<std::shared_ptr<pmExpression>,S>& ops, size_t count=S);

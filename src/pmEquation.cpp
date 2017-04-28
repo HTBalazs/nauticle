@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
 /////////////////////////////////////////////////////////////////////////////////////////
-pmEquation::pmEquation(std::string n, std::shared_ptr<pmTerm> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond) {
+pmEquation::pmEquation(std::string n, std::shared_ptr<pmSymbol> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond) {
 	name = n;
 	lhs = ex1;
 	rhs = ex2;

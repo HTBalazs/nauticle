@@ -105,21 +105,21 @@ pmWorkspace& pmWorkspace::operator=(pmWorkspace&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the term is a constant.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmWorkspace::is_constant(std::shared_ptr<pmTerm> term) const {
+bool pmWorkspace::is_constant(std::shared_ptr<pmSymbol> term) const {
 	return std::dynamic_pointer_cast<pmConstant>(term).use_count()!=0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the term is a variable.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmWorkspace::is_variable(std::shared_ptr<pmTerm> term) const {
+bool pmWorkspace::is_variable(std::shared_ptr<pmSymbol> term) const {
 	return std::dynamic_pointer_cast<pmVariable>(term).use_count()!=0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the term is a constant or variable.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmWorkspace::is_constant_or_variable(std::shared_ptr<pmTerm> term) const {
+bool pmWorkspace::is_constant_or_variable(std::shared_ptr<pmSymbol> term) const {
 	return is_constant(term) || is_variable(term);
 }
 
@@ -181,7 +181,7 @@ void pmWorkspace::add_constant(std::string const& name, pmTensor const& value, b
 	if(name=="dt") {
 		pLogger::warning_msgf("Constant time step may cause problems. Use it as variable instead.");
 	}
-	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmConstant>(name, value, hidden)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmConstant>(name, value, hidden)));
 	num_constants++;
 }
 
@@ -191,7 +191,7 @@ void pmWorkspace::add_constant(std::string const& name, pmTensor const& value, b
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_variable(std::string const& name, pmTensor const& value/*=pmTensor{0}*/) {
 	if(!verify_name(name)) return;
-	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmVariable>(name, value)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmVariable>(name, value)));
 	num_variables++;
 }
 
@@ -201,7 +201,7 @@ void pmWorkspace::add_variable(std::string const& name, pmTensor const& value/*=
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmTensor{0}*/) {
 	if(!verify_name(name)) return;
-	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmField>(name, num_nodes, value)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, num_nodes, value)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 	if(values.size()!=num_nodes) {
 		pLogger::error_msgf("Inconsistent size of field \"%s\".\n",name.c_str());
 	}
-	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmField>(name, values)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, values)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +236,7 @@ void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, pmDom
 	if(values.size()!=num_nodes) {
 		set_number_of_nodes(values.size());
 	}
-	definitions.push_back(std::static_pointer_cast<pmTerm>(std::make_shared<pmParticle_system>("r", values, domain)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>("r", values, domain)));
 	define_bases();
 }
 
@@ -245,7 +245,7 @@ void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, pmDom
 /// does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::delete_instance(std::string const& name) {
-	std::vector<std::shared_ptr<pmTerm>>::iterator it = definitions.begin();
+	std::vector<std::shared_ptr<pmSymbol>>::iterator it = definitions.begin();
 	for(;it!=definitions.end();it++) {
 		if((*it)->get_name()==name) {
 			if((*it).use_count()>1) {
@@ -290,21 +290,21 @@ pmTensor pmWorkspace::get_value(std::string const& name, int const& i/*=0*/) con
 /// Returns an instance with the given name. Returns an empty pointer if no such instance
 //  found.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::weak_ptr<pmTerm> pmWorkspace::get_instance(std::string const& name) const {
+std::weak_ptr<pmSymbol> pmWorkspace::get_instance(std::string const& name) const {
 	for(auto const& it:definitions) {
 		if(it->get_name()==name) {
-			return std::weak_ptr<pmTerm>{it};
+			return std::weak_ptr<pmSymbol>{it};
 		}
 	}
 	pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
-	return std::weak_ptr<pmTerm>{};
+	return std::weak_ptr<pmSymbol>{};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the particle system of the workspace object.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::weak_ptr<pmParticle_system> pmWorkspace::get_particle_system() const {
-	std::shared_ptr<pmTerm> psys = get_instance("r").lock();
+	std::shared_ptr<pmSymbol> psys = get_instance("r").lock();
 	return std::static_pointer_cast<pmParticle_system>(psys);
 }
 
@@ -344,7 +344,7 @@ void pmWorkspace::sort_all_by_position() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the vector of definitions
 /////////////////////////////////////////////////////////////////////////////////////////
-std::vector<std::shared_ptr<pmTerm>> pmWorkspace::get_definitions() {
+std::vector<std::shared_ptr<pmSymbol>> pmWorkspace::get_definitions() {
 	return definitions;
 }
 

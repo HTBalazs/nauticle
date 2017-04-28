@@ -23,11 +23,11 @@
 
 #include <vector>
 #include <string>
-#include "pmTerm.h"
+#include "pmSymbol.h"
 
 /** This inteface forms the base for expressions of constant and variables.
 */
-class pmSingle : public pmTerm {
+class pmSingle : public pmSymbol {
 protected:
 	std::vector<pmTensor> value;
 public:

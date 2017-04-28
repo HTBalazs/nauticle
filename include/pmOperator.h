@@ -26,7 +26,7 @@
 #include "pmExpression.h"
 #include "prolog/pLogger.h"
 
-/** This interface forms the base for any operator acting on the pmTerms like 
+/** This interface forms the base for any operator acting on the pmSymbols like 
 //  constants (pmConstants), variables (pmVariables), fields (pmFields), or 
 //  particle systems (pmParticle_system). The number of operands of the operator
 //  in question is controlled by the template parameter S.

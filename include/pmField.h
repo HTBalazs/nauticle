@@ -22,7 +22,7 @@
 #define _FIELD_H_
 
 #include <string>
-#include "pmTerm.h"
+#include "pmSymbol.h"
 #include "pmSort.h"
 
 /** An object of this class can hold a field of scalar, vector or tensor above any particle
@@ -31,7 +31,7 @@
 //  a copy of the field data in the previous step. Current and previous data is managed automatically
 //  when the two_step option is on.
 */
-class pmField : public pmTerm {
+class pmField : public pmSymbol {
 protected:
 	// std::vector<pmTensor> current_value;
 	// std::vector<pmTensor> previous_value;

@@ -192,7 +192,7 @@ std::vector<std::string> pmExpression_parser::parse(std::vector<std::string> con
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Assigns a found variable or constant to a workspace instance.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::weak_ptr<pmTerm> pmExpression_parser::assign(std::shared_ptr<pmWorkspace> workspace, std::string const& name) {
+std::weak_ptr<pmSymbol> pmExpression_parser::assign(std::shared_ptr<pmWorkspace> workspace, std::string const& name) {
 	return workspace->get_instance(name);
 }
 
