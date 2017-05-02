@@ -3,7 +3,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 project(nauticle_project)
 
 set(VTK_DIR /usr/local/VTK-7.0.0)
-set(EXECUTABLE pmsimple)
+set(EXECUTABLE nauticle)
 link_directories(/usr/local/lib/prolog)
 link_directories(/usr/local/lib/commonutils)
 link_directories(/usr/local/lib/handyxml)
