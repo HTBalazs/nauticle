@@ -52,7 +52,14 @@ public:
 
 template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 void pmSph_operator<OP_TYPE,VAR,K,NOPS>::write_to_string(std::ostream& os) const {
-	os<<op_name<<"("<<this->operand[0]<<","<<this->operand[1]<<","<<this->operand[2]<<","<<this->operand[3]<<")";
+	os << op_name << "(";
+	for(int i=0; i<NOPS; i++) {
+		os << this->operand[i];
+		if(i!=NOPS-1) {
+			os << ",";
+		}
+	}
+	os << ")";
 }
 template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 std::ostream& operator<<(std::ostream& os, pmSph_operator<OP_TYPE, VAR, K, NOPS> const* obj) {
