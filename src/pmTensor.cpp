@@ -434,7 +434,7 @@ pmTensor pmTensor::transpose() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::trace() const {
 	if(rows!=columns) {
-		pLogger::error_msgf("Tensor must be square.\n");
+		pLogger::error_msgf("Matrix is not square, trace does not exist.\n");
 		return pmTensor{};
 	}
 	pmTensor tensor{1,1};
