@@ -38,7 +38,7 @@ namespace pmRandom {
 /////////////////////////////////////////////////////////////////////////////////////////
 	pmTensor random(pmTensor const& minimum, pmTensor const& maximum) {
 		if(minimum.get_numrows()!=maximum.get_numrows() || minimum.get_numcols()!=maximum.get_numcols()) {
-			pLogger::error_msgf("Random numbers cannot be generated if the dimensions of the limist does not match.\n");
+			pLogger::error_msgf("Random numbers cannot be generated if the dimensions of the limits does not match.\n");
 			return pmTensor{};
 		}
 		pmTensor random_tensor{minimum.get_numrows(), minimum.get_numcols()};
