@@ -1,21 +1,21 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
 #include "pmCommand_parser.h"
@@ -72,8 +72,8 @@ std::string pmCommand_parser::get_arg(std::string s) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /*static*/ void pmCommand_parser::print_command_list() {
 	print_header();
-	pLogger::log<WHT>("LEMPS can recieve the following optianal commands:\n");
-	pLogger::log<WHT>("1) -help                  Display LEMPS information.\n");
+	pLogger::log<WHT>("Nauticle can recieve the following optianal commands:\n");
+	pLogger::log<WHT>("1) -help                  Display Nauticle information.\n");
 	pLogger::log<WHT>("2) -wsres                 Lists all reserved names in workspace.\n");
 	pLogger::log<WHT>("3) -numthreads <number>   Defines the number of threads to use. Default is detected.\n");
 	pLogger::log<WHT>("4) -xmlname <filename>    Defines the name of the XML input file.\n");
@@ -95,5 +95,5 @@ std::string pmCommand_parser::get_arg(std::string s) {
 	already_written = true;
 }
 /*static*/ void pmCommand_parser::print_version() {
-	pLogger::log<WHT>("LEMPS version %i.%i.%i\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
+	pLogger::log<WHT>("Nauticle version %i.%i.%i\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
 }

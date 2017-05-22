@@ -1,21 +1,21 @@
 /*
     0000 2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 
@@ -29,9 +29,10 @@
 enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, IF, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, EULER, PREDICTOR, CORRECTOR};
 
 /** This class implements the following operations for the expression tree: summation, subtraction,
-//  multiplication, division, power, term-by-term product for two operands furthermore summation and 
-//  subtraction with one operand.
+//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
+//  negation with one operand.
 */
+
 template <Ari_fn_type ARI_TYPE, size_t S>
 class pmArithmetic_function final : public pmOperator<S> {
 	std::string op_name;

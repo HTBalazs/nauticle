@@ -1,25 +1,25 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _FUNCTION_H_
-#define _FUNCTION_H_
+#ifndef _EQUATION_H_
+#define _EQUATION_H_
 
 #include <string>
 #include <iostream>
@@ -35,39 +35,39 @@
 /** This class represents an algebraic or differential equation with pmExpression-s
 //  on the lhs and rhs. The lhs must contain a pmVariable which is overwritten by
 //  the "evaluate" and "solve" member functions.
-//  When a pmFunction object is destroyed the lhs and rhs pmExpression-s are destroyed
+//  When a pmEquation object is destroyed the lhs and rhs pmExpression-s are destroyed
 //  as well except if they are pmVariable or pmConstant objects. They are always managed
 //  by the pmWorkspace object. (TODO: std::shared_ptr) 
 */
-class pmFunction final {
+class pmEquation final {
 protected:
 	std::string name = "";
-	std::shared_ptr<pmTerm> lhs;
+	std::shared_ptr<pmSymbol> lhs;
 	std::shared_ptr<pmExpression> rhs;
 	std::shared_ptr<pmExpression> condition;
 public:
-	pmFunction(std::string n, std::shared_ptr<pmTerm> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond);
-	pmFunction(pmFunction const&);
-	pmFunction(pmFunction&&);
-	pmFunction& operator=(pmFunction const&);
-	pmFunction& operator=(pmFunction&&);
-	virtual ~pmFunction() {}
+	pmEquation(std::string n, std::shared_ptr<pmSymbol> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond);
+	pmEquation(pmEquation const&);
+	pmEquation(pmEquation&&);
+	pmEquation& operator=(pmEquation const&);
+	pmEquation& operator=(pmEquation&&);
+	virtual ~pmEquation() {}
 	void print() const;
 	void solve(size_t const& num_threads);
 	std::string get_name() const;
 	void evaluate(int const& p_begin, int const& p_end);
 	void assign_particle_system(std::weak_ptr<pmParticle_system> psys);
-	std::shared_ptr<pmFunction> clone() const;
+	std::shared_ptr<pmEquation> clone() const;
 	void write_to_string(std::ostream& os) const;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implementaton of << operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmFunction const* obj) {
+inline std::ostream& operator<<(std::ostream& os, pmEquation const* obj) {
 	obj->write_to_string(os);
 	return os;
 }
 
-#endif //_FUNCTION_H_
+#endif //_EQUATION_H_
 

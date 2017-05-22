@@ -1,21 +1,21 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
 #ifndef _EXPRESSION_PARSER_H_
@@ -27,7 +27,7 @@
 #include <memory>
 #include "prolog/pLogger.h"
 #include "pmMath_parser.h"
-#include "pmFunction.h"
+#include "pmEquation.h"
 #include "pmNoncopyable.h"
 #include "pmConstant.h"
 #include "pmVariable.h"
@@ -51,7 +51,7 @@ private:
 	int get_associativity(std::string const& s) const;
 	std::vector<std::string> build_table(std::string const& s) override;
 	std::vector<std::string> parse(std::vector<std::string> const& words);
-	std::weak_ptr<pmTerm> assign(std::shared_ptr<pmWorkspace> workspace, std::string const& name);
+	std::weak_ptr<pmSymbol> assign(std::shared_ptr<pmWorkspace> workspace, std::string const& name);
 	std::shared_ptr<pmExpression> build_expression_tree(std::vector<std::string> const& postfix, std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>());
 	bool verify_infix(std::string const& infix) const override;
 	template <size_t S> void stack_extract(std::stack<std::shared_ptr<pmExpression>>& e, std::array<std::shared_ptr<pmExpression>,S>& ops, size_t count=S);

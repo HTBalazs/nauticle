@@ -1,21 +1,21 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
 #ifndef _WORKSPACE_H_
@@ -40,16 +40,16 @@
 class pmWorkspace final : public pmMath_test {
 private:
 	static std::string const reserved_names[];
-	std::vector<std::shared_ptr<pmTerm>> definitions;
+	std::vector<std::shared_ptr<pmSymbol>> definitions;
 	size_t num_nodes=1;
 	std::stack<int> deleted_ids;
 	size_t num_constants;
 	size_t num_variables;
 private:
 	bool verify_name(std::string const& name) const;
-	bool is_constant(std::shared_ptr<pmTerm> term) const;
-	bool is_variable(std::shared_ptr<pmTerm> term) const;
-	bool is_constant_or_variable(std::shared_ptr<pmTerm> term) const;
+	bool is_constant(std::shared_ptr<pmSymbol> term) const;
+	bool is_variable(std::shared_ptr<pmSymbol> term) const;
+	bool is_constant_or_variable(std::shared_ptr<pmSymbol> term) const;
 	void define_bases();
 public:
 	pmWorkspace();
@@ -67,12 +67,12 @@ public:
 	void add_particle_system(std::vector<pmTensor> const& values, pmDomain const& domain);
 	void delete_instance(std::string const& name);
 	pmTensor get_value(std::string const& name, int const& i=0) const;
-	std::weak_ptr<pmTerm> get_instance(std::string const& name) const;
+	std::weak_ptr<pmSymbol> get_instance(std::string const& name) const;
 	std::weak_ptr<pmParticle_system> get_particle_system() const;
 	template <typename T> void print_content(std::string const& title) const;
 	void print() const;
 	void sort_all_by_position();
-	std::vector<std::shared_ptr<pmTerm>> get_definitions();
+	std::vector<std::shared_ptr<pmSymbol>> get_definitions();
 	std::shared_ptr<pmWorkspace> clone() const;
 	size_t get_number_of_nodes() const;
 	size_t get_number_of_variables() const;

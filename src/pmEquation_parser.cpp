@@ -1,30 +1,30 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#include "pmFunction_parser.h"
+#include "pmEquation_parser.h"
 #include "commonutils/Common.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the data is an equation.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmFunction_parser::verify_sides(std::string const& infix) const {
+bool pmEquation_parser::verify_sides(std::string const& infix) const {
 	if(Common::find_word(infix,"=").size()!=1) {
 		pLogger::warning_msgf("\"%s\" is not a valid equation.\n", infix.c_str());
 		return false;
@@ -35,7 +35,7 @@ bool pmFunction_parser::verify_sides(std::string const& infix) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the lhs of the infix equation.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::string pmFunction_parser::get_lhs_infix(std::string const& data) const {
+std::string pmEquation_parser::get_lhs_infix(std::string const& data) const {
 	int pos = data.find("=");
 	return data.substr(0, pos);
 }
@@ -43,7 +43,7 @@ std::string pmFunction_parser::get_lhs_infix(std::string const& data) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the rhs of the infix equation.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::string pmFunction_parser::get_rhs_infix(std::string const& data) const {
+std::string pmEquation_parser::get_rhs_infix(std::string const& data) const {
 	int pos = data.find("=");
 	return data.substr(pos+1);
 }
@@ -51,14 +51,14 @@ std::string pmFunction_parser::get_rhs_infix(std::string const& data) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Analyses the equation given by the infix.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmFunction> pmFunction_parser::analyse_function(std::string const& name, std::string const& function_data, std::string const& condition_data, std::shared_ptr<pmWorkspace> workspace) {
-	if(!verify_sides(function_data)) return std::shared_ptr<pmFunction>(nullptr);
-	std::string lhs_infix = get_lhs_infix(function_data);
-	std::string rhs_infix = get_rhs_infix(function_data);
-	std::shared_ptr<pmTerm> lhs = analyse_expression<pmTerm>(lhs_infix, workspace);
+std::shared_ptr<pmEquation> pmEquation_parser::analyse_equation(std::string const& name, std::string const& equation_data, std::string const& condition_data, std::shared_ptr<pmWorkspace> workspace) {
+	if(!verify_sides(equation_data)) return std::shared_ptr<pmEquation>(nullptr);
+	std::string lhs_infix = get_lhs_infix(equation_data);
+	std::string rhs_infix = get_rhs_infix(equation_data);
+	std::shared_ptr<pmSymbol> lhs = analyse_expression<pmSymbol>(lhs_infix, workspace);
 	if(!lhs) { 
-		pLogger::warning_msgf("\"%s\" is not a function and ignored.\n", function_data.c_str());
-		return std::shared_ptr<pmFunction>(nullptr);
+		pLogger::warning_msgf("\"%s\" is not a function and ignored.\n", equation_data.c_str());
+		return std::shared_ptr<pmEquation>(nullptr);
 	}
 	std::shared_ptr<pmExpression> rhs = analyse_expression<pmExpression>(rhs_infix, workspace);
 	std::shared_ptr<pmExpression> condition;
@@ -67,7 +67,7 @@ std::shared_ptr<pmFunction> pmFunction_parser::analyse_function(std::string cons
 	} else {
 		condition = analyse_expression<pmExpression>(condition_data, workspace);
 	}
-	return std::make_shared<pmFunction>(name, lhs, rhs, condition);
+	return std::make_shared<pmEquation>(name, lhs, rhs, condition);
 }
 
 

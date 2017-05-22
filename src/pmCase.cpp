@@ -1,185 +1,185 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 #include "pmCase.h"
-#include "pmLog_stream.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Reads the configureation file.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::read_file(std::string const& filename) {
-	std::unique_ptr<pmXML_processor> xml_loader{new pmXML_processor};
-	xml_loader->read_file(filename);
-	function_space = xml_loader->get_function_space();
-	parameter_space = xml_loader->get_parameter_space(function_space->get_workspace());
-	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
-	pLogger::log<LCY>("  Case initialization is completed.\n");
-	pLogger::footer<LCY>();
-	pLogger::line_feed(1);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor.
+/// Copy constructor
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCase::pmCase(pmCase const& other) {
-	this->function_space = std::make_shared<pmFunction_space>(*other.function_space);
-	this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
+	this->workspace = other.workspace->clone();
+	for(auto const& it:other.equations) {
+		this->equations.push_back(it->clone());
+	}
+	assign_particle_system_to_equations();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor.
+/// Copy assignment operator
+/////////////////////////////////////////////////////////////////////////////////////////
+pmCase& pmCase::operator=(pmCase const& rhs) {
+	if(this!=&rhs) {
+		this->workspace = rhs.workspace->clone();
+		for(auto const& it:rhs.equations) {
+			this->equations.push_back(it->clone());
+		}
+		assign_particle_system_to_equations();
+	}
+	return *this;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Move constructor
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCase::pmCase(pmCase&& other) {
-	this->function_space = std::move(other.function_space);
-	this->parameter_space = std::move(other.parameter_space);
+	this->workspace = std::move(other.workspace);
+	this->equations = std::move(other.equations);
+	assign_particle_system_to_equations();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator.
+/// Move assignment operator
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase& pmCase::operator=(pmCase const& other) {
-	if(this!=&other) {
-		this->function_space = std::make_shared<pmFunction_space>(*other.function_space);
-		this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
+pmCase& pmCase::operator=(pmCase&& rhs) {
+	if(this!=&rhs) {
+		this->workspace = std::move(rhs.workspace);
+		this->equations = std::move(rhs.equations);
+		assign_particle_system_to_equations();
 	}
 	return *this;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator.
+/// Adds the given workspace to the solver. Previously stored workspace is destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase& pmCase::operator=(pmCase&& other) {
-	if(this!=&other) {
-		this->function_space = std::move(other.function_space);
-		this->parameter_space = std::move(other.parameter_space);
-	}
-	return *this;
-}
-double pmCase::calculate_print_interval() const {
-	static bool constant = false;
-	static double interval = 0;
-	if(!constant) {
-		bool governed_by_workspace = function_space->get_workspace()->is_existing("print_interval");
-		if(governed_by_workspace) {
-			interval = function_space->get_workspace()->get_value("print_interval")[0];
-		} else {
-			interval = parameter_space->get_parameter_value("print_interval")[0];
-			constant = true;
-		}
-	}
-	return interval;
+void pmCase::add_workspace(std::shared_ptr<pmWorkspace> ws) {
+	workspace = ws;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Runs the calculation.
+/// Recives a equation and pushes it to the equations vector.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::simulate(size_t const& num_threads) {
-	size_t max_num_threads = std::thread::hardware_concurrency();
-	pLogger::logf<LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
-	pmLog_stream log_stream{};
-	log_stream.print_start();
-	double current_time=0;
-	double previous_printing_time=0;
-	int substeps=0;
-	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
-	double dt = function_space->get_workspace()->get_value("dt")[0];
-	log_stream.print_step_info(dt, substeps, current_time, simulated_time);
-	write_step();
-	bool printing;
-	while(current_time < simulated_time) {
-		double dt = function_space->get_workspace()->get_value("dt")[0];
-		double next_dt = dt;
-		// get printing interval
-		double print_interval = calculate_print_interval();
-		// time to next printing
-		double to_next_print = previous_printing_time + print_interval - current_time;
-		// do we have to print?
-		printing = dt >= to_next_print-dt/1e4;
-		// calculate new dt (adaptive-constant dt or the time to next print)
-		if(printing) {
-			next_dt = to_next_print;
-			function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
-		}
-		// Solve equations
-		function_space->solve(num_threads);
-		current_time += next_dt;
-		substeps++;
-		if(printing) {
-			write_step();
-			log_stream.print_step_info(dt>print_interval?print_interval:dt, substeps, current_time, simulated_time);
-			substeps=0;
-			previous_printing_time = current_time;
-			if(function_space->get_workspace()->get_value("dt")[0]==next_dt) {
-				function_space->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
-			}
+void pmCase::add_equation(std::shared_ptr<pmEquation> func) {
+	for(auto const& it:equations) {
+		if(it->get_name()==func->get_name()){
+			pLogger::warning_msg("Equation \"%s\" is already existing in the solver.\n",func->get_name().c_str());
+			return;
 		}
 	}
-	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
+	equations.push_back(func);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Prints out the object content.
+/// Recieves a vector of equations and pushes it to the end of the equations vector.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::add_equation(std::vector<std::shared_ptr<pmEquation>> func) {
+	for(auto const& it:func) {
+		this->add_equation(it);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints out the content of the pmCase object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::print() const {
-	pLogger::headerf<LGN>("Case");
-	if(function_space!=nullptr)		function_space->print();
-	if(parameter_space!=nullptr)	parameter_space->print();
-	pLogger::footerf<LGN>();
+	pLogger::headerf<LBL>("solver");
+	workspace->print();
+	int f=0;
+	pLogger::titlef<LMA>("equations");
+	for(auto const& it:equations) {
+		f++;
+		pLogger::logf<YEL>("         %i) ", f);
+		it->print();
+		pLogger::logf("\n");
+	}
+	if(f==0) {
+		pLogger::logf<WHT>("            < empty >\n");
+	}
+	pLogger::footerf<LBL>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Writes case data to file.
+/// Returns the workspace. 
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::write_step() const {
-	static int counter=0;
-    char ch[4];
-    sprintf(&ch[0], "%04i", counter);
-	std::string file_name{"step_"};
-    file_name += ch;
-    file_name += ".vtk";
-    std::unique_ptr<pmVTK_writer> vtk_writer{new pmVTK_writer{}};
-    vtk_writer->set_write_mode(vtk_write_mode);
-    vtk_writer->set_function_space(function_space);
-    vtk_writer->set_file_name(file_name);
-    vtk_writer->update();
-	counter++;
+std::shared_ptr<pmWorkspace> pmCase::get_workspace() const {
+	return workspace;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Sets working directory.
+/// Returns the equations.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCase::set_working_directory(std::string const& working_dir) {
-	char directory[1024];
-	chdir(working_dir.c_str());
-	getcwd(directory, sizeof(directory));
-	pLogger::logf<LCY>("  Working directory is set to: %s\n", directory);
+std::vector<std::shared_ptr<pmEquation>> pmCase::get_equations() const {
+	return equations;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Forwards the xmlname to a pmCase object and executes the simulation.
+/// Solves all equation in order.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCase::execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads/*=8*/) {
-	set_working_directory(working_dir);
-	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
-	cas->read_file(xmlname);
-	cas->print();
-	cas->simulate(num_threads);
+void pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
+	workspace->sort_all_by_position();
+	if(name=="") {
+		for(auto const& it:equations) {
+			it->solve(num_threads);
+		}
+	} else {
+		for(auto const& it:equations) {
+			if(it->get_name()==name) {
+				it->solve(num_threads);
+				return;
+			}
+		}
+		pLogger::warning_msg("No equation found with name \"%s\"\n.", name.c_str());
+	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Assigns the particle system of the workspace to all equations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::assign_particle_system_to_equations() {
+	std::weak_ptr<pmParticle_system> psys = std::dynamic_pointer_cast<pmParticle_system>(workspace->get_instance("r").lock());
+	for(auto const& it:equations) {
+		it->assign_particle_system(psys);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the deep copy tof the object. 
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmCase> pmCase::clone() const {
+	return std::make_shared<pmCase>(*this);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Merge cases.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::merge(std::shared_ptr<pmCase> const& other) {
+	this->workspace->merge(other->workspace);
+	size_t i=0;
+	for(auto const& it:other->equations) {
+		this->add_equation(it);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Assigns pmParticle_system object in the pmWorkspace to all equations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::initialize() {
+	this->assign_particle_system_to_equations();
+}

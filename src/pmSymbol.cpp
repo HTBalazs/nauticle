@@ -1,64 +1,64 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmTerm.h"
+#include "pmSymbol.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the number of nodes in the field.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmTerm::get_field_size() const {
+int pmSymbol::get_field_size() const {
 	return 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the name of the field.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::string pmTerm::get_name() const {
+std::string pmSymbol::get_name() const {
 	return name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the content of the field object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmTerm::print() const {
+void pmSymbol::print() const {
 	pLogger::logf<COLOR>("%s", name.c_str());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmTerm> pmTerm::clone() const {
-	return std::static_pointer_cast<pmTerm, pmExpression>(clone_impl());
+std::shared_ptr<pmSymbol> pmSymbol::clone() const {
+	return std::static_pointer_cast<pmSymbol, pmExpression>(clone_impl());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the field is assigned. It returns true (see class description).
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmTerm::is_assigned() const {
+bool pmSymbol::is_assigned() const {
 	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns false. The pmTerm object is visible by default.
+/// Returns false. The pmSymbol object is visible by default.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmTerm::is_hidden() const {
+bool pmSymbol::is_hidden() const {
 	return false;
 }
 

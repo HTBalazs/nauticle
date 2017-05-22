@@ -1,21 +1,21 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 #include "pmNeighbours.h"
@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNeighbours::pmNeighbours(std::array<std::shared_ptr<pmExpression>,0> op) {
+pmNeighbours::pmNeighbours(std::array<std::shared_ptr<pmExpression>,1> op) {
 	operand = std::move(op);
 }
 
@@ -99,10 +99,11 @@ void pmNeighbours::print() const {
 pmTensor pmNeighbours::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!assigned) { pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
 
-	auto contribute = [this](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
+	double rad = this->operand[0]->evaluate(i,level)[0];
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor num_neighbours{1,1,0};
 		double distance = rel_pos.norm();
-		if(distance < cell_size) {
+		if(distance < rad) {
 			num_neighbours[0]++;
 		}
 		return num_neighbours;

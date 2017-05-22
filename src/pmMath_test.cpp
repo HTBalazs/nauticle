@@ -1,26 +1,26 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 #include "pmMath_test.h"
 
-std::string const pmMath_test::list_of_functions[76] = {"abs", "acos", "acot", "and", "asin", "atan", "cos", "cosh", "cot", "coth", "dem_l", "dem_a", "div", "elem", "exp", "floor", "fmax", "fmean", "fmin", "grad", "gt", "if", "log", "lt", "magnitude", "max", "min", "mod", "not", "or", "rand", "sgn", "sin", "sinh", "sph_D00", "sph_D01", "sph_D10", "sph_D11", "sph_G00", "sph_G01", "sph_G10", "sph_G11", "sph_L00", "sph_L10", "sph_S00", "sph_X00", "sqrt", "tan", "tanh", "trace", "transpose", "trunc", "xor", "identity", "neighbours", "simulation", "workspace", "function_space", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "cell_size", "grid", "functions", "nbody", "cross", "inverse", "determinant", "eq", "euler", "predictor", "corrector", "condition"};
+std::string const pmMath_test::list_of_functions[76] = {"abs", "acos", "acot", "and", "asin", "atan", "cos", "cosh", "cot", "coth", "dem_l", "dem_a", "div", "elem", "exp", "floor", "fmax", "fmean", "fmin", "grad", "gt", "if", "log", "lt", "magnitude", "max", "min", "mod", "not", "or", "rand", "sgn", "sin", "sinh", "sph_D00", "sph_D01", "sph_D10", "sph_D11", "sph_G00", "sph_G01", "sph_G10", "sph_G11", "sph_L00", "sph_L10", "sph_S00", "sph_X00", "sqrt", "tan", "tanh", "trace", "transpose", "trunc", "xor", "identity", "neighbours", "simulation", "workspace", "solver", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "cell_size", "grid", "equations", "nbody", "cross", "inverse", "determinant", "eq", "euler", "predictor", "corrector", "condition"};
 std::string const pmMath_test::list_of_operators[] = {	"+", "-", "*", "/", "^", "#", ":"};
 
 /////////////////////////////////////////////////////////////////////////////////////////

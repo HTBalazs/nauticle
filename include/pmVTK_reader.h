@@ -1,21 +1,21 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
 #ifndef _VTK_READER_H_
@@ -32,7 +32,7 @@ class pmVTK_reader : public pmVTK_manager {
 private:
 	std::vector<pmTensor> pop_array_from_polydata(int const& i, size_t const& domain_dim) const;
 	pmTensor pop_single_from_polydata(vtkSmartPointer<vtkPolyData> poly_data, std::string name, int const& i) const;
-	std::vector<std::shared_ptr<pmFunction>> pop_functions_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
+	std::vector<std::shared_ptr<pmEquation>> pop_equations_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
 	
 	pmDomain pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
 	void pop_singles_from_polydata(std::string const& TYPE, std::shared_ptr<pmWorkspace> workspace) const;

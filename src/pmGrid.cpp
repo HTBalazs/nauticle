@@ -1,24 +1,29 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
 #include "pmGrid.h"
+#include <vtkSmartPointer.h>
+#include <vtkSimplePointsReader.h>
+#include <vtkPolyData.h>
+#include <vtkDoubleArray.h>
+#include <vtkPointData.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
@@ -30,6 +35,8 @@ pmGrid::pmGrid(pmGrid const& other) {
 	this->distance = other.distance;
 	this->grid_id = other.grid_id;
 	this->grid = other.grid;
+	this->file_name = other.file_name;
+	this->dimensions = other.dimensions;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +49,8 @@ pmGrid::pmGrid(pmGrid&& other) {
 	this->distance = std::move(other.distance);
 	this->grid_id = std::move(other.grid_id);
 	this->grid = std::move(other.grid);
+	this->file_name = std::move(other.file_name);
+	this->dimensions = std::move(other.dimensions);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +63,9 @@ pmGrid& pmGrid::operator=(pmGrid const& other) {
 		this->offset = other.offset;
 		this->distance = other.distance;
 		this->grid_id = other.grid_id;
-		this->grid = other.grid;		
+		this->grid = other.grid;
+		this->file_name = other.file_name;
+		this->dimensions = other.dimensions;
 	}
 	return *this;
 }
@@ -70,8 +81,24 @@ pmGrid& pmGrid::operator=(pmGrid&& other) {
 		this->distance = std::move(other.distance);
 		this->grid_id = std::move(other.grid_id);
 		this->grid = std::move(other.grid);
+		this->file_name = std::move(other.file_name);
+		this->dimensions = std::move(other.dimensions);
 	}
 	return *this;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the file name of the xyz file.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmGrid::set_file_name(std::string const& fn) {
+	file_name = fn;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the domensions of the grid for xyz file.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmGrid::set_dimensions(size_t const& d) {
+	dimensions = d;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -149,24 +176,46 @@ void pmGrid::initialize_grid(pmTensor& S, pmTensor& D, pmTensor& N) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmGrid::generate() {
 	destroy_grid();
-	pmTensor S = size;
-	pmTensor D = distance;
-	pmTensor N = pmTensor::make_tensor(S,0);
-	initialize_grid(S,D,N);
-	std::vector<int> indexes(position.numel(),0);
-	std::vector<int> end_per_index;
-	for(int i=0; i<N.numel(); i++) {
-		end_per_index.push_back(N[i]);
-	}
-	auto process = [this,&D](std::vector<int>& indexes)->void {
-		// Innermost loop content. indexes[i] contains the ith index value.
-		pmTensor node{(int)indexes.size(),1,0};
-		for(int i=0; i<indexes.size(); i++) {
-			node[i] = indexes[i]*D[i]+position[i]+D[i]/2;
+	if(file_name=="") {
+		pmTensor S = size;
+		pmTensor D = distance;
+		pmTensor N = pmTensor::make_tensor(S,0);
+		initialize_grid(S,D,N);
+		std::vector<int> indexes(position.numel(),0);
+		std::vector<int> end_per_index;
+		for(int i=0; i<N.numel(); i++) {
+			end_per_index.push_back(N[i]);
 		}
-		grid.push_back(node);
-	};
-	n_level_loop(indexes,end_per_index,0, process);
+		auto process = [this,&D](std::vector<int>& indexes)->void {
+			// Innermost loop content. indexes[i] contains the ith index value.
+			pmTensor node{(int)indexes.size(),1,0};
+			for(int i=0; i<indexes.size(); i++) {
+				node[i] = indexes[i]*D[i]+position[i]+D[i]/2;
+			}
+			grid.push_back(node);
+		};
+		n_level_loop(indexes,end_per_index,0, process);
+	} else {
+		// Read the file
+		vtkSmartPointer<vtkSimplePointsReader> reader = vtkSmartPointer<vtkSimplePointsReader>::New();
+		reader->SetFileName(file_name.c_str());
+		reader->Update();
+		vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
+		poly_data = reader->GetOutput();
+		size_t size = poly_data->GetNumberOfPoints();
+		grid.reserve(size);
+		vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+		points = poly_data->GetPoints();
+		int num_points = (int)poly_data->GetNumberOfPoints();
+		for(int i=0; i<num_points; i++) {
+			double* p = points->GetPoint(i);
+			pmTensor tensor{dimensions,1,0};
+			for(int j=0; j<dimensions; j++) {
+				tensor[j] = p[j];
+			}
+			grid.push_back(tensor);
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

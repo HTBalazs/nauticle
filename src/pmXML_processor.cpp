@@ -1,21 +1,21 @@
 /*
     Copyright 2016-2017 Balazs Toth
-    This file is part of LEMPS.
+    This file is part of Nauticle.
 
-    LEMPS is free software: you can redistribute it and/or modify
+    Nauticle is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    LEMPS is distributed in the hope that it will be useful,
+    Nauticle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with LEMPS.  If not, see <http://www.gnu.org/licenses/>.
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/lempsproject/
+    For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 #include "pmXML_processor.h"
@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns a workspace constructed based on the initial condition.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmFunction_space> pmXML_processor::get_initial_condition_function_space() const {
+std::shared_ptr<pmCase> pmXML_processor::get_initial_condition_case() const {
 	pmVTK_reader reader;
 	std::vector<std::shared_ptr<pmBlock>> defs = block->find_block("initial_condition");
 	if(!defs.empty()) {
@@ -33,9 +33,9 @@ std::shared_ptr<pmFunction_space> pmXML_processor::get_initial_condition_functio
 			reader.set_file_name(file_name);
 		}
 		reader.update();
-		return reader.get_function_space();
+		return reader.get_case();
 	}
-	return std::shared_ptr<pmFunction_space>();
+	return std::shared_ptr<pmCase>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -43,8 +43,8 @@ std::shared_ptr<pmFunction_space> pmXML_processor::get_initial_condition_functio
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 	std::shared_ptr<pmWorkspace> workspace = std::make_shared<pmWorkspace>();
-	std::vector<std::shared_ptr<pmBlock>> block_function_space = block->find_block("function_space");
-	std::shared_ptr<pmBlock> block_workspace = block_function_space.back()->find_block("workspace").back();
+	std::vector<std::shared_ptr<pmBlock>> block_case = block->find_block("case");
+	std::shared_ptr<pmBlock> block_workspace = block_case.back()->find_block("workspace").back();
 	// Read constants
 	std::vector<std::shared_ptr<pmBlock>> block_constant = block_workspace->find_block("constants");
 	for(auto const& constants:block_constant) {
@@ -82,7 +82,7 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 			if(!cell_size.is_scalar()) { pLogger::error_msgf("Cell size must be scalar!\n"); }
 			domain = pmDomain{minimum, maximum, cell_size[0], boundary};
 		}
-		std::shared_ptr<pmGrid_space> grid_space = get_grid_space(ps,workspace);
+		std::shared_ptr<pmGrid_space> grid_space = get_grid_space(ps,workspace, domain);
 		std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();
 		std::vector<pmTensor> particle_grid = tmp->get_grid();
 		workspace->add_particle_system(particle_grid, domain);
@@ -104,7 +104,7 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid objects wrapped in grid space.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace) const {
+std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const {
 	std::vector<std::shared_ptr<pmBlock>> block_grid = particle_system->find_block("grid");
 	if(block_grid.empty()) {
 		pLogger::error_msgf("Grid must be defined if no initial condition is provided.\n");
@@ -112,17 +112,23 @@ std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pm
 	std::shared_ptr<pmGrid_space> grid_space = std::make_shared<pmGrid_space>();
 	for(auto const& gs:block_grid) {
 		pmTensor_parser tensor_parser{};
-		pmTensor grid_id = tensor_parser.string_to_tensor(gs->get_entry("gid").back()->get_value("value"),workspace);
-		pmTensor position = tensor_parser.string_to_tensor(gs->get_entry("gpos").back()->get_value("value"),workspace);
-		pmTensor size = tensor_parser.string_to_tensor(gs->get_entry("gsize").back()->get_value("value"),workspace);
-		pmTensor offset = tensor_parser.string_to_tensor(gs->get_entry("goffset").back()->get_value("value"),workspace);
-		pmTensor distance = tensor_parser.string_to_tensor(gs->get_entry("gip_dist").back()->get_value("value"),workspace);
 		std::shared_ptr<pmGrid> grid = std::make_shared<pmGrid>();
-		grid->set_position(position);
-		grid->set_size(size);
-		grid->set_offset(offset);
-		grid->set_distance(distance);
+		pmTensor grid_id = tensor_parser.string_to_tensor(gs->get_entry("gid").back()->get_value("value"),workspace);
 		grid->set_grid_id(grid_id[0]);
+		grid->set_dimensions(domain.get_dimensions());
+		if(!gs->get_entry("file").empty()) {
+			std::string str_file_name = gs->get_entry("file").back()->get_value("value");
+			grid->set_file_name(str_file_name);
+		} else {
+			pmTensor position = tensor_parser.string_to_tensor(gs->get_entry("gpos").back()->get_value("value"),workspace);
+			pmTensor size = tensor_parser.string_to_tensor(gs->get_entry("gsize").back()->get_value("value"),workspace);
+			pmTensor offset = tensor_parser.string_to_tensor(gs->get_entry("goffset").back()->get_value("value"),workspace);
+			pmTensor distance = tensor_parser.string_to_tensor(gs->get_entry("gip_dist").back()->get_value("value"),workspace);
+			grid->set_position(position);
+			grid->set_size(size);
+			grid->set_offset(offset);
+			grid->set_distance(distance);
+		}
 		grid->generate();
 		grid_space->add_grid(grid);
 	}
@@ -130,45 +136,45 @@ std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pm
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the function set constructed based on the configuration file.
+/// Returns the equation set constructed based on the configuration file.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::vector<std::shared_ptr<pmFunction>> pmXML_processor::get_functions(std::shared_ptr<pmWorkspace> workspace) const {
-	std::vector<std::shared_ptr<pmBlock>> block_function_space = block->find_block("function_space");
-	std::vector<std::shared_ptr<pmFunction>> functions;
-	for(auto const& eqs:block_function_space) {
+std::vector<std::shared_ptr<pmEquation>> pmXML_processor::get_equations(std::shared_ptr<pmWorkspace> workspace) const {
+	std::vector<std::shared_ptr<pmBlock>> block_case = block->find_block("case");
+	std::vector<std::shared_ptr<pmEquation>> equations;
+	for(auto const& eqs:block_case) {
 		for(auto const& it:eqs->get_children()) {
-			if(it->get_name()=="functions") {
+			if(it->get_name()=="equations") {
 				for(auto const& fcs:it->get_children()) {
-					std::unique_ptr<pmFunction_parser> ep{new pmFunction_parser};
+					std::unique_ptr<pmEquation_parser> ep{new pmEquation_parser};
 					std::unique_ptr<pmTensor_parser> tp{new pmTensor_parser};
-					std::shared_ptr<pmFunction> fc = ep->analyse_function(fcs->get_name(), std::dynamic_pointer_cast<pmEntry>(fcs)->get_value("value"), std::dynamic_pointer_cast<pmEntry>(fcs)->get_value("condition"), workspace);
-					if(fc.use_count()>0) { functions.push_back(fc); }
+					std::shared_ptr<pmEquation> fc = ep->analyse_equation(fcs->get_name(), std::dynamic_pointer_cast<pmEntry>(fcs)->get_value("value"), std::dynamic_pointer_cast<pmEntry>(fcs)->get_value("condition"), workspace);
+					if(fc.use_count()>0) { equations.push_back(fc); }
 				}
 			}
 		}
 	}
-	return functions;
+	return equations;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the function space constructed based on the configuration file.
+/// Returns the case constructed based on the configuration file.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmFunction_space> pmXML_processor::get_function_space() const {
+std::shared_ptr<pmCase> pmXML_processor::get_case() const {
 	// Read initial conditions
-	std::shared_ptr<pmFunction_space> ic_function_space = get_initial_condition_function_space();
-	if(ic_function_space.use_count()>0) {
+	std::shared_ptr<pmCase> ic_case = get_initial_condition_case();
+	if(ic_case.use_count()>0) {
 		pLogger::logf<COLOR>("    Initial conditions: from VTK file.\n");
-		return ic_function_space;
+		return ic_case;
 	}
-	// Read xml function space if initial condition not found.
+	// Read xml case if initial condition not found.
 	std::shared_ptr<pmWorkspace> workspace = get_workspace();
-	std::vector<std::shared_ptr<pmFunction>> functions = this->get_functions(workspace);
-	std::shared_ptr<pmFunction_space> function_space = std::make_shared<pmFunction_space>();
-	function_space->add_workspace(workspace);
-	function_space->add_function(functions);
-	function_space->initialize();
+	std::vector<std::shared_ptr<pmEquation>> equations = this->get_equations(workspace);
+	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
+	cas->add_workspace(workspace);
+	cas->add_equation(equations);
+	cas->initialize();
 	pLogger::logf<COLOR>("    Initial conditions: from XML file.\n");
-	return function_space;
+	return cas;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -188,15 +194,22 @@ std::shared_ptr<pmParameter_space> pmXML_processor::get_parameter_space(std::sha
 		pmTensor log_time = tensor_parser.string_to_tensor(str_log_time, workspace);
 		pmTensor confirm = tensor_parser.string_to_tensor(str_confirm, workspace);
 		pmTensor vtk_format = tensor_parser.string_to_tensor(str_vtk_format, workspace);
+		pmTensor file_start = pmTensor{1,1,0};
+		if(!ps->get_entry("file_start").empty()) {
+			file_start = tensor_parser.string_to_tensor(ps->get_entry("file_start").back()->get_value("value"), workspace);
+		}
+
 		if(!sim_time.is_scalar()) { pLogger::error_msgf("Simulated time must be scalar!\n"); }
 		if(!log_time.is_scalar()) { pLogger::error_msgf("Print interval must be scalar!\n"); }
 		if(!confirm.is_scalar()) { pLogger::error_msgf("Print interval must be scalar!\n"); }
 		if(!vtk_format.is_scalar()) { pLogger::error_msgf("Output format must be scalar!\n"); }
+		if(!file_start.is_scalar()) { pLogger::error_msgf("Starting number must be scalar!\n"); }
 
 		parameter_space->add_parameter("simulated_time", sim_time);
 		parameter_space->add_parameter("print_interval", log_time);
 		parameter_space->add_parameter("confirm_on_exit", confirm);
 		parameter_space->add_parameter("output_format", vtk_format);
+		parameter_space->add_parameter("file_start", file_start);
 	}
 	return parameter_space;
 }
