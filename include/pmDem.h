@@ -197,7 +197,6 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 					}
 					// tangential shear force
 					force += kf*tan_vel;
-
 				}
 			}
 			return force;
