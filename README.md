@@ -27,6 +27,7 @@ For more information about the usage please type
 
 ./pmsimple -help
 ```
+<<<<<<< HEAD
 int the terminal or open the **<Nauticle dir>/examples** directory.
 
 # Documentation #
@@ -49,3 +50,6 @@ For detailed programming reference please visit:
 ![compressed.gif](https://bitbucket.org/repo/yraAqM/images/1337375559-compressed.gif)
 ## Relaxation (e.g. for special initial configuration)
 ![tessellation.gif](https://bitbucket.org/repo/yraAqM/images/647679836-tessellation.gif)
+=======
+int the terminal or open the **<Nauticle dir>/examples** directory.
+>>>>>>> 6f5f52bdeac1ce85c29039ab25fb55968bc9cdba
