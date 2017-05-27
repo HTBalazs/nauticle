@@ -232,6 +232,13 @@ inline pmTensor pmSph_operator<GRADIENT,1,0,5>::process(pmTensor const& A_i, pmT
 /// Evaluates the operator.
 /////////////////////////////////////////////////////////////////////////////////////////
 template<>
+inline pmTensor pmSph_operator<GRADIENT,2,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
+	return -(A_j*m_j/rho_j*W_ij*r_ji.transpose()/d_ji).to_column();
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Evaluates the operator.
+/////////////////////////////////////////////////////////////////////////////////////////
+template<>
 inline pmTensor pmSph_operator<DIVERGENCE,0,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
 	return -((A_j-A_i).to_row()*m_j/rho_j*W_ij*r_ji/d_ji);
 }
@@ -241,6 +248,13 @@ inline pmTensor pmSph_operator<DIVERGENCE,0,0,5>::process(pmTensor const& A_i, p
 template<>
 inline pmTensor pmSph_operator<DIVERGENCE,1,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
 	return -((A_j+A_i).to_row()*m_j/rho_j*W_ij*r_ji/d_ji);
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Evaluates the operator.
+/////////////////////////////////////////////////////////////////////////////////////////
+template<>
+inline pmTensor pmSph_operator<DIVERGENCE,2,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
+	return -(A_j.to_row()*m_j/rho_j*W_ij*r_ji/d_ji);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the operator.
