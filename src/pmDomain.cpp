@@ -27,6 +27,9 @@ pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, double const& csi
 	if(dmin.numel()!=dmax.numel()) {
 		pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
+	if(!dmin.is_integer() || !dmax.is_integer()) {
+		pLogger::warning_msgf("At least one of the domain sizes is not integer multiple of the cell size.\n");
+	}
 	minimum = dmin;
 	maximum = dmax;
 	cell_size = csize;

@@ -676,7 +676,18 @@ pmTensor pmTensor::append(int const& row, int const& col) const {
 	return tensor;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Checks if all the elements os the tensor are integers.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmTensor::is_integer() const {
+	for(int i=0; i<numel(); i++) {
+		double rem = std::abs(elements[i]) - (int)std::abs(elements[i]);
+		if(rem!=0) {
+			return false;
+		}
+	}
+	return true;
+}
 
 
 

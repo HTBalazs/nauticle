@@ -98,6 +98,7 @@ public:
 	void set_scalar(bool const& sc);
 	pmTensor reflect(pmTensor const& guide) const;
 	pmTensor append(int const& row, int const& col) const;
+	bool is_integer() const;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
