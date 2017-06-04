@@ -151,7 +151,6 @@ void pmDem<TYPE, NOPS>::print() const {
 template <DEM_TYPE TYPE, size_t NOPS>
 pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
-
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 
 	pmTensor vi = this->operand[0]->evaluate(i,level);
@@ -175,7 +174,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 
 	if(TYPE==LINEAR) {
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
-			pmTensor force;
+			pmTensor force{dimension,1,0};
 			double d_ji = rel_pos.norm();
 			if(d_ji > 1e-6) {
 				double Rj = this->operand[2]->evaluate(j,level)[0];
@@ -224,7 +223,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 		return this->interact(i, contribute);
 	} else {
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
-			pmTensor torque;
+			pmTensor torque{dimension,1,0};
 			torque.set_scalar(false);
 			double d_ji = rel_pos.norm();
 			if(d_ji > 1e-6) {
@@ -257,7 +256,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 						wj = pmTensor{3,1,0};
 						wj[2] = omj[0];
 						tan_vel += (cross(wi,rci*n_ji.append(3,1)) + cross(wj,rcj*n_ji.append(3,1))).sub_tensor(0,1,0,0);
-						pmTensor force;
+						pmTensor force{2,1,0};
 						// tangential shear and friction force
 						double vt = tan_vel.norm();
 						if(vt>1e-6) {
@@ -270,7 +269,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 					} else if(dimension==3) {
 						tan_vel += cross(wi,rci*n_ji) + cross(wj,rcj*n_ji);
 						// tangential shear force
-						pmTensor force;
+						pmTensor force{3,1,0};
 						// tangential shear and friction force
 						double vt = tan_vel.norm();
 						if(vt>1e-6) {
@@ -279,7 +278,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 							force = F_tangential*t_ji;
 						}
 						// torque
-						torque += cross(force,rci*n_ji);
+						torque += cross(rci*n_ji,force);
 					}
 				}
 			}

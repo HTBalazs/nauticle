@@ -97,7 +97,8 @@ void pmEquation::evaluate(int const& start, int const& end) {
 	int p_end = end>lhs->get_field_size() ? lhs->get_field_size() : end;
 	for(int i=start; i<p_end; i++) {
 		if(condition->evaluate(i, 0)[0]) {
-			lhs->set_value(rhs->evaluate(i, 0), i);
+			pmTensor tensor = rhs->evaluate(i, 0);
+			lhs->set_value(tensor, i);
 		}
 	}
 }

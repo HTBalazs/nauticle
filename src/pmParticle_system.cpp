@@ -280,6 +280,8 @@ void pmParticle_system::pmParticle_space::update_neighbour_list(std::vector<pmTe
 void pmParticle_system::pmParticle_space::build_cell_arrays() {
 	std::fill(cell_start.begin(),cell_start.end(),0xFFFFFFFF);
 	std::fill(cell_end.begin(),cell_end.end(),0xFFFFFFFF);
+    cell_start[hash_key[0]] = 0;
+    cell_end[hash_key[0]] = 0;
     for(int i=1; i<hash_key.size(); i++){
         if(hash_key[i] != hash_key[i-1]) {
             cell_start[hash_key[i]] = i;
@@ -289,7 +291,6 @@ void pmParticle_system::pmParticle_space::build_cell_arrays() {
             cell_end[hash_key[i]] = i;
         }
     }
-    cell_start[hash_key[0]] = 0;
     up_to_date = true;
 }
 
