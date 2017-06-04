@@ -93,9 +93,9 @@ void pmEquation::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solves equation for all nodes included in the field inside the variables of the rhs.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmEquation::evaluate(int const& p_begin, int const& p_end) {
-	int end = p_end>rhs->get_field_size() ? rhs->get_field_size() : p_end;
-	for(int i=p_begin; i<end; i++) {
+void pmEquation::evaluate(int const& start, int const& end) {
+	int p_end = end>rhs->get_field_size() ? rhs->get_field_size() : end;
+	for(int i=start; i<p_end; i++) {
 		if(condition->evaluate(i, 0)[0]) {
 			lhs->set_value(rhs->evaluate(i, 0), i);
 		}
@@ -110,18 +110,20 @@ void pmEquation::solve(size_t const& num_threads) {
 		pLogger::error_msgf("Inconsistent function fields.\n");
 	}
 	int p_end = lhs->get_field_size();
-	if(p_end==1) {
-		this->evaluate(0, 1);
-		return;
-	}
-	auto process = [&](int const& p_start, int const& p_end){
-		this->evaluate(p_start, p_end);
+
+	auto process = [&](int const& start, int const& end){
+		this->evaluate(start, end);
 	};
+
+
+	// if(p_end==1) {
+	// 	this->evaluate(0, 1);
+	// 	return;
+	// }
 	std::vector<std::thread> th;
 	int number_of_threads = std::min((int)num_threads,p_end);
-	int ppt = p_end/number_of_threads;
-	int p_start = 0;
-	for(int i=p_start; i<p_end; i+=ppt) {
+	int ppt = p_end/number_of_threads; // particle per thread
+	for(int i=0; i<p_end; i+=ppt) {
 		th.push_back(std::thread{process, i, i+ppt});
 	}
 	for(auto& it:th) {
