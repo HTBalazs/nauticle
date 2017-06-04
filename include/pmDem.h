@@ -154,34 +154,49 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 
-	if(TYPE==LINEAR) {
-		pmTensor vi = this->operand[0]->evaluate(i,level);
-		pmTensor omi = this->operand[1]->evaluate(i,level);
-		double Ri = this->operand[2]->evaluate(i,level)[0];
-		double ks = this->operand[3]->evaluate(i,level)[0];
-		double kd = this->operand[4]->evaluate(i,level)[0];
-		double kf = this->operand[5]->evaluate(i,level)[0];
+	pmTensor vi = this->operand[0]->evaluate(i,level);
+	pmTensor omi = this->operand[1]->evaluate(i,level);
+	double Ri = this->operand[2]->evaluate(i,level)[0];
+	double Ei = this->operand[3]->evaluate(i,level)[0];
+	double nui = this->operand[4]->evaluate(i,level)[0];
+	double sn = this->operand[5]->evaluate(i,level)[0];
+	double dn = this->operand[6]->evaluate(i,level)[0];
+	double dt = this->operand[7]->evaluate(i,level)[0];
+	double ct = this->operand[8]->evaluate(i,level)[0];
+	
+	auto normal_force = [&](double const& delta, double const& delta_dot, double const& khz)->double {
+			// spring+damping+Hertz
+			return -sn*delta + dn*delta_dot - khz*std::pow(delta, 1.5);
+	};
+	auto tangential_force = [&](double const& tan_vel, double const& F_normal)->double {
+			// spring+damping & Coulomb
+			return std::min(dt*tan_vel, F_normal*ct);
+	};
 
+	if(TYPE==LINEAR) {
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor force;
 			double d_ji = rel_pos.norm();
 			if(d_ji > 1e-6) {
 				double Rj = this->operand[2]->evaluate(j,level)[0];
+				double Ej = this->operand[3]->evaluate(j,level)[0];
+				double nuj = this->operand[4]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
-					pmTensor e_ji = rel_pos / d_ji;
-					// overlap
-					double delta = min_dist-d_ji;
+					pmTensor n_ji = rel_pos / d_ji;
 					pmTensor vj = this->operand[0]->evaluate(j,level).reflect(guide);
 					pmTensor omj = this->operand[1]->evaluate(j,level).reflect(guide);
 					pmTensor rel_vel = vj-vi;
-					// spring force
-					force += -ks*delta*e_ji;
-					// damping force
-					force += kd*(rel_vel.transpose()*rel_pos)*e_ji;
+					// overlap
+					double delta = min_dist-d_ji;
+					double delta_dot = (rel_vel.transpose()*n_ji)[0];
+					double khz = Ei==0 && Ej==0 ? 0 : 4.0/3.0*sqrt(Ri*Rj/(Ri+Rj))*(Ei*Ej/(Ej*(1-nui*nui)+Ei*(1-nuj*nuj)));
+					// normal_force
+					double F_normal = normal_force(delta, delta_dot, khz);
+					force = F_normal*n_ji;
+
 					// relative tangential velocity
-					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
-					// relative tangential velocity
+					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*n_ji) * n_ji;
 					double rci = Ri-delta/2.0;
 					double rcj = Rj-delta/2.0;
 					pmTensor wi = omi;
@@ -191,39 +206,46 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 						wi[2] = omi[0];
 						wj = pmTensor{3,1,0};
 						wj[2] = omj[0];
-						tan_vel += (cross(wi,rci*e_ji.append(3,1)) + cross(wj,rcj*e_ji.append(3,1))).sub_tensor(0,1,0,0);
+						tan_vel += (cross(wi,rci*n_ji.append(3,1)) + cross(wj,rcj*n_ji.append(3,1))).sub_tensor(0,1,0,0);
 					} else if(dimension==3) {
-						tan_vel += cross(wi,rci*e_ji) + cross(wj,rcj*e_ji);
+						tan_vel += cross(wi,rci*n_ji) + cross(wj,rcj*n_ji);
 					}
-					// tangential shear force
-					force += kf*tan_vel;
+					// tangential shear and friction force
+					double vt = tan_vel.norm();
+					if(vt>1e-6) {
+						pmTensor t_ji = tan_vel/vt;
+						double F_tangential = tangential_force(vt, F_normal);
+						force += F_tangential*t_ji;
+					}
 				}
 			}
 			return force;
 		};
 		return this->interact(i, contribute);
 	} else {
-		pmTensor vi = this->operand[0]->evaluate(i,level);
-		pmTensor omi = this->operand[1]->evaluate(i,level);
-		double Ri = this->operand[2]->evaluate(i,level)[0];
-		double kf = this->operand[3]->evaluate(i,level)[0];
-
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor torque;
 			torque.set_scalar(false);
 			double d_ji = rel_pos.norm();
 			if(d_ji > 1e-6) {
 				double Rj = this->operand[2]->evaluate(j,level)[0];
+				double Ej = this->operand[3]->evaluate(j,level)[0];
+				double nuj = this->operand[4]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
-					pmTensor e_ji = rel_pos / d_ji;
+					pmTensor n_ji = rel_pos / d_ji;
 					// overlap
-					double delta = min_dist-d_ji;
 					pmTensor vj = this->operand[0]->evaluate(j,level).reflect(guide);
 					pmTensor omj = this->operand[1]->evaluate(j,level);
 					pmTensor rel_vel = vj-vi;
 
-					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*e_ji) * e_ji;
+					double delta = min_dist-d_ji;
+					double delta_dot = (rel_vel.transpose()*n_ji)[0];
+					double khz = Ei==0 && Ej==0 ? 0 : 4.0/3.0*sqrt(Ri*Rj/(Ri+Rj))*(Ei*Ej/(Ej*(1-nui*nui)+Ei*(1-nuj*nuj)));
+					// normal_force
+					double F_normal = normal_force(delta, delta_dot, khz);
+
+					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*n_ji) * n_ji;
 					// relative tangential velocity
 					double rci = Ri-delta/2.0;
 					double rcj = Rj-delta/2.0;
@@ -234,17 +256,30 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 						wi[2] = omi[0];
 						wj = pmTensor{3,1,0};
 						wj[2] = omj[0];
-						tan_vel += (cross(wi,rci*e_ji.append(3,1)) + cross(wj,rcj*e_ji.append(3,1))).sub_tensor(0,1,0,0);
-						// tangential shear force
-						pmTensor force = kf*tan_vel;
+						tan_vel += (cross(wi,rci*n_ji.append(3,1)) + cross(wj,rcj*n_ji.append(3,1))).sub_tensor(0,1,0,0);
+						pmTensor force;
+						// tangential shear and friction force
+						double vt = tan_vel.norm();
+						if(vt>1e-6) {
+							pmTensor t_ji = tan_vel/vt;
+							double F_tangential = tangential_force(vt, F_normal);
+							force = F_tangential*t_ji;
+						}
 						// torque
-						torque += cross(force.append(3,1),e_ji.append(3,1)*rci).sub_tensor(2,2,0,0);
+						torque += cross(force.append(3,1),n_ji.append(3,1)*rci).sub_tensor(2,2,0,0);
 					} else if(dimension==3) {
-						tan_vel += cross(wi,rci*e_ji) + cross(wj,rcj*e_ji);
+						tan_vel += cross(wi,rci*n_ji) + cross(wj,rcj*n_ji);
 						// tangential shear force
-						pmTensor force = kf*tan_vel;
+						pmTensor force;
+						// tangential shear and friction force
+						double vt = tan_vel.norm();
+						if(vt>1e-6) {
+							pmTensor t_ji = tan_vel/vt;
+							double F_tangential = tangential_force(vt, F_normal);
+							force = F_tangential*t_ji;
+						}
 						// torque
-						torque += cross(force,rci*e_ji);
+						torque += cross(force,rci*n_ji);
 					}
 				}
 			}
@@ -262,6 +297,8 @@ void pmDem<TYPE, NOPS>::write_to_string(std::ostream& os) const {
 	if(TYPE==LINEAR) {
 		os<<"dem_l("<<this->operand[0]<<","<<this->operand[1]<<","<<this->operand[2]<<","<<this->operand[3]<<","<<this->operand[4]<<","<<this->operand[5]<<")";
 	} else {
+
+
 		os<<"dem_a("<<this->operand[0]<<","<<this->operand[1]<<","<<this->operand[2]<<","<<this->operand[3]<<")";
 	}
 }
