@@ -681,8 +681,8 @@ pmTensor pmTensor::append(int const& row, int const& col) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmTensor::is_integer() const {
 	for(int i=0; i<numel(); i++) {
-		double rem = std::abs(elements[i]) - (int)std::abs(elements[i]);
-		if(rem!=0) {
+		double rem = std::abs(elements[i]) - std::round(std::abs(elements[i]));
+		if(rem>1e-6 || rem<-1e-6) {
 			return false;
 		}
 	}
