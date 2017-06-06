@@ -212,7 +212,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 					}
 					// tangential shear and friction force
 					double vt = tan_vel.norm();
-					if(vt>1e-6) {
+					if(vt>NAUTICLE_EPS) {
 						pmTensor t_ji = tan_vel/vt;
 						double F_tangential = tangential_force(vt, F_normal);
 						force += F_tangential*t_ji;
@@ -260,7 +260,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 						pmTensor force{2,1,0};
 						// tangential shear and friction force
 						double vt = tan_vel.norm();
-						if(vt>1e-6) {
+						if(vt>NAUTICLE_EPS) {
 							pmTensor t_ji = tan_vel/vt;
 							double F_tangential = tangential_force(vt, F_normal);
 							force = F_tangential*t_ji;
@@ -273,7 +273,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 						pmTensor force{3,1,0};
 						// tangential shear and friction force
 						double vt = tan_vel.norm();
-						if(vt>1e-6) {
+						if(vt>NAUTICLE_EPS) {
 							pmTensor t_ji = tan_vel/vt;
 							double F_tangential = tangential_force(vt, F_normal);
 							force = F_tangential*t_ji;

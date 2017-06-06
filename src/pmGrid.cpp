@@ -154,7 +154,7 @@ void pmGrid::n_level_loop(std::vector<int>& indexes, const std::vector<int>& end
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmGrid::initialize_direction(double const& ofs, double& s, double& d, double& n) const {
 	size_t num = 0;
-	if(std::abs(ofs)>d*1e-6) { 
+	if(std::abs(ofs)>d*NAUTICLE_EPS) { 
 		num = 1;
 		s -= 2*ofs;
 	}
