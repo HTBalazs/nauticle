@@ -170,7 +170,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 	};
 	auto tangential_force = [&](double const& tan_vel, double const& F_normal)->double {
 			// spring+damping & Coulomb
-			return -std::min(dt*tan_vel, F_normal*ct);
+			return std::max(dt*tan_vel, -F_normal*ct);
 	};
 
 	if(TYPE==LINEAR) {
