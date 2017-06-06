@@ -90,9 +90,6 @@ void pmFsum::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmFsum::process(pmTensor& value, size_t const& level/*=0*/) const {
 	pmTensor tensor = operand[0]->evaluate(0, level);
-	if(!tensor.is_scalar()) {
-		pLogger::error_msgf("Fsum can be evaluated only on scalar fields!\n");
-	}
 	value = operand[0]->evaluate(0, level);
 	for(int j=1; j<operand[0]->get_field_size(); j++) {
 		pmTensor tj = operand[0]->evaluate(j, level);
