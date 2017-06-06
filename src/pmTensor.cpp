@@ -361,7 +361,7 @@ bool pmTensor::is_square() const {
 bool pmTensor::is_singular() const {
 	pmTensor det = determinant();
 	if(det.is_empty()) { return true; }
-	return std::abs(det[0])<1e-12;
+	return std::abs(det[0])<NAUTICLE_EPS;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
