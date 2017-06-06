@@ -23,6 +23,7 @@
 
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
+#include "nauticle_constants.h"
 
 /** This class implements the conventianal Discrete element method as 
 //  through interactions between particles. 
@@ -165,7 +166,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor force;
 			double d_ji = rel_pos.norm();
-			if(d_ji > 1e-6) {
+			if(d_ji > NAUTICLE_EPS) {
 				double Rj = this->operand[2]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
@@ -212,7 +213,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 			pmTensor torque;
 			torque.set_scalar(false);
 			double d_ji = rel_pos.norm();
-			if(d_ji > 1e-6) {
+			if(d_ji > NAUTICLE_EPS) {
 				double Rj = this->operand[2]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {

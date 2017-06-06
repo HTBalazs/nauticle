@@ -20,8 +20,7 @@
 
 #include <iostream>
 #include "pmKernel.h"
-
-#define constant_pi 3.14159265359
+#include "nauticle_constants.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -153,7 +152,7 @@ double pmKernel::Wp22210(double const& distance, double const& cell_size) const 
 double pmKernel::Wp22220(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 2.0/constant_pi/h/h;
+	double coeff = 2.0/NAUTICLE_PI/h/h;
 	return coeff*Wp2220_raw(q);
 }
 
@@ -163,7 +162,7 @@ double pmKernel::Wp22220(double const& distance, double const& cell_size) const 
 double pmKernel::Wp22230(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 5.0/4.0/constant_pi/h/h/h;
+	double coeff = 5.0/4.0/NAUTICLE_PI/h/h/h;
 	return coeff*Wp2220_raw(q);
 }
 
@@ -186,7 +185,7 @@ double pmKernel::dWp22210(double const& distance, double const& cell_size) const
 double pmKernel::dWp22220(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 6.0/4.0/constant_pi/h/h/h;
+	double coeff = 6.0/4.0/NAUTICLE_PI/h/h/h;
 	return coeff*dWp2220_raw(q);
 }
 
@@ -196,7 +195,7 @@ double pmKernel::dWp22220(double const& distance, double const& cell_size) const
 double pmKernel::dWp22230(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 15.0/16.0/constant_pi/h/h/h/h;
+	double coeff = 15.0/16.0/NAUTICLE_PI/h/h/h/h;
 	return coeff*dWp2220_raw(q);
 }
 
@@ -219,7 +218,7 @@ double pmKernel::Wp32210(double const& distance, double const& cell_size) const 
 double pmKernel::Wp32220(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 10.0/7.0/constant_pi/h/h;
+	double coeff = 10.0/7.0/NAUTICLE_PI/h/h;
 	return coeff*Wp3220_raw(q);
 }
 
@@ -229,7 +228,7 @@ double pmKernel::Wp32220(double const& distance, double const& cell_size) const 
 double pmKernel::Wp32230(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 1.0/constant_pi/h/h/h;
+	double coeff = 1.0/NAUTICLE_PI/h/h/h;
 	return coeff*Wp3220_raw(q);
 }
 
@@ -252,7 +251,7 @@ double pmKernel::dWp32210(double const& distance, double const& cell_size) const
 double pmKernel::dWp32220(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 30.0/28.0/constant_pi/h/h/h;
+	double coeff = 30.0/28.0/NAUTICLE_PI/h/h/h;
 	return coeff*dWp3220_raw(q);
 }
 
@@ -262,7 +261,7 @@ double pmKernel::dWp32220(double const& distance, double const& cell_size) const
 double pmKernel::dWp32230(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 3.0/4.0/constant_pi/h/h/h/h;
+	double coeff = 3.0/4.0/NAUTICLE_PI/h/h/h/h;
 	return coeff*dWp3220_raw(q);
 }
 
@@ -285,7 +284,7 @@ double pmKernel::Wp52210(double const& distance, double const& cell_size) const 
 double pmKernel::Wp52220(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 7.0/4.0/constant_pi/h/h;
+	double coeff = 7.0/4.0/NAUTICLE_PI/h/h;
 	return coeff*Wp5220_raw(q);
 }
 
@@ -295,7 +294,7 @@ double pmKernel::Wp52220(double const& distance, double const& cell_size) const 
 double pmKernel::Wp52230(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = 21.0/16.0/constant_pi/h/h/h;
+	double coeff = 21.0/16.0/NAUTICLE_PI/h/h/h;
 	return coeff*Wp5220_raw(q);
 }
 
@@ -318,7 +317,7 @@ double pmKernel::dWp52210(double const& distance, double const& cell_size) const
 double pmKernel::dWp52220(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = -70.0/8.0/constant_pi/h/h/h;
+	double coeff = -70.0/8.0/NAUTICLE_PI/h/h/h;
 	return coeff*dWp5220_raw(q);
 }
 
@@ -328,8 +327,8 @@ double pmKernel::dWp52220(double const& distance, double const& cell_size) const
 double pmKernel::dWp52230(double const& distance, double const& cell_size) const {
 	double h = cell_size/2.0;
 	double q = distance/h;
-	double coeff = -105.0/16.0/constant_pi/h/h/h/h;
+	double coeff = -105.0/16.0/NAUTICLE_PI/h/h/h/h;
 	return coeff*dWp5220_raw(q);
 }
 
-#undef constant_pi
+#undef NAUTICLE_PI

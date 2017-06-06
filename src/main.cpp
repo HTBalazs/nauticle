@@ -20,7 +20,6 @@
     
 #include <string>
 #include "pm.h"
-#include "pmGrid.h"
 
 int main(int argc, char* argv[]) {
 

@@ -27,5 +27,6 @@
 #include "pmCase_manager.h"
 #include "pmCommand_parser.h"
 #include "pmVTK_manager.h"
+#include "pmGrid.h"
 
 #endif //PM_H_
