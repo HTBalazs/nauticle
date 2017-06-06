@@ -19,6 +19,7 @@
 */
 
 #include "pmNeighbours.h"
+#include "nauticle_constants.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -103,7 +104,7 @@ pmTensor pmNeighbours::evaluate(int const& i, size_t const& level/*=0*/) const {
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor num_neighbours{1,1,0};
 		double distance = rel_pos.norm();
-		if(distance < rad+1e-12) {
+		if(distance < rad + NAUTICLE_EPS) {
 			num_neighbours[0]++;
 		}
 		return num_neighbours;

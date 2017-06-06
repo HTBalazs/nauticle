@@ -27,6 +27,7 @@
 #include "pmSph.h"
 #include "prolog/pLogger.h"
 #include "commonutils/Common.h"
+#include "nauticle_constants.h"
 
 enum OPERATOR_TYPE { XSAMPLE, SAMPLE, GRADIENT, DIVERGENCE, LAPLACE };
 
@@ -178,7 +179,7 @@ pmTensor pmSph_operator<OP_TYPE,VAR,K,NOPS>::evaluate(int const& i, size_t const
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor contribution;
 		double d_ji = rel_pos.norm();
-		if(d_ji > 1e-6f || OP_TYPE==SAMPLE) {
+		if(d_ji > NAUTICLE_EPS || OP_TYPE==SAMPLE) {
 			double h_j = this->operand[4+sh]->evaluate(j,level)[0];
 			if(d_ji < h_i || d_ji < h_j) {
 				pmTensor B_j{1,1,1};

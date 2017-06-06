@@ -24,6 +24,7 @@
 #include <iostream>
 #include <cmath>
 #include "prolog/pLogger.h"
+#include "nauticle_constants.h"
 
 /** This class represents a 0th, 1st or 2nd order tensor of arbitrary shape.
 //  This general mathematical object helps to build equations of scalars, vectors
@@ -507,7 +508,7 @@ inline pmTensor abs(pmTensor const& tensor) {
 inline pmTensor floor(pmTensor const& tensor) {
 	pmTensor tmp{tensor};
 	for(int i=0; i<tmp.numel(); i++) {
-		tmp[i] = std::floor(tmp[i]);
+		tmp[i] = std::floor(tmp[i]+NAUTICLE_EPS);
 	}
 	return tmp;
 }
@@ -518,7 +519,7 @@ inline pmTensor floor(pmTensor const& tensor) {
 inline pmTensor trunc(pmTensor const& tensor) {
 	pmTensor tmp{tensor};
 	for(int i=0; i<tmp.numel(); i++) {
-		tmp[i] = std::trunc(tmp[i]);
+		tmp[i] = std::trunc(tmp[i]+NAUTICLE_EPS);
 	}
 	return tmp;
 }
