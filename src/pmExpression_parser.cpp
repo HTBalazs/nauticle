@@ -523,7 +523,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			}
 			if(it=="fsum") {
 				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				e.push(std::make_shared<pmFmean>(operand));
+				e.push(std::make_shared<pmFsum>(operand));
 			}
 			if(it=="not") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
