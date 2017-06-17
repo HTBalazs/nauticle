@@ -129,12 +129,15 @@ pmTensor pmVm_operator::evaluate(int const& i, size_t const& level/*=0*/) const 
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 	double eps_i = this->operand[2]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
-		pmTensor contribution;
+		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect(guide);
+		pmTensor contribution{dimension,1,0};
+		if(w_j.norm() == 0) {
+			return contribution;
+		}
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS) {
 			double eps_j = this->operand[2]->evaluate(j,level)[0];
 			if(d_ji < eps_i || d_ji < eps_j) {
-				pmTensor w_j = this->operand[0]->evaluate(j,level).reflect(guide);
 				double W_ij = this->kernel->evaluate(d_ji, (eps_i+eps_j)/2.0f);
 				if(dimension==2) {
 					pmTensor wj{3,1,0};
@@ -149,3 +152,12 @@ pmTensor pmVm_operator::evaluate(int const& i, size_t const& level/*=0*/) const 
 	};
 	return this->interact(i, contribute);
 }
+
+
+
+
+
+
+
+
+
