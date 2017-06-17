@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _SPH_H_
-#define _SPH_H_
+#ifndef _FILTER_H_
+#define _FILTER_H_
 
 #include <memory>
 #include "pmInteraction.h"
@@ -30,12 +30,12 @@
 //  through interactions between particles.
 */
 template <size_t S>
-class pmSph : public pmInteraction<S> {
+class pmFilter : public pmInteraction<S> {
 protected:
 	std::shared_ptr<pmKernel> kernel;
 public:
-	pmSph() {}
-	virtual ~pmSph() {}
+	pmFilter() {}
+	virtual ~pmFilter() {}
 };
 
-#endif //_SPH_H_
+#endif //_FILTER_H_
