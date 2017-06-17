@@ -24,12 +24,12 @@
 #include <cstdlib>
 #include <array>
 #include <string>
-#include "pmSph.h"
+#include "pmFilter.h"
 #include "prolog/pLogger.h"
 #include "commonutils/Common.h"
 #include "nauticle_constants.h"
 
-class pmVm_operator : public pmSph<3> {
+class pmVm_operator : public pmFilter<3> {
 	std::string op_name;
 private:
 	std::shared_ptr<pmExpression> clone_impl() const override;
