@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include <array>
 #include <string>
-#include "pmSph.h"
+#include "pmFilter.h"
 #include "prolog/pLogger.h"
 #include "commonutils/Common.h"
 #include "nauticle_constants.h"
@@ -32,7 +32,7 @@
 enum OPERATOR_TYPE { XSAMPLE, SAMPLE, GRADIENT, DIVERGENCE, LAPLACE };
 
 template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
-class pmSph_operator : public pmSph<NOPS> {
+class pmSph_operator : public pmFilter<NOPS> {
 	std::string op_name;
 private:
 	std::shared_ptr<pmExpression> clone_impl() const override;
