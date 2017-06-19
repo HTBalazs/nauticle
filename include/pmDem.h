@@ -166,7 +166,7 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 	
 	auto normal_force = [&](double const& delta, double const& delta_dot, double const& khz)->double {
 			// spring+damping+Hertz
-			return -sn*delta + dn*delta_dot - khz*std::pow(delta, 1.5);
+			return -sn*delta + sqrt(khz)*dn*delta_dot*std::pow(delta,0.25) - khz*std::pow(delta, 1.5);
 	};
 	auto tangential_force = [&](double const& tan_vel, double const& F_normal)->double {
 			// spring+damping & Coulomb
