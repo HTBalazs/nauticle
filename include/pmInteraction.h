@@ -43,6 +43,7 @@ protected:
 	void assign(std::weak_ptr<pmParticle_system> ps) override;
 	bool is_assigned() const override;
 	int get_field_size() const override;
+	bool cutoff_cell(pmTensor const& beta, pmTensor const& delta, size_t const& dimensions) const;
 	pmTensor interact(int const& i, Func_ith contribute) const;
 	pmTensor interact(pmTensor const& pos_i, Func_pos contribute) const;
 };
@@ -78,6 +79,18 @@ int pmInteraction<S>::get_field_size() const {
 	return psys.lock()->get_field_size();
 }
 
+template <size_t S>
+bool pmInteraction<S>::cutoff_cell(pmTensor const& beta, pmTensor const& delta, size_t const& dimensions) const {
+	bool cutoff_cell = false;
+	for(int k=0; k<dimensions; k++) {
+		if(std::abs(beta[k])>=2.0-NAUTICLE_EPS && std::abs(delta[k])>NAUTICLE_EPS) {
+			cutoff_cell = true;
+			break;
+		}
+	}
+	return cutoff_cell;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Calculates the interaction between adjacent particles using the given contribution 
 /// lambda-function.
@@ -99,12 +112,16 @@ pmTensor pmInteraction<S>::interact(int const& i, Func_ith contribute) const {
 	pmTensor domain_physical_size = domain.get_physical_size();
 	pmTensor const beta = domain.get_boundary();
 	pmTensor const ones = pmTensor::make_tensor(beta,1);
-
+	size_t dimensions = domain.get_dimensions();
 	pmTensor pos_i = ps->get_value(i);
 	pmTensor grid_pos_i = ps->get_particle_space()->get_grid_position(pos_i);
 	for(auto const& it:cell_iterator) {
 		pmTensor grid_pos_j{grid_pos_i+it};
 		pmTensor delta = -floor((grid_pos_j-domain_minimum).divide_term_by_term(domain_cells));
+		// Ignore cells through cutoff boundary
+		if(cutoff_cell(beta, delta, dimensions)) {
+			continue;
+		}
 		pmTensor guide = delta.multiply_term_by_term(beta);
 		// look for periodic & symmetric neighbour cells (ensemble formula)
 		grid_pos_j += delta.multiply_term_by_term(domain_cells-beta.multiply_term_by_term(domain_cells)+beta);
@@ -120,7 +137,6 @@ pmTensor pmInteraction<S>::interact(int const& i, Func_ith contribute) const {
 					}
 				}
 				pmTensor rel_pos = pos_j-pos_i;
-
 
 				result += contribute(rel_pos, i, j, cell_size, guide);
 			}
