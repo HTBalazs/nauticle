@@ -19,6 +19,7 @@
 */
 
 #include <iostream>
+#include <cmath>
 #include "pmKernel.h"
 #include "nauticle_constants.h"
 
@@ -62,6 +63,9 @@ void pmKernel::set_kernel_type(size_t const& i, bool const& derivative) {
 			case 6: kernel_ptr = &pmKernel::dWp52210; break;
 			case 7: kernel_ptr = &pmKernel::dWp52220; break;
 			case 8: kernel_ptr = &pmKernel::dWp52230; break;
+			case 9: kernel_ptr = &pmKernel::dWg210; break;
+			case 10: kernel_ptr = &pmKernel::dWg220; break;
+			case 11: kernel_ptr = &pmKernel::dWg230; break;
 		}
 	} else {
 		switch(i) {
@@ -75,6 +79,9 @@ void pmKernel::set_kernel_type(size_t const& i, bool const& derivative) {
 			case 6: kernel_ptr = &pmKernel::Wp52210; break;
 			case 7: kernel_ptr = &pmKernel::Wp52220; break;
 			case 8: kernel_ptr = &pmKernel::Wp52230; break;
+			case 9: kernel_ptr = &pmKernel::Wg210; break;
+			case 10: kernel_ptr = &pmKernel::Wg220; break;
+			case 11: kernel_ptr = &pmKernel::Wg230; break;
 		}
 	}
 }
@@ -113,6 +120,14 @@ double pmKernel::Wp5220_raw(double const& q) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of kernel function without normalization coefficient.
 /////////////////////////////////////////////////////////////////////////////////////////
+double pmKernel::Wg20_raw(double const& q) const {
+	return exp(-q*q/4.0);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the value of kernel function without normalization coefficient.
+/////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp2220_raw(double const& q) const {
 	return (q/2.0-1.0);
 }
@@ -133,6 +148,12 @@ double pmKernel::dWp5220_raw(double const& q) const {
 	return val*val*val*q;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the value of kernel function without normalization coefficient.
+/////////////////////////////////////////////////////////////////////////////////////////
+double pmKernel::dWg20_raw(double const& q) const {
+	return Wg20_raw(q);
+}
 
 
 
@@ -329,6 +350,62 @@ double pmKernel::dWp52230(double const& distance, double const& cell_size) const
 	double q = distance/h;
 	double coeff = -105.0/16.0/NAUTICLE_PI/h/h/h/h;
 	return coeff*dWp5220_raw(q);
+}
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the value of the kernel function at the given distance.
+/////////////////////////////////////////////////////////////////////////////////////////
+double pmKernel::Wg210(double const& distance, double const& sigma) const {
+	double coeff = 1.0/sigma/sqrt(2.0*NAUTICLE_PI);
+	return coeff*Wg20_raw(distance/sigma);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the value of the kernel function at the given distance.
+/////////////////////////////////////////////////////////////////////////////////////////
+double pmKernel::Wg220(double const& distance, double const& sigma) const {
+	double coeff = 1.0/2.0/NAUTICLE_PI/sigma/sigma;
+	return coeff*Wg20_raw(distance/sigma);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the value of the kernel function at the given distance.
+/////////////////////////////////////////////////////////////////////////////////////////
+double pmKernel::Wg230(double const& distance, double const& sigma) const {
+	double coeff = 1.0/std::pow(2.0*NAUTICLE_PI,1.5)/sigma/sigma/sigma;
+	return coeff*Wg20_raw(distance/sigma);
+}
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the value of the kernel function at the given distance.
+/////////////////////////////////////////////////////////////////////////////////////////
+double pmKernel::dWg210(double const& distance, double const& sigma) const {
+	double coeff = -distance/sigma/sigma/sigma/sqrt(2.0*NAUTICLE_PI);
+	return coeff*dWg20_raw(distance/sigma);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the value of the kernel function at the given distance.
+/////////////////////////////////////////////////////////////////////////////////////////
+double pmKernel::dWg220(double const& distance, double const& sigma) const {
+	double coeff = -distance/2.0/NAUTICLE_PI/sigma/sigma/sigma/sigma;
+	return coeff*dWg20_raw(distance/sigma);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the value of the kernel function at the given distance.
+/////////////////////////////////////////////////////////////////////////////////////////
+double pmKernel::dWg230(double const& distance, double const& sigma) const {
+	double coeff = -distance/sigma/sigma/sigma/sigma/sigma/std::pow(2.0*NAUTICLE_PI,1.5);
+	return coeff*dWg20_raw(distance/sigma);
 }
 
 #undef NAUTICLE_PI

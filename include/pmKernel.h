@@ -50,9 +50,11 @@ private:
 	double Wp2220_raw(double const& q) const;
 	double Wp3220_raw(double const& q) const;
 	double Wp5220_raw(double const& q) const;
+	double Wg20_raw(double const& q) const;
 	double dWp2220_raw(double const& q) const;
 	double dWp3220_raw(double const& q) const;
 	double dWp5220_raw(double const& q) const;
+	double dWg20_raw(double const& q) const;
 
 	double Wp22210(double const& distance, double const& cell_size) const;
 	double Wp22220(double const& distance, double const& cell_size) const;
@@ -72,6 +74,12 @@ private:
 	double dWp52210(double const& distance, double const& cell_size) const;
 	double dWp52220(double const& distance, double const& cell_size) const;
 	double dWp52230(double const& distance, double const& cell_size) const;
+	double Wg210(double const& distance, double const& cell_size) const;
+	double Wg220(double const& distance, double const& cell_size) const;
+	double Wg230(double const& distance, double const& cell_size) const;
+	double dWg210(double const& distance, double const& cell_size) const;
+	double dWg220(double const& distance, double const& cell_size) const;
+	double dWg230(double const& distance, double const& cell_size) const;
 
 public:
 	enum kernel_type { Quadratic, Cubic, Wendland, Gaussian };
