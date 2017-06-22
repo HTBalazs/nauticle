@@ -79,6 +79,9 @@ int pmInteraction<S>::get_field_size() const {
 	return psys.lock()->get_field_size();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Checks if query cell is cutoff.
+/////////////////////////////////////////////////////////////////////////////////////////
 template <size_t S>
 bool pmInteraction<S>::cutoff_cell(pmTensor const& beta, pmTensor const& delta, size_t const& dimensions) const {
 	bool cutoff_cell = false;
