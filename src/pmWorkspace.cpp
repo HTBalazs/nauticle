@@ -209,7 +209,7 @@ void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmT
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const& values) {
-	if(!verify_name(name)) return;
+	if(!verify_name(name) && name!="id") return;
 	if(values.size()!=num_nodes) {
 		pLogger::error_msgf("Inconsistent size of field \"%s\".\n",name.c_str());
 	}

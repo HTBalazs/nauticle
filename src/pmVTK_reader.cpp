@@ -160,7 +160,6 @@ void pmVTK_reader::update() {
 	std::vector<pmTensor> psys_data;
 	for(int i=0; i<polydata->GetPointData()->GetNumberOfArrays(); i++) {
 		std::string name = polydata->GetPointData()->GetArrayName(i);
-		if(name=="id") { continue; }
 		if(name=="r") {
 	 	 	psys_data = pop_array_from_polydata(i, domain.get_dimensions());
 		} else {
