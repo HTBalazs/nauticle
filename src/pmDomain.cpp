@@ -95,7 +95,7 @@ pmTensor pmDomain::get_physical_size() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the boundary type of the domain (periodic or symmetric).
+/// Returns the boundary type of the domain (periodic, symmetric or cutoff).
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDomain::get_boundary() const {
 	return boundary;
