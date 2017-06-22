@@ -32,7 +32,7 @@ pmWorkspace::pmWorkspace() {
 	this->add_field("id", id);
 	this->add_constant("true", pmTensor{1,1,1}, true);
 	this->add_constant("false", pmTensor{1,1,0}, true);
-	this->add_constant("pi", pmTensor{1,1,3.14159265359}, true);
+	this->add_constant("pi", pmTensor{1,1,NAUTICLE_PI}, true);
 	this->add_constant("Wp22210", pmTensor{1,1,0}, true);
 	this->add_constant("Wp22220", pmTensor{1,1,1}, true);
 	this->add_constant("Wp22230", pmTensor{1,1,2}, true);
