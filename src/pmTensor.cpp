@@ -21,6 +21,8 @@
 #include <cmath>
 #include "pmTensor.h"
 
+using namespace Nauticle;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -586,7 +588,7 @@ pmTensor pmTensor::multiply_term_by_term(pmTensor const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmTensor::norm() const {
 	if(this->is_vector()) {
-		return sqrt((this->multiply_term_by_term(*this)).summation());
+		return std::sqrt((this->multiply_term_by_term(*this)).summation());
 	} else if(this->is_scalar()) {
 		return std::abs(elements[0]);
 	}

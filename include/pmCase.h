@@ -35,27 +35,29 @@
 //	Destroying a solver object destroys the workspace and equations
 //  either.
 */
-class pmCase final {
-	std::shared_ptr<pmWorkspace> workspace;
-	std::vector<std::shared_ptr<pmEquation>> equations;
-public:
-	pmCase() {}
-	pmCase(pmCase const& other);
-	pmCase(pmCase&& other);
-	~pmCase() {}
-	pmCase& operator=(pmCase const& rhs);
-	pmCase& operator=(pmCase&& rhs);
-	void print() const;
-	void solve(size_t const& num_threads, std::string const& name="");
-	void assign_particle_system_to_equations();
-	std::shared_ptr<pmCase> clone() const;
-	void merge(std::shared_ptr<pmCase> const& other);
-	std::shared_ptr<pmWorkspace> get_workspace() const;
-	std::vector<std::shared_ptr<pmEquation>> get_equations() const;
-	void add_workspace(std::shared_ptr<pmWorkspace> ws);
-	void add_equation(std::shared_ptr<pmEquation> func);
-	void add_equation(std::vector<std::shared_ptr<pmEquation>> func);
-	void initialize();
-};
+namespace Nauticle {
+	class pmCase final {
+		std::shared_ptr<pmWorkspace> workspace;
+		std::vector<std::shared_ptr<pmEquation>> equations;
+	public:
+		pmCase() {}
+		pmCase(pmCase const& other);
+		pmCase(pmCase&& other);
+		~pmCase() {}
+		pmCase& operator=(pmCase const& rhs);
+		pmCase& operator=(pmCase&& rhs);
+		void print() const;
+		void solve(size_t const& num_threads, std::string const& name="");
+		void assign_particle_system_to_equations();
+		std::shared_ptr<pmCase> clone() const;
+		void merge(std::shared_ptr<pmCase> const& other);
+		std::shared_ptr<pmWorkspace> get_workspace() const;
+		std::vector<std::shared_ptr<pmEquation>> get_equations() const;
+		void add_workspace(std::shared_ptr<pmWorkspace> ws);
+		void add_equation(std::shared_ptr<pmEquation> func);
+		void add_equation(std::vector<std::shared_ptr<pmEquation>> func);
+		void initialize();
+	};
+}
 
 #endif //_SOLVER_H_

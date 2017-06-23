@@ -37,19 +37,21 @@
 #include "pmVTK_writer.h"
 #include "prolog/pLogger.h"
 
-/**	This class extends the hdyXML_parser class with further equations to process
-//	the XML tree.
-*/
-class pmXML_processor final : public hdyXML_parser {
-	std::shared_ptr<pmWorkspace> get_workspace() const;
-	std::vector<std::shared_ptr<pmEquation>> get_equations(std::shared_ptr<pmWorkspace> workspace) const;
-	std::shared_ptr<pmCase> get_initial_condition_case() const;
-public:
-	virtual ~pmXML_processor() override {}
-	std::shared_ptr<pmGrid_space> get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const;
-	std::shared_ptr<pmCase> get_case() const;
-	std::shared_ptr<pmParameter_space> get_parameter_space(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
-	std::shared_ptr<pmWorkspace> get_initial_condition() const;
-};
+namespace Nauticle {
+    /**	This class extends the hdyXML_parser class with further equations to process
+    //	the XML tree.
+    */
+    class pmXML_processor final : public hdyXML_parser {
+    	std::shared_ptr<pmWorkspace> get_workspace() const;
+    	std::vector<std::shared_ptr<pmEquation>> get_equations(std::shared_ptr<pmWorkspace> workspace) const;
+    	std::shared_ptr<pmCase> get_initial_condition_case() const;
+    public:
+    	virtual ~pmXML_processor() override {}
+    	std::shared_ptr<pmGrid_space> get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const;
+    	std::shared_ptr<pmCase> get_case() const;
+    	std::shared_ptr<pmParameter_space> get_parameter_space(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
+    	std::shared_ptr<pmWorkspace> get_initial_condition() const;
+    };
+}
 
 #endif //_XML_PROCESSOR_H_

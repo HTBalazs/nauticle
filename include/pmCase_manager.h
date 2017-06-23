@@ -39,25 +39,27 @@
 //		- particle system: if contains a particle cloud on which the equations and fields
 //		are interpreted.
 */
-class pmCase_manager final {
-private:
-	std::shared_ptr<pmCase> cas;
-	std::shared_ptr<pmParameter_space> parameter_space;
-	write_mode vtk_write_mode = ASCII;
-	void print() const;
-	double calculate_print_interval() const;
-	void simulate(size_t const& num_threads);
-	void write_step() const;
-	void read_file(std::string const& filename);
-	static void set_working_directory(std::string const& working_dir);
-public:
-	pmCase_manager() {}
-	pmCase_manager(pmCase_manager const& other);
-	pmCase_manager(pmCase_manager&& other);
-	pmCase_manager& operator=(pmCase_manager const& other);
-	pmCase_manager& operator=(pmCase_manager&& other);
-	~pmCase_manager() {}
-	static void execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads=8);
-};
+namespace Nauticle {
+	class pmCase_manager final {
+	private:
+		std::shared_ptr<pmCase> cas;
+		std::shared_ptr<pmParameter_space> parameter_space;
+		write_mode vtk_write_mode = ASCII;
+		void print() const;
+		double calculate_print_interval() const;
+		void simulate(size_t const& num_threads);
+		void write_step() const;
+		void read_file(std::string const& filename);
+		static void set_working_directory(std::string const& working_dir);
+	public:
+		pmCase_manager() {}
+		pmCase_manager(pmCase_manager const& other);
+		pmCase_manager(pmCase_manager&& other);
+		pmCase_manager& operator=(pmCase_manager const& other);
+		pmCase_manager& operator=(pmCase_manager&& other);
+		~pmCase_manager() {}
+		static void execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads=8);
+	};
+}
 
 #endif //_CASE_H_

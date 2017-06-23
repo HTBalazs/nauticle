@@ -23,19 +23,21 @@
 
 #include "prolog/pLogger.h"
 
-/** This class performs logging procedures based on ProLog
-*/
-class pmLog_stream {
-	std::unique_ptr<pTimer> timer;
-    int num_steps=0;
-    int num_total_steps=0;
-public:
-    pmLog_stream();
-	pmLog_stream(int const& num_start);
-	void print_step_info(double const& dt, int const& substeps, double const& current_time, double const& simulated_time);
-	void print_substep_info(double const& dt, int const& substeps) const;
-	void print_finish(bool const& confirm) const;
-	void print_start() const;
-};
+namespace Nauticle {
+    /** This class performs logging procedures based on ProLog
+    */
+    class pmLog_stream {
+    	std::unique_ptr<pTimer> timer;
+        int num_steps=0;
+        int num_total_steps=0;
+    public:
+        pmLog_stream();
+    	pmLog_stream(int const& num_start);
+    	void print_step_info(double const& dt, int const& substeps, double const& current_time, double const& simulated_time);
+    	void print_substep_info(double const& dt, int const& substeps) const;
+    	void print_finish(bool const& confirm) const;
+    	void print_start() const;
+    };
+}
 
 #endif // _LOG_STREAM_H_

@@ -19,7 +19,9 @@
 */
     
 #include <string>
-#include "pm.h"
+#include "nauticle.h"
+
+using namespace Nauticle;
 
 int main(int argc, char* argv[]) {
 

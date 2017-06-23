@@ -24,62 +24,63 @@
 #include <memory>
 #include <cstdio>
 
+namespace Nauticle {
+	/** This class contains the smoothing kernel implementations for 1, 2 and 3 dimensions.
+	//  An object of this class behaves as a smoohting kernel through the evaluate function.
+	//  The type of the kernel to use is set by set_kernel_type() member function.
+	//
+	// Kernel notations:
+	//  dWlnnnnn
+	//	12345678
+	//	
+	//	1: optional flag for derivative.
+	//	2: W (weight function).
+	//  3: can be one of the followings: p (polynomial), s (spline), e (exponential)
+	//	4: order of the polynomial or spline. It is zero for exponential kernel.
+	//  5: number of peices along the radius.
+	//  6: influence radius/smoothing radius.
+	//	7: Dimensions.
+	//	8: serial number.
+	*/
+	class pmKernel {
+	private:
+		// double (pmKernel::*kernel_ptr)(double const&, double const&) const;
+		typedef  double (pmKernel::*ptr)(double const&, double const&) const;
+		ptr kernel_ptr;
+		double Wp2220_raw(double const& q) const;
+		double Wp3220_raw(double const& q) const;
+		double Wp5220_raw(double const& q) const;
+		double dWp2220_raw(double const& q) const;
+		double dWp3220_raw(double const& q) const;
+		double dWp5220_raw(double const& q) const;
 
-/** This class contains the smoothing kernel implementations for 1, 2 and 3 dimensions.
-//  An object of this class behaves as a smoohting kernel through the evaluate function.
-//  The type of the kernel to use is set by set_kernel_type() member function.
-//
-// Kernel notations:
-//  dWlnnnnn
-//	12345678
-//	
-//	1: optional flag for derivative.
-//	2: W (weight function).
-//  3: can be one of the followings: p (polynomial), s (spline), e (exponential)
-//	4: order of the polynomial or spline. It is zero for exponential kernel.
-//  5: number of peices along the radius.
-//  6: influence radius/smoothing radius.
-//	7: Dimensions.
-//	8: serial number.
-*/
-class pmKernel {
-private:
-	// double (pmKernel::*kernel_ptr)(double const&, double const&) const;
-	typedef  double (pmKernel::*ptr)(double const&, double const&) const;
-	ptr kernel_ptr;
-	double Wp2220_raw(double const& q) const;
-	double Wp3220_raw(double const& q) const;
-	double Wp5220_raw(double const& q) const;
-	double dWp2220_raw(double const& q) const;
-	double dWp3220_raw(double const& q) const;
-	double dWp5220_raw(double const& q) const;
+		double Wp22210(double const& distance, double const& cell_size) const;
+		double Wp22220(double const& distance, double const& cell_size) const;
+		double Wp22230(double const& distance, double const& cell_size) const;
+		double dWp22210(double const& distance, double const& cell_size) const;
+		double dWp22220(double const& distance, double const& cell_size) const;
+		double dWp22230(double const& distance, double const& cell_size) const;
+		double Wp32210(double const& distance, double const& cell_size) const;
+		double Wp32220(double const& distance, double const& cell_size) const;
+		double Wp32230(double const& distance, double const& cell_size) const;
+		double dWp32210(double const& distance, double const& cell_size) const;
+		double dWp32220(double const& distance, double const& cell_size) const;
+		double dWp32230(double const& distance, double const& cell_size) const;
+		double Wp52210(double const& distance, double const& cell_size) const;
+		double Wp52220(double const& distance, double const& cell_size) const;
+		double Wp52230(double const& distance, double const& cell_size) const;
+		double dWp52210(double const& distance, double const& cell_size) const;
+		double dWp52220(double const& distance, double const& cell_size) const;
+		double dWp52230(double const& distance, double const& cell_size) const;
 
-	double Wp22210(double const& distance, double const& cell_size) const;
-	double Wp22220(double const& distance, double const& cell_size) const;
-	double Wp22230(double const& distance, double const& cell_size) const;
-	double dWp22210(double const& distance, double const& cell_size) const;
-	double dWp22220(double const& distance, double const& cell_size) const;
-	double dWp22230(double const& distance, double const& cell_size) const;
-	double Wp32210(double const& distance, double const& cell_size) const;
-	double Wp32220(double const& distance, double const& cell_size) const;
-	double Wp32230(double const& distance, double const& cell_size) const;
-	double dWp32210(double const& distance, double const& cell_size) const;
-	double dWp32220(double const& distance, double const& cell_size) const;
-	double dWp32230(double const& distance, double const& cell_size) const;
-	double Wp52210(double const& distance, double const& cell_size) const;
-	double Wp52220(double const& distance, double const& cell_size) const;
-	double Wp52230(double const& distance, double const& cell_size) const;
-	double dWp52210(double const& distance, double const& cell_size) const;
-	double dWp52220(double const& distance, double const& cell_size) const;
-	double dWp52230(double const& distance, double const& cell_size) const;
-
-public:
-	enum kernel_type { Quadratic, Cubic, Wendland, Gaussian };
-	pmKernel();
-	pmKernel(pmKernel const& other);
-	pmKernel& operator=(pmKernel const& other);
-	void set_kernel_type(size_t const& i, bool const& derivative);
-	double evaluate(double const& distance, double const& cell_size) const;
-};
+	public:
+		enum kernel_type { Quadratic, Cubic, Wendland, Gaussian };
+		pmKernel();
+		pmKernel(pmKernel const& other);
+		pmKernel& operator=(pmKernel const& other);
+		void set_kernel_type(size_t const& i, bool const& derivative);
+		double evaluate(double const& distance, double const& cell_size) const;
+	};
+}
 
 #endif //_KERNEL_H_

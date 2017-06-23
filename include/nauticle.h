@@ -17,21 +17,14 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
+    
+#ifndef _NAUTICLE_H_
+#define _NAUTICLE_H_
 
-#include "pmMath_parser.h"
+/** This file collects the necessary files to include Nauticle.
+*/
+#include "pmVersion.h"
+#include "pmCase_manager.h"
+#include "pmCommand_parser.h"
 
-using namespace Nauticle;
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Removes white spaces.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmMath_parser::remove_spaces(std::string& str) const {
-	std::string::iterator it = str.begin();
-	while(it!=str.end()) {
-		if(*it==' ') {
-			str.erase(it, it+1);
-		} else {
-			it++;
-		}
-	}
-}
+#endif //_NAUTICLE_H_

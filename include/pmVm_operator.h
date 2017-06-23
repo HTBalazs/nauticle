@@ -29,22 +29,24 @@
 #include "commonutils/Common.h"
 #include "nauticle_constants.h"
 
-class pmVm_operator : public pmFilter<3> {
-	std::string op_name;
-private:
-	std::shared_ptr<pmExpression> clone_impl() const override;
-public:
-	pmVm_operator() {}
-	pmVm_operator(std::array<std::shared_ptr<pmExpression>,3> op);
-	pmVm_operator(pmVm_operator const& other);
-	pmVm_operator(pmVm_operator&& other);
-	pmVm_operator& operator=(pmVm_operator const& other);
-	pmVm_operator& operator=(pmVm_operator&& other);
-	virtual ~pmVm_operator() {}
-	void print() const override;
-	pmTensor evaluate(int const& i, size_t const& level=0) const override;
-	std::shared_ptr<pmVm_operator> clone() const;
-	virtual void write_to_string(std::ostream& os) const override;
-};
+namespace Nauticle {
+	class pmVm_operator : public pmFilter<3> {
+		std::string op_name;
+	private:
+		std::shared_ptr<pmExpression> clone_impl() const override;
+	public:
+		pmVm_operator() {}
+		pmVm_operator(std::array<std::shared_ptr<pmExpression>,3> op);
+		pmVm_operator(pmVm_operator const& other);
+		pmVm_operator(pmVm_operator&& other);
+		pmVm_operator& operator=(pmVm_operator const& other);
+		pmVm_operator& operator=(pmVm_operator&& other);
+		virtual ~pmVm_operator() {}
+		void print() const override;
+		pmTensor evaluate(int const& i, size_t const& level=0) const override;
+		std::shared_ptr<pmVm_operator> clone() const;
+		virtual void write_to_string(std::ostream& os) const override;
+	};
+}
 
 #endif // _VORTEX_METHOD_OPERATOR_H_
