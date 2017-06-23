@@ -24,32 +24,34 @@
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
 
-/** This class calculates the number of neighbouring particles within the given range.
-//  It requires a pmParticle_system assigned to it.
-*/
-class pmNeighbours : public pmInteraction<1> {
-	std::shared_ptr<pmExpression> clone_impl() const override;
-public:
-	pmNeighbours() {}
-	pmNeighbours(std::array<std::shared_ptr<pmExpression>,1> op);
-	pmNeighbours(pmNeighbours const& other);
-	pmNeighbours(pmNeighbours&& other);
-	pmNeighbours& operator=(pmNeighbours const& other);
-	pmNeighbours& operator=(pmNeighbours&& other);
-	virtual ~pmNeighbours() {}
-	void print() const override;
-	pmTensor evaluate(int const& i, size_t const& level=0) const override;
-	std::shared_ptr<pmNeighbours> clone() const;
-	int get_field_size() const override;
-	virtual void write_to_string(std::ostream& os) const override;
-};
+namespace Nauticle {
+	/** This class calculates the number of neighbouring particles within the given range.
+	//  It requires a pmParticle_system assigned to it.
+	*/
+	class pmNeighbours : public pmInteraction<1> {
+		std::shared_ptr<pmExpression> clone_impl() const override;
+	public:
+		pmNeighbours() {}
+		pmNeighbours(std::array<std::shared_ptr<pmExpression>,1> op);
+		pmNeighbours(pmNeighbours const& other);
+		pmNeighbours(pmNeighbours&& other);
+		pmNeighbours& operator=(pmNeighbours const& other);
+		pmNeighbours& operator=(pmNeighbours&& other);
+		virtual ~pmNeighbours() {}
+		void print() const override;
+		pmTensor evaluate(int const& i, size_t const& level=0) const override;
+		std::shared_ptr<pmNeighbours> clone() const;
+		int get_field_size() const override;
+		virtual void write_to_string(std::ostream& os) const override;
+	};
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementaton of << operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmNeighbours const* obj) {
-	obj->write_to_string(os);
-	return os;
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementaton of << operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline std::ostream& operator<<(std::ostream& os, pmNeighbours const* obj) {
+		obj->write_to_string(os);
+		return os;
+	}
 }
 
 #endif // _NEIGHBOURS_H_

@@ -24,32 +24,34 @@
 #include <string>
 #include "pmExpression.h"
 
-/** This interface forms the base for single and field expressions. It holds a name.
-*/
-class pmSymbol : public pmExpression {
-protected:
-	std::string name = "";
-public:
-	virtual ~pmSymbol() {}
-	virtual std::string get_name() const;
-	virtual pmTensor get_value(int const& i=0) const=0;
-	virtual void print() const override;
-	virtual void printv() const=0;
-	virtual void set_storage_depth(size_t const& d) override {}
-	virtual int get_field_size() const override;
-	std::shared_ptr<pmSymbol> clone() const;
-	virtual void set_value(pmTensor const& value, int const& i=0) {}
-	bool is_assigned() const override;
-	virtual bool is_hidden() const;
-	virtual std::string get_type() const=0;
-};
+namespace Nauticle {
+	/** This interface forms the base for single and field expressions. It holds a name.
+	*/
+	class pmSymbol : public pmExpression {
+	protected:
+		std::string name = "";
+	public:
+		virtual ~pmSymbol() {}
+		virtual std::string get_name() const;
+		virtual pmTensor get_value(int const& i=0) const=0;
+		virtual void print() const override;
+		virtual void printv() const=0;
+		virtual void set_storage_depth(size_t const& d) override {}
+		virtual int get_field_size() const override;
+		std::shared_ptr<pmSymbol> clone() const;
+		virtual void set_value(pmTensor const& value, int const& i=0) {}
+		bool is_assigned() const override;
+		virtual bool is_hidden() const;
+		virtual std::string get_type() const=0;
+	};
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementation of << operator for pmTensor.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmSymbol const* obj) {
-	obj->write_to_string(os);
-	return os;
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementation of << operator for pmTensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline std::ostream& operator<<(std::ostream& os, pmSymbol const* obj) {
+		obj->write_to_string(os);
+		return os;
+	}
 }
 
 #endif //_TERM_H_

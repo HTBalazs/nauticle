@@ -32,88 +32,90 @@
 #include "pmParticle_system.h"
 #include "pmMath_test.h"
 
-/** This class contains all the definitions of variables and constants. It also
-//	stores the size of the fields enclosed in the variables. Since no variable
-//	or constant can exist without a proprietary workspace, the destructor destroys
-//  all definitions.
-*/
-class pmWorkspace final : public pmMath_test {
-private:
-	static std::string const reserved_names[];
-	std::vector<std::shared_ptr<pmSymbol>> definitions;
-	size_t num_nodes=1;
-	std::stack<int> deleted_ids;
-	size_t num_constants;
-	size_t num_variables;
-private:
-	bool verify_name(std::string const& name) const;
-	bool is_constant(std::shared_ptr<pmSymbol> term) const;
-	bool is_variable(std::shared_ptr<pmSymbol> term) const;
-	bool is_constant_or_variable(std::shared_ptr<pmSymbol> term) const;
-	void define_bases();
-public:
-	pmWorkspace();
-	pmWorkspace(pmWorkspace const& other);
-	pmWorkspace(pmWorkspace&& other);
-	pmWorkspace& operator=(pmWorkspace const& other);
-	pmWorkspace& operator=(pmWorkspace&& other);
-	virtual ~pmWorkspace() override {}
-	bool is_existing(std::string const& name) const;
-	void merge(std::shared_ptr<pmWorkspace> other);
-	void add_constant(std::string const& name, pmTensor const& value, bool const& hidden=false);
-	void add_variable(std::string const& name, pmTensor const& value);
-	void add_field(std::string const& name, pmTensor const& value=pmTensor{0});
-	void add_field(std::string const& name, std::vector<pmTensor> const& values);
-	void add_particle_system(std::vector<pmTensor> const& values, pmDomain const& domain);
-	void delete_instance(std::string const& name);
-	pmTensor get_value(std::string const& name, int const& i=0) const;
-	std::weak_ptr<pmSymbol> get_instance(std::string const& name) const;
-	std::weak_ptr<pmParticle_system> get_particle_system() const;
-	template <typename T> void print_content(std::string const& title) const;
-	void print() const;
-	void sort_all_by_position();
-	std::vector<std::shared_ptr<pmSymbol>> get_definitions();
-	std::shared_ptr<pmWorkspace> clone() const;
-	size_t get_number_of_nodes() const;
-	size_t get_number_of_variables() const;
-	size_t get_number_of_constants() const;
-	static void print_reserved_names();
-	static bool is_reserved(std::string const& name);
-	template <typename T> std::vector<std::shared_ptr<T>> get() const;
-	void set_number_of_nodes(size_t const& N);
-};
+namespace Nauticle {
+	/** This class contains all the definitions of variables and constants. It also
+	//	stores the size of the fields enclosed in the variables. Since no variable
+	//	or constant can exist without a proprietary workspace, the destructor destroys
+	//  all definitions.
+	*/
+	class pmWorkspace final : public pmMath_test {
+	private:
+		static std::string const reserved_names[];
+		std::vector<std::shared_ptr<pmSymbol>> definitions;
+		size_t num_nodes=1;
+		std::stack<int> deleted_ids;
+		size_t num_constants;
+		size_t num_variables;
+	private:
+		bool verify_name(std::string const& name) const;
+		bool is_constant(std::shared_ptr<pmSymbol> term) const;
+		bool is_variable(std::shared_ptr<pmSymbol> term) const;
+		bool is_constant_or_variable(std::shared_ptr<pmSymbol> term) const;
+		void define_bases();
+	public:
+		pmWorkspace();
+		pmWorkspace(pmWorkspace const& other);
+		pmWorkspace(pmWorkspace&& other);
+		pmWorkspace& operator=(pmWorkspace const& other);
+		pmWorkspace& operator=(pmWorkspace&& other);
+		virtual ~pmWorkspace() override {}
+		bool is_existing(std::string const& name) const;
+		void merge(std::shared_ptr<pmWorkspace> other);
+		void add_constant(std::string const& name, pmTensor const& value, bool const& hidden=false);
+		void add_variable(std::string const& name, pmTensor const& value);
+		void add_field(std::string const& name, pmTensor const& value=pmTensor{0});
+		void add_field(std::string const& name, std::vector<pmTensor> const& values);
+		void add_particle_system(std::vector<pmTensor> const& values, pmDomain const& domain);
+		void delete_instance(std::string const& name);
+		pmTensor get_value(std::string const& name, int const& i=0) const;
+		std::weak_ptr<pmSymbol> get_instance(std::string const& name) const;
+		std::weak_ptr<pmParticle_system> get_particle_system() const;
+		template <typename T> void print_content(std::string const& title) const;
+		void print() const;
+		void sort_all_by_position();
+		std::vector<std::shared_ptr<pmSymbol>> get_definitions();
+		std::shared_ptr<pmWorkspace> clone() const;
+		size_t get_number_of_nodes() const;
+		size_t get_number_of_variables() const;
+		size_t get_number_of_constants() const;
+		static void print_reserved_names();
+		static bool is_reserved(std::string const& name);
+		template <typename T> std::vector<std::shared_ptr<T>> get() const;
+		void set_number_of_nodes(size_t const& N);
+	};
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Prints the workspace content.
-/////////////////////////////////////////////////////////////////////////////////////////
-template<typename T> void pmWorkspace::print_content(std::string const& title) const {
-	pLogger::titlef<LMA>(title.c_str());
-	int count=0;
-	for(auto const& it:get<T>()) {
-		if(it->is_hidden()) { continue; }
-		count++;
-		pLogger::logf<YEL>("         %i) ",count);
-		it->printv();
-		pLogger::logf("\n");
-	}
-	if(count==0) {
-		pLogger::logf<WHT>("            < empty >\n");
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the instances of type T (stored in pmWorkspace) in an std::vector<T>.
-/////////////////////////////////////////////////////////////////////////////////////////
-template <typename T> std::vector<std::shared_ptr<T>> pmWorkspace::get() const {
-	std::vector<std::shared_ptr<T>> vecT;
-	for(auto const& it:definitions) {
-		if(it->is_hidden()) { continue; }
-		std::shared_ptr<T> type = std::dynamic_pointer_cast<T>(it);
-		if(type.use_count()>0) {
-			vecT.push_back(type);
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Prints the workspace content.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template<typename T> void pmWorkspace::print_content(std::string const& title) const {
+		pLogger::titlef<LMA>(title.c_str());
+		int count=0;
+		for(auto const& it:get<T>()) {
+			if(it->is_hidden()) { continue; }
+			count++;
+			pLogger::logf<YEL>("         %i) ",count);
+			it->printv();
+			pLogger::logf("\n");
+		}
+		if(count==0) {
+			pLogger::logf<WHT>("            < empty >\n");
 		}
 	}
-	return vecT;
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the instances of type T (stored in pmWorkspace) in an std::vector<T>.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <typename T> std::vector<std::shared_ptr<T>> pmWorkspace::get() const {
+		std::vector<std::shared_ptr<T>> vecT;
+		for(auto const& it:definitions) {
+			if(it->is_hidden()) { continue; }
+			std::shared_ptr<T> type = std::dynamic_pointer_cast<T>(it);
+			if(type.use_count()>0) {
+				vecT.push_back(type);
+			}
+		}
+		return vecT;
+	}
 }
 
 #endif //_WORKSPACE_H_

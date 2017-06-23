@@ -26,19 +26,21 @@
 #include "prolog/pLogger.h"
 #include "pmTensor_parser.h"
 
-/** This class reads vtk-data from files of ASCII and BINNARY format.
-*/
-class pmVTK_reader : public pmVTK_manager {
-private:
-	std::vector<pmTensor> pop_array_from_polydata(int const& i, size_t const& domain_dim) const;
-	pmTensor pop_single_from_polydata(vtkSmartPointer<vtkPolyData> poly_data, std::string name, int const& i) const;
-	std::vector<std::shared_ptr<pmEquation>> pop_equations_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
-	
-	pmDomain pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
-	void pop_singles_from_polydata(std::string const& TYPE, std::shared_ptr<pmWorkspace> workspace) const;
-public:
-	virtual ~pmVTK_reader() {}
-	void update() override;
-};
+namespace Nauticle {
+    /** This class reads vtk-data from files of ASCII and BINNARY format.
+    */
+    class pmVTK_reader : public pmVTK_manager {
+    private:
+    	std::vector<pmTensor> pop_array_from_polydata(int const& i, size_t const& domain_dim) const;
+    	pmTensor pop_single_from_polydata(vtkSmartPointer<vtkPolyData> poly_data, std::string name, int const& i) const;
+    	std::vector<std::shared_ptr<pmEquation>> pop_equations_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
+    	
+    	pmDomain pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
+    	void pop_singles_from_polydata(std::string const& TYPE, std::shared_ptr<pmWorkspace> workspace) const;
+    public:
+    	virtual ~pmVTK_reader() {}
+    	void update() override;
+    };
+}
 
 #endif //_VTK_READER_H_

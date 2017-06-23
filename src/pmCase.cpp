@@ -20,6 +20,8 @@
 
 #include "pmCase.h"
 
+using namespace Nauticle;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +81,7 @@ void pmCase::add_workspace(std::shared_ptr<pmWorkspace> ws) {
 void pmCase::add_equation(std::shared_ptr<pmEquation> func) {
 	for(auto const& it:equations) {
 		if(it->get_name()==func->get_name()){
-			pLogger::warning_msg("Equation \"%s\" is already existing in the solver.\n",func->get_name().c_str());
+			pLogger::warning_msg("Equation \"%s\" is already existing.\n",func->get_name().c_str());
 			return;
 		}
 	}

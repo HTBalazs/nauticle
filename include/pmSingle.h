@@ -25,26 +25,28 @@
 #include <string>
 #include "pmSymbol.h"
 
-/** This inteface forms the base for expressions of constant and variables.
-*/
-class pmSingle : public pmSymbol {
-protected:
-	std::vector<pmTensor> value;
-public:
-	virtual ~pmSingle() override {}
-	pmTensor get_value(int const& i=0) const override;
-	virtual pmTensor evaluate(int const&, size_t const& level=0) const override;
-	void printv() const override;
-	std::shared_ptr<pmSingle> clone() const;
-	std::string get_type() const override;
-};
+namespace Nauticle {
+    /** This inteface forms the base for expressions of constant and variables.
+    */
+    class pmSingle : public pmSymbol {
+    protected:
+    	std::vector<pmTensor> value;
+    public:
+    	virtual ~pmSingle() override {}
+    	pmTensor get_value(int const& i=0) const override;
+    	virtual pmTensor evaluate(int const&, size_t const& level=0) const override;
+    	void printv() const override;
+    	std::shared_ptr<pmSingle> clone() const;
+    	std::string get_type() const override;
+    };
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementation of << operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmSingle const* obj) {
-	obj->write_to_string(os);
-	return os;
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Implementation of << operator.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    inline std::ostream& operator<<(std::ostream& os, pmSingle const* obj) {
+    	obj->write_to_string(os);
+    	return os;
+    }
 }
 
 #endif //_SINGLE_H_

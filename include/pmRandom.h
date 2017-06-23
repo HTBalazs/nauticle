@@ -25,11 +25,13 @@
 #include "prolog/pLogger.h"
 #include "pmTensor.h"
 
-/** This namespace contains functions for random number generation.
-*/
-namespace pmRandom {
-	double random(double const& minimum, double const& maximum);
-	pmTensor random(pmTensor const& minimum, pmTensor const& maximum);
+namespace Nauticle {
+    /** This namespace contains functions for random number generation.
+    */
+    namespace pmRandom {
+    	double random(double const& minimum, double const& maximum);
+    	pmTensor random(pmTensor const& minimum, pmTensor const& maximum);
+    }
 }
 
 #endif //_RANDOM_H_

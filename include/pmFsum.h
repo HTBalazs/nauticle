@@ -23,29 +23,31 @@
 
 #include "pmFsearch.h"
 
-/** This class finds the maximum value of a pmField over a pmParticle_system.
-*/
-class pmFsum : public pmFsearch {
-	std::shared_ptr<pmExpression> clone_impl() const override;
-private:
-	void process(pmTensor& value, size_t const& level=0) const override;
-public:
-	pmFsum(std::shared_ptr<pmExpression>);
-	pmFsum(pmFsum const& other);
-	pmFsum(pmFsum&& other);
-	pmFsum& operator=(pmFsum const& other);
-	pmFsum& operator=(pmFsum&& other);
-	std::shared_ptr<pmFsum> clone() const;
-	void print() const override;
-	virtual void write_to_string(std::ostream& os) const override;
-};
+namespace Nauticle {
+    /** This class finds the maximum value of a pmField over a pmParticle_system.
+    */
+    class pmFsum : public pmFsearch {
+    	std::shared_ptr<pmExpression> clone_impl() const override;
+    private:
+    	void process(pmTensor& value, size_t const& level=0) const override;
+    public:
+    	pmFsum(std::shared_ptr<pmExpression>);
+    	pmFsum(pmFsum const& other);
+    	pmFsum(pmFsum&& other);
+    	pmFsum& operator=(pmFsum const& other);
+    	pmFsum& operator=(pmFsum&& other);
+    	std::shared_ptr<pmFsum> clone() const;
+    	void print() const override;
+    	virtual void write_to_string(std::ostream& os) const override;
+    };
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementaton of << operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmFsum const* obj) {
-	obj->write_to_string(os);
-	return os;
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Implementaton of << operator.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    inline std::ostream& operator<<(std::ostream& os, pmFsum const* obj) {
+    	obj->write_to_string(os);
+    	return os;
+    }
 }
 
 #endif //_FSUM_H_

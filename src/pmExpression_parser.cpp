@@ -22,6 +22,8 @@
 #include "pmExpression_parser.h"
 #include "commonutils/Common.h"
 
+using namespace Nauticle;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Verifies the table of the infix.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -350,6 +352,11 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				std::array<std::shared_ptr<pmExpression>,6> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<LAPLACE,1,0,6>>(operands));
+			}
+			if(it=="vm") {
+				std::array<std::shared_ptr<pmExpression>,3> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmVm_operator>(operands));
 			}
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;

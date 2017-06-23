@@ -28,29 +28,31 @@
 //  A constant can be named or anonymous. The value of a constant cannot be changed
 //  after definition so the set_value function does not do anything.
 */
-class pmConstant final : public pmSingle {
-	bool hidden=false;
-protected:
-	virtual std::shared_ptr<pmExpression> clone_impl() const override;
-public:
-	pmConstant()=delete;
-	pmConstant(std::string n, pmTensor const& value, bool const& hh=false);
-	pmConstant(pmTensor const& value);
-	pmConstant(pmConstant const&)=default;
-	pmConstant& operator=(pmConstant const&)=default;
-	virtual ~pmConstant() override {}
-	void print() const override;
-	std::shared_ptr<pmConstant> clone() const;
-	bool is_hidden() const override;
-	virtual void write_to_string(std::ostream& os) const override;
-};
+namespace Nauticle {
+	class pmConstant final : public pmSingle {
+		bool hidden=false;
+	protected:
+		virtual std::shared_ptr<pmExpression> clone_impl() const override;
+	public:
+		pmConstant()=delete;
+		pmConstant(std::string n, pmTensor const& value, bool const& hh=false);
+		pmConstant(pmTensor const& value);
+		pmConstant(pmConstant const&)=default;
+		pmConstant& operator=(pmConstant const&)=default;
+		virtual ~pmConstant() override {}
+		void print() const override;
+		std::shared_ptr<pmConstant> clone() const;
+		bool is_hidden() const override;
+		virtual void write_to_string(std::ostream& os) const override;
+	};
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementaton of << operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmConstant const* obj) {
-	obj->write_to_string(os);
-	return os;
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementaton of << operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline std::ostream& operator<<(std::ostream& os, pmConstant const* obj) {
+		obj->write_to_string(os);
+		return os;
+	}
 }
 
 #endif //_CONSTANT_H_

@@ -23,29 +23,31 @@
 
 #include "pmFsearch.h"
 
-/** This class finds the minimum value of a pmField over a pmParticle_system.
-*/
-class pmFmin : public pmFsearch {
-	std::shared_ptr<pmExpression> clone_impl() const override;
-private:
-	void process(pmTensor& value, size_t const& level=0) const override;
-public:
-	pmFmin(std::shared_ptr<pmExpression>);
-	pmFmin(pmFmin const& other);
-	pmFmin(pmFmin&& other);
-	pmFmin& operator=(pmFmin const& other);
-	pmFmin& operator=(pmFmin&& other);
-	std::shared_ptr<pmFmin> clone() const;
-	void print() const override;
-	virtual void write_to_string(std::ostream& os) const override;
-};
+namespace Nauticle {
+    /** This class finds the minimum value of a pmField over a pmParticle_system.
+    */
+    class pmFmin : public pmFsearch {
+    	std::shared_ptr<pmExpression> clone_impl() const override;
+    private:
+    	void process(pmTensor& value, size_t const& level=0) const override;
+    public:
+    	pmFmin(std::shared_ptr<pmExpression>);
+    	pmFmin(pmFmin const& other);
+    	pmFmin(pmFmin&& other);
+    	pmFmin& operator=(pmFmin const& other);
+    	pmFmin& operator=(pmFmin&& other);
+    	std::shared_ptr<pmFmin> clone() const;
+    	void print() const override;
+    	virtual void write_to_string(std::ostream& os) const override;
+    };
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementaton of << operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmFmin const* obj) {
-	obj->write_to_string(os);
-	return os;
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Implementaton of << operator.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    inline std::ostream& operator<<(std::ostream& os, pmFmin const* obj) {
+    	obj->write_to_string(os);
+    	return os;
+    }
 }
 
 #endif //_FMIN_H_

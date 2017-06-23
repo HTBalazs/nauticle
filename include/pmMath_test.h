@@ -23,32 +23,34 @@
 
 #include <string>
 
-/** This class checks std::string formatted objects of mathematical operators.
-*/
-class pmMath_test {
-protected:
-	std::string const one_op_minus = "#";
-	// list of functions and operators
-	static std::string const list_of_functions[79];
-	static std::string const list_of_operators[];
-protected:
-	virtual ~pmMath_test()=default;
-	bool is_digit(char const& c) const;
-	bool is_operator(std::string const& s) const;
-	bool is_operator(char const& s) const;
-	bool is_letter(char const& c) const;
-	bool is_letter_or_digit(char const& c) const;
-	bool is_number(std::string const& s) const;
-	bool is_left_bracket(char const& c) const;
-	bool is_right_bracket(char const& c) const;
-	bool is_bracket(char const& c) const;
-	bool is_left_bracket(std::string const& c) const;
-	bool is_right_bracket(std::string const& c) const;
-	bool is_bracket(std::string const& c) const;
-	bool is_logical(char const& c) const;
-	bool is_function(std::string const& s) const;
-	bool is_word(std::string const& s) const;
-	bool is_match(std::string const& s1, std::string const& s2) const;
-};
+namespace Nauticle {
+	/** This class checks std::string formatted objects of mathematical operators.
+	*/
+	class pmMath_test {
+	protected:
+		std::string const one_op_minus = "#";
+		// list of functions and operators
+		static std::string const list_of_functions[80];
+		static std::string const list_of_operators[];
+	protected:
+		virtual ~pmMath_test()=default;
+		bool is_digit(char const& c) const;
+		bool is_operator(std::string const& s) const;
+		bool is_operator(char const& s) const;
+		bool is_letter(char const& c) const;
+		bool is_letter_or_digit(char const& c) const;
+		bool is_number(std::string const& s) const;
+		bool is_left_bracket(char const& c) const;
+		bool is_right_bracket(char const& c) const;
+		bool is_bracket(char const& c) const;
+		bool is_left_bracket(std::string const& c) const;
+		bool is_right_bracket(std::string const& c) const;
+		bool is_bracket(std::string const& c) const;
+		bool is_logical(char const& c) const;
+		bool is_function(std::string const& s) const;
+		bool is_word(std::string const& s) const;
+		bool is_match(std::string const& s1, std::string const& s2) const;
+	};
+}
 
 #endif //_MATH_TEST_H_

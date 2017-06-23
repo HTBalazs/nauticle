@@ -39,34 +39,36 @@
 //  as well except if they are pmVariable or pmConstant objects. They are always managed
 //  by the pmWorkspace object. (TODO: std::shared_ptr) 
 */
-class pmEquation final {
-protected:
-	std::string name = "";
-	std::shared_ptr<pmSymbol> lhs;
-	std::shared_ptr<pmExpression> rhs;
-	std::shared_ptr<pmExpression> condition;
-public:
-	pmEquation(std::string n, std::shared_ptr<pmSymbol> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond);
-	pmEquation(pmEquation const&);
-	pmEquation(pmEquation&&);
-	pmEquation& operator=(pmEquation const&);
-	pmEquation& operator=(pmEquation&&);
-	virtual ~pmEquation() {}
-	void print() const;
-	void solve(size_t const& num_threads);
-	std::string get_name() const;
-	void evaluate(int const& p_begin, int const& p_end);
-	void assign_particle_system(std::weak_ptr<pmParticle_system> psys);
-	std::shared_ptr<pmEquation> clone() const;
-	void write_to_string(std::ostream& os) const;
-};
+namespace Nauticle {
+	class pmEquation final {
+	protected:
+		std::string name = "";
+		std::shared_ptr<pmSymbol> lhs;
+		std::shared_ptr<pmExpression> rhs;
+		std::shared_ptr<pmExpression> condition;
+	public:
+		pmEquation(std::string n, std::shared_ptr<pmSymbol> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond);
+		pmEquation(pmEquation const&);
+		pmEquation(pmEquation&&);
+		pmEquation& operator=(pmEquation const&);
+		pmEquation& operator=(pmEquation&&);
+		virtual ~pmEquation() {}
+		void print() const;
+		void solve(size_t const& num_threads);
+		std::string get_name() const;
+		void evaluate(int const& p_begin, int const& p_end);
+		void assign_particle_system(std::weak_ptr<pmParticle_system> psys);
+		std::shared_ptr<pmEquation> clone() const;
+		void write_to_string(std::ostream& os) const;
+	};
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementaton of << operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmEquation const* obj) {
-	obj->write_to_string(os);
-	return os;
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementaton of << operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline std::ostream& operator<<(std::ostream& os, pmEquation const* obj) {
+		obj->write_to_string(os);
+		return os;
+	}
 }
 
 #endif //_EQUATION_H_

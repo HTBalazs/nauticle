@@ -29,37 +29,39 @@
 #include "pmTensor.h"
 #include "prolog/pLogger.h"
 
-/** This class contains parameters for the calculations.
-*/
-class pmParameter_space final {
-	/** This class holds the name and value of a parameter.
+namespace Nauticle {
+	/** This class contains parameters for the calculations.
 	*/
-	class pmParameter {
-		std::string name = "";
-		pmTensor value = pmTensor{};
+	class pmParameter_space final {
+		/** This class holds the name and value of a parameter.
+		*/
+		class pmParameter {
+			std::string name = "";
+			pmTensor value = pmTensor{};
+		public:
+			pmParameter()=delete;
+			pmParameter(std::string const& n, pmTensor const& v);
+			pmParameter(pmParameter const&)=default;
+			pmParameter(pmParameter&&)=default;
+			pmParameter& operator=(pmParameter const&)=default;
+			pmParameter& operator=(pmParameter&&)=default;
+			std::string get_name() const;
+			pmTensor get_value() const;
+			void print() const;
+		};
+		std::vector<std::shared_ptr<pmParameter>> parameters;
 	public:
-		pmParameter()=delete;
-		pmParameter(std::string const& n, pmTensor const& v);
-		pmParameter(pmParameter const&)=default;
-		pmParameter(pmParameter&&)=default;
-		pmParameter& operator=(pmParameter const&)=default;
-		pmParameter& operator=(pmParameter&&)=default;
-		std::string get_name() const;
-		pmTensor get_value() const;
+		~pmParameter_space() {}
+		pmParameter_space() {}
+		pmParameter_space(pmParameter_space const& other);
+		pmParameter_space(pmParameter_space&& other);
+		pmParameter_space& operator=(pmParameter_space const& other);
+		pmParameter_space& operator=(pmParameter_space&& other);
+		void add_parameter(std::string const& n, pmTensor const& v);
+		void delete_parameter(std::string const& n);
+		pmTensor get_parameter_value(std::string const& n) const;
 		void print() const;
 	};
-	std::vector<std::shared_ptr<pmParameter>> parameters;
-public:
-	~pmParameter_space() {}
-	pmParameter_space() {}
-	pmParameter_space(pmParameter_space const& other);
-	pmParameter_space(pmParameter_space&& other);
-	pmParameter_space& operator=(pmParameter_space const& other);
-	pmParameter_space& operator=(pmParameter_space&& other);
-	void add_parameter(std::string const& n, pmTensor const& v);
-	void delete_parameter(std::string const& n);
-	pmTensor get_parameter_value(std::string const& n) const;
-	void print() const;
-};
+}
 
 #endif //_PARAMETERS_H_

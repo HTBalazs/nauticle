@@ -26,16 +26,18 @@
 #include "prolog/pLogger.h"
 #include "pmKernel.h"
 
-/** This abstract class implements the conventianal Smoothed Particle Hydrodynamics
-//  through interactions between particles.
-*/
-template <size_t S>
-class pmFilter : public pmInteraction<S> {
-protected:
-	std::shared_ptr<pmKernel> kernel;
-public:
-	pmFilter() {}
-	virtual ~pmFilter() {}
-};
+namespace Nauticle {
+    /** This abstract class implements the conventianal Smoothed Particle Hydrodynamics
+    //  through interactions between particles.
+    */
+    template <size_t S>
+    class pmFilter : public pmInteraction<S> {
+    protected:
+    	std::shared_ptr<pmKernel> kernel;
+    public:
+    	pmFilter() {}
+    	virtual ~pmFilter() {}
+    };
+}
 
 #endif //_FILTER_H_
