@@ -158,7 +158,7 @@ std::shared_ptr<pmField> pmField::clone() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sorts the field based on the given sorted index vector.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmField::sort_field(std::vector<int>& sorted_idx) {
+void pmField::sort_field(std::vector<int> const& sorted_idx) {
 	for(auto& it:value) {
 		pmSort::reorder(it, sorted_idx);
 	}

@@ -19,6 +19,7 @@
 */
     
 #include "pmParticle_system.h"
+#include <numeric>
 
 using namespace Nauticle;
 
@@ -33,6 +34,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_system::pmParticle_system(std::string const& n, std::vector<pmTensor> const& value, pmDomain const& domain) : pmField{n,value} {
 	particle_space = std::make_shared<pmParticle_space>(value.size(), domain);
+	sorted_idx.resize(value.size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +42,7 @@ pmParticle_system::pmParticle_system(std::string const& n, std::vector<pmTensor>
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_system::pmParticle_system(pmParticle_system const& other) : pmField{other} {
 	this->particle_space = other.particle_space;
+	this->sorted_idx = other.sorted_idx;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +50,7 @@ pmParticle_system::pmParticle_system(pmParticle_system const& other) : pmField{o
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_system::pmParticle_system(pmParticle_system&& other) : pmField{other} {
 	this->particle_space = std::move(other.particle_space);
+	this->sorted_idx = std::move(other.sorted_idx);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +60,7 @@ pmParticle_system& pmParticle_system::operator=(pmParticle_system const& other) 
 	if(this!=&other) {
 		pmField::operator=(other);
 		this->particle_space = other.particle_space;
+		this->sorted_idx = other.sorted_idx;
 	}
 	return *this;
 }
@@ -67,6 +72,7 @@ pmParticle_system& pmParticle_system::operator=(pmParticle_system&& other) {
 	if(this!=&other) {
 		pmField::operator=(other);
 		this->particle_space = std::move(other.particle_space);
+		this->sorted_idx = std::move(other.sorted_idx);
 	}
 	return *this;
 }
@@ -83,7 +89,10 @@ void pmParticle_system::set_value(pmTensor const& value, int const& i/*=0*/) {
 /// Sorts the field of the particle system (position) and the given idx object.
 /// Implements a sorting based on the hash key of the particles.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::sort_field(std::vector<int>& sorted_idx) {
+void pmParticle_system::sort_field() {
+	// Check if already sorted
+	if(particle_space->is_up_to_date()) { return; }
+	std::iota(sorted_idx.begin(), sorted_idx.end(), 0);
 	// shift particles due to the periodic domain
 	particle_space->restrict_particles(value);
 	particle_space->update_neighbour_list(value[0], sorted_idx);
@@ -128,11 +137,28 @@ std::shared_ptr<pmParticle_system> pmParticle_system::clone() const {
 	return std::static_pointer_cast<pmParticle_system, pmExpression>(clone_impl());
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the number of particles in tha particle system.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::set_number_of_nodes(size_t const& N) {
 	if(N!=value[0].size()) {
 		pmField::set_number_of_nodes(N);
 		particle_space->set_number_of_nodes(N);
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Checks if the particle system is ordered.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmParticle_system::is_sorted() const {
+	return particle_space->is_up_to_date();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the sorted index array.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<int> pmParticle_system::get_sorted_idx() const {
+	return sorted_idx;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -391,4 +417,3 @@ void pmParticle_system::pmParticle_space::set_number_of_nodes(size_t const& N) {
 	hash_key.resize(N,0);
 	this->expire();
 }
-

@@ -56,10 +56,17 @@ namespace Nauticle {
 		void print() const;
 		void solve(size_t const& num_threads);
 		std::string get_name() const;
+		void set_name(std::string const& n);
 		void evaluate(int const& p_begin, int const& p_end);
 		void assign_particle_system(std::weak_ptr<pmParticle_system> psys);
 		std::shared_ptr<pmEquation> clone() const;
 		void write_to_string(std::ostream& os) const;
+		std::shared_ptr<pmSymbol> get_lhs() const;
+		std::shared_ptr<pmExpression> get_rhs() const;
+		std::shared_ptr<pmExpression> get_condition() const;
+		void set_lhs(std::shared_ptr<pmSymbol> left);
+		void set_rhs(std::shared_ptr<pmExpression> right);
+		void set_condition(std::shared_ptr<pmExpression> cond);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

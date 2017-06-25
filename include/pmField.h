@@ -34,6 +34,8 @@ namespace Nauticle {
 	*/
 	class pmField : public pmSymbol {
 	protected:
+		// std::vector<pmTensor> current_value;
+		// std::vector<pmTensor> previous_value;
 		std::vector<std::vector<pmTensor>> value;
 		size_t depth = 1;
 	protected:
@@ -57,7 +59,7 @@ namespace Nauticle {
 		void push_back(pmTensor const& obj);
 		bool is_double_steps() const;
 		std::shared_ptr<pmField> clone() const;
-		virtual void sort_field(std::vector<int>& sorted_idx);
+		void sort_field(std::vector<int> const& sorted_idx);
 		virtual void set_number_of_nodes(size_t const& N);
 		virtual void write_to_string(std::ostream& os) const override;
 	};
