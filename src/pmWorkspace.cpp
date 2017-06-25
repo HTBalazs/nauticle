@@ -325,15 +325,10 @@ void pmWorkspace::print() const {
 /// particles.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::sort_all_by_position() {
-	std::vector<int> sorted_idx(num_nodes,0);
-	std::iota(sorted_idx.begin(), sorted_idx.end(), 0);
-	for(auto const& it:definitions) {
-		if(it->get_name()=="r") {
-			std::shared_ptr<pmParticle_system> psys = std::dynamic_pointer_cast<pmParticle_system>(it);
-			psys->sort_field(sorted_idx);
-			break;
-		}
-	}
+	std::shared_ptr<pmParticle_system> psys = this->get<pmParticle_system>()[0];
+	if(psys->is_sorted()) { return; }
+	psys->sort_field();
+	std::vector<int> sorted_idx = psys->get_sorted_idx();
 	for(auto const& it:definitions) {
 		std::shared_ptr<pmField> term = std::dynamic_pointer_cast<pmField>(it);
 		if(term.use_count()>0 && term->get_name()!="r") {

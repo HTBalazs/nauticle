@@ -69,6 +69,7 @@ class pmParticle_system final : public pmField {
 		void set_number_of_nodes(size_t const& N);
 	};
 	std::shared_ptr<pmParticle_space> particle_space;
+	std::vector<int> sorted_idx;
 protected:
 	virtual std::shared_ptr<pmExpression> clone_impl() const override;
 public:
@@ -79,13 +80,15 @@ public:
 	pmParticle_system& operator=(pmParticle_system const& other);
 	pmParticle_system& operator=(pmParticle_system&& other);
 	virtual ~pmParticle_system() {}
-	void sort_field(std::vector<int>& idx) override;
+	void sort_field();
 	virtual void set_value(pmTensor const& value, int const& i=0) override;
 	std::shared_ptr<pmParticle_space> get_particle_space();
 	void print() const override;
 	void printv() const override;
 	std::shared_ptr<pmParticle_system> clone() const;
 	void set_number_of_nodes(size_t const& N) override;
+	bool is_sorted() const;
+	std::vector<int> get_sorted_idx() const;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
