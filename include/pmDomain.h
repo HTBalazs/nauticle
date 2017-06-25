@@ -25,7 +25,7 @@
 
 /** This class represents the domain in which a particle system can be
 //  interpreted. The domain can be of any dimensions (1..3). The domain is axis-aligned 
-//  in the Cartesian coordinate system. The domain boundaries can be periodic and symmetric.
+//  in the Cartesian coordinate system. The domain boundaries can be periodic, symmetric or cutoff.
 */
 class pmDomain {
 	pmTensor minimum;

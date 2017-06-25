@@ -157,20 +157,26 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 	pmTensor vi = this->operand[0]->evaluate(i,level);
 	pmTensor omi = this->operand[1]->evaluate(i,level);
 	double Ri = this->operand[2]->evaluate(i,level)[0];
-	double Ei = this->operand[3]->evaluate(i,level)[0];
-	double nui = this->operand[4]->evaluate(i,level)[0];
-	double sn = this->operand[5]->evaluate(i,level)[0];
-	double dn = this->operand[6]->evaluate(i,level)[0];
+	double mi = this->operand[3]->evaluate(i,level)[0];
+	double Ei = this->operand[4]->evaluate(i,level)[0];
+	double nui = this->operand[5]->evaluate(i,level)[0];
+	double sn = this->operand[6]->evaluate(i,level)[0];
 	double dt = this->operand[7]->evaluate(i,level)[0];
 	double ct = this->operand[8]->evaluate(i,level)[0];
 	
-	auto normal_force = [&](double const& delta, double const& delta_dot, double const& khz)->double {
+	auto normal_force = [&](double const& delta, double const& delta_dot, double const& khz, double const& ck)->double {
 			// spring+damping+Hertz
-			return -sn*delta + dn*delta_dot - khz*std::pow(delta, 1.5);
+			return -sn*delta + ck*delta_dot*std::pow(delta,0.25) - khz*std::pow(delta, 1.5);
 	};
 	auto tangential_force = [&](double const& tan_vel, double const& F_normal)->double {
 			// spring+damping & Coulomb
 			return std::max(dt*tan_vel, -F_normal*ct);
+	};
+	auto hertz_force = [&](double const& Rj, double const& Ej, double const& nuj)->double {
+		return Ei==0 && Ej==0 ? 0 : 4.0/3.0*sqrt(Ri*Rj/(Ri+Rj))*(Ei*Ej/(Ej*(1-nui*nui)+Ei*(1-nuj*nuj)));
+	};
+	auto hertz_damping = [&](double const& khz, double const& mj)->double {
+		return sqrt(khz*(mi+mj)/2.0)/8.0;
 	};
 
 	if(TYPE==LINEAR) {
@@ -179,8 +185,9 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 			double d_ji = rel_pos.norm();
 			if(d_ji > NAUTICLE_EPS) {
 				double Rj = this->operand[2]->evaluate(j,level)[0];
-				double Ej = this->operand[3]->evaluate(j,level)[0];
-				double nuj = this->operand[4]->evaluate(j,level)[0];
+				double mj = this->operand[3]->evaluate(j,level)[0];
+				double Ej = this->operand[4]->evaluate(j,level)[0];
+				double nuj = this->operand[5]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor n_ji = rel_pos / d_ji;
@@ -190,9 +197,10 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 					// overlap
 					double delta = min_dist-d_ji;
 					double delta_dot = (rel_vel.transpose()*n_ji)[0];
-					double khz = Ei==0 && Ej==0 ? 0 : 4.0/3.0*sqrt(Ri*Rj/(Ri+Rj))*(Ei*Ej/(Ej*(1-nui*nui)+Ei*(1-nuj*nuj)));
+					double khz = hertz_force(Rj,Ej,nuj);
+					double ck = hertz_damping(khz, mj);
 					// normal_force
-					double F_normal = normal_force(delta, delta_dot, khz);
+					double F_normal = normal_force(delta, delta_dot, khz, ck);
 					force = F_normal*n_ji;
 
 					// relative tangential velocity
@@ -229,8 +237,9 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 			double d_ji = rel_pos.norm();
 			if(d_ji > NAUTICLE_EPS) {
 				double Rj = this->operand[2]->evaluate(j,level)[0];
-				double Ej = this->operand[3]->evaluate(j,level)[0];
-				double nuj = this->operand[4]->evaluate(j,level)[0];
+				double mj = this->operand[3]->evaluate(j,level)[0];
+				double Ej = this->operand[4]->evaluate(j,level)[0];
+				double nuj = this->operand[5]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				if(d_ji < min_dist) {
 					pmTensor n_ji = rel_pos / d_ji;
@@ -241,9 +250,10 @@ pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) co
 
 					double delta = min_dist-d_ji;
 					double delta_dot = (rel_vel.transpose()*n_ji)[0];
-					double khz = Ei==0 && Ej==0 ? 0 : 4.0/3.0*sqrt(Ri*Rj/(Ri+Rj))*(Ei*Ej/(Ej*(1-nui*nui)+Ei*(1-nuj*nuj)));
+					double khz = hertz_force(Rj,Ej,nuj);
+					double ck = hertz_damping(khz,mj);
 					// normal_force
-					double F_normal = normal_force(delta, delta_dot, khz);
+					double F_normal = normal_force(delta, delta_dot, khz, ck);
 
 					pmTensor tan_vel = rel_vel - (rel_vel.transpose()*n_ji) * n_ji;
 					// relative tangential velocity

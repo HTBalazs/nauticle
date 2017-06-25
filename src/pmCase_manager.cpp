@@ -93,7 +93,7 @@ double pmCase_manager::calculate_print_interval() const {
 void pmCase_manager::simulate(size_t const& num_threads) {
 	size_t max_num_threads = std::thread::hardware_concurrency();
 	pLogger::logf<LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
-	pmLog_stream log_stream{};
+	pmLog_stream log_stream{(int)parameter_space->get_parameter_value("file_start")[0]};
 	log_stream.print_start();
 	double current_time=0;
 	double previous_printing_time=0;

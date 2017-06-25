@@ -21,7 +21,7 @@
 #include "pmWorkspace.h"
 #include <numeric>
 
-std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "e_i", "e_j", "e_k"};
+std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -32,7 +32,7 @@ pmWorkspace::pmWorkspace() {
 	this->add_field("id", id);
 	this->add_constant("true", pmTensor{1,1,1}, true);
 	this->add_constant("false", pmTensor{1,1,0}, true);
-	this->add_constant("pi", pmTensor{1,1,3.14159265359}, true);
+	this->add_constant("pi", pmTensor{1,1,NAUTICLE_PI}, true);
 	this->add_constant("Wp22210", pmTensor{1,1,0}, true);
 	this->add_constant("Wp22220", pmTensor{1,1,1}, true);
 	this->add_constant("Wp22230", pmTensor{1,1,2}, true);
@@ -46,6 +46,7 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("BINARY", pmTensor{1,1,1}, true);
 	this->add_constant("periodic", pmTensor{1,1,0}, true);
 	this->add_constant("symmetric", pmTensor{1,1,1}, true);
+	this->add_constant("cutoff", pmTensor{1,1,2}, true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +210,7 @@ void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmT
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const& values) {
-	if(!verify_name(name)) return;
+	if(!verify_name(name) && name!="id") return;
 	if(values.size()!=num_nodes) {
 		pLogger::error_msgf("Inconsistent size of field \"%s\".\n",name.c_str());
 	}
@@ -324,15 +325,10 @@ void pmWorkspace::print() const {
 /// particles.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::sort_all_by_position() {
-	std::vector<int> sorted_idx(num_nodes,0);
-	std::iota(sorted_idx.begin(), sorted_idx.end(), 0);
-	for(auto const& it:definitions) {
-		if(it->get_name()=="r") {
-			std::shared_ptr<pmParticle_system> psys = std::dynamic_pointer_cast<pmParticle_system>(it);
-			psys->sort_field(sorted_idx);
-			break;
-		}
-	}
+	std::shared_ptr<pmParticle_system> psys = this->get<pmParticle_system>()[0];
+	if(psys->is_sorted()) { return; }
+	psys->sort_field();
+	std::vector<int> sorted_idx = psys->get_sorted_idx();
 	for(auto const& it:definitions) {
 		std::shared_ptr<pmField> term = std::dynamic_pointer_cast<pmField>(it);
 		if(term.use_count()>0 && term->get_name()!="r") {

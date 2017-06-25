@@ -79,7 +79,7 @@ void pmCase::add_workspace(std::shared_ptr<pmWorkspace> ws) {
 void pmCase::add_equation(std::shared_ptr<pmEquation> func) {
 	for(auto const& it:equations) {
 		if(it->get_name()==func->get_name()){
-			pLogger::warning_msg("Equation \"%s\" is already existing in the solver.\n",func->get_name().c_str());
+			pLogger::warning_msg("Equation \"%s\" is already existing.\n",func->get_name().c_str());
 			return;
 		}
 	}
@@ -130,13 +130,17 @@ std::vector<std::shared_ptr<pmEquation>> pmCase::get_equations() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Solves all equation in order.
+/// Solves the equation with the given name or all equations in order if name is empty.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 	workspace->sort_all_by_position();
 	if(name=="") {
 		for(auto const& it:equations) {
 			it->solve(num_threads);
+			// Update neighbours only if particle positions could have been changed.
+			if(it->get_lhs()->get_name()=="r") {
+				workspace->sort_all_by_position();
+			}
 		}
 	} else {
 		for(auto const& it:equations) {
