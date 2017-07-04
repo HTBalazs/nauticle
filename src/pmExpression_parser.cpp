@@ -356,7 +356,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			if(it=="vm") {
 				std::array<std::shared_ptr<pmExpression>,3> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmVm_operator>(operands));
+				e.push(std::make_shared<pmDvm_operator>(operands));
 			}
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;

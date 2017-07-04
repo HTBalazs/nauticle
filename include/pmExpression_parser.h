@@ -35,7 +35,7 @@
 #include "pmNbody.h"
 #include "pmDem.h"
 #include "pmSph_operator.h"
-#include "pmVm_operator.h"
+#include "pmDvm_operator.h"
 #include "pmFmin.h"
 #include "pmFmax.h"
 #include "pmFmean.h"

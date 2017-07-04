@@ -30,21 +30,21 @@
 #include "nauticle_constants.h"
 
 namespace Nauticle {
-	class pmVm_operator : public pmFilter<3> {
+	class pmDvm_operator : public pmFilter<3> {
 		std::string op_name;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
-		pmVm_operator() {}
-		pmVm_operator(std::array<std::shared_ptr<pmExpression>,3> op);
-		pmVm_operator(pmVm_operator const& other);
-		pmVm_operator(pmVm_operator&& other);
-		pmVm_operator& operator=(pmVm_operator const& other);
-		pmVm_operator& operator=(pmVm_operator&& other);
-		virtual ~pmVm_operator() {}
+		pmDvm_operator() {}
+		pmDvm_operator(std::array<std::shared_ptr<pmExpression>,3> op);
+		pmDvm_operator(pmDvm_operator const& other);
+		pmDvm_operator(pmDvm_operator&& other);
+		pmDvm_operator& operator=(pmDvm_operator const& other);
+		pmDvm_operator& operator=(pmDvm_operator&& other);
+		virtual ~pmDvm_operator() {}
 		void print() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		std::shared_ptr<pmVm_operator> clone() const;
+		std::shared_ptr<pmDvm_operator> clone() const;
 		virtual void write_to_string(std::ostream& os) const override;
 	};
 }
