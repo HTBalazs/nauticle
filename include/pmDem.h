@@ -161,16 +161,15 @@ namespace Nauticle {
 		double mi = this->operand[3]->evaluate(i,level)[0];
 		double Ei = this->operand[4]->evaluate(i,level)[0];
 		double nui = this->operand[5]->evaluate(i,level)[0];
-		double sn = this->operand[6]->evaluate(i,level)[0];
-		double dt = this->operand[7]->evaluate(i,level)[0];
-		double ct = this->operand[8]->evaluate(i,level)[0];
+		double dt = this->operand[6]->evaluate(i,level)[0];
+		double ct = this->operand[7]->evaluate(i,level)[0];
 		
 		auto normal_force = [&](double const& delta, double const& delta_dot, double const& khz, double const& ck)->double {
-				// spring+damping+Hertz
-				return -sn*delta + ck*delta_dot*std::pow(delta,0.25) - khz*std::pow(delta, 1.5);
+				// damping+Hertz
+				return ck*delta_dot*std::pow(delta,0.25) - khz*std::pow(delta, 1.5);
 		};
 		auto tangential_force = [&](double const& tan_vel, double const& F_normal)->double {
-				// spring+damping & Coulomb
+				// damping & Coulomb
 				return std::max(dt*tan_vel, -F_normal*ct);
 		};
 		auto hertz_force = [&](double const& Rj, double const& Ej, double const& nuj)->double {
