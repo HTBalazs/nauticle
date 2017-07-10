@@ -176,7 +176,7 @@ namespace Nauticle {
 			return Ei==0 && Ej==0 ? 0 : 4.0/3.0*std::sqrt(Ri*Rj/(Ri+Rj))*(Ei*Ej/(Ej*(1-nui*nui)+Ei*(1-nuj*nuj)));
 		};
 		auto hertz_damping = [&](double const& khz, double const& mj)->double {
-			return std::sqrt(khz*(mi+mj)/2.0)/8.0;
+			return std::sqrt(khz*(mi*mj)/(mi+mj)/2.0)/8.0;
 		};
 
 		if(TYPE==LINEAR) {
