@@ -27,9 +27,9 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDvm_operator::write_to_string(std::ostream& os) const {
 	os << op_name << "(";
-	for(int i=0; i<2; i++) {
+	for(int i=0; i<3; i++) {
 		os << this->operand[i];
-		if(i!=1) {
+		if(i!=2) {
 			os << ",";
 		}
 	}
@@ -47,7 +47,7 @@ std::ostream& operator<<(std::ostream& os, pmDvm_operator const* obj) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDvm_operator::pmDvm_operator(std::array<std::shared_ptr<pmExpression>,2> op) {
+pmDvm_operator::pmDvm_operator(std::array<std::shared_ptr<pmExpression>,3> op) {
 	this->operand = std::move(op);
 	size_t type = (int)this->operand[1]->evaluate(0)[0];
 	this->kernel = std::make_shared<pmKernel>();
@@ -136,6 +136,7 @@ pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 	if(!this->assigned) { pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 	double eps_i = this->operand[1]->evaluate(i,level)[0];
+	double rad = this->operand[2]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect(guide);
 		pmTensor contribution{dimension,1,0};
@@ -143,7 +144,7 @@ pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS) {
 			double eps_j = this->operand[1]->evaluate(j,level)[0];
-			if(d_ji < eps_i || d_ji < eps_j) {
+			if(d_ji <= rad) {
 				if(dimension==2) {
 					pmTensor wj{3,1,0};
 					wj[2] = w_j[0];
