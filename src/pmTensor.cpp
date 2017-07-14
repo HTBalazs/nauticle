@@ -654,11 +654,27 @@ void pmTensor::set_scalar(bool const& sc) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Reflects tensor in directions where guide is nonzero.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmTensor::reflect(pmTensor const& guide) const {
+pmTensor pmTensor::reflect_perpendicular(pmTensor const& guide) const {
 	if(scalar) { return *this; }
 	pmTensor R = make_tensor(guide.numel(),guide.numel(),0);
 	for(int i=0; i<guide.numel(); i++) {
 		R[i*rows+i] = guide[i]!=0 ? -1 : 1;
+	}
+	return R*(*this);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Reflects tensor in directions where guide is nonzero.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmTensor::reflect_parallel(pmTensor const& guide) const {
+	pmTensor R = make_identity(guide.numel());
+	for(int i=0; i<guide.numel(); i++) {
+		if(guide[i]!=0) {
+			for(int j=0;j<guide.numel(); j++) {
+				if(i==j) continue;
+				R[j*rows+j] *= -1.0;
+			}
+		}
 	}
 	return R*(*this);
 }

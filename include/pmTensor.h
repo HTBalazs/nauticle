@@ -98,7 +98,8 @@ namespace Nauticle {
 		pmTensor adjugate() const;
 		pmTensor inverse() const;
 		void set_scalar(bool const& sc);
-		pmTensor reflect(pmTensor const& guide) const;
+		pmTensor reflect_perpendicular(pmTensor const& guide) const;
+		pmTensor reflect_parallel(pmTensor const& guide) const;
 		pmTensor append(int const& row, int const& col) const;
 		bool is_integer() const;
 	};

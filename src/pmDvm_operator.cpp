@@ -138,7 +138,7 @@ pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 	double eps_i = this->operand[1]->evaluate(i,level)[0];
 	double rad = this->operand[2]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
-		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect(guide);
+		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect_parallel(guide);
 		pmTensor contribution{dimension,1,0};
 		if(w_j.norm() == 0) { return contribution; }
 		double d_ji = rel_pos.norm();

@@ -188,7 +188,7 @@ namespace Nauticle {
 					if(NOPS==6) {
 						B_j = this->operand[0]->evaluate(j, level);
 					}
-					pmTensor A_j = this->operand[0+sh]->evaluate(j,level).reflect(guide);
+					pmTensor A_j = this->operand[0+sh]->evaluate(j,level).reflect_perpendicular(guide);
 					double m_j = this->operand[1+sh]->evaluate(j,level)[0];
 					double rho_j = this->operand[2+sh]->evaluate(j,level)[0];
 					double W_ij = this->kernel->evaluate(d_ji, (h_i+h_j)/2.0f);
