@@ -173,7 +173,7 @@ namespace Nauticle {
 				// damping & Coulomb
 				return -F_normal*ct;
 		};
-		auto hertz_force = [&](double const& Rj, double const& Ej, double const& nuj)->double {
+		auto hertz_spring = [&](double const& Rj, double const& Ej, double const& nuj)->double {
 			return Ei==0 && Ej==0 ? 0 : 4.0/3.0*std::sqrt(Ri*Rj/(Ri+Rj))*(Ei*Ej/(Ej*(1-nui*nui)+Ei*(1-nuj*nuj)));
 		};
 		auto hertz_damping = [&](double const& khz, double const& mj)->double {
@@ -186,11 +186,11 @@ namespace Nauticle {
 				double d_ji = rel_pos.norm();
 				if(d_ji > NAUTICLE_EPS) {
 					double Rj = this->operand[2]->evaluate(j,level)[0];
-					double mj = this->operand[3]->evaluate(j,level)[0];
-					double Ej = this->operand[4]->evaluate(j,level)[0];
-					double nuj = this->operand[5]->evaluate(j,level)[0];
 					double min_dist = Ri + Rj;
 					if(d_ji < min_dist) {
+						double mj = this->operand[3]->evaluate(j,level)[0];
+						double Ej = this->operand[4]->evaluate(j,level)[0];
+						double nuj = this->operand[5]->evaluate(j,level)[0];
 						pmTensor n_ji = rel_pos / d_ji;
 						pmTensor vj = this->operand[0]->evaluate(j,level).reflect(guide);
 						pmTensor omj = this->operand[1]->evaluate(j,level).reflect(guide);
@@ -198,7 +198,7 @@ namespace Nauticle {
 						// overlap
 						double delta = min_dist-d_ji;
 						double delta_dot = (rel_vel.transpose()*n_ji)[0];
-						double khz = hertz_force(Rj,Ej,nuj);
+						double khz = hertz_spring(Rj,Ej,nuj);
 						double ck = hertz_damping(khz, mj);
 						// normal_force
 						double F_normal = normal_force(delta, delta_dot, khz, ck);
@@ -220,7 +220,7 @@ namespace Nauticle {
 						} else if(dimension==3) {
 							tan_vel += cross(wi,rci*n_ji) + cross(wj,rcj*n_ji);
 						}
-						// tangential shear and friction force
+						// tangential friction force
 						double vt = tan_vel.norm();
 						if(vt>NAUTICLE_EPS) {
 							pmTensor t_ji = tan_vel/vt;
@@ -238,11 +238,11 @@ namespace Nauticle {
 				double d_ji = rel_pos.norm();
 				if(d_ji > NAUTICLE_EPS) {
 					double Rj = this->operand[2]->evaluate(j,level)[0];
-					double mj = this->operand[3]->evaluate(j,level)[0];
-					double Ej = this->operand[4]->evaluate(j,level)[0];
-					double nuj = this->operand[5]->evaluate(j,level)[0];
 					double min_dist = Ri + Rj;
 					if(d_ji < min_dist) {
+						double mj = this->operand[3]->evaluate(j,level)[0];
+						double Ej = this->operand[4]->evaluate(j,level)[0];
+						double nuj = this->operand[5]->evaluate(j,level)[0];
 						pmTensor n_ji = rel_pos / d_ji;
 						// overlap
 						pmTensor vj = this->operand[0]->evaluate(j,level).reflect(guide);
@@ -251,7 +251,7 @@ namespace Nauticle {
 
 						double delta = min_dist-d_ji;
 						double delta_dot = (rel_vel.transpose()*n_ji)[0];
-						double khz = hertz_force(Rj,Ej,nuj);
+						double khz = hertz_spring(Rj,Ej,nuj);
 						double ck = hertz_damping(khz,mj);
 						// normal_force
 						double F_normal = normal_force(delta, delta_dot, khz, ck);
