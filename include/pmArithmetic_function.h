@@ -26,7 +26,7 @@
 #include "pmRandom.h"
 #include "prolog/pLogger.h"
 
-enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, IF, LOG, LT, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, EULER, PREDICTOR, CORRECTOR};
+enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR};
 
 /** This class implements the following operations for the expression tree: summation, subtraction,
 //  multiplication, division, power, term-by-term product for two operands furthermore addition and 
@@ -73,9 +73,11 @@ namespace Nauticle {
 			case EXP : op_name="exp"; break;
 			case FLOOR : op_name="floor"; break;
 			case GT : op_name="gt"; break;
+			case GTE : op_name="gte"; break;
 			case IF : op_name="if"; break;
 			case LOG : op_name="log"; break;
 			case LT : op_name="lt"; break;
+			case LTE : op_name="lte"; break;
 			case MAGNITUDE : op_name="magnitude"; break;
 			case MAX : op_name="max"; break;
 			case MIN : op_name="min"; break;
@@ -97,6 +99,7 @@ namespace Nauticle {
 			case DETERMINANT : op_name="determinant"; break;
 			case INVERSE : op_name="inverse"; break;
 			case EQUAL : op_name="eq"; break;
+			case NOTEQUAL : op_name="neq"; break;
 			case EULER : op_name="euler"; break;
 			case PREDICTOR : op_name="predictor"; break;
 			case CORRECTOR : op_name="corrector"; break;
@@ -190,7 +193,9 @@ namespace Nauticle {
 			case EXP : return exp(this->operand[0]->evaluate(i, level));
 			case FLOOR : return floor(this->operand[0]->evaluate(i, level));
 			case GT : return (this->operand[0]->evaluate(i, level) > this->operand[1]->evaluate(i, level));
+			case GTE : return (this->operand[0]->evaluate(i, level) >= this->operand[1]->evaluate(i, level));
 			case EQUAL : return (this->operand[0]->evaluate(i, level) == this->operand[1]->evaluate(i, level));
+			case NOTEQUAL : return !(this->operand[0]->evaluate(i, level) == this->operand[1]->evaluate(i, level));
 			case IF : 	{
 							pmTensor t2 = this->operand[0]->evaluate(i, level);
 							if(!t2.is_scalar()) { pLogger::error_msgf("Logical value should be scalar.\n"); }
@@ -198,6 +203,7 @@ namespace Nauticle {
 						}
 			case LOG : return log(this->operand[0]->evaluate(i, level));
 			case LT : return (this->operand[0]->evaluate(i, level) < this->operand[1]->evaluate(i, level));
+			case LTE : return (this->operand[0]->evaluate(i, level) <= this->operand[1]->evaluate(i, level));
 			case MAGNITUDE : return this->operand[0]->evaluate(i, level).norm();
 			case MAX : return max(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
 			case MIN : return min(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));

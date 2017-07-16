@@ -288,7 +288,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator>(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"greater\" works only with scalars.\n");
+			pLogger::error_msgf("Logical \"gt\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] > rhs[0])};
 	}
@@ -298,7 +298,27 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator<(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"less\" works only with scalars.\n");
+			pLogger::error_msgf("Logical \"lt\" works only with scalars.\n");
+		}
+		return pmTensor{1,1,(double)(lhs[0] < rhs[0])};
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementation of > operator for pmTensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline pmTensor operator>=(pmTensor const& lhs, pmTensor const& rhs) {
+		if(!lhs.is_scalar() || !rhs.is_scalar()) {
+			pLogger::error_msgf("Logical \"gte\" works only with scalars.\n");
+		}
+		return pmTensor{1,1,(double)(lhs[0] > rhs[0])};
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementation of < operator for pmTensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline pmTensor operator<=(pmTensor const& lhs, pmTensor const& rhs) {
+		if(!lhs.is_scalar() || !rhs.is_scalar()) {
+			pLogger::error_msgf("Logical \"lte\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] < rhs[0])};
 	}

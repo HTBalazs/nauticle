@@ -473,10 +473,25 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<GT,2>>(operands));
 			}
+			if(it=="lte") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<LTE,2>>(operands));
+			}
+			if(it=="gte") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<GTE,2>>(operands));
+			}
 			if(it=="eq") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<EQUAL,2>>(operands));
+			}
+			if(it=="neq") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<NOTEQUAL,2>>(operands));
 			}
 			if(it=="min") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
