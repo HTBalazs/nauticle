@@ -208,56 +208,56 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<SAMPLE,0,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return A_j*m_j/rho_j*W_ij;
+		return A_j*(m_j/rho_j*W_ij);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<XSAMPLE,0,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return (A_j-A_i)*m_j/rho_j*W_ij;
+		return (A_j-A_i)*(m_j/rho_j*W_ij);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<GRADIENT,0,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -((A_j-A_i)*m_j/rho_j*W_ij*r_ji.transpose()/d_ji).to_column();
+		return -((A_j-A_i)*r_ji.transpose()).to_column()*(m_j/rho_j*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<GRADIENT,1,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -((A_j+A_i)*m_j/rho_j*W_ij*r_ji.transpose()/d_ji).to_column();
+		return -((A_j+A_i)*r_ji.transpose()).to_column()*(m_j/rho_j*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<GRADIENT,2,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -(A_j*m_j/rho_j*W_ij*r_ji.transpose()/d_ji).to_column();
+		return -(A_j*r_ji.transpose()).to_column()*(m_j/rho_j*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<DIVERGENCE,0,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -((A_j-A_i).to_row()*m_j/rho_j*W_ij*r_ji/d_ji);
+		return -(A_j-A_i).to_row()*r_ji*(m_j/rho_j*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<DIVERGENCE,1,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -((A_j+A_i).to_row()*m_j/rho_j*W_ij*r_ji/d_ji);
+		return -(A_j+A_i).to_row()*r_ji*(m_j/rho_j*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<DIVERGENCE,2,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -(A_j.to_row()*m_j/rho_j*W_ij*r_ji/d_ji);
+		return -A_j.to_row()*r_ji*(m_j/rho_j*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
@@ -266,7 +266,7 @@ namespace Nauticle {
 	inline pmTensor pmSph_operator<LAPLACE,0,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
 		pmTensor e_ij = -r_ji/d_ji;
 		// return 2.0*e_ij.transpose()/d_ji*(A_i-A_j)*m_j/rho_j*W_ij*e_ij;
-		return 2.0*e_ij.transpose()/d_ji*W_ij*e_ij*(A_i-A_j)*m_j/rho_j;
+		return e_ij.transpose()*e_ij*(A_i-A_j)*(2.0*m_j/rho_j/d_ji*W_ij);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
@@ -274,35 +274,39 @@ namespace Nauticle {
 	template<>
 	inline pmTensor pmSph_operator<LAPLACE,1,0,6>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
 		pmTensor e_ij = -r_ji/d_ji;
-		return 2.0*e_ij.transpose()/d_ji*(A_i-A_j)*m_j/rho_j*W_ij*e_ij;
+		return e_ij.transpose()*e_ij*(A_i-A_j)*(2.0*m_j/rho_j*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<GRADIENT,0,1,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -((A_j-A_i)*m_j/rho_i*W_ij*r_ji.transpose()/d_ji).to_column();
+		return -((A_j-A_i)*r_ji.transpose()).to_column()*(m_j/rho_i*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<GRADIENT,1,1,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -((A_j/rho_j/rho_j+A_i/rho_i/rho_i)*m_j*rho_i*W_ij*r_ji.transpose()/d_ji).to_column();
+		pmTensor A_rho_i = A_i/(rho_i*rho_i);
+		pmTensor A_rho_j = A_j/(rho_j*rho_j);
+		return -((A_rho_i+A_rho_j)*r_ji.transpose()).to_column()*(m_j*rho_i*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<DIVERGENCE,0,1,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -((A_j-A_i).to_row()*m_j/rho_i*W_ij*r_ji/d_ji);
+		return -(A_j-A_i).to_row()*r_ji*(m_j/rho_i*W_ij/d_ji);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
 	inline pmTensor pmSph_operator<DIVERGENCE,1,1,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
-		return -((A_j/rho_j/rho_j+A_i/rho_i/rho_i).to_row()*m_j*rho_i*W_ij*r_ji/d_ji);
+		pmTensor A_rho_i = A_i/(rho_i*rho_i);
+		pmTensor A_rho_j = A_j/(rho_j*rho_j);
+		return -(A_rho_i+A_rho_j).to_row()*r_ji*(m_j*rho_i*W_ij/d_ji);
 	}
 }
 
