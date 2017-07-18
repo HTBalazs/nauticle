@@ -31,15 +31,17 @@
 
 /** This class converts the given std::string formatted equation to a pmEquation object.
 */
-class pmEquation_parser final : public pmExpression_parser {
-private:
-	bool verify_sides(std::string const& raw_data) const;
-	std::string get_lhs_infix(std::string const& data) const;
-	std::string get_rhs_infix(std::string const& data) const;
-public:
-	pmEquation_parser() {}
-	virtual ~pmEquation_parser() override {}
-	std::shared_ptr<pmEquation> analyse_equation(std::string const& name, std::string const& equation_data, std::string const& condition_data, std::shared_ptr<pmWorkspace> workspace);
-};
+namespace Nauticle {
+    class pmEquation_parser final : public pmExpression_parser {
+    private:
+    	bool verify_sides(std::string const& raw_data) const;
+    	std::string get_lhs_infix(std::string const& data) const;
+    	std::string get_rhs_infix(std::string const& data) const;
+    public:
+    	pmEquation_parser() {}
+    	virtual ~pmEquation_parser() override {}
+    	std::shared_ptr<pmEquation> analyse_equation(std::string const& name, std::string const& equation_data, std::string const& condition_data, std::shared_ptr<pmWorkspace> workspace);
+    };
+}
 
 #endif //_EQUATION_PARSER_H_

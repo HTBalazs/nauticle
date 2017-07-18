@@ -24,33 +24,35 @@
 #include <string>
 #include "pmSingle.h"
 
-/** This class represents a single-valued variable.
-*/
-class pmVariable final : public pmSingle {
-protected:
-	virtual std::shared_ptr<pmExpression> clone_impl() const override;
-	size_t depth = 1;
-public:
-	pmVariable()=delete;
-	pmVariable(std::string const& n, pmTensor const& v=pmTensor{0});
-	pmVariable(pmVariable const&)=default;
-	pmVariable(pmVariable&&)=default;
-	pmVariable& operator=(pmVariable const&)=default;
-	pmVariable& operator=(pmVariable&&)=default;
-	virtual ~pmVariable() override {}
-	void set_storage_depth(size_t const& d) override;
-	pmTensor evaluate(int const&, size_t const& level=0) const override;
-	void set_value(pmTensor const& value, int const& i=0) override;
-	std::shared_ptr<pmVariable> clone() const;
-	virtual void write_to_string(std::ostream& os) const override;
-};
+namespace Nauticle {
+	/** This class represents a single-valued variable.
+	*/
+	class pmVariable final : public pmSingle {
+	protected:
+		virtual std::shared_ptr<pmExpression> clone_impl() const override;
+		size_t depth = 1;
+	public:
+		pmVariable()=delete;
+		pmVariable(std::string const& n, pmTensor const& v=pmTensor{0});
+		pmVariable(pmVariable const&)=default;
+		pmVariable(pmVariable&&)=default;
+		pmVariable& operator=(pmVariable const&)=default;
+		pmVariable& operator=(pmVariable&&)=default;
+		virtual ~pmVariable() override {}
+		void set_storage_depth(size_t const& d) override;
+		pmTensor evaluate(int const&, size_t const& level=0) const override;
+		void set_value(pmTensor const& value, int const& i=0) override;
+		std::shared_ptr<pmVariable> clone() const;
+		virtual void write_to_string(std::ostream& os) const override;
+	};
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementation of << operator for pmTensor.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmVariable const* obj) {														\
-	obj->write_to_string(os);																					\
-	return os;																									\
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementation of << operator for pmTensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline std::ostream& operator<<(std::ostream& os, pmVariable const* obj) {														\
+		obj->write_to_string(os);																					\
+		return os;																									\
+	}
 }
 
 

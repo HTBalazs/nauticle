@@ -21,6 +21,8 @@
 #include <cmath>
 #include "pmTensor.h"
 
+using namespace Nauticle;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -572,7 +574,7 @@ pmTensor pmTensor::divide_term_by_term(pmTensor const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::multiply_term_by_term(pmTensor const& rhs) const {
 	if(this->rows!=rhs.rows || this->columns!=rhs.columns) { 
-		pLogger::error_msgf("Tensor dimensions do not agree for term by term division.");
+		pLogger::error_msgf("Tensor dimensions do not agree for term by term division.\n");
 	}
 	pmTensor tensor{*this};
 	for(int i=0; i<numel(); i++) {
@@ -586,7 +588,7 @@ pmTensor pmTensor::multiply_term_by_term(pmTensor const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmTensor::norm() const {
 	if(this->is_vector()) {
-		return sqrt((this->multiply_term_by_term(*this)).summation());
+		return std::sqrt((this->multiply_term_by_term(*this)).summation());
 	} else if(this->is_scalar()) {
 		return std::abs(elements[0]);
 	}
@@ -652,11 +654,27 @@ void pmTensor::set_scalar(bool const& sc) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Reflects tensor in directions where guide is nonzero.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmTensor::reflect(pmTensor const& guide) const {
+pmTensor pmTensor::reflect_perpendicular(pmTensor const& guide) const {
 	if(scalar) { return *this; }
 	pmTensor R = make_tensor(guide.numel(),guide.numel(),0);
 	for(int i=0; i<guide.numel(); i++) {
 		R[i*rows+i] = guide[i]!=0 ? -1 : 1;
+	}
+	return R*(*this);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Reflects tensor in directions where guide is nonzero.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmTensor::reflect_parallel(pmTensor const& guide) const {
+	pmTensor R = make_identity(guide.numel());
+	for(int i=0; i<guide.numel(); i++) {
+		if(guide[i]!=0) {
+			for(int j=0;j<guide.numel(); j++) {
+				if(i==j) continue;
+				R[j*rows+j] *= -1.0;
+			}
+		}
 	}
 	return R*(*this);
 }

@@ -27,28 +27,30 @@
 //  interpreted. The domain can be of any dimensions (1..3). The domain is axis-aligned 
 //  in the Cartesian coordinate system. The domain boundaries can be periodic, symmetric or cutoff.
 */
-class pmDomain {
-	pmTensor minimum;
-	pmTensor maximum;
-	double cell_size;
-	pmTensor boundary;
-public:
-	pmDomain() {}
-	pmDomain(pmTensor const& dmin, pmTensor const& dmax, double const& csize, pmTensor const& bnd);
-	pmTensor get_minimum() const;
-	pmTensor get_maximum() const;
-	double get_cell_size() const;
-	size_t get_num_cells() const;
-	size_t get_dimensions() const;
-	pmTensor get_physical_minimum() const;
-	pmTensor get_physical_maximum() const;
-	pmTensor get_physical_size() const;
-	pmTensor get_boundary() const;
-	void set_minimum(pmTensor const& mn);
-	void set_maximum(pmTensor const& mx);
-	void set_cell_size(double const& csize);
-	void set_boundary(pmTensor const& bnd);
-	void print() const;
-};
+namespace Nauticle {
+	class pmDomain {
+		pmTensor minimum;
+		pmTensor maximum;
+		double cell_size;
+		pmTensor boundary;
+	public:
+		pmDomain() {}
+		pmDomain(pmTensor const& dmin, pmTensor const& dmax, double const& csize, pmTensor const& bnd);
+		pmTensor get_minimum() const;
+		pmTensor get_maximum() const;
+		double get_cell_size() const;
+		size_t get_num_cells() const;
+		size_t get_dimensions() const;
+		pmTensor get_physical_minimum() const;
+		pmTensor get_physical_maximum() const;
+		pmTensor get_physical_size() const;
+		pmTensor get_boundary() const;
+		void set_minimum(pmTensor const& mn);
+		void set_maximum(pmTensor const& mx);
+		void set_cell_size(double const& csize);
+		void set_boundary(pmTensor const& bnd);
+		void print() const;
+	};
+}
 
 #endif //_DOMAIN_H_

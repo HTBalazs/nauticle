@@ -23,29 +23,31 @@
 
 #include "pmFsearch.h"
 
-/** This class calculates the mean value of a pmField over a pmParticle_system
-*/
-class pmFmean : public pmFsearch {
-	std::shared_ptr<pmExpression> clone_impl() const override;
-private:
-	void process(pmTensor& value, size_t const& level=0) const override;
-public:
-	pmFmean(std::shared_ptr<pmExpression>);
-	pmFmean(pmFmean const& other);
-	pmFmean(pmFmean&& other);
-	pmFmean& operator=(pmFmean const& other);
-	pmFmean& operator=(pmFmean&& other);
-	std::shared_ptr<pmFmean> clone() const;
-	void print() const override;
-	virtual void write_to_string(std::ostream& os) const override;
-};
+namespace Nauticle {
+    /** This class calculates the mean value of a pmField over a pmParticle_system
+    */
+    class pmFmean : public pmFsearch {
+    	std::shared_ptr<pmExpression> clone_impl() const override;
+    private:
+    	void process(pmTensor& value, size_t const& level=0) const override;
+    public:
+    	pmFmean(std::shared_ptr<pmExpression>);
+    	pmFmean(pmFmean const& other);
+    	pmFmean(pmFmean&& other);
+    	pmFmean& operator=(pmFmean const& other);
+    	pmFmean& operator=(pmFmean&& other);
+    	std::shared_ptr<pmFmean> clone() const;
+    	void print() const override;
+    	virtual void write_to_string(std::ostream& os) const override;
+    };
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementaton of << operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmFmean const* obj) {
-	obj->write_to_string(os);
-	return os;
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Implementaton of << operator.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    inline std::ostream& operator<<(std::ostream& os, pmFmean const* obj) {
+    	obj->write_to_string(os);
+    	return os;
+    }
 }
 
 #endif //_FMEAN_H_

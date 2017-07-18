@@ -29,20 +29,22 @@
 
 /** This class analyses the input commands on execution.
 */
-class pmCommand_parser {
-private:
-    int argc;
-    std::vector<std::string> argv;
-    bool switches_on;
-    std::map<std::string,std::string> switch_map;
-public:
-    pmCommand_parser(int argc_, char* argv_[], bool switches_on_=false);
-    ~pmCommand_parser() {}
-    std::string get_arg(int i);
-    std::string get_arg(std::string s);
-    static void print_command_list();
-    static void print_header();
-    static void print_version();
-};
+namespace Nauticle {
+    class pmCommand_parser {
+    private:
+        int argc;
+        std::vector<std::string> argv;
+        bool switches_on;
+        std::map<std::string,std::string> switch_map;
+    public:
+        pmCommand_parser(int argc_, char* argv_[], bool switches_on_=false);
+        ~pmCommand_parser() {}
+        std::string get_arg(int i);
+        std::string get_arg(std::string s);
+        static void print_command_list();
+        static void print_header();
+        static void print_version();
+    };
+}
 
 #endif //_COMMAND_PARSER_H_

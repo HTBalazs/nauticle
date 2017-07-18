@@ -25,50 +25,52 @@
 #include "pmSymbol.h"
 #include "pmSort.h"
 
-/** An object of this class can hold a field of scalar, vector or tensor above any particle
-//  cloud. No assignment to any particle system is required but sorting is always performed when
-//  the particle system sorting in the same workspace is triggered. The field optionally stores
-//  a copy of the field data in the previous step. Current and previous data is managed automatically
-//  when the two_step option is on.
-*/
-class pmField : public pmSymbol {
-protected:
-	// std::vector<pmTensor> current_value;
-	// std::vector<pmTensor> previous_value;
-	std::vector<std::vector<pmTensor>> value;
-	size_t depth = 1;
-protected:
-	virtual std::shared_ptr<pmExpression> clone_impl() const override;
-public:
-	pmField()=delete;
-	pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0});
-	pmField(std::string const& n, std::vector<pmTensor> const& value);
-	pmField(pmField const&);
-	pmField(pmField&&);
-	pmField& operator=(pmField const&);
-	pmField& operator=(pmField&&);
-	virtual ~pmField() override {}
-	void printv() const override;
-	pmTensor evaluate(int const& i, size_t const& level=0) const override;
-	virtual void set_value(pmTensor const& value, int const& i=0) override;
-	pmTensor get_value(int const& i) const override;
-	int get_field_size() const override;
-	std::string get_type() const override;
-	void set_storage_depth(size_t const& d) override;
-	void push_back(pmTensor const& obj);
-	bool is_double_steps() const;
-	std::shared_ptr<pmField> clone() const;
-	void sort_field(std::vector<int> const& sorted_idx);
-	virtual void set_number_of_nodes(size_t const& N);
-	virtual void write_to_string(std::ostream& os) const override;
-};
+namespace Nauticle {
+	/** An object of this class can hold a field of scalar, vector or tensor above any particle
+	//  cloud. No assignment to any particle system is required but sorting is always performed when
+	//  the particle system sorting in the same workspace is triggered. The field optionally stores
+	//  a copy of the field data in the previous step. Current and previous data is managed automatically
+	//  when the two_step option is on.
+	*/
+	class pmField : public pmSymbol {
+	protected:
+		// std::vector<pmTensor> current_value;
+		// std::vector<pmTensor> previous_value;
+		std::vector<std::vector<pmTensor>> value;
+		size_t depth = 1;
+	protected:
+		virtual std::shared_ptr<pmExpression> clone_impl() const override;
+	public:
+		pmField()=delete;
+		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0});
+		pmField(std::string const& n, std::vector<pmTensor> const& value);
+		pmField(pmField const&);
+		pmField(pmField&&);
+		pmField& operator=(pmField const&);
+		pmField& operator=(pmField&&);
+		virtual ~pmField() override {}
+		void printv() const override;
+		pmTensor evaluate(int const& i, size_t const& level=0) const override;
+		virtual void set_value(pmTensor const& value, int const& i=0) override;
+		pmTensor get_value(int const& i) const override;
+		int get_field_size() const override;
+		std::string get_type() const override;
+		void set_storage_depth(size_t const& d) override;
+		void push_back(pmTensor const& obj);
+		bool is_double_steps() const;
+		std::shared_ptr<pmField> clone() const;
+		void sort_field(std::vector<int> const& sorted_idx);
+		virtual void set_number_of_nodes(size_t const& N);
+		virtual void write_to_string(std::ostream& os) const override;
+	};
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implementaton of << operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-inline std::ostream& operator<<(std::ostream& os, pmField const* obj) {
-	obj->write_to_string(os);
-	return os;
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementaton of << operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline std::ostream& operator<<(std::ostream& os, pmField const* obj) {
+		obj->write_to_string(os);
+		return os;
+	}
 }
 
 #endif //_FIELD_H_

@@ -22,6 +22,8 @@
 #include "pmExpression_parser.h"
 #include "commonutils/Common.h"
 
+using namespace Nauticle;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Verifies the table of the infix.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -272,14 +274,14 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				e.push(std::make_shared<pmNbody>(operands));
 			}
 			if(it=="dem_l") {
-				std::array<std::shared_ptr<pmExpression>,9> operands;
+				std::array<std::shared_ptr<pmExpression>,7> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmDem<LINEAR,9>>(operands));
+				e.push(std::make_shared<pmDem<LINEAR,7>>(operands));
 			}
 			if(it=="dem_a") {
-				std::array<std::shared_ptr<pmExpression>,9> operands;
+				std::array<std::shared_ptr<pmExpression>,7> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmDem<ANGULAR,9>>(operands));
+				e.push(std::make_shared<pmDem<ANGULAR,7>>(operands));
 			}
 			if(it=="sph_X00") {
 				std::array<std::shared_ptr<pmExpression>,5> operands;
@@ -351,10 +353,10 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<LAPLACE,1,0,6>>(operands));
 			}
-			if(it=="vm") {
+			if(it=="dvm") {
 				std::array<std::shared_ptr<pmExpression>,3> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmVm_operator>(operands));
+				e.push(std::make_shared<pmDvm_operator>(operands));
 			}
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
@@ -471,10 +473,25 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<GT,2>>(operands));
 			}
+			if(it=="lte") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<LTE,2>>(operands));
+			}
+			if(it=="gte") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<GTE,2>>(operands));
+			}
 			if(it=="eq") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<EQUAL,2>>(operands));
+			}
+			if(it=="neq") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<NOTEQUAL,2>>(operands));
 			}
 			if(it=="min") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;

@@ -27,43 +27,45 @@
 #include "prolog/pLogger.h"
 #include "pmNoncopyable.h"
 
-/** This class implements the particle generation over a uniform spatial grid.
-*/
-class pmGrid {
-	std::string file_name="";
-	size_t dimensions;
-	pmTensor position;
-	pmTensor size;
-	pmTensor offset;
-	pmTensor distance;
-	pmTensor grid_id;
-	std::vector<pmTensor> grid;
-	using Func = std::function<void(std::vector<int>&)>;
-private:
-	void n_level_loop(std::vector<int>& indexes, const std::vector<int>& endPerIndex, int idx, Func process);
-	void initialize_direction(double const& ofs, double& s, double& dist, double& n) const;
-	void initialize_grid(pmTensor& S, pmTensor& D, pmTensor& N) const;
-public:
-	pmGrid() {}
-	pmGrid(pmGrid const& other);
-	pmGrid(pmGrid&& other);
-	pmGrid& operator=(pmGrid const& other);
-	pmGrid& operator=(pmGrid&& other);
-	~pmGrid() {}
-	void set_file_name(std::string const& fn);
-	void set_dimensions(size_t const& d);
-	void set_position(pmTensor const& p);
-	void set_size(pmTensor const& s);
-	void set_offset(pmTensor const& o);
-	void set_distance(pmTensor const& d);
-	void set_grid_id(pmTensor const& t);
-	void generate();
-	void merge(std::shared_ptr<pmGrid> other);
-	void print() const;
-	void destroy_grid();
-	std::vector<pmTensor> get_grid() const;
-	pmTensor get_grid_id() const;
-	size_t get_grid_size() const;
-};
+namespace Nauticle {
+	/** This class implements the particle generation over a uniform spatial grid.
+	*/
+	class pmGrid {
+		std::string file_name="";
+		size_t dimensions;
+		pmTensor position;
+		pmTensor size;
+		pmTensor offset;
+		pmTensor distance;
+		pmTensor grid_id;
+		std::vector<pmTensor> grid;
+		using Func = std::function<void(std::vector<int>&)>;
+	private:
+		void n_level_loop(std::vector<int>& indexes, const std::vector<int>& endPerIndex, int idx, Func process);
+		void initialize_direction(double const& ofs, double& s, double& dist, double& n) const;
+		void initialize_grid(pmTensor& S, pmTensor& D, pmTensor& N) const;
+	public:
+		pmGrid() {}
+		pmGrid(pmGrid const& other);
+		pmGrid(pmGrid&& other);
+		pmGrid& operator=(pmGrid const& other);
+		pmGrid& operator=(pmGrid&& other);
+		~pmGrid() {}
+		void set_file_name(std::string const& fn);
+		void set_dimensions(size_t const& d);
+		void set_position(pmTensor const& p);
+		void set_size(pmTensor const& s);
+		void set_offset(pmTensor const& o);
+		void set_distance(pmTensor const& d);
+		void set_grid_id(pmTensor const& t);
+		void generate();
+		void merge(std::shared_ptr<pmGrid> other);
+		void print() const;
+		void destroy_grid();
+		std::vector<pmTensor> get_grid() const;
+		pmTensor get_grid_id() const;
+		size_t get_grid_size() const;
+	};
+}
 
 #endif // _GRID_H_

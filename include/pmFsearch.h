@@ -23,16 +23,18 @@
 
 #include "pmInteraction.h"
 
-/** This abstract class forms a parent class for pmField operations.
-*/
-class pmFsearch : public pmInteraction<1> {
-private:
-	virtual void process(pmTensor& value, size_t const& level=0) const=0;
-public:
-	virtual ~pmFsearch() {}
-	virtual int get_field_size() const override;
-	bool is_assigned() const override;
-	pmTensor evaluate(int const& i, size_t const& level=0) const override;
-};
+namespace Nauticle {
+    /** This abstract class forms a parent class for pmField operations.
+    */
+    class pmFsearch : public pmInteraction<1> {
+    private:
+    	virtual void process(pmTensor& value, size_t const& level=0) const=0;
+    public:
+    	virtual ~pmFsearch() {}
+    	virtual int get_field_size() const override;
+    	bool is_assigned() const override;
+    	pmTensor evaluate(int const& i, size_t const& level=0) const override;
+    };
+}
 
 #endif //_FSEARCH_H_
