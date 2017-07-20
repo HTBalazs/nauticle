@@ -27,9 +27,9 @@
 #include "prolog/pLogger.h"
 #include "pmVersion.h"
 
-/** This class analyses the input commands on execution.
-*/
 namespace Nauticle {
+    /** This class analyses the input commands on execution.
+    */
     class pmCommand_parser {
     private:
         int argc;

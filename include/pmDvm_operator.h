@@ -30,6 +30,9 @@
 #include "nauticle_constants.h"
 
 namespace Nauticle {
+	/** This class implements the DVM meshless interpolant operators.
+	//  It requires a pmParticle_system assigned to it.
+	*/
 	class pmDvm_operator : public pmFilter<3> {
 		std::string op_name;
 	private:

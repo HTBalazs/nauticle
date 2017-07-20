@@ -24,11 +24,11 @@
 #include <string>
 #include "pmSingle.h"
 
-/** This class implements the constant expression in the expression tree. 
-//  A constant can be named or anonymous. The value of a constant cannot be changed
-//  after definition so the set_value function does not do anything.
-*/
 namespace Nauticle {
+	/** This class implements the constant expression in the expression tree. 
+	//  A constant can be named or anonymous. The value of a constant cannot be changed
+	//  after definition so the set_value function does not do anything.
+	*/
 	class pmConstant final : public pmSingle {
 		bool hidden=false;
 	protected:

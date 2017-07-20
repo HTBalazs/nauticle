@@ -32,14 +32,14 @@
 #include "pmExpression.h"
 #include "pmWorkspace.h"
 
-/** This class represents an algebraic or differential equation with pmExpression-s
-//  on the lhs and rhs. The lhs must contain a pmVariable which is overwritten by
-//  the "evaluate" and "solve" member functions.
-//  When a pmEquation object is destroyed the lhs and rhs pmExpression-s are destroyed
-//  as well except if they are pmVariable or pmConstant objects. They are always managed
-//  by the pmWorkspace object. (TODO: std::shared_ptr) 
-*/
 namespace Nauticle {
+	/** This class represents an algebraic or differential equation with pmExpression-s
+	//  on the lhs and rhs. The lhs must contain a pmVariable which is overwritten by
+	//  the "evaluate" and "solve" member functions.
+	//  When a pmEquation object is destroyed the lhs and rhs pmExpression-s are destroyed
+	//  as well except if they are pmVariable or pmConstant objects. They are always managed
+	//  by the pmWorkspace object. (TODO: std::shared_ptr) 
+	*/
 	class pmEquation final {
 	protected:
 		std::string name = "";

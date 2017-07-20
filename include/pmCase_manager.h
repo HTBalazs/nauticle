@@ -30,16 +30,16 @@
 #include "pmCase.h"
 #include "pmVTK_manager.h"
 
-/** This class represents the problem to solve. The contructor recieves the file
-//  name of the *.XML configuration file.
-//	It contains three objects:
-//  	- cas: contains all the equations to solve
-//		- parameter space: this object holds the general constant values relating
-//		to the calculations but not appear up in any of the equations.
-//		- particle system: if contains a particle cloud on which the equations and fields
-//		are interpreted.
-*/
 namespace Nauticle {
+	/** This class represents the problem to solve. The contructor recieves the file
+	//  name of the *.XML configuration file.
+	//	It contains three objects:
+	//  	- cas: contains all the equations to solve
+	//		- parameter space: this object holds the general constant values relating
+	//		to the calculations but not appear up in any of the equations.
+	//		- particle system: if contains a particle cloud on which the equations and fields
+	//		are interpreted.
+	*/
 	class pmCase_manager final {
 	private:
 		std::shared_ptr<pmCase> cas;

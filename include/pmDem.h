@@ -26,16 +26,16 @@
 #include "nauticle_constants.h"
 #include "Color_define.h"
 
-/** This class implements the conventianal Discrete element method as 
-//  through interactions between particles. 
-*/
-
-enum DEM_TYPE {
-	LINEAR,
-	ANGULAR
-};
 
 namespace Nauticle {
+	enum DEM_TYPE {
+		LINEAR,
+		ANGULAR
+	};
+	
+	/** This class implements the conventianal Discrete element method as 
+	//  through interactions between particles. 
+	*/
 	template <DEM_TYPE TYPE, size_t NOPS>
 	class pmDem : public pmInteraction<NOPS> {
 	private:

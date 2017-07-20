@@ -26,11 +26,11 @@
 #include "prolog/pLogger.h"
 #include "Color_define.h"
 
-/** This class implements the following operations for the expression tree: summation, subtraction,
-//  multiplication, division, power, term-by-term product for two operands furthermore summation and 
-//  subtraction with one operand.
-*/
 namespace Nauticle {
+	/** This class implements the following operations for the expression tree: summation, subtraction,
+	//  multiplication, division, power, term-by-term product for two operands furthermore summation and 
+	//  subtraction with one operand.
+	*/
 	template <char ARI_TYPE, size_t S>
 	class pmArithmetic_operator final: public pmOperator<S> {
 	protected:

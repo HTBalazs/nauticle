@@ -31,9 +31,11 @@
 #include "Color_define.h"
 
 namespace Nauticle {
-
 	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, GRADIENT, DIVERGENCE, LAPLACE };
 
+	/** This class implements the SPH meshless interpolant operators.
+	//  It requires a pmParticle_system assigned to it.
+	*/
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	class pmSph_operator : public pmFilter<NOPS> {
 		std::string op_name;

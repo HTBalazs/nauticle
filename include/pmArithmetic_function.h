@@ -27,14 +27,15 @@
 #include "prolog/pLogger.h"
 #include "Color_define.h"
 
-enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR};
 
-/** This class implements the following operations for the expression tree: summation, subtraction,
-//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
-//  negation with one operand.
-*/
 
 namespace Nauticle {
+	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR};
+	
+	/** This class implements the following operations for the expression tree: summation, subtraction,
+	//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
+	//  negation with one operand.
+	*/
 	template <Ari_fn_type ARI_TYPE, size_t S>
 	class pmArithmetic_function final : public pmOperator<S> {
 		std::string op_name;

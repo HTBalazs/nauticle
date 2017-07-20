@@ -28,14 +28,14 @@
 #include "pmWorkspace.h"
 #include "pmEquation.h"
 
-/** This class represents the mathematical problem to solve. It contains two 
-//	objects:
-//		- workspace: it manages all the variables and named constants,
-//		- equations: vector of equations governing the problem.
-//	Destroying a solver object destroys the workspace and equations
-//  either.
-*/
 namespace Nauticle {
+	/** This class represents the mathematical problem to solve. It contains two 
+	//	objects:
+	//		- workspace: it manages all the variables and named constants,
+	//		- equations: vector of equations governing the problem.
+	//	Destroying a solver object destroys the workspace and equations
+	//  either.
+	*/
 	class pmCase final {
 		std::shared_ptr<pmWorkspace> workspace;
 		std::vector<std::shared_ptr<pmEquation>> equations;

@@ -96,6 +96,10 @@ std::string pmCommand_parser::get_arg(std::string s) {
 	ProLog::pLogger::line_feed(1);
 	already_written = true;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints version of Nauticle.
+/////////////////////////////////////////////////////////////////////////////////////////
 /*static*/ void pmCommand_parser::print_version() {
 	ProLog::pLogger::log<ProLog::WHT>("Nauticle version %i.%i.%i\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
 }

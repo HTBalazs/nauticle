@@ -30,6 +30,9 @@ pmVariable::pmVariable(std::string const& n, pmTensor const& v/*=pmTensor{0}*/) 
 	value.push_back(v);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set the number of the previous instants to store.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmVariable::set_storage_depth(size_t const& d) {
     depth = d;
     value.resize(depth,value.back());

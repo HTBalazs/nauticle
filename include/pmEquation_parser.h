@@ -29,9 +29,9 @@
 #include "pmEquation.h"
 #include "pmNoncopyable.h"
 
-/** This class converts the given std::string formatted equation to a pmEquation object.
-*/
 namespace Nauticle {
+    /** This class converts the given std::string formatted equation to a pmEquation object.
+    */
     class pmEquation_parser final : public pmExpression_parser {
     private:
     	bool verify_sides(std::string const& raw_data) const;

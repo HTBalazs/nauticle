@@ -29,8 +29,8 @@
 namespace Nauticle {
     class pmParticle_system;
 
-/** This interface represents an algebraic expression as an expression tree.
-*/
+    /** This interface represents an algebraic expression as an expression tree.
+    */
     class pmExpression {
     protected:
     	virtual std::shared_ptr<pmExpression> clone_impl() const=0;
