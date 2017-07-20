@@ -106,6 +106,7 @@ namespace Nauticle {
 			case '/' : pLogger::logf<COLOR>("/"); break;
 			case ':' : pLogger::logf<COLOR>(":"); break;
 			case '^' : pLogger::logf<COLOR>("^"); break;
+			case '%' : pLogger::logf<COLOR>("%%"); break;
 		}
 		this->operand[1]->print();
 		pLogger::logf<COLOR>(")");
@@ -130,6 +131,7 @@ namespace Nauticle {
 			case '/' : return this->operand[0]->evaluate(i, level)/this->operand[1]->evaluate(i, level); break;
 			case ':' : return this->operand[0]->evaluate(i, level).multiply_term_by_term(this->operand[1]->evaluate(i, level)); break;
 			case '^' : return pow(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level)); break;
+			case '%' : return this->operand[0]->evaluate(i, level).divide_term_by_term(this->operand[1]->evaluate(i, level)); break;
 		}
 	}
 

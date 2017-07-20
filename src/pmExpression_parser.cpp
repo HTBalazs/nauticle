@@ -261,6 +261,10 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_operator<':',2>>(operands));
+			} else if(it=="%") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_operator<'%',2>>(operands));
 			}
 		} else if(is_function(it)) {
 			if(it=="cross") {
