@@ -47,26 +47,22 @@ int main(int argc, char* argv[]) {
 			} else if(cp.get_arg(i)=="-help") {
 				pmCommand_parser::print_command_list();
 			} else if(cp.get_arg(i)=="-logfile") {
-				ProLog::pLogger::logfile = cp.get_arg(i+1);
+				ProLog::pLogger::logfile = cp.get_arg(++i);
 				exec = true;
-				i++;
 			} else if(cp.get_arg(i)=="-numthreads") {
-				num_threads = stoi(cp.get_arg(i+1));
+				num_threads = stoi(cp.get_arg(++i));
 				exec = true;
-				i++;
 			} else if(cp.get_arg(i)=="-version") {
 				pmCommand_parser::print_version();
 			} else if(cp.get_arg(i)=="-wdir") {
 				if(argc>i+1) {
-					working_dir = cp.get_arg(i+1);
+					working_dir = cp.get_arg(++i);
 					exec = true;
-					i++;
 				}
 			}  else if(cp.get_arg(i)=="-xmlname") {
 				if(argc>i+1) {
-					xml_name = cp.get_arg(i+1);
+					xml_name = cp.get_arg(++i);
 					exec = true;
-					i++;
 				}
 			} else {
 				ProLog::pLogger::log<ProLog::WHT>("Don't know what to do with \"%s\"\n",cp.get_arg(i).c_str());
