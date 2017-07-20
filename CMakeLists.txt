@@ -7,7 +7,6 @@ set(EXECUTABLE nauticle)
 link_directories(/usr/local/lib/prolog)
 link_directories(/usr/local/lib/commonutils)
 link_directories(/usr/local/lib/handyxml)
-link_directories(/usr/local/lib/multiclock)
 
 find_package(VTK REQUIRED)
 
