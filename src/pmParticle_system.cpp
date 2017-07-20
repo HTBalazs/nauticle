@@ -20,6 +20,7 @@
     
 #include "pmParticle_system.h"
 #include <numeric>
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -111,7 +112,7 @@ std::shared_ptr<pmParticle_system::pmParticle_space> pmParticle_system::get_part
 /// Prints particle system content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::print() const {
-	pLogger::logf<COLOR>("{%s}", name.c_str());
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("{%s}", name.c_str());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +120,7 @@ void pmParticle_system::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::printv() const {
 	pmField::printv();
-	pLogger::line_feed(1);
+	ProLog::pLogger::line_feed(1);
 	particle_space->print();
 }
 
@@ -292,7 +293,7 @@ void pmParticle_system::pmParticle_space::update_neighbour_list(std::vector<pmTe
 	for(int i=0; i<current_value.size(); ++i) {
 		hash_key[i] = calculate_hash_key_from_position(current_value[i]);
 		if(hash_key[i]<0 || hash_key[i]>=domain.get_num_cells()) { 
-			pLogger::error_msgf("Particle is out of domain.\n");
+			ProLog::pLogger::error_msgf("Particle is out of domain.\n");
 		}
 	}
 	pmSort::sort_by_vector(sorted_idx, hash_key, pmSort::ascending);

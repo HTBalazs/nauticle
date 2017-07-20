@@ -74,15 +74,15 @@ std::string pmCommand_parser::get_arg(std::string s) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /*static*/ void pmCommand_parser::print_command_list() {
 	print_header();
-	pLogger::log<WHT>("Nauticle can recieve the following optianal commands:\n");
-	pLogger::log<WHT>("1) -help                  Display Nauticle information.\n");
-	pLogger::log<WHT>("2) -wsres                 Lists all reserved names in workspace.\n");
-	pLogger::log<WHT>("3) -numthreads <number>   Defines the number of threads to use. Default is detected.\n");
-	pLogger::log<WHT>("4) -xmlname <filename>    Defines the name of the XML input file.\n");
-	pLogger::log<WHT>("5) -logfile <filename>    Defines the name of the output log file.\n");
-	pLogger::log<WHT>("6) -wdir <directory>      Defines the working directory. FULL path of an EXISTING directory is required.\n");
-	pLogger::log<WHT>("7) -version               Prints the version number.\n");
-	pLogger::line_feed(1);
+	ProLog::pLogger::log<ProLog::WHT>("Nauticle can recieve the following optianal commands:\n");
+	ProLog::pLogger::log<ProLog::WHT>("1) -help                  Display Nauticle information.\n");
+	ProLog::pLogger::log<ProLog::WHT>("2) -wsres                 Lists all reserved names in workspace.\n");
+	ProLog::pLogger::log<ProLog::WHT>("3) -numthreads <number>   Defines the number of threads to use. Default is detected.\n");
+	ProLog::pLogger::log<ProLog::WHT>("4) -xmlname <filename>    Defines the name of the XML input file.\n");
+	ProLog::pLogger::log<ProLog::WHT>("5) -logfile <filename>    Defines the name of the output log file.\n");
+	ProLog::pLogger::log<ProLog::WHT>("6) -wdir <directory>      Defines the working directory. FULL path of an EXISTING directory is required.\n");
+	ProLog::pLogger::log<ProLog::WHT>("7) -version               Prints the version number.\n");
+	ProLog::pLogger::line_feed(1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -92,10 +92,10 @@ std::string pmCommand_parser::get_arg(std::string s) {
 	static bool already_written=false;
 	if(already_written) { return; }
 	print_version();
-	pLogger::log<WHT>("Copyright Balazs Toth 2016-2017\n");
-	pLogger::line_feed(1);
+	ProLog::pLogger::log<ProLog::WHT>("Copyright Balazs Toth 2016-2017\n");
+	ProLog::pLogger::line_feed(1);
 	already_written = true;
 }
 /*static*/ void pmCommand_parser::print_version() {
-	pLogger::log<WHT>("Nauticle version %i.%i.%i\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
+	ProLog::pLogger::log<ProLog::WHT>("Nauticle version %i.%i.%i\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
 }

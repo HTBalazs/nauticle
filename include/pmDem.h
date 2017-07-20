@@ -24,6 +24,7 @@
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
 #include "nauticle_constants.h"
+#include "Color_define.h"
 
 /** This class implements the conventianal Discrete element method as 
 //  through interactions between particles. 
@@ -145,7 +146,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
 	void pmDem<TYPE, NOPS>::print() const {
-		pLogger::logf<COLOR>(op_name.c_str());
+		ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
 		this->print_operands();
 	}
 
@@ -154,7 +155,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
 	pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
-		if(!this->assigned) { pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
+		if(!this->assigned) { ProLog::pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
 		size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 
 		pmTensor vi = this->operand[0]->evaluate(i,level);
@@ -314,5 +315,8 @@ namespace Nauticle {
 		os << ")";
 	}
 }
+
+#include "Color_undefine.h"
+
 
 #endif //_DEM_H_

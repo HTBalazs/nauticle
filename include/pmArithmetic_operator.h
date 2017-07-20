@@ -24,6 +24,7 @@
 #include "pmOperator.h"
 #include "pmConstant.h"
 #include "prolog/pLogger.h"
+#include "Color_define.h"
 
 /** This class implements the following operations for the expression tree: summation, subtraction,
 //  multiplication, division, power, term-by-term product for two operands furthermore summation and 
@@ -91,25 +92,25 @@ namespace Nauticle {
 				this->operand[0]->print();
 				return;
 			} else if(ARI_TYPE=='-') {
-				pLogger::logf<COLOR>("(-");
+				ProLog::pLogger::logf<NAUTICLE_COLOR>("(-");
 				this->operand[0]->print();
-				pLogger::logf<COLOR>(")");
+				ProLog::pLogger::logf<NAUTICLE_COLOR>(")");
 				return;
 			}
 		}
-		pLogger::logf<COLOR>("(");
+		ProLog::pLogger::logf<NAUTICLE_COLOR>("(");
 		this->operand[0]->print();
 		switch(ARI_TYPE) {
-			case '+' : pLogger::logf<COLOR>("+"); break;
-			case '-' : pLogger::logf<COLOR>("-"); break;
-			case '*' : pLogger::logf<COLOR>("*"); break;
-			case '/' : pLogger::logf<COLOR>("/"); break;
-			case ':' : pLogger::logf<COLOR>(":"); break;
-			case '^' : pLogger::logf<COLOR>("^"); break;
-			case '%' : pLogger::logf<COLOR>("%%"); break;
+			case '+' : ProLog::pLogger::logf<NAUTICLE_COLOR>("+"); break;
+			case '-' : ProLog::pLogger::logf<NAUTICLE_COLOR>("-"); break;
+			case '*' : ProLog::pLogger::logf<NAUTICLE_COLOR>("*"); break;
+			case '/' : ProLog::pLogger::logf<NAUTICLE_COLOR>("/"); break;
+			case ':' : ProLog::pLogger::logf<NAUTICLE_COLOR>(":"); break;
+			case '^' : ProLog::pLogger::logf<NAUTICLE_COLOR>("^"); break;
+			case '%' : ProLog::pLogger::logf<NAUTICLE_COLOR>("%%"); break;
 		}
 		this->operand[1]->print();
-		pLogger::logf<COLOR>(")");
+		ProLog::pLogger::logf<NAUTICLE_COLOR>(")");
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -169,5 +170,7 @@ namespace Nauticle {
 		}
 	}
 }
+
+#include "Color_undefine.h"
 
 #endif // _ARITHMOP_H_

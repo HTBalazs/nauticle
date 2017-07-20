@@ -19,6 +19,7 @@
 */
     
 #include "pmFsum.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -81,9 +82,9 @@ std::shared_ptr<pmFsum> pmFsum::clone() const {
 /// Prints the object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmFsum::print() const {
-	pLogger::logf<COLOR>("fsum(");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("fsum(");
 	operand[0]->print();
-	pLogger::logf<COLOR>(")");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>(")");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

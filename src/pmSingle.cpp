@@ -19,6 +19,7 @@
 */
 
 #include "pmSingle.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -34,7 +35,7 @@ pmTensor pmSingle::get_value(int const& i/*=0*/) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSingle::printv() const {
 	this->print();
-	pLogger::logf<COLOR>(" = ");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>(" = ");
 	value[0].print();
 }
 

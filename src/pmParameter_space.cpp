@@ -75,7 +75,7 @@ pmParameter_space& pmParameter_space::operator=(pmParameter_space&& other) {
 void pmParameter_space::add_parameter(std::string const& n, pmTensor const& v) {
 	for(auto const& it:parameters) {
 		if(it->get_name()==n) {
-			pLogger::warning_msgf("Parameter is already defined.\n");
+			ProLog::pLogger::warning_msgf("Parameter is already defined.\n");
 			return;
 		}
 	}
@@ -92,7 +92,7 @@ void pmParameter_space::delete_parameter(std::string const& n) {
 			parameters.erase(it);
 		}
 	}
-	pLogger::warning_msgf("No such parameter: \"%s\"\n", n.c_str());
+	ProLog::pLogger::warning_msgf("No such parameter: \"%s\"\n", n.c_str());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ pmTensor pmParameter_space::get_parameter_value(std::string const& n) const {
 			return parameters[i]->get_value();
 		}
 	}
-	pLogger::warning_msgf("No such parameter: \"%s\"\n", n.c_str());
+	ProLog::pLogger::warning_msgf("No such parameter: \"%s\"\n", n.c_str());
 	return pmTensor{1,1,0};
 }
 
@@ -113,27 +113,27 @@ pmTensor pmParameter_space::get_parameter_value(std::string const& n) const {
 /// Prints the content of the parameter space.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParameter_space::print() const {
-	pLogger::headerf<LBL>("Parameter space");
-	pLogger::titlef<LMA>("Parameters");
+	ProLog::pLogger::headerf<ProLog::LBL>("Parameter space");
+	ProLog::pLogger::titlef<ProLog::LMA>("Parameters");
 	int p=0;
 	for(auto const& it:parameters) {
 		p++;
-		pLogger::logf<YEL>("        %i) ", p);
+		ProLog::pLogger::logf<ProLog::YEL>("        %i) ", p);
 		it->print();
 	}
 	if(p==0) {
-		pLogger::logf<WHT>("            < empty >\n");
+		ProLog::pLogger::logf<ProLog::WHT>("            < empty >\n");
 	}
-	pLogger::footerf<LBL>();
+	ProLog::pLogger::footerf<ProLog::LBL>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the content of the parameter.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParameter_space::pmParameter::print() const {
-	pLogger::logf<WHT>("%s = ", name.c_str());
+	ProLog::pLogger::logf<ProLog::WHT>("%s = ", name.c_str());
 	value.print();
-	pLogger::logf<WHT>("\n");	
+	ProLog::pLogger::logf<ProLog::WHT>("\n");	
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

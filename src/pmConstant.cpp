@@ -19,6 +19,7 @@
 */
 
 #include "pmConstant.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -45,7 +46,7 @@ void pmConstant::print() const {
 	if(name=="") {
 		value[0].print();
 	} else {
-		pLogger::logf<COLOR>("%s", name.c_str());
+		ProLog::pLogger::logf<NAUTICLE_COLOR>("%s", name.c_str());
 	}
 }
 
@@ -80,4 +81,3 @@ void pmConstant::write_to_string(std::ostream& os) const {
 		os << name;
 	}
 }
-

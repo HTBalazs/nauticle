@@ -20,6 +20,7 @@
 
 #include "pmNeighbours.h"
 #include "nauticle_constants.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -92,7 +93,7 @@ std::shared_ptr<pmNeighbours> pmNeighbours::clone() const {
 /// Prints DEM content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmNeighbours::print() const {
-	pLogger::logf<COLOR>("neighbours");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("neighbours");
 	print_operands();
 }
 
@@ -100,7 +101,7 @@ void pmNeighbours::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmNeighbours::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!assigned) { pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
+	if(!assigned) { ProLog::pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
 
 	double rad = this->operand[0]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{

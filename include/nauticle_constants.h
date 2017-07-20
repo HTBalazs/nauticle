@@ -18,10 +18,10 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef NAUTICLE_CONSTANTS
-#define NAUTICLE_CONSTANTS
+#ifndef _NAUTICLE_CONSTANTS_H_
+#define _NAUTICLE_CONSTANTS_H_
 
 #define NAUTICLE_EPS 1.0e-6
 #define NAUTICLE_PI 3.141592653589793238462
 
-#endif // NAUTICLE_CONSTANTS
+#endif // _NAUTICLE_CONSTANTS_H_

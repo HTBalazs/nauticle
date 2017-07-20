@@ -88,17 +88,17 @@ namespace Nauticle {
 	/// Prints the workspace content.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T> void pmWorkspace::print_content(std::string const& title) const {
-		pLogger::titlef<LMA>(title.c_str());
+		ProLog::pLogger::titlef<ProLog::LMA>(title.c_str());
 		int count=0;
 		for(auto const& it:get<T>()) {
 			if(it->is_hidden()) { continue; }
 			count++;
-			pLogger::logf<YEL>("         %i) ",count);
+			ProLog::pLogger::logf<ProLog::YEL>("         %i) ",count);
 			it->printv();
-			pLogger::logf("\n");
+			ProLog::pLogger::logf("\n");
 		}
 		if(count==0) {
-			pLogger::logf<WHT>("            < empty >\n");
+			ProLog::pLogger::logf<ProLog::WHT>("            < empty >\n");
 		}
 	}
 

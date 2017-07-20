@@ -28,7 +28,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmEquation_parser::verify_sides(std::string const& infix) const {
 	if(Common::find_word(infix,"=").size()!=1) {
-		pLogger::warning_msgf("\"%s\" is not a valid equation.\n", infix.c_str());
+		ProLog::pLogger::warning_msgf("\"%s\" is not a valid equation.\n", infix.c_str());
 		return false;
 	}
 	return true;
@@ -59,7 +59,7 @@ std::shared_ptr<pmEquation> pmEquation_parser::analyse_equation(std::string cons
 	std::string rhs_infix = get_rhs_infix(equation_data);
 	std::shared_ptr<pmSymbol> lhs = analyse_expression<pmSymbol>(lhs_infix, workspace);
 	if(!lhs) { 
-		pLogger::warning_msgf("\"%s\" is not a function and ignored.\n", equation_data.c_str());
+		ProLog::pLogger::warning_msgf("\"%s\" is not a function and ignored.\n", equation_data.c_str());
 		return std::shared_ptr<pmEquation>(nullptr);
 	}
 	std::shared_ptr<pmExpression> rhs = analyse_expression<pmExpression>(rhs_infix, workspace);

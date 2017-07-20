@@ -19,6 +19,7 @@
 */
     
 #include "pmFmean.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -81,9 +82,9 @@ std::shared_ptr<pmFmean> pmFmean::clone() const {
 /// Prints object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmFmean::print() const {
-	pLogger::logf<COLOR>("fmean(");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("fmean(");
 	operand[0]->print();
-	pLogger::logf<COLOR>(")");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>(")");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

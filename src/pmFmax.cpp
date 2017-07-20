@@ -19,6 +19,7 @@
 */
     
 #include "pmFmax.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -81,9 +82,9 @@ std::shared_ptr<pmFmax> pmFmax::clone() const {
 /// Prints the object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmFmax::print() const {
-	pLogger::logf<COLOR>("fmax(");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("fmax(");
 	operand[0]->print();
-	pLogger::logf<COLOR>(")");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>(")");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +94,7 @@ void pmFmax::print() const {
 void pmFmax::process(pmTensor& value, size_t const& level/*=0*/) const {
 	pmTensor tensor = operand[0]->evaluate(0, level);
 	if(!tensor.is_scalar()) {
-		pLogger::error_msgf("Fmax can be evaluated only on scalar fields!\n");
+		ProLog::pLogger::error_msgf("Fmax can be evaluated only on scalar fields!\n");
 	}
 	value = operand[0]->evaluate(0, level);
 	for(int j=1; j<operand[0]->get_field_size(); j++) {

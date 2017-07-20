@@ -20,7 +20,8 @@
 
 #include "pmLog_stream.h"
 
-using namespace pLogger;
+using namespace ProLog;
+using namespace ProLog::pLogger;
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +69,7 @@ void pmLog_stream::print_step_info(double const& dt, int const& substeps, double
 	double fps = difference==0?0:(double)substeps/difference;
 	struct tm est_end = timer->get_estimated_finish((double)current_time/simulated_time*100.0);
 	num_total_steps+=substeps;
-	logf<WHT>(" %5i   %1.3e      %5i      %6i   %.3f   %06.2f   %02i.%02i.%4i %02i:%02i\n", num_steps, (double)dt, substeps, num_total_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
+	logf<ProLog::WHT>(" %5i   %1.3e      %5i      %6i   %.3f   %06.2f   %02i.%02i.%4i %02i:%02i\n", num_steps, (double)dt, substeps, num_total_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
 	timer->tic();
 	counter++;
 	num_steps++;

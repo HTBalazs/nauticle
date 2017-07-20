@@ -19,6 +19,7 @@
 */
     
 #include "pmFmin.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -81,9 +82,9 @@ std::shared_ptr<pmFmin> pmFmin::clone() const {
 /// Prints object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmFmin::print() const {
-	pLogger::logf<COLOR>("fmin(");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("fmin(");
 	operand[0]->print();
-	pLogger::logf<COLOR>(")");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>(")");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +94,7 @@ void pmFmin::print() const {
 void pmFmin::process(pmTensor& value, size_t const& level/*=0*/) const {
 	pmTensor tensor = operand[0]->evaluate(0, level);
 	if(!tensor.is_scalar()) {
-		pLogger::error_msgf("Fmin can be evaluated only on scalar fields!\n");
+		ProLog::pLogger::error_msgf("Fmin can be evaluated only on scalar fields!\n");
 	}
 	value = operand[0]->evaluate(0, level);
 	for(int j=1; j<operand[0]->get_field_size(); j++) {

@@ -41,7 +41,7 @@ namespace Nauticle {
     /**	This class extends the hdyXML_parser class with further equations to process
     //	the XML tree.
     */
-    class pmXML_processor final : public hdyXML_parser {
+    class pmXML_processor final : public HandyXML::hdyXML_parser {
     	std::shared_ptr<pmWorkspace> get_workspace() const;
     	std::vector<std::shared_ptr<pmEquation>> get_equations(std::shared_ptr<pmWorkspace> workspace) const;
     	std::shared_ptr<pmCase> get_initial_condition_case() const;

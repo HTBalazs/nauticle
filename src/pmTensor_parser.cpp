@@ -74,7 +74,7 @@ pmTensor pmTensor_parser::build_tensor(std::vector<std::string> const& table, st
 			std::shared_ptr<pmExpression> expression{parser->analyse_expression<pmExpression>(it, workspace)};
 			pmTensor tmp = expression->evaluate(i);
 			if(tmp.numel()>1 && (numrow>1 || numcol>1)) {
-				pLogger::error_msg("Component has more that one element.\n");
+				ProLog::pLogger::error_msg("Component has more that one element.\n");
 				return pmTensor{};
 			} else if(numrow==1 && numcol==1) {
 				tensor = tmp;
@@ -98,7 +98,7 @@ pmTensor pmTensor_parser::string_to_tensor(std::string const& raw_data, std::sha
 	std::string data = raw_data;
 	remove_spaces(data);
 	if(!verify_infix(data)) {
-		pLogger::error_msgf("Invalid tensor: \"%s\"\n", data.c_str());
+		ProLog::pLogger::error_msgf("Invalid tensor: \"%s\"\n", data.c_str());
 		return pmTensor{};
 	}
 	std::vector<std::string> table = build_table(data);
@@ -113,7 +113,7 @@ std::vector<pmTensor> pmTensor_parser::string_to_tensor_field(std::string const&
 	std::string data = raw_data;
 	remove_spaces(data);
 	if(!verify_infix(data)) {
-		pLogger::error_msgf("Invalid tensor: \"%s\"\n", data.c_str());
+		ProLog::pLogger::error_msgf("Invalid tensor: \"%s\"\n", data.c_str());
 	}
 	std::vector<pmTensor> values;
 	std::vector<std::string> table = build_table(data);

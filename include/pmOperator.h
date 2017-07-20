@@ -158,14 +158,14 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	void pmOperator<S>::print_operands() const {
-		pLogger::logf<WHT>("(");
+		ProLog::pLogger::logf<ProLog::WHT>("(");
 		bool first = true;
 		for(auto const& it:operand) {
-			if(!first) { pLogger::logf<WHT>(","); }
+			if(!first) { ProLog::pLogger::logf<ProLog::WHT>(","); }
 			it->print();
 			first = false;
 		}
-		pLogger::logf<WHT>(")");
+		ProLog::pLogger::logf<ProLog::WHT>(")");
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////

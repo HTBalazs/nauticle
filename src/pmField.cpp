@@ -84,12 +84,12 @@ pmField& pmField::operator=(pmField&& other) {
 void pmField::printv() const {
 	this->print();
 	for(int i=0; i<20-name.size(); i++) {
-		pLogger::logf<LMA>(" ");
+		ProLog::pLogger::logf<ProLog::LMA>(" ");
 	}
 	pmTensor tensor = this->evaluate(0);
-	pLogger::logf<LMA>("[%i by %i]", tensor.get_numrows(), tensor.get_numcols());
+	ProLog::pLogger::logf<ProLog::LMA>("[%i by %i]", tensor.get_numrows(), tensor.get_numcols());
 	if(tensor.is_scalar()) {
-		pLogger::logf<LMA>(" S");
+		ProLog::pLogger::logf<ProLog::LMA>(" S");
 	}
 }
 

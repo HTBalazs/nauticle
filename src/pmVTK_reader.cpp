@@ -102,7 +102,7 @@ pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> wor
 		std::string name = field_data->GetArrayName(i);
 		if(name=="domain") {
 			vtkSmartPointer<vtkStringArray> array = vtkStringArray::SafeDownCast(field_data->GetAbstractArray(i));
-			if(!array) { pLogger::error_msgf("Domain not defined!\n"); }
+			if(!array) { ProLog::pLogger::error_msgf("Domain not defined!\n"); }
 			for(int j=0; j<array->GetSize(); j++) {
 				std::string vtk_inst = array->GetValue(j);
 				std::string inst_name = vtk_inst.substr(0, vtk_inst.find(":"));

@@ -77,7 +77,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 		template <typename T> void reorder(std::vector<T>& to_reorder, std::vector<int> const& reorder_by) {
 			if(to_reorder.size() != reorder_by.size()) {
-				pLogger::warning_msgf("Reorder requires vectors of identical sizes.\n");
+				ProLog::pLogger::warning_msgf("Reorder requires vectors of identical sizes.\n");
 				return;
 			}
 			std::vector<T> copy = to_reorder;

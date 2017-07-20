@@ -127,7 +127,7 @@ namespace Nauticle {
 		if(lhs.numel()==0) { return rhs; }
 		if(rhs.numel()==0) { return lhs; }
 		if(lhs.get_numrows()!=rhs.get_numrows() || lhs.get_numcols()!=rhs.get_numcols()) {
-			pLogger::error_msgf("Unable to add tensors of different sizes or types.\n");
+			ProLog::pLogger::error_msgf("Unable to add tensors of different sizes or types.\n");
 		}
 		pmTensor tensor = pmTensor{lhs};
 		for(int i=0; i<tensor.numel(); i++) {
@@ -143,7 +143,7 @@ namespace Nauticle {
 		if(lhs.numel()==0) { return rhs; }
 		if(rhs.numel()==0) { return lhs; }
 		if(lhs.get_numrows()!=rhs.get_numrows() || lhs.get_numcols()!=rhs.get_numcols()) {
-			pLogger::error_msgf("Unable to subtract tensors of different sizes or types.\n");
+			ProLog::pLogger::error_msgf("Unable to subtract tensors of different sizes or types.\n");
 		}
 		pmTensor tensor = pmTensor{lhs};
 		for(int i=0; i<tensor.numel(); i++) {
@@ -211,7 +211,7 @@ namespace Nauticle {
 		}
 		if(lhs.numel()!=1 && rhs.numel()!=1) {
 			if(lhs.get_numcols()!=rhs.get_numrows()) {
-				pLogger::error_msgf("Unable to multiply these tensors.\n");
+				ProLog::pLogger::error_msgf("Unable to multiply these tensors.\n");
 				return pmTensor{};
 			}
 		}
@@ -238,7 +238,7 @@ namespace Nauticle {
 		if(rhs.is_scalar()) {
 			return lhs/rhs[0];
 		} else {
-			pLogger::error_msgf("Unable to divide by a non-scalar.\n");
+			ProLog::pLogger::error_msgf("Unable to divide by a non-scalar.\n");
 			return pmTensor{};
 		}
 	}
@@ -248,7 +248,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator&&(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"and\" works only with scalars.\n");
+			ProLog::pLogger::error_msgf("Logical \"and\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] && rhs[0])};
 	}
@@ -258,7 +258,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator||(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"or\" works only with scalars.\n");
+			ProLog::pLogger::error_msgf("Logical \"or\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] || rhs[0])};
 	}
@@ -268,7 +268,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator!=(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"xor\" works only with scalars.\n");
+			ProLog::pLogger::error_msgf("Logical \"xor\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] != rhs[0])};
 	}
@@ -278,7 +278,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator!(pmTensor const& tensor) {
 		if(!tensor.is_scalar()) {
-			pLogger::error_msgf("Logical \"not\" works only with scalars.\n");
+			ProLog::pLogger::error_msgf("Logical \"not\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)!tensor[0]};
 	}
@@ -288,7 +288,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator>(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"gt\" works only with scalars.\n");
+			ProLog::pLogger::error_msgf("Logical \"gt\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] > rhs[0])};
 	}
@@ -298,7 +298,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator<(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"lt\" works only with scalars.\n");
+			ProLog::pLogger::error_msgf("Logical \"lt\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] < rhs[0])};
 	}
@@ -308,7 +308,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator>=(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"gte\" works only with scalars.\n");
+			ProLog::pLogger::error_msgf("Logical \"gte\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] > rhs[0])};
 	}
@@ -318,7 +318,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator<=(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_scalar() || !rhs.is_scalar()) {
-			pLogger::error_msgf("Logical \"lte\" works only with scalars.\n");
+			ProLog::pLogger::error_msgf("Logical \"lte\" works only with scalars.\n");
 		}
 		return pmTensor{1,1,(double)(lhs[0] < rhs[0])};
 	}
@@ -476,7 +476,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor min(pmTensor const& T1, pmTensor const& T2) {
 		if(T1.get_numrows()!=T2.get_numrows() || T1.get_numcols()!=T2.get_numcols()) {
-			pLogger::error_msgf("Tensor dimensions do not agree.\n");
+			ProLog::pLogger::error_msgf("Tensor dimensions do not agree.\n");
 		}
 		pmTensor tensor{T1.get_numrows(), T1.get_numcols()};
 		for(int i=0; i< T1.numel(); i++) {
@@ -490,7 +490,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor max(pmTensor const& T1, pmTensor const& T2) {
 		if(T1.get_numrows()!=T2.get_numrows() || T1.get_numcols()!=T2.get_numcols()) {
-			pLogger::error_msgf("Tensor dimensions do not agree.\n");
+			ProLog::pLogger::error_msgf("Tensor dimensions do not agree.\n");
 		}
 		pmTensor tensor{T1.get_numrows(), T1.get_numcols()};
 		for(int i=0; i< T1.numel(); i++) {
@@ -504,7 +504,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor mod(pmTensor const& T1, pmTensor const& T2) {
 		if(T1.get_numrows()!=T2.get_numrows() || T1.get_numcols()!=T2.get_numcols()) {
-			pLogger::error_msgf("Tensor dimensions do not agree.\n");
+			ProLog::pLogger::error_msgf("Tensor dimensions do not agree.\n");
 		}
 		pmTensor tensor{T1.get_numrows(), T1.get_numcols()};
 		for(int i=0; i< T1.numel(); i++) {
@@ -606,7 +606,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pow(pmTensor const& T1, pmTensor const& T2) {
 		if(!T2.is_scalar()) {
-			pLogger::error_msgf("Unable to evaluate expression with non-scalar power.");
+			ProLog::pLogger::error_msgf("Unable to evaluate expression with non-scalar power.");
 		}
 		if(T1.is_scalar()) {
 			return pmTensor{(double)std::pow(T1[0],T2[0])};
@@ -624,7 +624,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor cross(pmTensor const& lhs, pmTensor const& rhs) {
 		if(!lhs.is_column() || !rhs.is_column() || lhs.numel()<3 || rhs.numel()<3) {
-			pLogger::error_msgf("Cross product requires [3 by 1] vectors.\n");
+			ProLog::pLogger::error_msgf("Cross product requires [3 by 1] vectors.\n");
 		}
 		pmTensor tensor{3,1,0};
 		tensor[0] = lhs[1]*rhs[2]-lhs[2]*rhs[1];

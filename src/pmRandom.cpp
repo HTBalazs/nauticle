@@ -26,7 +26,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 double Nauticle::pmRandom::random(double const& minimum, double const& maximum) {
 	if(minimum>=maximum) {
-		pLogger::warning_msgf("Random number cannot be generated if the range is incorrect. Returns zero.\n");
+		ProLog::pLogger::warning_msgf("Random number cannot be generated if the range is incorrect. Returns zero.\n");
 		return 0.0;
 	}
 	return ((double)(rand()%10000))/1e4*(maximum-minimum)+minimum;
@@ -38,7 +38,7 @@ double Nauticle::pmRandom::random(double const& minimum, double const& maximum) 
 /////////////////////////////////////////////////////////////////////////////////////////
 Nauticle::pmTensor Nauticle::pmRandom::random(Nauticle::pmTensor const& minimum, Nauticle::pmTensor const& maximum) {
 	if(minimum.get_numrows()!=maximum.get_numrows() || minimum.get_numcols()!=maximum.get_numcols()) {
-		pLogger::error_msgf("Random numbers cannot be generated if the dimensions of the limits does not match.\n");
+		ProLog::pLogger::error_msgf("Random numbers cannot be generated if the dimensions of the limits does not match.\n");
 		return Nauticle::pmTensor{};
 	}
 	Nauticle::pmTensor random_tensor{minimum.get_numrows(), minimum.get_numcols()};

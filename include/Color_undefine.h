@@ -21,7 +21,8 @@
 
 /** Undefines the log color.
 */
-    
-#ifdef COLOR
-#undef COLOR
-#endif //COLOR
+
+#ifdef _COLOR_DEFINE_H_
+#undef NAUTICLE_COLOR
+#undef _COLOR_DEFINE_H_
+#endif //_COLOR_DEFINE_H_

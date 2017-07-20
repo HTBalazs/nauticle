@@ -84,11 +84,11 @@ pmEquation& pmEquation::operator=(pmEquation&& other) {
 /// Print function. TODO: consider pmLogger namespace.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmEquation::print() const {
-	pLogger::logf("%s: ",name.c_str());
+	ProLog::pLogger::logf("%s: ",name.c_str());
 	lhs->print();
-	pLogger::logf(" = ");
+	ProLog::pLogger::logf(" = ");
 	rhs->print();
-	pLogger::logf<LMA>("  # ");
+	ProLog::pLogger::logf<ProLog::LMA>("  # ");
 	condition->print();
 }
 
@@ -110,7 +110,7 @@ void pmEquation::evaluate(int const& start, int const& end) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmEquation::solve(size_t const& num_threads) {
 	if((lhs->get_field_size()!=rhs->get_field_size() && 1!=rhs->get_field_size()) || lhs->get_field_size()==-1 || rhs->get_field_size()==-1) {
-		pLogger::error_msgf("Inconsistent field sizes in equation %s\n", name.c_str());
+		ProLog::pLogger::error_msgf("Inconsistent field sizes in equation %s\n", name.c_str());
 	}
 	int p_end = lhs->get_field_size();
 

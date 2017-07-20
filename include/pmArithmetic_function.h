@@ -25,6 +25,7 @@
 #include "pmOperator.h"
 #include "pmRandom.h"
 #include "prolog/pLogger.h"
+#include "Color_define.h"
 
 enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR};
 
@@ -161,7 +162,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <Ari_fn_type ARI_TYPE, size_t S>
 	void pmArithmetic_function<ARI_TYPE,S>::print() const {
-		pLogger::logf<COLOR>(op_name.c_str());
+		ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
 		this->print_operands();
 	}
 
@@ -186,8 +187,8 @@ namespace Nauticle {
 							pmTensor t1 = this->operand[0]->evaluate(i, level);
 							pmTensor row = this->operand[1]->evaluate(i, level);
 							pmTensor column = this->operand[2]->evaluate(i, level);
-							if(!row.is_scalar() || !column.is_scalar()) { pLogger::error_msgf("Element indices must be scalars.\n"); }
-							if(row[0]>t1.get_numrows() || column[0]>t1.get_numcols()) { pLogger::error_msgf("Element indices out of bounds.\n"); }
+							if(!row.is_scalar() || !column.is_scalar()) { ProLog::pLogger::error_msgf("Element indices must be scalars.\n"); }
+							if(row[0]>t1.get_numrows() || column[0]>t1.get_numcols()) { ProLog::pLogger::error_msgf("Element indices out of bounds.\n"); }
 							return pmTensor{1,1,t1(row(0,0),column(0,0))};
 						}
 			case EXP : return exp(this->operand[0]->evaluate(i, level));
@@ -198,7 +199,7 @@ namespace Nauticle {
 			case NOTEQUAL : return !(this->operand[0]->evaluate(i, level) == this->operand[1]->evaluate(i, level));
 			case IF : 	{
 							pmTensor t2 = this->operand[0]->evaluate(i, level);
-							if(!t2.is_scalar()) { pLogger::error_msgf("Logical value should be scalar.\n"); }
+							if(!t2.is_scalar()) { ProLog::pLogger::error_msgf("Logical value should be scalar.\n"); }
 							return (bool)t2[0] ? this->operand[1]->evaluate(i, level) : this->operand[2]->evaluate(i, level);
 						}
 			case LOG : return log(this->operand[0]->evaluate(i, level));
@@ -225,7 +226,7 @@ namespace Nauticle {
 			case INVERSE : return this->operand[0]->evaluate(i, level).inverse();
 			case IDENTITY : {
 								pmTensor t3 = this->operand[0]->evaluate(i, level);
-								if(!t3.is_scalar()) { pLogger::error_msgf("Not scalar in identity.\n"); }
+								if(!t3.is_scalar()) { ProLog::pLogger::error_msgf("Not scalar in identity.\n"); }
 								return pmTensor::make_identity((int)t3[0]); 
 							}
 			case EULER : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
@@ -260,5 +261,7 @@ namespace Nauticle {
 	}
 
 }
+
+#include "Color_undefine.h"
 
 #endif //_ARITHMFC_H_

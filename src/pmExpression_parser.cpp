@@ -30,11 +30,11 @@ using namespace Nauticle;
 bool pmExpression_parser::verify_table(std::vector<std::string> table) const {
 	for(int i=0; i<table.size()-1; i++) {
 		if(is_function(table[i]) && table[i+1]!="(") {
-			pLogger::warning_msgf("Reserved word is used as variable or constant: \"%s\".\n", table[i].c_str());
+			ProLog::pLogger::warning_msgf("Reserved word is used as variable or constant: \"%s\".\n", table[i].c_str());
 			return false;
 		}
 		if(is_word(table[i]) && !is_function(table[i]) && table[i+1]=="(") {
-			pLogger::warning_msgf("Unknown function: \"%s\".\n", table[i].c_str());
+			ProLog::pLogger::warning_msgf("Unknown function: \"%s\".\n", table[i].c_str());
 			return false;
 		}
 	}
@@ -47,16 +47,16 @@ bool pmExpression_parser::verify_table(std::vector<std::string> table) const {
 bool pmExpression_parser::verify_infix(std::string const& infix) const {
 	for(int i=0; i<infix.size()-1;i++) {
 		if(is_operator(infix[i]) && is_operator(infix[i+1])) {
-			pLogger::warning_msgf("Invalid operators in \"%s\".\n", infix.c_str());
+			ProLog::pLogger::warning_msgf("Invalid operators in \"%s\".\n", infix.c_str());
 			return false;
 		}
 	}
 	if(Common::find_word(infix,"(").size()!=Common::find_word(infix,")").size()) {
-		pLogger::warning_msgf("Unbalanced brackets in \"%s\".\n", infix.c_str());
+		ProLog::pLogger::warning_msgf("Unbalanced brackets in \"%s\".\n", infix.c_str());
 		return false;
 	}
 	if(!Common::find_word(infix,"#").empty()) {
-		pLogger::warning_msgf("Illegal character \"#\".\n");
+		ProLog::pLogger::warning_msgf("Illegal character \"#\".\n");
 		return false;	
 	}
 	return true;
@@ -223,7 +223,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			if(workspace.use_count()>0) {
 				std::weak_ptr<pmExpression> instance = assign(workspace, it);
 				if(instance.expired()) {
-					pLogger::error_msgf("Variable \"%s\" is undefined and cannot be assigned.\n", it.c_str());
+					ProLog::pLogger::error_msgf("Variable \"%s\" is undefined and cannot be assigned.\n", it.c_str());
 					throw(false);
 				}
 				e.push(instance.lock());

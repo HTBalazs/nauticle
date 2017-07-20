@@ -28,6 +28,7 @@
 #include "prolog/pLogger.h"
 #include "commonutils/Common.h"
 #include "nauticle_constants.h"
+#include "Color_define.h"
 
 namespace Nauticle {
 
@@ -167,7 +168,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	void pmSph_operator<OP_TYPE,VAR,K,NOPS>::print() const {
-		pLogger::logf<COLOR>(op_name.c_str());
+		ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
 		this->print_operands();
 	}
 	
@@ -176,7 +177,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	pmTensor pmSph_operator<OP_TYPE,VAR,K,NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
-		if(!this->assigned) { pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
+		if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
 		size_t sh = 0;
 		pmTensor B_i{1,1,1};
 		if(NOPS==6) {
@@ -332,5 +333,7 @@ namespace Nauticle {
 		return -(A_rho_i+A_rho_j).to_row()*r_ji*(m_j*rho_i*W_ij/d_ji);
 	}
 }
+
+#include "Color_undefine.h"
 
 #endif // _SPH_OPERATOR_H_

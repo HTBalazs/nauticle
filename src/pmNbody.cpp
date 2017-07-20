@@ -19,6 +19,7 @@
 */
 
 #include "pmNbody.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -91,7 +92,7 @@ std::shared_ptr<pmNbody> pmNbody::clone() const {
 /// Prints N-body content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmNbody::print() const {
-	pLogger::logf<COLOR>("nbody");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("nbody");
 	print_operands();
 }
 
@@ -99,7 +100,7 @@ void pmNbody::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmNbody::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!assigned) { pLogger::error_msgf("N-body model is not assigned to any particle system.\n"); }
+	if(!assigned) { ProLog::pLogger::error_msgf("N-body model is not assigned to any particle system.\n"); }
 	std::shared_ptr<pmParticle_system> ps = psys.lock();
 
 	pmTensor pos_i = ps->evaluate(i,level);

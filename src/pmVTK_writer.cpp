@@ -163,7 +163,7 @@ void pmVTK_writer::push_equations_to_polydata() {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::update() {
 	if(cas.use_count()<1) {
-		pLogger::warning_msgf("No cas added to VTK writer.\n");
+		ProLog::pLogger::warning_msgf("No cas added to VTK writer.\n");
 		return;
 	}
 	push_domain_to_polydata();

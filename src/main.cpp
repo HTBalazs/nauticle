@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 			} else if(cp.get_arg(i)=="-help") {
 				pmCommand_parser::print_command_list();
 			} else if(cp.get_arg(i)=="-logfile") {
-				pLogger::logfile = cp.get_arg(i+1);
+				ProLog::pLogger::logfile = cp.get_arg(i+1);
 				exec = true;
 				i++;
 			} else if(cp.get_arg(i)=="-numthreads") {
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 					i++;
 				}
 			} else {
-				pLogger::log<WHT>("Don't know what to do with \"%s\"\n",cp.get_arg(i).c_str());
+				ProLog::pLogger::log<ProLog::WHT>("Don't know what to do with \"%s\"\n",cp.get_arg(i).c_str());
 			}
 		}
 		exec_fptr();

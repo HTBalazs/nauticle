@@ -97,7 +97,7 @@ pmTensor::pmTensor(pmTensor&& other) {
 		case 3: return pmTensor{3,1,0};
 		case 4: return pmTensor{2,2,0};
 		case 9: return pmTensor{3,3,0};
-		default: pLogger::error_msgf("Cannot create tensor with %i components.\n", num_components); break;
+		default: ProLog::pLogger::error_msgf("Cannot create tensor with %i components.\n", num_components); break;
 	}
 	return pmTensor{1,1,0};
 }
@@ -290,7 +290,7 @@ double pmTensor::operator()(int const& i) const {
 /// Implements continuous indexing with [] brackets.
 /////////////////////////////////////////////////////////////////////////////////////////
 double& pmTensor::operator[](int const& i) {
-	if(i>=numel()) { pLogger::error_msgf("Index is out of bounds.\n"); }
+	if(i>=numel()) { ProLog::pLogger::error_msgf("Index is out of bounds.\n"); }
 	return elements[i];
 }
 
@@ -298,7 +298,7 @@ double& pmTensor::operator[](int const& i) {
 /// Implements continuous indexing with [] brackets.
 /////////////////////////////////////////////////////////////////////////////////////////
 double const& pmTensor::operator[](int const& i) const {
-	if(i>=numel()) { pLogger::error_msgf("Index is out of bounds.\n"); }
+	if(i>=numel()) { ProLog::pLogger::error_msgf("Index is out of bounds.\n"); }
 	return elements[i];
 }
 
@@ -436,7 +436,7 @@ pmTensor pmTensor::transpose() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::trace() const {
 	if(rows!=columns) {
-		pLogger::error_msgf("Matrix is not square, trace does not exist.\n");
+		ProLog::pLogger::error_msgf("Matrix is not square, trace does not exist.\n");
 		return pmTensor{};
 	}
 	pmTensor tensor{1,1};
@@ -487,7 +487,7 @@ pmTensor pmTensor::sub_tensor(int r, int c) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::determinant() const {
 	if(!is_square() || is_empty()) { 
-		pLogger::error_msgf("Matrix is not square, determinant does not exist.\n");
+		ProLog::pLogger::error_msgf("Matrix is not square, determinant does not exist.\n");
 		return pmTensor{0,0};
 	}
 	if(numel()==1) { return elements[0]; }
@@ -506,7 +506,7 @@ pmTensor pmTensor::determinant() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::adjugate() const {
 	if(!is_square() || is_empty()) {
-		pLogger::error_msgf("Matrix is not square, adjugate does not exist.\n");
+		ProLog::pLogger::error_msgf("Matrix is not square, adjugate does not exist.\n");
 		return pmTensor{0,0};
 	}
 	pmTensor tensor{rows, columns, 0};
@@ -523,12 +523,12 @@ pmTensor pmTensor::adjugate() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::inverse() const {
 	if(!is_square() || is_empty()) { 
-		pLogger::error_msgf("Matrix is not square, inverse does not exist.\n");
+		ProLog::pLogger::error_msgf("Matrix is not square, inverse does not exist.\n");
 		return pmTensor{0,0};
 	}
 	if(numel()==1) { return 1/elements[0]; }
 	if(is_singular()) { 
-		pLogger::warning_msgf("Matrix is singular, inverse cannot be calculated with real values. Identity is returned.\n");
+		ProLog::pLogger::warning_msgf("Matrix is singular, inverse cannot be calculated with real values. Identity is returned.\n");
 		return make_identity(columns);
 	}
 	pmTensor inv;
@@ -540,10 +540,10 @@ pmTensor pmTensor::inverse() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmTensor::print() const {
 	for(int i=0; i<rows; i++) {
-		if(i!=0) pLogger::logf(" | ");
+		if(i!=0) ProLog::pLogger::logf(" | ");
 		for(int j=0; j<columns; j++) {
-			if(j!=0) pLogger::logf(" ; ");
-			pLogger::logf<WHT>("%g", elements[i*columns+j]);
+			if(j!=0) ProLog::pLogger::logf(" ; ");
+			ProLog::pLogger::logf<ProLog::WHT>("%g", elements[i*columns+j]);
 		}
 	}
 }
@@ -560,7 +560,7 @@ pmTensor pmTensor::copy() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::divide_term_by_term(pmTensor const& rhs) const {
 	if(this->rows!=rhs.rows || this->columns!=rhs.columns) { 
-		pLogger::error_msgf("Tensor dimensions do not agree for term by term division.\n");
+		ProLog::pLogger::error_msgf("Tensor dimensions do not agree for term by term division.\n");
 	}
 	pmTensor tensor{*this};
 	for(int i=0; i<numel(); i++) {
@@ -574,7 +574,7 @@ pmTensor pmTensor::divide_term_by_term(pmTensor const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::multiply_term_by_term(pmTensor const& rhs) const {
 	if(this->rows!=rhs.rows || this->columns!=rhs.columns) { 
-		pLogger::error_msgf("Tensor dimensions do not agree for term by term division.\n");
+		ProLog::pLogger::error_msgf("Tensor dimensions do not agree for term by term division.\n");
 	}
 	pmTensor tensor{*this};
 	for(int i=0; i<numel(); i++) {
@@ -620,7 +620,7 @@ void pmTensor::fill(double const& s) {
 	return tensor;
 }
 /*static*/ pmTensor pmTensor::make_identity(int const& size) {
-	if(size<1) { pLogger::error_msgf("Tensor size must be at least one by one."); }
+	if(size<1) { ProLog::pLogger::error_msgf("Tensor size must be at least one by one."); }
 	pmTensor tensor{size,size,0};
 	for(int i=0; i<size*size; i+=size+1) {
 		tensor[i] = 1.0;
@@ -687,7 +687,7 @@ pmTensor pmTensor::append(int const& row, int const& col) const {
 		return *this;
 	}
 	if(this->rows>row || this->columns>col) {
-		pLogger::error_msgf("Appended size is smaller than the original.\n");
+		ProLog::pLogger::error_msgf("Appended size is smaller than the original.\n");
 	}
 	pmTensor tensor{row,col,0};
 	memcpy(&tensor.elements[0], &this->elements[0], sizeof(double)*this->numel());

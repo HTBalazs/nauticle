@@ -19,6 +19,7 @@
 */
 
 #include "pmDomain.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -27,10 +28,10 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, double const& csize, pmTensor const& bnd) {
 	if(dmin.numel()!=dmax.numel()) {
-		pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
+		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
 	if(!dmin.is_integer() || !dmax.is_integer()) {
-		pLogger::warning_msgf("At least one of the domain sizes is not integer multiple of the cell size.\n");
+		ProLog::pLogger::warning_msgf("At least one of the domain sizes is not integer multiple of the cell size.\n");
 	}
 	minimum = dmin;
 	maximum = dmax;
@@ -107,14 +108,14 @@ pmTensor pmDomain::get_boundary() const {
 /// Prints the domain object content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDomain::print() const {
-	pLogger::logf<LYW>("            Domain:");
-	pLogger::logf<COLOR>("\n               min: ");
+	ProLog::pLogger::logf<ProLog::LYW>("            Domain:");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               min: ");
 	minimum.print();
-	pLogger::logf<COLOR>("\n               max: ");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               max: ");
 	maximum.print();
-	pLogger::logf<COLOR>("\n               boundary: ");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               boundary: ");
 	boundary.print();
-	pLogger::logf<COLOR>("\n               cell size: %g", cell_size);
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               cell size: %g", cell_size);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

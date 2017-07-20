@@ -19,6 +19,7 @@
 */
 
 #include "pmSymbol.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -40,7 +41,7 @@ std::string pmSymbol::get_name() const {
 /// Prints the content of the field object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSymbol::print() const {
-	pLogger::logf<COLOR>("%s", name.c_str());
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("%s", name.c_str());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

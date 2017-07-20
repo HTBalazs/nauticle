@@ -19,6 +19,7 @@
 */
 
 #include "pmDvm_operator.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -125,7 +126,7 @@ std::shared_ptr<pmDvm_operator> pmDvm_operator::clone() const {
 /// Prints SPH operator content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDvm_operator::print() const {
-	pLogger::logf<COLOR>(op_name.c_str());
+	ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
 	this->print_operands();
 }
 
@@ -133,7 +134,7 @@ void pmDvm_operator::print() const {
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!this->assigned) { pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
+	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 	double eps_i = this->operand[1]->evaluate(i,level)[0];
 	double rad = this->operand[2]->evaluate(i,level)[0];

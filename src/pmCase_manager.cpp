@@ -32,9 +32,9 @@ void pmCase_manager::read_file(std::string const& filename) {
 	cas = xml_loader->get_case();
 	parameter_space = xml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
-	pLogger::log<LCY>("  Case initialization is completed.\n");
-	pLogger::footer<LCY>();
-	pLogger::line_feed(1);
+	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
+	ProLog::pLogger::footer<ProLog::LCY>();
+	ProLog::pLogger::line_feed(1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ double pmCase_manager::calculate_print_interval() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase_manager::simulate(size_t const& num_threads) {
 	size_t max_num_threads = std::thread::hardware_concurrency();
-	pLogger::logf<LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
+	ProLog::pLogger::logf<ProLog::LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
 	pmLog_stream log_stream{(int)parameter_space->get_parameter_value("file_start")[0]};
 	log_stream.print_start();
 	double current_time=0;
@@ -140,10 +140,10 @@ void pmCase_manager::simulate(size_t const& num_threads) {
 /// Prints out the object content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase_manager::print() const {
-	pLogger::headerf<LGN>("Case");
+	ProLog::pLogger::headerf<ProLog::LGN>("Case");
 	if(cas!=nullptr)		cas->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
-	pLogger::footerf<LGN>();
+	ProLog::pLogger::footerf<ProLog::LGN>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ void pmCase_manager::write_step() const {
 	char directory[1024];
 	chdir(working_dir.c_str());
 	getcwd(directory, sizeof(directory));
-	pLogger::logf<LCY>("  Working directory is set to: %s\n", directory);
+	ProLog::pLogger::logf<ProLog::LCY>("  Working directory is set to: %s\n", directory);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -27,7 +27,7 @@ namespace Nauticle {
     /** This class performs logging procedures based on ProLog
     */
     class pmLog_stream {
-    	std::unique_ptr<pTimer> timer;
+    	std::unique_ptr<ProLog::pTimer> timer;
         int num_steps=0;
         int num_total_steps=0;
     public:

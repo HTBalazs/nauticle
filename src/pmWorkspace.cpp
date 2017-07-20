@@ -160,7 +160,7 @@ void pmWorkspace::merge(std::shared_ptr<pmWorkspace> other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmWorkspace::verify_name(std::string const& name) const {
 	if(!is_word(name) || is_function(name) || is_number(name) || is_existing(name)) {
-		pLogger::warning_msgf("\"%s\" is reserved or already existing.\n", name.c_str());
+		ProLog::pLogger::warning_msgf("\"%s\" is reserved or already existing.\n", name.c_str());
 		return false;
 	} else {
 		return true;
@@ -186,7 +186,7 @@ bool pmWorkspace::is_existing(std::string const& name) const {
 void pmWorkspace::add_constant(std::string const& name, pmTensor const& value, bool const& hidden/*=false*/) {
 	if(!verify_name(name)) return;
 	if(name=="dt") {
-		pLogger::warning_msgf("Constant time step may cause problems. Use it as variable instead.");
+		ProLog::pLogger::warning_msgf("Constant time step may cause problems. Use it as variable instead.");
 	}
 	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmConstant>(name, value, hidden)));
 	num_constants++;
@@ -218,7 +218,7 @@ void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmT
 void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const& values) {
 	if(!verify_name(name) && name!="id") return;
 	if(values.size()!=num_nodes) {
-		pLogger::error_msgf("Inconsistent size of field \"%s\".\n",name.c_str());
+		ProLog::pLogger::error_msgf("Inconsistent size of field \"%s\".\n",name.c_str());
 	}
 	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, values)));
 }
@@ -256,7 +256,7 @@ void pmWorkspace::delete_instance(std::string const& name) {
 	for(;it!=definitions.end();it++) {
 		if((*it)->get_name()==name) {
 			if((*it).use_count()>1) {
-				pLogger::warning_msgf("\"%s\" is in use and cannot be deleted.\n", name.c_str());
+				ProLog::pLogger::warning_msgf("\"%s\" is in use and cannot be deleted.\n", name.c_str());
 			} else {
 				if(is_constant(*it)) {
 					num_constants--;
@@ -289,7 +289,7 @@ pmTensor pmWorkspace::get_value(std::string const& name, int const& i/*=0*/) con
 			return it->evaluate(i);
 		}
 	}
-	pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
+	ProLog::pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
 	return pmTensor{};
 }
 
@@ -303,7 +303,7 @@ std::weak_ptr<pmSymbol> pmWorkspace::get_instance(std::string const& name) const
 			return std::weak_ptr<pmSymbol>{it};
 		}
 	}
-	pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
+	ProLog::pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
 	return std::weak_ptr<pmSymbol>{};
 }
 
@@ -319,11 +319,11 @@ std::weak_ptr<pmParticle_system> pmWorkspace::get_particle_system() const {
 /// Prints the content of the workspace.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::print() const {
-	pLogger::headerf<LGY>(" Workspace (number of nodes: %i)", num_nodes);
+	ProLog::pLogger::headerf<ProLog::LGY>(" Workspace (number of nodes: %i)", num_nodes);
 	print_content<pmConstant>("Constants");
 	print_content<pmVariable>("Variables");
 	print_content<pmField>("Fields");
-	pLogger::footerf<LGY>();
+	ProLog::pLogger::footerf<ProLog::LGY>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -354,14 +354,14 @@ std::vector<std::shared_ptr<pmSymbol>> pmWorkspace::get_definitions() {
 /// Prints reserved names.
 /////////////////////////////////////////////////////////////////////////////////////////
 /*static*/ void pmWorkspace::print_reserved_names() {
-	pLogger::log<WHT>("Reserved names in workspace:\n");
+	ProLog::pLogger::log<ProLog::WHT>("Reserved names in workspace:\n");
 	size_t i=1;
 	for(auto const& it:reserved_names) {
-		pLogger::log<WHT>("%i) %s\n", i, it.c_str());
+		ProLog::pLogger::log<ProLog::WHT>("%i) %s\n", i, it.c_str());
 		i++;
 	}
 	for(auto const& it:list_of_functions) {
-		pLogger::log<WHT>("%i) %s\n", i, it.c_str());
+		ProLog::pLogger::log<ProLog::WHT>("%i) %s\n", i, it.c_str());
 		i++;
 	}
 }
@@ -410,7 +410,7 @@ size_t pmWorkspace::get_number_of_constants() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::set_number_of_nodes(size_t const& N) {
 	if(N==num_nodes) { return; }
-	if(N==0) { pLogger::error_msgf("Workspace size cannot be set to zero.\n"); }
+	if(N==0) { ProLog::pLogger::error_msgf("Workspace size cannot be set to zero.\n"); }
 	for(auto const& it:definitions) {
 		std::shared_ptr<pmField> field = std::dynamic_pointer_cast<pmField>(it);
 		if(field.use_count()>0) {

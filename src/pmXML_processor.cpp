@@ -19,6 +19,7 @@
 */
 
 #include "pmXML_processor.h"
+#include "Color_define.h"
 
 using namespace Nauticle;
 
@@ -81,7 +82,7 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 			pmTensor maximum = tensor_parser.string_to_tensor(str_max, workspace);
 			pmTensor cell_size = tensor_parser.string_to_tensor(str_cell_size, workspace);
 			pmTensor boundary = tensor_parser.string_to_tensor(str_bnd, workspace);
-			if(!cell_size.is_scalar()) { pLogger::error_msgf("Cell size must be scalar!\n"); }
+			if(!cell_size.is_scalar()) { ProLog::pLogger::error_msgf("Cell size must be scalar!\n"); }
 			domain = pmDomain{minimum, maximum, cell_size[0], boundary};
 		}
 		std::shared_ptr<pmGrid_space> grid_space = get_grid_space(ps,workspace, domain);
@@ -109,7 +110,7 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 std::shared_ptr<pmGrid_space> pmXML_processor::get_grid_space(std::shared_ptr<pmBlock> particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const {
 	std::vector<std::shared_ptr<pmBlock>> block_grid = particle_system->find_block("grid");
 	if(block_grid.empty()) {
-		pLogger::error_msgf("Grid must be defined if no initial condition is provided.\n");
+		ProLog::pLogger::error_msgf("Grid must be defined if no initial condition is provided.\n");
 	}
 	std::shared_ptr<pmGrid_space> grid_space = std::make_shared<pmGrid_space>();
 	for(auto const& gs:block_grid) {
@@ -165,7 +166,7 @@ std::shared_ptr<pmCase> pmXML_processor::get_case() const {
 	// Read initial conditions
 	std::shared_ptr<pmCase> ic_case = get_initial_condition_case();
 	if(ic_case.use_count()>0) {
-		pLogger::logf<COLOR>("    Initial conditions: from VTK file.\n");
+		ProLog::pLogger::logf<NAUTICLE_COLOR>("    Initial conditions: from VTK file.\n");
 		return ic_case;
 	}
 	// Read xml case if initial condition not found.
@@ -175,7 +176,7 @@ std::shared_ptr<pmCase> pmXML_processor::get_case() const {
 	cas->add_workspace(workspace);
 	cas->add_equation(equations);
 	cas->initialize();
-	pLogger::logf<COLOR>("    Initial conditions: from XML file.\n");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("    Initial conditions: from XML file.\n");
 	return cas;
 }
 
@@ -201,11 +202,11 @@ std::shared_ptr<pmParameter_space> pmXML_processor::get_parameter_space(std::sha
 			file_start = tensor_parser.string_to_tensor(ps->get_entry("file_start").back()->get_value("value"), workspace);
 		}
 
-		if(!sim_time.is_scalar()) { pLogger::error_msgf("Simulated time must be scalar!\n"); }
-		if(!log_time.is_scalar()) { pLogger::error_msgf("Print interval must be scalar!\n"); }
-		if(!confirm.is_scalar()) { pLogger::error_msgf("Print interval must be scalar!\n"); }
-		if(!vtk_format.is_scalar()) { pLogger::error_msgf("Output format must be scalar!\n"); }
-		if(!file_start.is_scalar()) { pLogger::error_msgf("Starting number must be scalar!\n"); }
+		if(!sim_time.is_scalar()) { ProLog::pLogger::error_msgf("Simulated time must be scalar!\n"); }
+		if(!log_time.is_scalar()) { ProLog::pLogger::error_msgf("Print interval must be scalar!\n"); }
+		if(!confirm.is_scalar()) { ProLog::pLogger::error_msgf("Print interval must be scalar!\n"); }
+		if(!vtk_format.is_scalar()) { ProLog::pLogger::error_msgf("Output format must be scalar!\n"); }
+		if(!file_start.is_scalar()) { ProLog::pLogger::error_msgf("Starting number must be scalar!\n"); }
 
 		parameter_space->add_parameter("simulated_time", sim_time);
 		parameter_space->add_parameter("print_interval", log_time);
