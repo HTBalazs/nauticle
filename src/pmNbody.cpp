@@ -105,18 +105,17 @@ pmTensor pmNbody::evaluate(int const& i, size_t const& level/*=0*/) const {
 
 	pmTensor pos_i = ps->evaluate(i,level);
 	pmTensor mass_i = operand[0]->evaluate(i,level);
-	pmTensor coef_i = operand[1]->evaluate(i,level);
+	pmTensor coef = operand[1]->evaluate(0,level);
 
 	pmTensor force;
 	for(int j=0; j<ps->get_field_size(); j++) {
 		if(i==j) { continue; }
 		pmTensor mass_j = operand[0]->evaluate(j,level);
-		pmTensor coef_j = operand[1]->evaluate(j,level);
 		pmTensor pos_j = ps->evaluate(j,level);
 		pmTensor rel_pos = pos_j-pos_i;
 		double distance = rel_pos.norm();
 		pmTensor norm = rel_pos / distance;
-		force += (coef_i+coef_j)/2*mass_i*mass_j/distance/distance*norm;
+		force += coef*mass_i*mass_j/distance/distance*norm;
 	}
 	return force;
 }
