@@ -41,10 +41,8 @@ std::vector<pmTensor> pmVTK_reader::pop_array_from_polydata(int const& i, size_t
 		case 3 : real_dim = domain_dim; break;
 		case 9 : real_dim = domain_dim*domain_dim; break;
 	}
-	bool scalar = dim==1 ? true : false;
 	for(int a=0; a<array_size; a+=dim) {
 		pmTensor tensor = pmTensor::Tensor(real_dim);
-		tensor.set_scalar(scalar);
 		for(int t=0; t<real_dim; t++) {
 			tensor[t] = array->GetValue(a+t);
 		}

@@ -97,8 +97,13 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 	for(auto const& fields:flds) {
 		for(auto const& it:fields->get_children()) {
 			std::string data = std::dynamic_pointer_cast<pmEntry>(it)->get_value("value");
+			std::string str_sym = std::dynamic_pointer_cast<pmEntry>(it)->get_value("symmetric");
 			pmTensor_parser tensor_parser{};
-			workspace->add_field(it->get_name(), tensor_parser.string_to_tensor_field(data, workspace));
+			bool symmetric = true;
+			if(!str_sym.empty()) {
+				symmetric = tensor_parser.string_to_tensor(str_sym, workspace)[0];
+			}
+			workspace->add_field(it->get_name(), tensor_parser.string_to_tensor_field(data, workspace), symmetric);
 		}
 	}
 	return workspace;

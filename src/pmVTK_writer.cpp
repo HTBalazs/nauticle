@@ -172,6 +172,7 @@ void pmVTK_writer::update() {
 	push_equations_to_polydata();
 	push_nodes_to_polydata();
 	push_fields_to_polydata();
+	push_asymmetric_to_polydata();
 	// Write vtk file.
 	vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
 	writer->SetFileName(file_name.c_str());
@@ -224,6 +225,35 @@ void pmVTK_writer::push_constants_to_polydata() {
 		ss << it << ":" << it->evaluate(0);
 		string_array->SetValue(i,ss.str().c_str());
 		i++;
+	}
+	polydata->GetFieldData()->AddArray(string_array);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Pushes the list of asymmetric fields to the polydata.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmVTK_writer::push_asymmetric_to_polydata() {
+	vtkSmartPointer<vtkStringArray> string_array = vtkSmartPointer<vtkStringArray>::New();
+	std::vector<std::shared_ptr<pmField>> fields = cas->get_workspace()->get<pmField>();
+	size_t counter = 0;
+	for(auto const& it:fields) {
+		if(!it->is_symmetric()) {
+			counter++;
+		}
+	}
+	std::cout << fields.size() << std::endl;
+	if(counter==0) { return; }
+	string_array->SetName("asymmetric");
+	string_array->SetNumberOfComponents(1);
+	string_array->SetNumberOfValues(counter);
+	size_t i=0;
+	for(auto const& it:fields) {
+		if(!it->is_symmetric()) {
+			std::stringstream ss;
+			ss << it->get_name().c_str();
+			string_array->SetValue(i,ss.str().c_str());
+			i++;
+		}
 	}
 	polydata->GetFieldData()->AddArray(string_array);
 }

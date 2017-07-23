@@ -206,21 +206,21 @@ void pmWorkspace::add_variable(std::string const& name, pmTensor const& value/*=
 /// Adds a new field to the workspace with an optional initialization value. If an 
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmTensor{0}*/) {
+void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmTensor{0}*/, bool const& sym/*=true*/) {
 	if(!verify_name(name)) return;
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, num_nodes, value)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, num_nodes, value, sym)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new field to the workspace with an initialization tensor field. If an 
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const& values) {
+void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const& values, bool const& sym/*=true*/) {
 	if(!verify_name(name) && name!="id") return;
 	if(values.size()!=num_nodes) {
 		ProLog::pLogger::error_msgf("Inconsistent size of field \"%s\".\n",name.c_str());
 	}
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, values)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, values, sym)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -39,8 +39,9 @@ namespace Nauticle {
     	void push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata, std::string const& name, pmTensor const& field_data);
     	void push_variables_to_polydata();
     	void push_constants_to_polydata();
-    	void push_domain_to_polydata();
-    	void push_equations_to_polydata();
+        void push_asymmetric_to_polydata();
+        void push_domain_to_polydata();
+        void push_equations_to_polydata();
     public:	
     	virtual ~pmVTK_writer() {}
     	void set_write_mode(write_mode mode);

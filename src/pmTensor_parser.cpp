@@ -81,9 +81,6 @@ pmTensor pmTensor_parser::build_tensor(std::vector<std::string> const& table, st
 				break;
 			}
 			tensor[count] = tmp[0];
-			if(!tmp.is_scalar()) {
-				tensor.set_scalar(false);
-			}
 			count++;
 		}
 	}

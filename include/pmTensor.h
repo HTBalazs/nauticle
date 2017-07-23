@@ -35,11 +35,10 @@ namespace Nauticle {
 		int rows;
 		int columns;
 		double* elements;
-		bool scalar;
 	public:
 		pmTensor();
 		pmTensor(double const& s);
-		pmTensor(int const& r, int const& c, double const& init=0, bool const& sc=true);
+		pmTensor(int const& r, int const& c, double const& init=0);
 		pmTensor(pmTensor const& other);
 		pmTensor(pmTensor&& other);
 		static pmTensor Tensor(int const& num_components);
@@ -85,7 +84,7 @@ namespace Nauticle {
 		pmTensor divide_term_by_term(pmTensor const& rhs) const;
 		pmTensor multiply_term_by_term(pmTensor const& rhs) const;
 		double norm() const;
-		void fill(double const& scalar);
+		void fill(double const& value);
 		pmTensor to_row() const;
 		pmTensor to_column() const;
 		static pmTensor make_tensor(int const& r, int const& c, double const& value);
@@ -97,9 +96,7 @@ namespace Nauticle {
 		pmTensor determinant() const;
 		pmTensor adjugate() const;
 		pmTensor inverse() const;
-		void set_scalar(bool const& sc);
 		pmTensor reflect_perpendicular(pmTensor const& guide) const;
-		pmTensor reflect_parallel(pmTensor const& guide) const;
 		pmTensor append(int const& row, int const& col) const;
 		bool is_integer() const;
 	};
@@ -217,8 +214,7 @@ namespace Nauticle {
 		}
 		int imax = lhs.get_numrows();
 		int jmax = rhs.get_numcols();
-		bool sc = !lhs.is_scalar() || !rhs.is_scalar() ? (imax*jmax==1?true:false) : true;
-		pmTensor tensor{imax, jmax, 0, sc};
+		pmTensor tensor{imax, jmax, 0};
 		for(int i=0; i<imax; i++) {
 			for(int j=0; j<jmax; j++) {
 				double sum = 0;

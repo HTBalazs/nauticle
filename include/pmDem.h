@@ -194,7 +194,7 @@ namespace Nauticle {
 						double nuj = this->operand[5]->evaluate(j,level)[0];
 						pmTensor n_ji = rel_pos / d_ji;
 						pmTensor vj = this->operand[0]->evaluate(j,level).reflect_perpendicular(guide);
-						pmTensor omj = this->operand[1]->evaluate(j,level).reflect_parallel(guide);
+						pmTensor omj = this->operand[1]->evaluate(j,level).reflect_perpendicular(guide);
 						pmTensor rel_vel = vj-vi;
 						// overlap
 						double delta = min_dist-d_ji;
@@ -247,7 +247,7 @@ namespace Nauticle {
 						pmTensor n_ji = rel_pos / d_ji;
 						// overlap
 						pmTensor vj = this->operand[0]->evaluate(j,level).reflect_perpendicular(guide);
-						pmTensor omj = this->operand[1]->evaluate(j,level).reflect_parallel(guide);
+						pmTensor omj = this->operand[1]->evaluate(j,level).reflect_perpendicular(guide);
 						pmTensor rel_vel = vj-vi;
 
 						double delta = min_dist-d_ji;

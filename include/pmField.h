@@ -34,16 +34,15 @@ namespace Nauticle {
 	*/
 	class pmField : public pmSymbol {
 	protected:
-		// std::vector<pmTensor> current_value;
-		// std::vector<pmTensor> previous_value;
 		std::vector<std::vector<pmTensor>> value;
+		bool symmetric = true;
 		size_t depth = 1;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmField()=delete;
-		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0});
-		pmField(std::string const& n, std::vector<pmTensor> const& value);
+		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0}, bool const& sym=true);
+		pmField(std::string const& n, std::vector<pmTensor> const& value, bool const& sym=true);
 		pmField(pmField const&);
 		pmField(pmField&&);
 		pmField& operator=(pmField const&);
@@ -62,6 +61,8 @@ namespace Nauticle {
 		void sort_field(std::vector<int> const& sorted_idx);
 		virtual void set_number_of_nodes(size_t const& N);
 		virtual void write_to_string(std::ostream& os) const override;
+		bool is_symmetric() const override;
+		void set_symmetry(bool const& sym);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
