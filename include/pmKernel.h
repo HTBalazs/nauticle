@@ -36,10 +36,10 @@ namespace Nauticle {
 	//	
 	//	1: optional flag for derivative.
 	//	2: W (weight function).
-	//  3: can be one of the followings: p (polynomial), s (spline), e (exponential)
-	//	4: order of the polynomial or spline. It is zero for exponential kernel.
-	//  5: number of peices along the radius.
-	//  6: influence radius/smoothing radius.
+	//  3: can be one of the followings: p (polynomial), e (exponential)
+	//	4: order of the kernel.
+	//  5: number of pieces along the influence radius.
+	//  6: influence radius/smoothing radius. Zero for infinite influence radius.
 	//	7: Dimensions.
 	//	8: serial number.
 	*/
@@ -51,11 +51,11 @@ namespace Nauticle {
 		double Wp2220_raw(double const& q) const;
 		double Wp3220_raw(double const& q) const;
 		double Wp5220_raw(double const& q) const;
-		double Wg20_raw(double const& q) const;
+		double We2100_raw(double const& q) const;
 		double dWp2220_raw(double const& q) const;
 		double dWp3220_raw(double const& q) const;
 		double dWp5220_raw(double const& q) const;
-		double dWg20_raw(double const& q) const;
+		double dWe2100_raw(double const& q) const;
 
 		double Wp22210(double const& distance, double const& cell_size) const;
 		double Wp22220(double const& distance, double const& cell_size) const;
@@ -75,12 +75,12 @@ namespace Nauticle {
 		double dWp52210(double const& distance, double const& cell_size) const;
 		double dWp52220(double const& distance, double const& cell_size) const;
 		double dWp52230(double const& distance, double const& cell_size) const;
-		double Wg210(double const& distance, double const& cell_size) const;
-		double Wg220(double const& distance, double const& cell_size) const;
-		double Wg230(double const& distance, double const& cell_size) const;
-		double dWg210(double const& distance, double const& cell_size) const;
-		double dWg220(double const& distance, double const& cell_size) const;
-		double dWg230(double const& distance, double const& cell_size) const;
+		double We21010(double const& distance, double const& cell_size) const;
+		double We21020(double const& distance, double const& cell_size) const;
+		double We21030(double const& distance, double const& cell_size) const;
+		double dWe21010(double const& distance, double const& cell_size) const;
+		double dWe21020(double const& distance, double const& cell_size) const;
+		double dWe21030(double const& distance, double const& cell_size) const;
 
 	public:
 		enum kernel_type { Quadratic, Cubic, Wendland, Gaussian };
