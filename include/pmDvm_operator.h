@@ -33,13 +33,13 @@ namespace Nauticle {
 	/** This class implements the DVM meshless interpolant operators.
 	//  It requires a pmParticle_system assigned to it.
 	*/
-	class pmDvm_operator : public pmFilter<3> {
+	class pmDvm_operator : public pmFilter<2> {
 		std::string op_name;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmDvm_operator() {}
-		pmDvm_operator(std::array<std::shared_ptr<pmExpression>,3> op);
+		pmDvm_operator(std::array<std::shared_ptr<pmExpression>,2> op);
 		pmDvm_operator(pmDvm_operator const& other);
 		pmDvm_operator(pmDvm_operator&& other);
 		pmDvm_operator& operator=(pmDvm_operator const& other);
