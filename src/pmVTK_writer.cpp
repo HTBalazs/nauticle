@@ -241,7 +241,6 @@ void pmVTK_writer::push_asymmetric_to_polydata() {
 			counter++;
 		}
 	}
-	std::cout << fields.size() << std::endl;
 	if(counter==0) { return; }
 	string_array->SetName("asymmetric");
 	string_array->SetNumberOfComponents(1);

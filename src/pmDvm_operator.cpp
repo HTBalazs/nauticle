@@ -140,6 +140,16 @@ pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 	double rad = this->operand[2]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect_perpendicular(guide);
+		// TODO: optimise
+		if(!this->operand[0]->is_symmetric()) {
+			pmTensor flip = pmTensor::make_tensor(guide, 1);
+			for(int i=0; i<guide.numel(); i++) {
+				if(guide[i]!=0) {
+					flip = -1;
+				}
+			}
+			w_j *= flip.productum();
+		}
 		pmTensor contribution{dimension,1,0};
 		if(w_j.norm() == 0) { return contribution; }
 		double d_ji = rel_pos.norm();
