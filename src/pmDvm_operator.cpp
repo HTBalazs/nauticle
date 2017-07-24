@@ -28,9 +28,9 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDvm_operator::write_to_string(std::ostream& os) const {
 	os << op_name << "(";
-	for(int i=0; i<3; i++) {
+	for(int i=0; i<2; i++) {
 		os << this->operand[i];
-		if(i!=2) {
+		if(i!=1) {
 			os << ",";
 		}
 	}
@@ -48,11 +48,9 @@ std::ostream& operator<<(std::ostream& os, pmDvm_operator const* obj) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDvm_operator::pmDvm_operator(std::array<std::shared_ptr<pmExpression>,3> op) {
+pmDvm_operator::pmDvm_operator(std::array<std::shared_ptr<pmExpression>,2> op) {
 	this->operand = std::move(op);
 	size_t type = (int)this->operand[1]->evaluate(0)[0];
-	this->kernel = std::make_shared<pmKernel>();
-	this->kernel->set_kernel_type(type, false);
 	op_name = std::string{"dvm"};
 }
 
@@ -136,23 +134,29 @@ void pmDvm_operator::print() const {
 pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
-	double eps_i = this->operand[1]->evaluate(i,level)[0];
-	double rad = this->operand[2]->evaluate(i,level)[0];
+	double eps = this->operand[1]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
-		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect_parallel(guide);
+		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect_perpendicular(guide);
+		// TODO: optimise
+		if(!this->operand[0]->is_symmetric()) {
+			pmTensor flip = pmTensor::make_tensor(guide, 1);
+			for(int i=0; i<guide.numel(); i++) {
+				if(guide[i]!=0) {
+					flip = -1;
+				}
+			}
+			w_j *= flip.productum();
+		}
 		pmTensor contribution{dimension,1,0};
 		if(w_j.norm() == 0) { return contribution; }
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS) {
-			double eps_j = this->operand[1]->evaluate(j,level)[0];
-			if(d_ji <= rad) {
-				if(dimension==2) {
-					pmTensor wj{3,1,0};
-					wj[2] = w_j[0];
-					contribution += cross(wj,rel_pos.append(3,1)).sub_tensor(0,1,0,0)/d_ji/d_ji/2.0/NAUTICLE_PI*(1.0-exp(-d_ji*d_ji/eps_i/eps_i));
-				} else if(dimension==3) {
-					contribution += cross(w_j,rel_pos)/d_ji/d_ji/2.0/NAUTICLE_PI*(1.0-exp(-d_ji*d_ji/eps_i/eps_i));
-				}
+			if(dimension==2) {
+				pmTensor wj{3,1,0};
+				wj[2] = w_j[0];
+				contribution += cross(wj,rel_pos.append(3,1)).sub_tensor(0,1,0,0)/d_ji/d_ji/2/NAUTICLE_PI*(1-exp(-d_ji*d_ji/eps/eps));
+			} else if(dimension==3) {
+				contribution += cross(w_j,rel_pos)/d_ji/d_ji/2/NAUTICLE_PI*(1-exp(-d_ji*d_ji/eps/eps));
 			}
 		}
 		return contribution;

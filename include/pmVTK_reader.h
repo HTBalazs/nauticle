@@ -37,6 +37,7 @@ namespace Nauticle {
     	
     	pmDomain pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const;
     	void pop_singles_from_polydata(std::string const& TYPE, std::shared_ptr<pmWorkspace> workspace) const;
+        std::vector<std::string> pop_asymmetric_field_names_from_polydata() const;
     public:
     	virtual ~pmVTK_reader() {}
     	void update() override;

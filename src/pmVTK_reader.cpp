@@ -41,10 +41,8 @@ std::vector<pmTensor> pmVTK_reader::pop_array_from_polydata(int const& i, size_t
 		case 3 : real_dim = domain_dim; break;
 		case 9 : real_dim = domain_dim*domain_dim; break;
 	}
-	bool scalar = dim==1 ? true : false;
 	for(int a=0; a<array_size; a+=dim) {
 		pmTensor tensor = pmTensor::Tensor(real_dim);
-		tensor.set_scalar(scalar);
 		for(int t=0; t<real_dim; t++) {
 			tensor[t] = array->GetValue(a+t);
 		}
@@ -119,7 +117,7 @@ pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> wor
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the singles (pmVariable and pmConstant) stored in the polydata.
+/// Adds the singles (pmVariable and pmConstant) stored in the polydata to the given workspace.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_reader::pop_singles_from_polydata(std::string const& type, std::shared_ptr<pmWorkspace> workspace) const {
 	vtkSmartPointer<vtkFieldData> field_data = polydata->GetFieldData();
@@ -141,6 +139,23 @@ void pmVTK_reader::pop_singles_from_polydata(std::string const& type, std::share
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the asymmetric field names stored in the polydata.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<std::string> pmVTK_reader::pop_asymmetric_field_names_from_polydata() const {
+	std::vector<std::string> asymmetric_fields;
+	vtkSmartPointer<vtkFieldData> field_data = polydata->GetFieldData();
+	int i=0;
+	vtkSmartPointer<vtkStringArray> array = vtkStringArray::SafeDownCast(field_data->GetAbstractArray("asymmetric",i));
+	if(!array) { return asymmetric_fields; }
+	int num_values = array->GetNumberOfValues();
+	for(int j=0; j<num_values; j++) {
+		std::string vtksingle = array->GetValue(j);
+		asymmetric_fields.push_back(vtksingle);
+	}
+	return asymmetric_fields;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Reads the file with the given name. All previously stored data are destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_reader::update() {
@@ -155,6 +170,7 @@ void pmVTK_reader::update() {
 	// Read constants and variables
 	pop_singles_from_polydata("constants", workspace);
 	pop_singles_from_polydata("variables", workspace);
+	std::vector<std::string> asymmetric_fields = pop_asymmetric_field_names_from_polydata();
 	// Read domain data
 	pmDomain domain = pop_domain_from_polydata(workspace);
 
@@ -165,7 +181,14 @@ void pmVTK_reader::update() {
 		if(name=="r") {
 	 	 	psys_data = pop_array_from_polydata(i, domain.get_dimensions());
 		} else {
-			workspace->add_field(name.c_str(), pop_array_from_polydata(i, domain.get_dimensions()));
+			bool sym = true;
+			for(auto const& it:asymmetric_fields) {
+				if(name==it) {
+					sym = false;
+					break;
+				}
+			}
+			workspace->add_field(name.c_str(), pop_array_from_polydata(i, domain.get_dimensions()), sym);
 		}
 	}
 

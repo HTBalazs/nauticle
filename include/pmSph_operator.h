@@ -201,6 +201,16 @@ namespace Nauticle {
 						B_j = this->operand[0]->evaluate(j, level);
 					}
 					pmTensor A_j = this->operand[0+sh]->evaluate(j,level).reflect_perpendicular(guide);
+					// TODO: optimise
+					if(!this->operand[0+sh]->is_symmetric()) {
+						pmTensor flip = pmTensor::make_tensor(guide, 1);
+						for(int i=0; i<guide.numel(); i++) {
+							if(guide[i]!=0) {
+								flip = -1;
+							}
+						}
+						A_j *= flip.productum();
+					}
 					double m_j = this->operand[1+sh]->evaluate(j,level)[0];
 					double rho_j = this->operand[2+sh]->evaluate(j,level)[0];
 					double W_ij = this->kernel->evaluate(d_ji, (h_i+h_j)/2.0f);

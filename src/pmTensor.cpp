@@ -30,7 +30,6 @@ pmTensor::pmTensor() {
 	rows = 0;
 	columns = 0;
 	elements = nullptr;
-	scalar = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -41,13 +40,12 @@ pmTensor::pmTensor(double const& s) {
 	columns = 1;
 	elements = new double[1];
 	elements[0] = s;
-	scalar = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor::pmTensor(int const& r, int const& c, double const& init/*=0*/, bool const& sc/*=true*/) {
+pmTensor::pmTensor(int const& r, int const& c, double const& init/*=0*/) {
 	if(r<1 || c<1) { return; }
 	rows = r;
 	columns = c;
@@ -55,7 +53,6 @@ pmTensor::pmTensor(int const& r, int const& c, double const& init/*=0*/, bool co
 	for(int i=0; i<r*c; i++) {
 		elements[i] = init;
 	}
-	scalar = r*c>1 ? false : sc;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +61,6 @@ pmTensor::pmTensor(int const& r, int const& c, double const& init/*=0*/, bool co
 pmTensor::pmTensor(pmTensor const& other) {
 	this->rows = other.rows;
 	this->columns = other.columns;
-	this->scalar = other.scalar;
 	elements = new double[rows*columns];
 	memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
 }
@@ -76,7 +72,6 @@ pmTensor::pmTensor(pmTensor&& other) {
 	this->rows = std::move(other.rows);
 	this->columns = std::move(other.columns);
 	this->elements = other.elements;
-	this->scalar = other.scalar;
 	other.elements = nullptr;
 }
 
@@ -158,7 +153,6 @@ pmTensor& pmTensor::operator=(pmTensor const& other) {
 	if(this!=&other) {
 		this->rows = other.rows;
 		this->columns = other.columns;
-		this->scalar = other.scalar;
 		delete [] elements;
 		elements = new double[rows*columns];
 		memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
@@ -173,7 +167,6 @@ pmTensor& pmTensor::operator=(pmTensor&& other) {
 	if(this!=&other) {
 		this->rows = std::move(other.rows);
 		this->columns = std::move(other.columns);
-		this->scalar = other.scalar;
 		delete [] elements;
 		this->elements = other.elements;
 		other.elements = nullptr;
@@ -320,14 +313,14 @@ bool pmTensor::is_row() const {
 /// Checks if the tensor is vector (row or column).
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmTensor::is_vector() const {
-	return is_row() || is_column() || (!scalar && numel()==1);
+	return is_row() || is_column();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the tensor is scalar (number of rows=1 and columns=1)
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmTensor::is_scalar() const {
-	return scalar;
+	return numel()==1 ? true : false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -598,9 +591,9 @@ double pmTensor::norm() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Fills the tensor with the given value. The size remains unchanged.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmTensor::fill(double const& s) {
+void pmTensor::fill(double const& value) {
 	for(int i=0; i<numel(); i++){
-		elements[i] = s;
+		elements[i] = value;
 	}
 }
 
@@ -632,9 +625,6 @@ void pmTensor::fill(double const& s) {
 /// Writes tensor data to string.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmTensor::write_to_string(std::ostream& os) const {
-	if(numel()==1 && !scalar) {
-		os << (*this)[0] << "*e_i";
-	}
 	for(int i=0; i<rows; i++) {
 		if(i!=0) os << "|";
 		for(int j=0; j<columns; j++) {
@@ -645,36 +635,13 @@ void pmTensor::write_to_string(std::ostream& os) const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the scalar value to sc. If numel>1 it does not changes scalar.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmTensor::set_scalar(bool const& sc) {
-	scalar = numel()>1 ? scalar : sc;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Reflects tensor in directions where guide is nonzero.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmTensor::reflect_perpendicular(pmTensor const& guide) const {
-	if(scalar) { return *this; }
+	if(is_scalar()) { return *this; }
 	pmTensor R = make_tensor(guide.numel(),guide.numel(),0);
 	for(int i=0; i<guide.numel(); i++) {
 		R[i*rows+i] = guide[i]!=0 ? -1 : 1;
-	}
-	return R*(*this);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Reflects tensor in directions where guide is nonzero.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmTensor::reflect_parallel(pmTensor const& guide) const {
-	pmTensor R = make_identity(guide.numel());
-	for(int i=0; i<guide.numel(); i++) {
-		if(guide[i]!=0) {
-			for(int j=0;j<guide.numel(); j++) {
-				if(i==j) continue;
-				R[j*rows+j] *= -1.0;
-			}
-		}
 	}
 	return R*(*this);
 }

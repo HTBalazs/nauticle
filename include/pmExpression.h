@@ -44,6 +44,7 @@ namespace Nauticle {
     	virtual void assign(std::weak_ptr<pmParticle_system> ps) {}
     	virtual bool is_assigned() const=0;
     	virtual void write_to_string(std::ostream& os) const=0;
+        virtual bool is_symmetric() const;
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////

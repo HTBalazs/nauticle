@@ -28,3 +28,7 @@ using namespace Nauticle;
 std::shared_ptr<pmExpression> pmExpression::clone() const {
 	return clone_impl();
 }
+
+bool pmExpression::is_symmetric() const {
+    return true;
+}

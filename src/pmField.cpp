@@ -25,19 +25,21 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/) {
+pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/) {
 	name = n;
 	value.push_back(std::vector<pmTensor>());
 	value[0].resize(size, v);
+	symmetric = sym;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, std::vector<pmTensor> const& v) {
+pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool const& sym/*=true*/) {
 	name = n;
 	value.push_back(std::vector<pmTensor>());
 	value[0] = v;
+	symmetric = sym;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +48,7 @@ pmField::pmField(std::string const& n, std::vector<pmTensor> const& v) {
 pmField::pmField(pmField const& other) {
 	this->name = other.name;
 	this->value = other.value;
+	this->symmetric = other.symmetric;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +57,7 @@ pmField::pmField(pmField const& other) {
 pmField::pmField(pmField&& other) {
 	this->name = std::move(other.name);
 	this->value = std::move(other.value);
+	this->symmetric = std::move(other.symmetric);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +67,7 @@ pmField& pmField::operator=(pmField const& other) {
 	if(this!=&other) {
 		this->name = other.name;
 		this->value = other.value;
+		this->symmetric = other.symmetric;
 	}
 	return *this;
 }
@@ -74,6 +79,7 @@ pmField& pmField::operator=(pmField&& other) {
 	if(this!=&other) {
 		this->name = std::move(other.name);
 		this->value = std::move(other.value);
+		this->symmetric = std::move(other.symmetric);
 	}
 	return *this;
 }
@@ -88,8 +94,8 @@ void pmField::printv() const {
 	}
 	pmTensor tensor = this->evaluate(0);
 	ProLog::pLogger::logf<ProLog::LMA>("[%i by %i]", tensor.get_numrows(), tensor.get_numcols());
-	if(tensor.is_scalar()) {
-		ProLog::pLogger::logf<ProLog::LMA>(" S");
+	if(!this->is_symmetric()) {
+		ProLog::pLogger::logf<ProLog::LMA>(" *");
 	}
 }
 
@@ -184,5 +190,16 @@ void pmField::write_to_string(std::ostream& os) const {
 	os << name;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Return symmetric property of the field. 
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmField::is_symmetric() const {
+	return symmetric;
+}
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets symmetric property of the field. 
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmField::set_symmetry(bool const& sym) {
+	symmetric = sym;
+}
