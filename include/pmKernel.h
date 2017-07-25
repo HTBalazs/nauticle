@@ -32,16 +32,16 @@ namespace Nauticle {
 	//
 	// Kernel notations:
 	//  dWlnnnnn
-	//	12345678
+	//	01234567
 	//	
-	//	1: optional flag for derivative.
-	//	2: W (weight function).
-	//  3: can be one of the followings: p (polynomial), e (exponential)
-	//	4: order of the kernel.
-	//  5: number of pieces along the influence radius.
-	//  6: influence radius/smoothing radius. Zero for infinite influence radius.
-	//	7: Dimensions.
-	//	8: serial number.
+	//	0: optional flag for derivative.
+	//	1: W (weight function).
+	//  2: can be one of the followings: p (polynomial), e (exponential)
+	//	3: order of the kernel.
+	//  4: number of pieces along the influence radius.
+	//  5: influence radius/smoothing radius. Zero for infinite influence radius.
+	//	6: Dimensions.
+	//	7: serial number.
 	*/
 	class pmKernel {
 	private:
