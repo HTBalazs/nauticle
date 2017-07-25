@@ -165,6 +165,7 @@ void pmVTK_reader::update() {
 	reader->Update();
 	polydata = reader->GetOutput(); // read everything to polydata
 	std::shared_ptr<pmWorkspace> workspace = std::make_shared<pmWorkspace>();
+	workspace->delete_instance("id");
 	workspace->set_number_of_nodes(polydata->GetNumberOfPoints());
 
 	// Read constants and variables
