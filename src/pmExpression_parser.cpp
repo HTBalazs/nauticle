@@ -287,12 +287,12 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmDem<ANGULAR,7>>(operands));
 			}
-			if(it=="sph_X00") {
+			if(it=="sph_X") {
 				std::array<std::shared_ptr<pmExpression>,5> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<XSAMPLE,0,0,5>>(operands));
 			}
-			if(it=="sph_S00") {
+			if(it=="sph_S") {
 				std::array<std::shared_ptr<pmExpression>,5> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<SAMPLE,0,0,5>>(operands));
@@ -317,7 +317,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<GRADIENT,1,1,5>>(operands));
 			}
-			if(it=="sph_G20") {
+			if(it=="sph_G") {
 				std::array<std::shared_ptr<pmExpression>,5> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<GRADIENT,2,0,5>>(operands));
@@ -342,17 +342,17 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<DIVERGENCE,1,1,5>>(operands));
 			}
-			if(it=="sph_D20") {
+			if(it=="sph_D") {
 				std::array<std::shared_ptr<pmExpression>,5> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<DIVERGENCE,2,0,5>>(operands));
 			}
-			if(it=="sph_L00") {
+			if(it=="sph_L0") {
 				std::array<std::shared_ptr<pmExpression>,5> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<LAPLACE,0,0,5>>(operands));
 			}
-			if(it=="sph_L10") {
+			if(it=="sph_L1") {
 				std::array<std::shared_ptr<pmExpression>,6> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<LAPLACE,1,0,6>>(operands));
