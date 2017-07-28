@@ -30,7 +30,7 @@
 #include "nauticle_constants.h"
 
 namespace Nauticle {
-	/** This class implements the socal model for crowd simulation.
+	/** This class implements the social model for crowd simulation.
 	//  It requires a pmParticle_system assigned to it.
 	*/
 	class pmSfm_operator : public pmFilter<10> {
