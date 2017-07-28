@@ -152,12 +152,13 @@ pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 		if(w_j.norm() == 0) { return contribution; }
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS && d_ji < cell_size) {
+			double d_ji2 = d_ji*d_ji;
+			double temp = 0.5/d_ji2/NAUTICLE_PI*(1.0-std::exp(-d_ji2/eps/eps));
 			if(dimension==2) {
-				pmTensor wj{3,1,0};
-				wj[2] = w_j[0];
-				contribution += cross(wj,rel_pos.append(3,1)).sub_tensor(0,1,0,0)/d_ji/d_ji/2/NAUTICLE_PI*(1-std::exp(-d_ji*d_ji/eps/eps));
+				contribution[0] -= w_j[0]*rel_pos[1]*temp;
+				contribution[1] += w_j[0]*rel_pos[0]*temp;
 			} else if(dimension==3) {
-				contribution += cross(w_j,rel_pos)/d_ji/d_ji/2/NAUTICLE_PI*(1-exp(-d_ji*d_ji/eps/eps));
+				contribution += cross(w_j,rel_pos)*temp;
 			}
 		}
 		return contribution;
