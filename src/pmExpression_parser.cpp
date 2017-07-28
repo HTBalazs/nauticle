@@ -362,7 +362,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmDvm_operator>(operands));
 			}
-			if(it=="social_force") {
+			if(it=="sfm") {
 				std::array<std::shared_ptr<pmExpression>,10> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSfm_operator>(operands));

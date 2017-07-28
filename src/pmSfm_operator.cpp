@@ -51,7 +51,7 @@ std::ostream& operator<<(std::ostream& os, pmSfm_operator const* obj) {
 pmSfm_operator::pmSfm_operator(std::array<std::shared_ptr<pmExpression>,10> op) {
 	this->operand = std::move(op);
 	size_t type = (int)this->operand[1]->evaluate(0)[0];
-	op_name = std::string{"social_force"};
+	op_name = std::string{"sfm"};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
