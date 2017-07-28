@@ -33,21 +33,21 @@ namespace Nauticle {
 	/** This class implements the socal model for crowd simulation.
 	//  It requires a pmParticle_system assigned to it.
 	*/
-	class pmSocial_force_model : public pmFilter<10> {
+	class pmSfm_operator : public pmFilter<10> {
 		std::string op_name;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
-		pmSocial_force_model() {}
-		pmSocial_force_model(std::array<std::shared_ptr<pmExpression>,10> op);
-		pmSocial_force_model(pmSocial_force_model const& other);
-		pmSocial_force_model(pmSocial_force_model&& other);
-		pmSocial_force_model& operator=(pmSocial_force_model const& other);
-		pmSocial_force_model& operator=(pmSocial_force_model&& other);
-		virtual ~pmSocial_force_model() {}
+		pmSfm_operator() {}
+		pmSfm_operator(std::array<std::shared_ptr<pmExpression>,10> op);
+		pmSfm_operator(pmSfm_operator const& other);
+		pmSfm_operator(pmSfm_operator&& other);
+		pmSfm_operator& operator=(pmSfm_operator const& other);
+		pmSfm_operator& operator=(pmSfm_operator&& other);
+		virtual ~pmSfm_operator() {}
 		void print() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		std::shared_ptr<pmSocial_force_model> clone() const;
+		std::shared_ptr<pmSfm_operator> clone() const;
 		virtual void write_to_string(std::ostream& os) const override;
 	};
 }

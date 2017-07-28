@@ -18,7 +18,7 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmSocial_force_model.h"
+#include "pmSfm_operator.h"
 #include "Color_define.h"
 
 using namespace Nauticle;
@@ -26,7 +26,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Writes object to string.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSocial_force_model::write_to_string(std::ostream& os) const {
+void pmSfm_operator::write_to_string(std::ostream& os) const {
 	os << op_name << "(";
 	for(int i=0; i<10; i++) {
 		os << this->operand[i];
@@ -40,7 +40,7 @@ void pmSocial_force_model::write_to_string(std::ostream& os) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implements << operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::ostream& operator<<(std::ostream& os, pmSocial_force_model const* obj) {
+std::ostream& operator<<(std::ostream& os, pmSfm_operator const* obj) {
 	obj->write_to_string(os);
 	return os;
 }
@@ -48,7 +48,7 @@ std::ostream& operator<<(std::ostream& os, pmSocial_force_model const* obj) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSocial_force_model::pmSocial_force_model(std::array<std::shared_ptr<pmExpression>,10> op) {
+pmSfm_operator::pmSfm_operator(std::array<std::shared_ptr<pmExpression>,10> op) {
 	this->operand = std::move(op);
 	size_t type = (int)this->operand[1]->evaluate(0)[0];
 	op_name = std::string{"social_force"};
@@ -57,7 +57,7 @@ pmSocial_force_model::pmSocial_force_model(std::array<std::shared_ptr<pmExpressi
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSocial_force_model::pmSocial_force_model(pmSocial_force_model const& other) {
+pmSfm_operator::pmSfm_operator(pmSfm_operator const& other) {
 	this->assigned = false;
 	this->kernel = std::shared_ptr<pmKernel>(other.kernel);
 	for(int i=0; i<this->operand.size(); i++) {
@@ -69,7 +69,7 @@ pmSocial_force_model::pmSocial_force_model(pmSocial_force_model const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSocial_force_model::pmSocial_force_model(pmSocial_force_model&& other) {
+pmSfm_operator::pmSfm_operator(pmSfm_operator&& other) {
 	this->psys = std::move(other.psys);
 	this->kernel = std::move(other.kernel);
 	this->assigned = std::move(other.assigned);
@@ -80,7 +80,7 @@ pmSocial_force_model::pmSocial_force_model(pmSocial_force_model&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSocial_force_model& pmSocial_force_model::operator=(pmSocial_force_model const& other) {
+pmSfm_operator& pmSfm_operator::operator=(pmSfm_operator const& other) {
 	if(this!=&other) {
 		this->assigned = false;
 		this->kernel = std::shared_ptr<pmKernel>(other.kernel);
@@ -95,7 +95,7 @@ pmSocial_force_model& pmSocial_force_model::operator=(pmSocial_force_model const
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSocial_force_model& pmSocial_force_model::operator=(pmSocial_force_model&& other) {
+pmSfm_operator& pmSfm_operator::operator=(pmSfm_operator&& other) {
 	if(this!=&other) {
 		this->psys = std::move(other.psys);
 		this->kernel = std::move(other.kernel);
@@ -109,21 +109,21 @@ pmSocial_force_model& pmSocial_force_model::operator=(pmSocial_force_model&& oth
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Clone implementation.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmSocial_force_model::clone_impl() const {
-	return std::make_shared<pmSocial_force_model>(*this);
+std::shared_ptr<pmExpression> pmSfm_operator::clone_impl() const {
+	return std::make_shared<pmSfm_operator>(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmSocial_force_model> pmSocial_force_model::clone() const {
-	return std::static_pointer_cast<pmSocial_force_model, pmExpression>(clone_impl());
+std::shared_ptr<pmSfm_operator> pmSfm_operator::clone() const {
+	return std::static_pointer_cast<pmSfm_operator, pmExpression>(clone_impl());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints SPH operator content.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSocial_force_model::print() const {
+void pmSfm_operator::print() const {
 	ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
 	this->print_operands();
 }
@@ -131,7 +131,7 @@ void pmSocial_force_model::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmSocial_force_model::evaluate(int const& i, size_t const& level/*=0*/) const {
+pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 	double cell_size = this->psys.lock()->get_particle_space()->get_domain().get_cell_size();
