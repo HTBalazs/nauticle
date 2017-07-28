@@ -155,7 +155,7 @@ pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 			if(dimension==2) {
 				pmTensor wj{3,1,0};
 				wj[2] = w_j[0];
-				contribution += cross(wj,rel_pos.append(3,1)).sub_tensor(0,1,0,0)/d_ji/d_ji/2/NAUTICLE_PI*(1-exp(-d_ji*d_ji/eps/eps));
+				contribution += cross(wj,rel_pos.append(3,1)).sub_tensor(0,1,0,0)/d_ji/d_ji/2/NAUTICLE_PI*(1-std::exp(-d_ji*d_ji/eps/eps));
 			} else if(dimension==3) {
 				contribution += cross(w_j,rel_pos)/d_ji/d_ji/2/NAUTICLE_PI*(1-exp(-d_ji*d_ji/eps/eps));
 			}
