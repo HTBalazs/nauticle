@@ -36,6 +36,7 @@
 #include "pmDem.h"
 #include "pmSph_operator.h"
 #include "pmDvm_operator.h"
+#include "pmSocial_force_model.h"
 #include "pmFmin.h"
 #include "pmFmax.h"
 #include "pmFmean.h"

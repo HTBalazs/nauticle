@@ -28,9 +28,9 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSocial_force_model::write_to_string(std::ostream& os) const {
 	os << op_name << "(";
-	for(int i=0; i<8; i++) {
+	for(int i=0; i<10; i++) {
 		os << this->operand[i];
-		if(i!=7) {
+		if(i!=8) {
 			os << ",";
 		}
 	}
@@ -48,7 +48,7 @@ std::ostream& operator<<(std::ostream& os, pmSocial_force_model const* obj) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmSocial_force_model::pmSocial_force_model(std::array<std::shared_ptr<pmExpression>,8> op) {
+pmSocial_force_model::pmSocial_force_model(std::array<std::shared_ptr<pmExpression>,10> op) {
 	this->operand = std::move(op);
 	size_t type = (int)this->operand[1]->evaluate(0)[0];
 	op_name = std::string{"social_force"};
@@ -135,6 +135,7 @@ pmTensor pmSocial_force_model::evaluate(int const& i, size_t const& level/*=0*/)
 	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 	double cell_size = this->psys.lock()->get_particle_space()->get_domain().get_cell_size();
+	pmTensor posi = this->psys.lock()->get_value(i);
 	pmTensor vi  = this->operand[0]->evaluate(i,level);
 	pmTensor p0  = this->operand[1]->evaluate(i,level);
 	double v0  = this->operand[2]->evaluate(i,level)[0];
@@ -151,14 +152,17 @@ pmTensor pmSocial_force_model::evaluate(int const& i, size_t const& level/*=0*/)
 		pmTensor contribution{dimension,1,0};
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS && d_ji < cell_size) {
-			double n_ji = rel_pos/d_ji;
-			double Rij = (Ri+Rj)*0.5;
+			pmTensor n_ji = rel_pos/d_ji;
+			double Rij = Ri+Rj;
 			double cij = (ci+cj)*0.5;
-			contribution += (-Ai*std::exp((Rij-d_ji)/Bi)*n_ji-k*(Rij-d_ji)*n_ji+cij*n_ji)/mi;
+			double body_force = d_ji-Rij<0.0 ? k*(Rij-d_ji) : 0.0;
+			contribution += (-Ai*std::exp((Rij-d_ji)/Bi)*n_ji-body_force*n_ji+cij*n_ji)/mi;
 		}
 		return contribution;
 	};
-	return (v0*p0-vi)/taui + this->interact(i, contribute);
+	pmTensor e0 = (p0-posi);
+	e0 /= e0.norm();
+	return (v0*e0-vi)/taui + this->interact(i, contribute);
 }
 
 
