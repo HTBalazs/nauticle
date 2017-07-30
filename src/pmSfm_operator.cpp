@@ -30,7 +30,7 @@ void pmSfm_operator::write_to_string(std::ostream& os) const {
 	os << op_name << "(";
 	for(int i=0; i<10; i++) {
 		os << this->operand[i];
-		if(i!=8) {
+		if(i!=9) {
 			os << ",";
 		}
 	}
