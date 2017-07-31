@@ -46,7 +46,6 @@ namespace Nauticle {
 		pmTensor process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmNbody> clone() const;
-		virtual void write_to_string(std::ostream& os) const override;
 		int get_field_size() const override;
 	};
 

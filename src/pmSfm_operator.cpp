@@ -24,20 +24,6 @@
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Writes object to string.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmSfm_operator::write_to_string(std::ostream& os) const {
-	os << op_name << "(";
-	for(int i=0; i<10; i++) {
-		os << this->operand[i];
-		if(i!=9) {
-			os << ",";
-		}
-	}
-	os << ")";
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Implements << operator.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::ostream& operator<<(std::ostream& os, pmSfm_operator const* obj) {
@@ -51,7 +37,7 @@ std::ostream& operator<<(std::ostream& os, pmSfm_operator const* obj) {
 pmSfm_operator::pmSfm_operator(std::array<std::shared_ptr<pmExpression>,10> op) {
 	this->operand = std::move(op);
 	size_t type = (int)this->operand[1]->evaluate(0)[0];
-	op_name = std::string{"sfm"};
+	this->op_name = std::string{"sfm"};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

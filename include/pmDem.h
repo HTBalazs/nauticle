@@ -40,7 +40,6 @@ namespace Nauticle {
 	class pmDem : public pmInteraction<NOPS> {
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
-		std::string op_name;
 	public:
 		pmDem() {}
 		pmDem(std::array<std::shared_ptr<pmExpression>,NOPS> op);
@@ -52,7 +51,6 @@ namespace Nauticle {
 		void print() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmDem> clone() const;
-		virtual void write_to_string(std::ostream& os) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -146,7 +144,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
 	void pmDem<TYPE, NOPS>::print() const {
-		ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
+		ProLog::pLogger::logf<NAUTICLE_COLOR>(this->op_name.c_str());
 		this->print_operands();
 	}
 
@@ -319,21 +317,6 @@ namespace Nauticle {
 			};
 			return this->interact(i, contribute);
 		}
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Writes operator to string.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <DEM_TYPE TYPE, size_t NOPS>
-	void pmDem<TYPE, NOPS>::write_to_string(std::ostream& os) const {
-		os << op_name << "(";
-		for(int i=0; i<NOPS; i++) {
-			os << this->operand[i];
-			if(i!=NOPS-1) {
-				os << ",";
-			}
-		}
-		os << ")";
 	}
 }
 

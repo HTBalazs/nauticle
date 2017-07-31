@@ -28,6 +28,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNbody::pmNbody(std::array<std::shared_ptr<pmExpression>,2> op) {
 	operand = std::move(op);
+	op_name = std::string{"nbody"};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +38,7 @@ pmNbody::pmNbody(pmNbody const& other) {
 	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
+		this->op_name = other.op_name;
 	}
 }
 
@@ -47,6 +49,7 @@ pmNbody::pmNbody(pmNbody&& other) {
 	this->psys = std::move(other.psys);
 	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
+	this->op_name = std::move(other.op_name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +60,7 @@ pmNbody& pmNbody::operator=(pmNbody const& other) {
 		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
+			this->op_name = other.op_name;
 		}
 	}
 	return *this;
@@ -70,6 +74,7 @@ pmNbody& pmNbody::operator=(pmNbody&& other) {
 		this->psys = std::move(other.psys);
 		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
+		this->op_name = std::move(other.op_name);
 	}
 	return *this;
 }
@@ -92,7 +97,7 @@ std::shared_ptr<pmNbody> pmNbody::clone() const {
 /// Prints N-body content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmNbody::print() const {
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("nbody");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
 	print_operands();
 }
 
@@ -118,13 +123,6 @@ pmTensor pmNbody::evaluate(int const& i, size_t const& level/*=0*/) const {
 		force += coef*mass_i*mass_j/distance/distance*norm;
 	}
 	return force;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Writes object to string.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmNbody::write_to_string(std::ostream& os) const {
-	os << "nbody(" << operand[0] << "," << operand[1] << ")";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

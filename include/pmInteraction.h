@@ -37,6 +37,7 @@ namespace Nauticle {
 		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, double const&, pmTensor const& guide)>;
 		using Func_pos = std::function<pmTensor(pmTensor const&, int const&, double const&)>;
 	protected:
+		std::string op_name;
 		std::weak_ptr<pmParticle_system> psys;
 		bool assigned=false;
 	protected:
@@ -47,6 +48,8 @@ namespace Nauticle {
 		bool cutoff_cell(pmTensor const& beta, pmTensor const& delta, size_t const& dimensions) const;
 		pmTensor interact(int const& i, Func_ith contribute) const;
 		pmTensor interact(pmTensor const& pos_i, Func_pos contribute) const;
+	public:
+		virtual void write_to_string(std::ostream& os) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +175,21 @@ namespace Nauticle {
 			}
 		}
 		return result;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Writes object to string.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <size_t S>
+	void pmInteraction<S>::write_to_string(std::ostream& os) const {
+		os << op_name << "(";
+		for(int i=0; i<S; i++) {
+			os << this->operand[i];
+			if(i!=S-1) {
+				os << ",";
+			}
+		}
+		os << ")";
 	}
 }
 

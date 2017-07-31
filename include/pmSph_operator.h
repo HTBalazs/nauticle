@@ -38,7 +38,6 @@ namespace Nauticle {
 	*/
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	class pmSph_operator : public pmFilter<NOPS> {
-		std::string op_name;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
@@ -53,20 +52,11 @@ namespace Nauticle {
 		pmTensor process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmSph_operator> clone() const;
-		virtual void write_to_string(std::ostream& os) const override;
 	};
 
-	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
-	void pmSph_operator<OP_TYPE,VAR,K,NOPS>::write_to_string(std::ostream& os) const {
-		os << op_name << "(";
-		for(int i=0; i<NOPS; i++) {
-			os << this->operand[i];
-			if(i!=NOPS-1) {
-				os << ",";
-			}
-		}
-		os << ")";
-	}
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implements the << operator for SPH.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	std::ostream& operator<<(std::ostream& os, pmSph_operator<OP_TYPE, VAR, K, NOPS> const* obj) {
 		obj->write_to_string(os);
@@ -82,15 +72,15 @@ namespace Nauticle {
 		size_t type = (int)this->operand[3]->evaluate(0)[0];
 		this->kernel = std::make_shared<pmKernel>();
 		this->kernel->set_kernel_type(type, OP_TYPE==SAMPLE?false:true);
-		op_name = std::string{"sph_"};
+		this->op_name = std::string{"sph_"};
 		switch(OP_TYPE) {
-			case SAMPLE: op_name+=std::string{"S"}; break;
-			case XSAMPLE: op_name+=std::string{"X"}; break;
-			case GRADIENT: op_name+=std::string{"G"}; break;
-			case DIVERGENCE: op_name+=std::string{"D"}; break;
-			case LAPLACE: op_name+=std::string{"L"}; break;
+			case SAMPLE: this->op_name+=std::string{"S"}; break;
+			case XSAMPLE: this->op_name+=std::string{"X"}; break;
+			case GRADIENT: this->op_name+=std::string{"G"}; break;
+			case DIVERGENCE: this->op_name+=std::string{"D"}; break;
+			case LAPLACE: this->op_name+=std::string{"L"}; break;
 		}
-		op_name+=Common::to_string(VAR)+Common::to_string(K);
+		this->op_name+=Common::to_string(VAR)+Common::to_string(K);
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -170,7 +160,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	void pmSph_operator<OP_TYPE,VAR,K,NOPS>::print() const {
-		ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
+		ProLog::pLogger::logf<NAUTICLE_COLOR>(this->op_name.c_str());
 		this->print_operands();
 	}
 	
@@ -179,7 +169,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	pmTensor pmSph_operator<OP_TYPE,VAR,K,NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
-		if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
+		if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", this->op_name.c_str()); }
 		size_t sh = 0;
 		pmTensor B_i{1,1,1};
 		if(NOPS==6) {

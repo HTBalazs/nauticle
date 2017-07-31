@@ -34,7 +34,6 @@ namespace Nauticle {
 	//  It requires a pmParticle_system assigned to it.
 	*/
 	class pmDvm_operator : public pmFilter<2> {
-		std::string op_name;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
@@ -48,7 +47,6 @@ namespace Nauticle {
 		void print() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmDvm_operator> clone() const;
-		virtual void write_to_string(std::ostream& os) const override;
 	};
 }
 
