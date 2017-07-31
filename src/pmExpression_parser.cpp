@@ -275,7 +275,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			if(it=="nbody") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmNbody>(operands));
+				e.push(std::make_shared<pmNbody_operator>(operands));
 			}
 			if(it=="dem_l") {
 				std::array<std::shared_ptr<pmExpression>,7> operands;

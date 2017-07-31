@@ -18,7 +18,7 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmNbody.h"
+#include "pmNbody_operator.h"
 #include "Color_define.h"
 
 using namespace Nauticle;
@@ -26,7 +26,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNbody::pmNbody(std::array<std::shared_ptr<pmExpression>,2> op) {
+pmNbody_operator::pmNbody_operator(std::array<std::shared_ptr<pmExpression>,2> op) {
 	operand = std::move(op);
 	op_name = std::string{"nbody"};
 }
@@ -34,7 +34,7 @@ pmNbody::pmNbody(std::array<std::shared_ptr<pmExpression>,2> op) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNbody::pmNbody(pmNbody const& other) {
+pmNbody_operator::pmNbody_operator(pmNbody_operator const& other) {
 	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
@@ -45,7 +45,7 @@ pmNbody::pmNbody(pmNbody const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNbody::pmNbody(pmNbody&& other) {
+pmNbody_operator::pmNbody_operator(pmNbody_operator&& other) {
 	this->psys = std::move(other.psys);
 	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
@@ -55,7 +55,7 @@ pmNbody::pmNbody(pmNbody&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNbody& pmNbody::operator=(pmNbody const& other) {
+pmNbody_operator& pmNbody_operator::operator=(pmNbody_operator const& other) {
 	if(this!=&other) {
 		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
@@ -69,7 +69,7 @@ pmNbody& pmNbody::operator=(pmNbody const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNbody& pmNbody::operator=(pmNbody&& other) {
+pmNbody_operator& pmNbody_operator::operator=(pmNbody_operator&& other) {
 	if(this!=&other) {
 		this->psys = std::move(other.psys);
 		this->assigned = std::move(other.assigned);
@@ -82,21 +82,21 @@ pmNbody& pmNbody::operator=(pmNbody&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Clone implementation.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmNbody::clone_impl() const {
-	return std::make_shared<pmNbody>(*this);
+std::shared_ptr<pmExpression> pmNbody_operator::clone_impl() const {
+	return std::make_shared<pmNbody_operator>(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmNbody> pmNbody::clone() const {
-	return std::static_pointer_cast<pmNbody, pmExpression>(clone_impl());
+std::shared_ptr<pmNbody_operator> pmNbody_operator::clone() const {
+	return std::static_pointer_cast<pmNbody_operator, pmExpression>(clone_impl());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints N-body content.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmNbody::print() const {
+void pmNbody_operator::print() const {
 	ProLog::pLogger::logf<NAUTICLE_COLOR>(op_name.c_str());
 	print_operands();
 }
@@ -104,7 +104,7 @@ void pmNbody::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmNbody::evaluate(int const& i, size_t const& level/*=0*/) const {
+pmTensor pmNbody_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!assigned) { ProLog::pLogger::error_msgf("N-body model is not assigned to any particle system.\n"); }
 	std::shared_ptr<pmParticle_system> ps = psys.lock();
 
@@ -128,6 +128,6 @@ pmTensor pmNbody::evaluate(int const& i, size_t const& level/*=0*/) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Return the maximum size of the fields out of the operands.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmNbody::get_field_size() const {
+int pmNbody_operator::get_field_size() const {
 	return psys.lock()->get_field_size();
 }
