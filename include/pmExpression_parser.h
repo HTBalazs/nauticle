@@ -33,7 +33,7 @@
 #include "pmVariable.h"
 #include "pmField.h"
 #include "pmNbody.h"
-#include "pmDem.h"
+#include "pmDem_operator.h"
 #include "pmSph_operator.h"
 #include "pmDvm_operator.h"
 #include "pmSfm_operator.h"

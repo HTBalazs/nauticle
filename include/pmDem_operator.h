@@ -37,27 +37,27 @@ namespace Nauticle {
 	//  through interactions between particles. 
 	*/
 	template <DEM_TYPE TYPE, size_t NOPS>
-	class pmDem : public pmInteraction<NOPS> {
+	class pmDem_operator : public pmInteraction<NOPS> {
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
-		pmDem() {}
-		pmDem(std::array<std::shared_ptr<pmExpression>,NOPS> op);
-		pmDem(pmDem const& other);
-		pmDem(pmDem&& other);
-		pmDem& operator=(pmDem const& other);
-		pmDem& operator=(pmDem&& other);
-		virtual ~pmDem() {}
+		pmDem_operator() {}
+		pmDem_operator(std::array<std::shared_ptr<pmExpression>,NOPS> op);
+		pmDem_operator(pmDem_operator const& other);
+		pmDem_operator(pmDem_operator&& other);
+		pmDem_operator& operator=(pmDem_operator const& other);
+		pmDem_operator& operator=(pmDem_operator&& other);
+		virtual ~pmDem_operator() {}
 		void print() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		std::shared_ptr<pmDem> clone() const;
+		std::shared_ptr<pmDem_operator> clone() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementaton of << operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	inline std::ostream& operator<<(std::ostream& os, pmDem<TYPE, NOPS> const* obj) {
+	inline std::ostream& operator<<(std::ostream& os, pmDem_operator<TYPE, NOPS> const* obj) {
 		obj->write_to_string(os);
 		return os;
 	}
@@ -66,7 +66,7 @@ namespace Nauticle {
 	/// Constructor.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	pmDem<TYPE, NOPS>::pmDem(std::array<std::shared_ptr<pmExpression>,NOPS> op) {
+	pmDem_operator<TYPE, NOPS>::pmDem_operator(std::array<std::shared_ptr<pmExpression>,NOPS> op) {
 		this->operand = std::move(op);
 		this->op_name = TYPE==LINEAR ? "dem_l" : "dem_a";
 	}
@@ -75,7 +75,7 @@ namespace Nauticle {
 	/// Copy constructor.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	pmDem<TYPE, NOPS>::pmDem(pmDem<TYPE, NOPS> const& other) {
+	pmDem_operator<TYPE, NOPS>::pmDem_operator(pmDem_operator<TYPE, NOPS> const& other) {
 		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
@@ -87,7 +87,7 @@ namespace Nauticle {
 	/// Move constructor.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	pmDem<TYPE, NOPS>::pmDem(pmDem<TYPE, NOPS>&& other) {
+	pmDem_operator<TYPE, NOPS>::pmDem_operator(pmDem_operator<TYPE, NOPS>&& other) {
 		this->psys = std::move(other.psys);
 		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
@@ -98,7 +98,7 @@ namespace Nauticle {
 	/// Copy assignment operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	pmDem<TYPE, NOPS>& pmDem<TYPE, NOPS>::operator=(pmDem<TYPE, NOPS> const& other) {
+	pmDem_operator<TYPE, NOPS>& pmDem_operator<TYPE, NOPS>::operator=(pmDem_operator<TYPE, NOPS> const& other) {
 		if(this!=&other) {
 			this->assigned = false;
 			for(int i=0; i<this->operand.size(); i++) {
@@ -113,7 +113,7 @@ namespace Nauticle {
 	/// Move assignment operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	pmDem<TYPE, NOPS>& pmDem<TYPE, NOPS>::operator=(pmDem<TYPE, NOPS>&& other) {
+	pmDem_operator<TYPE, NOPS>& pmDem_operator<TYPE, NOPS>::operator=(pmDem_operator<TYPE, NOPS>&& other) {
 		if(this!=&other) {
 			this->psys = std::move(other.psys);
 			this->assigned = std::move(other.assigned);
@@ -127,23 +127,23 @@ namespace Nauticle {
 	/// Clone implementation.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	std::shared_ptr<pmExpression> pmDem<TYPE, NOPS>::clone_impl() const {
-		return std::make_shared<pmDem<TYPE, NOPS>>(*this);
+	std::shared_ptr<pmExpression> pmDem_operator<TYPE, NOPS>::clone_impl() const {
+		return std::make_shared<pmDem_operator<TYPE, NOPS>>(*this);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the copy of the object.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	std::shared_ptr<pmDem<TYPE, NOPS>> pmDem<TYPE, NOPS>::clone() const {
-		return std::static_pointer_cast<pmDem<TYPE, NOPS>, pmExpression>(clone_impl());
+	std::shared_ptr<pmDem_operator<TYPE, NOPS>> pmDem_operator<TYPE, NOPS>::clone() const {
+		return std::static_pointer_cast<pmDem_operator<TYPE, NOPS>, pmExpression>(clone_impl());
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Prints DEM content.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	void pmDem<TYPE, NOPS>::print() const {
+	void pmDem_operator<TYPE, NOPS>::print() const {
 		ProLog::pLogger::logf<NAUTICLE_COLOR>(this->op_name.c_str());
 		this->print_operands();
 	}
@@ -152,7 +152,7 @@ namespace Nauticle {
 	/// Evaluates the interaction.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
-	pmTensor pmDem<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
+	pmTensor pmDem_operator<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
 		if(!this->assigned) { ProLog::pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
 		size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 
