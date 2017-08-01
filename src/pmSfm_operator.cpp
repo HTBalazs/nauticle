@@ -45,7 +45,6 @@ pmSfm_operator::pmSfm_operator(std::array<std::shared_ptr<pmExpression>,10> op) 
 /////////////////////////////////////////////////////////////////////////////////////////
 pmSfm_operator::pmSfm_operator(pmSfm_operator const& other) {
 	this->assigned = false;
-	this->kernel = std::shared_ptr<pmKernel>(other.kernel);
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
 	}
@@ -57,7 +56,6 @@ pmSfm_operator::pmSfm_operator(pmSfm_operator const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmSfm_operator::pmSfm_operator(pmSfm_operator&& other) {
 	this->psys = std::move(other.psys);
-	this->kernel = std::move(other.kernel);
 	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
 	this->op_name = std::move(other.op_name);
@@ -69,7 +67,6 @@ pmSfm_operator::pmSfm_operator(pmSfm_operator&& other) {
 pmSfm_operator& pmSfm_operator::operator=(pmSfm_operator const& other) {
 	if(this!=&other) {
 		this->assigned = false;
-		this->kernel = std::shared_ptr<pmKernel>(other.kernel);
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
 		}
@@ -84,7 +81,6 @@ pmSfm_operator& pmSfm_operator::operator=(pmSfm_operator const& other) {
 pmSfm_operator& pmSfm_operator::operator=(pmSfm_operator&& other) {
 	if(this!=&other) {
 		this->psys = std::move(other.psys);
-		this->kernel = std::move(other.kernel);
 		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);

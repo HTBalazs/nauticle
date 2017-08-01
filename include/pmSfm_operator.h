@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include <array>
 #include <string>
-#include "pmFilter.h"
+#include "pmInteraction.h"
 #include "prolog/pLogger.h"
 #include "commonutils/Common.h"
 #include "nauticle_constants.h"
@@ -33,7 +33,7 @@ namespace Nauticle {
 	/** This class implements the social model for crowd simulation.
 	//  It requires a pmParticle_system assigned to it.
 	*/
-	class pmSfm_operator : public pmFilter<10> {
+	class pmSfm_operator : public pmInteraction<10> {
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
