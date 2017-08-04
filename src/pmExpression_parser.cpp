@@ -611,10 +611,10 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<INVERSE,1>>(operands));
 			}
-			if(it=="neighbours") {
+			if(it=="neighbors") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmNeighbours>(operands));
+				e.push(std::make_shared<pmNeighbors>(operands));
 			}
 		} else if(is_number(it)) {
 			e.push(std::make_shared<pmConstant>(pmTensor{stof(it)}));

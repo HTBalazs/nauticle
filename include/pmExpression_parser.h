@@ -41,7 +41,7 @@
 #include "pmFmax.h"
 #include "pmFmean.h"
 #include "pmFsum.h"
-#include "pmNeighbours.h"
+#include "pmNeighbors.h"
 #include "pmArithmetic_operator.h"
 #include "pmArithmetic_function.h"
 

@@ -18,7 +18,7 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmNeighbours.h"
+#include "pmNeighbors.h"
 #include "nauticle_constants.h"
 #include "Color_define.h"
 
@@ -27,14 +27,14 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNeighbours::pmNeighbours(std::array<std::shared_ptr<pmExpression>,1> op) {
+pmNeighbors::pmNeighbors(std::array<std::shared_ptr<pmExpression>,1> op) {
 	operand = std::move(op);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNeighbours::pmNeighbours(pmNeighbours const& other) {
+pmNeighbors::pmNeighbors(pmNeighbors const& other) {
 	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
@@ -44,7 +44,7 @@ pmNeighbours::pmNeighbours(pmNeighbours const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNeighbours::pmNeighbours(pmNeighbours&& other) {
+pmNeighbors::pmNeighbors(pmNeighbors&& other) {
 	this->psys = std::move(other.psys);
 	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
@@ -53,7 +53,7 @@ pmNeighbours::pmNeighbours(pmNeighbours&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNeighbours& pmNeighbours::operator=(pmNeighbours const& other) {
+pmNeighbors& pmNeighbors::operator=(pmNeighbors const& other) {
 	if(this!=&other) {
 		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
@@ -66,7 +66,7 @@ pmNeighbours& pmNeighbours::operator=(pmNeighbours const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNeighbours& pmNeighbours::operator=(pmNeighbours&& other) {
+pmNeighbors& pmNeighbors::operator=(pmNeighbors&& other) {
 	if(this!=&other) {
 		this->psys = std::move(other.psys);
 		this->assigned = std::move(other.assigned);
@@ -78,39 +78,39 @@ pmNeighbours& pmNeighbours::operator=(pmNeighbours&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Clone implementation.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmNeighbours::clone_impl() const {
-	return std::make_shared<pmNeighbours>(*this);
+std::shared_ptr<pmExpression> pmNeighbors::clone_impl() const {
+	return std::make_shared<pmNeighbors>(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmNeighbours> pmNeighbours::clone() const {
-	return std::static_pointer_cast<pmNeighbours, pmExpression>(clone_impl());
+std::shared_ptr<pmNeighbors> pmNeighbors::clone() const {
+	return std::static_pointer_cast<pmNeighbors, pmExpression>(clone_impl());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints DEM content.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmNeighbours::print() const {
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("neighbours");
+void pmNeighbors::print() const {
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("neighbors");
 	print_operands();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmNeighbours::evaluate(int const& i, size_t const& level/*=0*/) const {
+pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!assigned) { ProLog::pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
 
 	double rad = this->operand[0]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
-		pmTensor num_neighbours{1,1,0};
+		pmTensor num_neighbors{1,1,0};
 		double distance = rel_pos.norm();
 		if(distance < rad + NAUTICLE_EPS) {
-			num_neighbours[0]++;
+			num_neighbors[0]++;
 		}
-		return num_neighbours;
+		return num_neighbors;
 	};
 	return interact(i, contribute);
 }
@@ -118,15 +118,15 @@ pmTensor pmNeighbours::evaluate(int const& i, size_t const& level/*=0*/) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the size of the field.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmNeighbours::get_field_size() const {
+int pmNeighbors::get_field_size() const {
 	return psys.lock()->get_field_size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Writes object to string.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmNeighbours::write_to_string(std::ostream& os) const {
-	os << "neighbours()" << std::endl;
+void pmNeighbors::write_to_string(std::ostream& os) const {
+	os << "neighbors()" << std::endl;
 }
 
 

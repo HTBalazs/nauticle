@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _NEIGHBOURS_H_
-#define _NEIGHBOURS_H_
+#ifndef _NEIGHBORS_H_
+#define _NEIGHBORS_H_
 
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
@@ -28,19 +28,19 @@ namespace Nauticle {
 	/** This class calculates the number of neighbouring particles within the given range.
 	//  It requires a pmParticle_system assigned to it.
 	*/
-	class pmNeighbours : public pmInteraction<1> {
+	class pmNeighbors : public pmInteraction<1> {
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
-		pmNeighbours() {}
-		pmNeighbours(std::array<std::shared_ptr<pmExpression>,1> op);
-		pmNeighbours(pmNeighbours const& other);
-		pmNeighbours(pmNeighbours&& other);
-		pmNeighbours& operator=(pmNeighbours const& other);
-		pmNeighbours& operator=(pmNeighbours&& other);
-		virtual ~pmNeighbours() {}
+		pmNeighbors() {}
+		pmNeighbors(std::array<std::shared_ptr<pmExpression>,1> op);
+		pmNeighbors(pmNeighbors const& other);
+		pmNeighbors(pmNeighbors&& other);
+		pmNeighbors& operator=(pmNeighbors const& other);
+		pmNeighbors& operator=(pmNeighbors&& other);
+		virtual ~pmNeighbors() {}
 		void print() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		std::shared_ptr<pmNeighbours> clone() const;
+		std::shared_ptr<pmNeighbors> clone() const;
 		int get_field_size() const override;
 		virtual void write_to_string(std::ostream& os) const override;
 	};
@@ -48,10 +48,10 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementaton of << operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline std::ostream& operator<<(std::ostream& os, pmNeighbours const* obj) {
+	inline std::ostream& operator<<(std::ostream& os, pmNeighbors const* obj) {
 		obj->write_to_string(os);
 		return os;
 	}
 }
 
-#endif // _NEIGHBOURS_H_
+#endif // _NEIGHBORS_H_

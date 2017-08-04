@@ -140,7 +140,7 @@ void pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 	if(name=="") {
 		for(auto const& it:equations) {
 			it->solve(num_threads);
-			// Update neighbours only if particle positions could have been changed.
+			// Update neighbors only if particle positions could have been changed.
 			if(it->get_lhs()->get_name()=="r") {
 				workspace->sort_all_by_position();
 			}
