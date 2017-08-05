@@ -78,9 +78,11 @@ namespace Nauticle {
 			case XSAMPLE: this->op_name+=std::string{"X"}; break;
 			case GRADIENT: this->op_name+=std::string{"G"}; break;
 			case DIVERGENCE: this->op_name+=std::string{"D"}; break;
-			case LAPLACE: this->op_name+=std::string{"L"}; break;
+			case LAPLACE: this->op_name+=std::string{"L"}+Common::to_string(VAR); break;
 		}
-		this->op_name+=Common::to_string(VAR)+Common::to_string(K);
+		if((OP_TYPE==GRADIENT || OP_TYPE==DIVERGENCE) && VAR!=2) {
+			this->op_name+=Common::to_string(VAR)+Common::to_string(K);
+		}
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////
