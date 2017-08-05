@@ -540,6 +540,18 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				operands[2]->set_storage_depth(2);
 				e.push(std::make_shared<pmArithmetic_function<CORRECTOR,3>>(operands));
 			}
+			if(it=="verlet_r") {
+				std::array<std::shared_ptr<pmExpression>,4> operands;
+				stack_extract(e, operands);
+				operands[2]->set_storage_depth(2);
+				e.push(std::make_shared<pmArithmetic_function<VERLET_R,4>>(operands));
+			}
+			if(it=="verlet_v") {
+				std::array<std::shared_ptr<pmExpression>,3> operands;
+				stack_extract(e, operands);
+				operands[1]->set_storage_depth(2);
+				e.push(std::make_shared<pmArithmetic_function<VERLET_V,3>>(operands));
+			}
 			if(it=="fmin") {
 				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
 				e.push(std::make_shared<pmFmin>(operand));
