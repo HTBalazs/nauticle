@@ -19,7 +19,7 @@ The detailed guide and source code documentation is provided for users as well a
 
 # Examples #
 The few examples discussed in the User's guide cover the following simulations:
- 1. Couette-flow (SPH)
+ 1. Couette-flow (SPH) \\
  2. Phase separation on a sphere with Cahn-Hilliard equation (SPH)
  3. Particle damper (DEM)
  4. Breaking of free-jet (DVM)
