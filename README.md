@@ -1,55 +1,31 @@
 ![nauticle_logo_small.png](https://bitbucket.org/repo/yraAqM/images/4040395855-nauticle_logo_small.png)
 
 # Introduction #
-**Nauticle** is a parallel particle based **general purpose** explicit numerical solver under the GNU Lesser General Public License (LGPL). It is designed to make the implementation of particle based models easy and efficient. Some of the particle based solvers are already implemented (SPH, basic DEM, n-body problem) and **new contributions are welcome**.  
-The implemented schemes can be employed to build **system of differential and algebraic equations** depending on functions which are interpreted in a spatial distribution of particles.
+**Nauticle** is a parallel particle based **general purpose** explicit numerical solver under the GNU Lesser General Public License (LGPL). It is designed to make the implementation of particle based models easy and efficient. Some of the particle based solvers are already implemented (n-body problem, SPH, DEM, DVM, SFM) and **new contributions are welcome**.
+The implemented schemes can be employed to build **system of differential and algebraic equations** depending on functions which are interpreted over a spatial distribution of particles.
 # Installation #
 
 **Nauticle** has a few dependencies which are the following open-source libraries:  
-VTK 7.0.0 (http://www.vtk.org/download/)  
-ProLog (https://bitbucket.org/BalazsToth/prolog)  
-HandyXML (https://bitbucket.org/BalazsToth/handyxml)  
-CommonUtils (https://bitbucket.org/BalazsToth/commonutils)  
+- [VTK 7.0.0](http://www.vtk.org/download/)  
+- [ProLog](https://bitbucket.org/BalazsToth/prolog)  
+- [HandyXML](https://bitbucket.org/BalazsToth/handyxml)  
+- [CommonUtils](https://bitbucket.org/BalazsToth/commonutils)  
 
-After the installation of the libraries above the simple method to build Nauticle is: 
+Nauticle can be installed manually or by the automated installation script available in the Installation repository. Currently the automated installation works only on MAC OS systems or Linux distributions that support APT.
+The Installation script can be downloaded from here.
 
-```
-#!shell
-
-cmake CMakeLists.txt
-sudo make
-```
-It generates an executable in the **<Nauticle dir>/bin** directory with the name **pmsimple**.
-For more information about the usage please type
-
-```
-#!shell
-
-./pmsimple -help
-```
-<<<<<<< HEAD
-int the terminal or open the **<Nauticle dir>/examples** directory.
-
-# Documentation #
-
-For detailed programming reference please visit:
+# User's Guide and Documentation #
+The detailed [guide](https://bitbucket.org/nauticleproject/guide) and source code [documentation](https://bitbucket.org/nauticleproject/documentation/overview) is provided for users as well as developers.
 
 # Examples #
+The few examples discussed in the User's guide cover the following simulations:  
+  1. Couette-flow (SPH)  
+  2. Phase separation on a sphere with Cahn-Hilliard equation (SPH)  
+  3. Particle damper (DEM)  
+  4. Breaking of free-jet (DVM)  
+  5. Solar System (N-body problem)  
+  6. Dam-break flow (SPH)  
+  7. Melting solid phase (SPH)  
+  8. Building evacuation (SFM)  
 
-## Three body-problem : 8 shaped choreography ##
-![anim.gif](https://bitbucket.org/repo/yraAqM/images/2159458539-anim.gif)
-## Two dimensional heat equation ##
-![2d_heat_square.png](https://bitbucket.org/repo/yraAqM/images/3091408574-2d_heat_square.png)
-## Two dimensional linear wave equation ##
-![compressed.gif](https://bitbucket.org/repo/yraAqM/images/1570771457-compressed.gif)
-## Two dimensional basic DEM simulation ##
-![anim.gif](https://bitbucket.org/repo/yraAqM/images/1876226342-anim.gif)
-## Two dimensional dam break simulation with SPH ##
-![compressed.gif](https://bitbucket.org/repo/yraAqM/images/4117212104-compressed.gif)
-## Two dimensional Cahn-Hilliard equation ##
-![compressed.gif](https://bitbucket.org/repo/yraAqM/images/1337375559-compressed.gif)
-## Relaxation (e.g. for special initial configuration)
-![tessellation.gif](https://bitbucket.org/repo/yraAqM/images/647679836-tessellation.gif)
-=======
-int the terminal or open the **<Nauticle dir>/examples** directory.
->>>>>>> 6f5f52bdeac1ce85c29039ab25fb55968bc9cdba
+The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). The results can be visualized in Paraview v5.2.0 or later.
