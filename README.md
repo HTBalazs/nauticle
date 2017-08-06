@@ -6,10 +6,10 @@ The implemented schemes can be employed to build **system of differential and al
 # Installation #
 
 **Nauticle** has a few dependencies which are the following open-source libraries:  
-VTK 7.0.0 (http://www.vtk.org/download/)  
-ProLog (https://bitbucket.org/BalazsToth/prolog)  
-HandyXML (https://bitbucket.org/BalazsToth/handyxml)  
-CommonUtils (https://bitbucket.org/BalazsToth/commonutils)  
+- [VTK 7.0.0](http://www.vtk.org/download/)  
+- [ProLog](https://bitbucket.org/BalazsToth/prolog)  
+- [HandyXML](https://bitbucket.org/BalazsToth/handyxml)  
+- [CommonUtils](https://bitbucket.org/BalazsToth/commonutils)  
 
 Nauticle can be installed manually or by the automated installation script available in the Installation repository. Currently the automated installation works only on MAC OS systems or Linux distributions that support APT.
 The Installation script can be downloaded from here.
@@ -18,7 +18,7 @@ The Installation script can be downloaded from here.
 The detailed guide and source code documentation is provided for users as well as developers.
 
 # Examples #
-The few examples discussed in the User's guide cover the following simulations:
+The few examples discussed in the User's guide cover the following simulations:  
   1. Couette-flow (SPH)  
   2. Phase separation on a sphere with Cahn-Hilliard equation (SPH)  
   3. Particle damper (DEM)  
