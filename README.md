@@ -15,7 +15,7 @@ Nauticle can be installed manually or by the automated installation script avail
 The Installation script can be downloaded from here.
 
 # User's Guide and Documentation #
-The detailed guide and source code documentation is provided for users as well as developers.
+The detailed [guide](https://bitbucket.org/nauticleproject/guide) and source code [documentation](https://bitbucket.org/nauticleproject/documentation/overview) is provided for users as well as developers.
 
 # Examples #
 The few examples discussed in the User's guide cover the following simulations:  
@@ -28,4 +28,4 @@ The few examples discussed in the User's guide cover the following simulations:
   7. Melting solid phase (SPH)  
   8. Building evacuation (SFM)  
 
-The simulations above with the results included are available here. The results can be visualized in Paraview v5.2.0 or later.
+The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). The results can be visualized in Paraview v5.2.0 or later.
