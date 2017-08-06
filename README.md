@@ -19,13 +19,13 @@ The detailed guide and source code documentation is provided for users as well a
 
 # Examples #
 The few examples discussed in the User's guide cover the following simulations:
- 1. Couette-flow (SPH)  
- 2. Phase separation on a sphere with Cahn-Hilliard equation (SPH)  
- 3. Particle damper (DEM)  
- 4. Breaking of free-jet (DVM)  
- 5. Solar System (N-body problem)  
- 6. Dam-break flow (SPH)  
- 7. Melting solid phase (SPH)  
- 8. Building evacuation (SFM)  
+  1. Couette-flow (SPH)  
+  2. Phase separation on a sphere with Cahn-Hilliard equation (SPH)  
+  3. Particle damper (DEM)  
+  4. Breaking of free-jet (DVM)  
+  5. Solar System (N-body problem)  
+  6. Dam-break flow (SPH)  
+  7. Melting solid phase (SPH)  
+  8. Building evacuation (SFM)  
 
 The simulations above with the results included are available here. The results can be visualized in Paraview v5.2.0 or later.
