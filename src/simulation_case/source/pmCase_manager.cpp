@@ -20,6 +20,7 @@
 
 #include "pmCase_manager.h"
 #include "pmLog_stream.h"
+#include "pmXML_processor.h"
 
 using namespace Nauticle;
 

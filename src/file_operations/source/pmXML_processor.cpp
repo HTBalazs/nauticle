@@ -19,7 +19,11 @@
 */
 
 #include "pmXML_processor.h"
+#include "pmTensor_parser.h"
+#include "pmVTK_reader.h"
+#include "prolog/pLogger.h"
 #include "Color_define.h"
+// #include "nauticle_constants.h"
 
 using namespace Nauticle;
 

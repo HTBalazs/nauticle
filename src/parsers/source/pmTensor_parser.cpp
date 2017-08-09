@@ -20,6 +20,8 @@
 
 #include "pmTensor_parser.h"
 #include "commonutils/Common.h"
+#include "commonutils/Common.h"
+#include "pmExpression_parser.h"
 
 using namespace Nauticle;
 

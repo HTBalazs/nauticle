@@ -20,7 +20,8 @@
 
 #include "pmWorkspace.h"
 #include <numeric>
-
+#include "pmConstant.h"
+#include "pmVariable.h"
 
 using namespace Nauticle;
 

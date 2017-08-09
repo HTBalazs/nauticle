@@ -19,6 +19,7 @@
 */
     
 #include "pmCommand_parser.h"
+#include "pmVersion.h"
 
 using namespace Nauticle;
 
