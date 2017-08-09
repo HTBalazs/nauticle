@@ -18,10 +18,23 @@ ENDIF(VTK_FOUND)
 
 #Bring the headers into the project
 include(${VTK_USE_FILE})
-include_directories(include)
+
+
+file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE HEADERS src/*.h)
+
+set (HEADERS_DIRS "")
+foreach (_headerFile ${HEADERS})
+    get_filename_component(_dir ${_headerFile} PATH)
+    list (APPEND HEADERS_DIRS ${_dir})
+endforeach()
+list(REMOVE_DUPLICATES HEADERS_DIRS)
+include_directories(${HEADERS_DIRS})
+
+message(${HEADERS_DIRS})
 
 #Add sources:
-file(GLOB SOURCES "src/*.cpp")
+# file(GLOB SOURCES "src/*.cpp")
 
 if(WIN32)
 	message(FATAL_ERROR "Nauticle is not supported on Windows.")
