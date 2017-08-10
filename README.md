@@ -15,7 +15,7 @@ Nauticle can be installed manually or by the automated installation script avail
 The Installation script can be downloaded from here.
 
 # User's Guide and Documentation #
-The detailed [guide](https://bitbucket.org/nauticleproject/guide) and source code [documentation](https://bitbucket.org/nauticleproject/documentation/overview) is provided for users as well as developers.
+The detailed [guide](https://bitbucket.org/nauticleproject/guide) and [source code documentation](https://bitbucket.org/nauticleproject/documentation/overview) is provided for users as well as developers.
 
 # Examples #
 The few examples discussed in the User's guide cover the following simulations:  
