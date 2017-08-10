@@ -12,7 +12,7 @@ The implemented schemes can be employed to build **system of differential and al
 - [CommonUtils](https://bitbucket.org/BalazsToth/commonutils)  
 
 Nauticle can be installed manually or by the automated installation script available in the Installation repository. Currently the automated installation works only on MAC OS systems or Linux distributions that support APT.
-The Installation script can be downloaded from here.
+The Installation script can be downloaded here.
 
 # User's Guide and Documentation #
 The detailed [guide](https://bitbucket.org/nauticleproject/guide) and [source code documentation](https://bitbucket.org/nauticleproject/documentation/overview) is provided for users as well as developers.
