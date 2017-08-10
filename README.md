@@ -31,7 +31,8 @@ The few examples discussed in the User's guide cover the following simulations:
 The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). The results can be visualized in Paraview v5.2.0 or later.
 
 # License #
-Nauticle is an open-source code freely distributable under the terms of GNU Lesser General Public License v3:  
+The Nauticle code is open-source and freely distributable under the terms of GNU Lesser General Public License v3:  
+  
 Copyright 2016-2017 Balazs Toth  
   
 Nauticle is free software: you can redistribute it and/or modify  
