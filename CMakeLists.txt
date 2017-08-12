@@ -4,6 +4,7 @@ project(nauticle_project)
 
 set(VTK_DIR /usr/local/VTK-7.0.0)
 set(EXECUTABLE nauticle)
+
 link_directories(/usr/local/lib/prolog)
 link_directories(/usr/local/lib/commonutils)
 link_directories(/usr/local/lib/handyxml)
@@ -19,10 +20,11 @@ ENDIF(VTK_FOUND)
 #Bring the headers into the project
 include(${VTK_USE_FILE})
 
-
+#Look for source and header files recursively in the src/ directory
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 
+#Generate list of header files and include them
 set (HEADERS_DIRS "")
 foreach (_headerFile ${HEADERS})
     get_filename_component(_dir ${_headerFile} PATH)
@@ -31,15 +33,13 @@ endforeach()
 list(REMOVE_DUPLICATES HEADERS_DIRS)
 include_directories(${HEADERS_DIRS})
 
+#List header files
 message(${HEADERS_DIRS})
 
-#Add sources:
-# file(GLOB SOURCES "src/*.cpp")
-
+# Check OS
 if(WIN32)
 	message(FATAL_ERROR "Nauticle is not supported on Windows.")
 endif()
-
 if(UNIX AND NOT APPLE)
 	message("Building on Linux machine.")
 	set(BINDIR bin/Linux)
@@ -48,15 +48,19 @@ elseif(APPLE)
 	set(BINDIR bin/Mac)
 endif()
 
+#Create directory for executable
 file(MAKE_DIRECTORY ${BINDIR})
+#Set executable path
 set(EXEC ${BINDIR}/${EXECUTABLE})
 
-add_custom_target(build-time-make-directory ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${BINDIR})
+#add_custom_target(build-time-make-directory ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${BINDIR})
 
+#Show executable path
 message("Build dir: " ${EXEC})
 
 add_executable(${EXEC} ${SOURCES})
 
+#Bring dependencies
 # VTK library
 if(VTK_LIBRARIES)
 	target_link_libraries(${EXEC} ${VTK_LIBRARIES})
