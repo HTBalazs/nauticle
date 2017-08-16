@@ -70,6 +70,9 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 			workspace->add_variable(it->get_name(), tensor_parser.string_to_tensor(data, workspace));
 		}
 	}
+	if(!workspace->is_existing("dt")) {
+		workspace->add_variable("dt", pmTensor{1,1,0.001});
+	}
 	// Read particle system
 	std::vector<std::shared_ptr<pmBlock>> block_psys = block_workspace->find_block("particle_system");
 	for(auto const& ps:block_psys) {
