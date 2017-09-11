@@ -26,7 +26,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, double const& csize, pmTensor const& bnd) {
+pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd) {
 	if(dmin.numel()!=dmax.numel()) {
 		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
@@ -56,7 +56,7 @@ pmTensor pmDomain::get_maximum() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the cell size of the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
-double pmDomain::get_cell_size() const {
+pmTensor pmDomain::get_cell_size() const {
 	return cell_size;
 }
 
@@ -115,7 +115,8 @@ void pmDomain::print() const {
 	maximum.print();
 	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               boundary: ");
 	boundary.print();
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               cell size: %g", cell_size);
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               cell size: ");
+	cell_size.print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +136,7 @@ void pmDomain::set_maximum(pmTensor const& mx) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Setter for cell_size.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_cell_size(double const& csize) {
+void pmDomain::set_cell_size(pmTensor const& csize) {
 	cell_size = csize;
 }
 

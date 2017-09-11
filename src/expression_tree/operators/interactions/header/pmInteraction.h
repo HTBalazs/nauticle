@@ -34,8 +34,8 @@ namespace Nauticle {
 	*/
 	template <size_t S>
 	class pmInteraction : public pmOperator<S> {
-		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, double const&, pmTensor const& guide)>;
-		using Func_pos = std::function<pmTensor(pmTensor const&, int const&, double const&)>;
+		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, pmTensor const&, pmTensor const& guide)>;
+		using Func_pos = std::function<pmTensor(pmTensor const&, int const&, pmTensor const&)>;
 	protected:
 		std::string op_name;
 		std::weak_ptr<pmParticle_system> psys;
@@ -110,7 +110,7 @@ namespace Nauticle {
 		pmTensor result;
 		std::vector<pmTensor> const& cell_iterator = ps->get_particle_space()->get_cell_iterator();
 		pmDomain domain = ps->get_particle_space()->get_domain();
-		double cell_size = domain.get_cell_size();
+		pmTensor cell_size = domain.get_cell_size();
 		pmTensor domain_minimum = domain.get_minimum();
 		pmTensor domain_maximum = domain.get_maximum();
 		pmTensor domain_cells = domain_maximum-domain_minimum;
@@ -160,7 +160,7 @@ namespace Nauticle {
 		std::shared_ptr<pmParticle_system> ps = psys.lock();
 		std::vector<unsigned int> const& start = ps->get_particle_space()->get_start();
 		std::vector<unsigned int> const& end = ps->get_particle_space()->get_end();
-		double cell_size = ps->get_particle_space()->get_domain().get_cell_size();
+		pmTensor cell_size = ps->get_particle_space()->get_domain().get_cell_size();
 		pmTensor grid_pos_i = ps->get_particle_space()->get_grid_position(pos_i);
 		pmTensor result;
 		std::vector<pmTensor> const& cell_iterator = ps->get_particle_space()->get_cell_iterator();

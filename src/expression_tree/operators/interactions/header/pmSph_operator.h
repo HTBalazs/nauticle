@@ -182,7 +182,7 @@ namespace Nauticle {
 		double m_i = this->operand[1+sh]->evaluate(i,level)[0];
 		double rho_i = this->operand[2+sh]->evaluate(i,level)[0];
 		double h_i = this->operand[4+sh]->evaluate(i,level)[0];
-		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
+		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor contribution;
 			double d_ji = rel_pos.norm();
 			if(d_ji > NAUTICLE_EPS || OP_TYPE==SAMPLE) {

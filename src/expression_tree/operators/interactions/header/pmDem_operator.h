@@ -180,7 +180,7 @@ namespace Nauticle {
 		};
 
 		if(TYPE==LINEAR) {
-			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
+			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 				pmTensor force{dimension,1,0};
 				double d_ji = rel_pos.norm();
 				if(d_ji > NAUTICLE_EPS) {
@@ -243,7 +243,7 @@ namespace Nauticle {
 			};
 			return this->interact(i, contribute);
 		} else {
-			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
+			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 				pmTensor torque;
 				double d_ji = rel_pos.norm();
 				if(d_ji > NAUTICLE_EPS) {
