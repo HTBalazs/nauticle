@@ -108,7 +108,7 @@ pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> wor
 				std::unique_ptr<pmTensor_parser> tp{new pmTensor_parser};
 				if(inst_name=="domain_min") { domain.set_minimum(tp->string_to_tensor(inst_value,workspace)); }
 				if(inst_name=="domain_max") { domain.set_maximum(tp->string_to_tensor(inst_value,workspace)); }
-				if(inst_name=="cell_size") { domain.set_cell_size(tp->string_to_tensor(inst_value,workspace)[0]); }
+				if(inst_name=="cell_size") { domain.set_cell_size(tp->string_to_tensor(inst_value,workspace)); }
 				if(inst_name=="boundary") { domain.set_boundary(tp->string_to_tensor(inst_value,workspace)); }
 			}
 		}
