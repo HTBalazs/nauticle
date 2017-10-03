@@ -152,7 +152,7 @@ void pmCase_manager::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase_manager::write_step() const {
 	static int counter = parameter_space->get_parameter_value("file_start")[0];
-    char ch[4];
+    char ch[5];
     sprintf(&ch[0], "%04i", counter);
 	std::string file_name{"step_"};
     file_name += ch;
