@@ -152,7 +152,7 @@ void pmVTK_writer::push_equations_to_polydata() {
 	for(auto const& it:equations) {
 		std::stringstream ss;
 		ss << it->get_name() << ":" << it;
-		string_array->SetValue(i,ss.str());
+		string_array->SetValue(i,ss.str().c_str());
 		i++;
 	}
 	polydata->GetFieldData()->AddArray(string_array);
