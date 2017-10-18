@@ -213,7 +213,6 @@ namespace Nauticle {
 						// normal_force
 						double F_normal = normal_force(delta, delta_dot, khz, ck);
 						force = F_normal*n_ji;
-
 						// relative tangential velocity
 						pmTensor tan_vel = rel_vel - (rel_vel.transpose()*n_ji) * n_ji;
 						double rci = Ri-delta/2.0;
