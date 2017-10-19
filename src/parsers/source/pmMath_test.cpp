@@ -22,7 +22,7 @@
 
 using namespace Nauticle;
 
-std::string const pmMath_test::list_of_functions[73] = {"abs", "acos", "acot", "and", "asin", "atan", "cos", "cosh", "cot", "coth", "dem_l", "dem_a", "div", "elem", "exp", "floor", "fmax", "fmean", "fmin", "fsum", "grad", "gt", "gte", "if", "log", "lt", "lte", "magnitude", "max", "min", "mod", "not", "or", "rand", "sgn", "sin", "sinh", "sph_D00", "sph_D01", "sph_D10", "sph_D11", "sph_D", "sph_G00", "sph_G01", "sph_G10", "sph_G11", "sph_G", "sph_L0", "sph_L1", "sph_S", "sph_X", "dvm", "sqrt", "tan", "tanh", "trace", "transpose", "trunc", "xor", "identity", "neighbors", "nbody", "cross", "inverse", "determinant", "eq", "neq", "euler", "predictor", "corrector", "sfm", "verlet_r", "verlet_v"};
+std::string const pmMath_test::list_of_functions[74] = {"abs", "acos", "acot", "and", "asin", "atan", "atan2", "cos", "cosh", "cot", "coth", "dem_l", "dem_a", "div", "elem", "exp", "floor", "fmax", "fmean", "fmin", "fsum", "grad", "gt", "gte", "if", "log", "lt", "lte", "magnitude", "max", "min", "mod", "not", "or", "rand", "sgn", "sin", "sinh", "sph_D00", "sph_D01", "sph_D10", "sph_D11", "sph_D", "sph_G00", "sph_G01", "sph_G10", "sph_G11", "sph_G", "sph_L0", "sph_L1", "sph_S", "sph_X", "dvm", "sqrt", "tan", "tanh", "trace", "transpose", "trunc", "xor", "identity", "neighbors", "nbody", "cross", "inverse", "determinant", "eq", "neq", "euler", "predictor", "corrector", "sfm", "verlet_r", "verlet_v"};
 std::string const pmMath_test::list_of_operators[] = {	"+", "-", "*", "/", "^", "#", ":", "%"};
 
 /////////////////////////////////////////////////////////////////////////////////////////

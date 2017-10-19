@@ -31,7 +31,7 @@
 
 
 namespace Nauticle {
-	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V};
+	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V};
 	
 	/** This class implements the following operations for the expression tree: summation, subtraction,
 	//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
@@ -67,6 +67,7 @@ namespace Nauticle {
 			case AND : op_name="and"; break;
 			case ASIN : op_name="asin"; break;
 			case ATAN : op_name="atan"; break;
+			case ATAN2 : op_name="atan2"; break;
 			case COS : op_name="cos"; break;
 			case COSH : op_name="cosh"; break;
 			case COT : op_name="cot"; break;
@@ -182,6 +183,7 @@ namespace Nauticle {
 			case AND : return (this->operand[0]->evaluate(i, level) && this->operand[1]->evaluate(i, level));
 			case ASIN : return asin(this->operand[0]->evaluate(i, level));
 			case ATAN : return atan(this->operand[0]->evaluate(i, level));
+			case ATAN2 : return atan2(this->operand[0]->evaluate(i, level),this->operand[1]->evaluate(i, level));
 			case COS : return cos(this->operand[0]->evaluate(i, level));
 			case COSH : return cosh(this->operand[0]->evaluate(i, level));
 			case COT : return cot(this->operand[0]->evaluate(i, level));
