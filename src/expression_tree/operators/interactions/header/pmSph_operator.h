@@ -187,7 +187,7 @@ namespace Nauticle {
 			double d_ji = rel_pos.norm();
 			if(d_ji > NAUTICLE_EPS || OP_TYPE==SAMPLE) {
 				double h_j = this->operand[4+sh]->evaluate(j,level)[0];
-				if(d_ji < h_i || d_ji < h_j) {
+				if(d_ji < (h_i+h_j)/2.0) {
 					pmTensor B_j{1,1,1};
 					if(NOPS==6) {
 						B_j = this->operand[0]->evaluate(j, level);
