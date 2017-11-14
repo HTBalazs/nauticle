@@ -31,7 +31,7 @@
 #include "Color_define.h"
 
 namespace Nauticle {
-	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, GRADIENT, DIVERGENCE, LAPLACE };
+	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, INERTIA, GRADIENT, DIVERGENCE, LAPLACE };
 
 	/** This class implements the SPH meshless interpolant operators.
 	//  It requires a pmParticle_system assigned to it.
@@ -76,6 +76,7 @@ namespace Nauticle {
 		switch(OP_TYPE) {
 			case SAMPLE: this->op_name+=std::string{"S"}; break;
 			case XSAMPLE: this->op_name+=std::string{"X"}; break;
+			case INERTIA: this->op_name+=std::string{"I"}; break;
 			case GRADIENT: this->op_name+=std::string{"G"}; break;
 			case DIVERGENCE: this->op_name+=std::string{"D"}; break;
 			case LAPLACE: this->op_name+=std::string{"L"}+Common::to_string(VAR); break;
@@ -218,6 +219,15 @@ namespace Nauticle {
 		return this->interact(i, contribute);
 	}
 	
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Evaluates the operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template<>
+	inline pmTensor pmSph_operator<INERTIA,0,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
+		pmTensor tensor = A_j-A_i;
+		return tensor.to_column()*tensor.to_row()*(m_j/rho_j*W_ij);
+	}
+
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
