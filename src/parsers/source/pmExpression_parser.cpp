@@ -382,6 +382,26 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<TRACE,1>>(operands));
 			}
+			if(it=="deQ") {
+				std::array<std::shared_ptr<pmExpression>,1> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<DEQ,1>>(operands));
+			}
+			if(it=="deR") {
+				std::array<std::shared_ptr<pmExpression>,1> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<DER,1>>(operands));
+			}
+			if(it=="eigsys") {
+				std::array<std::shared_ptr<pmExpression>,1> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<EIGSYS,1>>(operands));
+			}
+			if(it=="eigval") {
+				std::array<std::shared_ptr<pmExpression>,1> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<EIGVAL,1>>(operands));
+			}
 			if(it=="sin") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);

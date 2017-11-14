@@ -84,6 +84,7 @@ namespace Nauticle {
 		pmTensor divide_term_by_term(pmTensor const& rhs) const;
 		pmTensor multiply_term_by_term(pmTensor const& rhs) const;
 		double norm() const;
+		double tensor_norm() const;
 		void fill(double const& value);
 		pmTensor to_row() const;
 		pmTensor to_column() const;
@@ -99,6 +100,13 @@ namespace Nauticle {
 		pmTensor reflect_perpendicular(pmTensor const& guide) const;
 		pmTensor append(int const& row, int const& col) const;
 		bool is_integer() const;
+		// void QR(pmTensor& Q, pmTensor& R) const;
+		pmTensor deQ() const;
+		pmTensor deR() const;
+		pmTensor deR(pmTensor& Q) const;
+		pmTensor eigensystem() const;
+		pmTensor diagonalize() const;
+		pmTensor eigenvalues() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1205,6 +1213,15 @@ namespace Nauticle {
 		return double{0};
 	}
 
+	inline double pmTensor::tensor_norm() const {
+		if(rows==columns) {
+			return std::sqrt(2.0f*((*this)*(*this).transpose()).trace()[0]);
+		} else {
+			ProLog::pLogger::error_msgf("Tensor norm cannot be calculated to non-square matrix");
+		}
+		return 0.0;
+	}
+
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Fills the tensor with the given value. The size remains unchanged.
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1293,6 +1310,133 @@ namespace Nauticle {
 		}
 		return true;
 	}
+
+	inline pmTensor pmTensor::deQ() const {
+		if(columns!=rows) {
+			ProLog::pLogger::error_msgf("Orthonormal tensor cannot be calculated to non-square matrix.");
+		} else if(this->numel()==1) {
+			return elements[0];
+		} else if(this->numel()==4) {
+			pmTensor x1 = this->sub_tensor(0,1,0,0);
+			pmTensor x2 = this->sub_tensor(0,1,1,1);
+			pmTensor y1 = x1;
+			pmTensor y2 = x2 - y1*((y1.to_row()*x2)/(y1.to_row()*y1));
+			pmTensor z1 = -y1/y1.norm();
+			pmTensor z2 = y2/y2.norm();
+			pmTensor Q{2,2,0};
+			memcpy(Q.elements, z1.elements, sizeof(double)*2);
+			memcpy(&Q.elements[2], z2.elements, sizeof(double)*2);
+			return Q.transpose();
+		} else if(numel()==9) {
+			pmTensor x1 = this->sub_tensor(0,2,0,0);
+			pmTensor x2 = this->sub_tensor(0,2,1,1);
+			pmTensor x3 = this->sub_tensor(0,2,2,2);
+			pmTensor y1 = x1;
+			pmTensor y2 = x2 - y1*((y1.to_row()*x2)/(y1.to_row()*y1));
+			pmTensor y3 = x3 - y1*((y1.to_row()*x3)/(y1.to_row()*y1)) - y2*((y2.to_row()*x3)/(y2.to_row()*y2));
+			pmTensor z1 = -y1/y1.norm();
+			pmTensor z2 = -y2/y2.norm();
+			pmTensor z3 = -y3/y3.norm();
+			pmTensor Q{3,3,0};
+			memcpy(Q.elements, z1.elements, sizeof(double)*3);
+			memcpy(&Q.elements[3], z2.elements, sizeof(double)*3);
+			memcpy(&Q.elements[6], z3.elements, sizeof(double)*3);
+			return Q.transpose();
+		}
+		return pmTensor{};
+	}
+
+	// inline pmTensor pmTensor::deR() const {
+	// 	return this->deQ()*(*this);
+	// }
+
+	// inline void pmTensor::QR(pmTensor& Q, pmTensor& R) const {
+	// 	pmTensor A = *this;
+	// 	Q = make_identity(rows);
+	// 	R = A;
+ //        for(int j=0; j<columns; j++) {
+ //        	double normx = R.sub_tensor(j,rows-1,j,j).norm();
+ //        	double r = R[j*columns+j];
+ //        	int s = -r/std::abs(r);
+ //        	double u1 = R(j,j) - s*normx;
+ //        	pmTensor w = R.sub_tensor(j,rows-1,j,j)/u1;
+ //        	w[0]  = 1;
+ //        	double tau = -s*u1/normx;
+ //        	pmTensor subR = R.sub_tensor(j,rows-1,0,columns-1);
+ //        	pmTensor subQ = Q.sub_tensor(0,rows-1,j,columns-1);
+ //        	subR = (tau*w)*(w*subR);
+ //        	subQ = (subQ*w)*(tau*w);
+ //        	for(int i=j;i<rows;i++) {
+ //                for(int k=0;k<columns;k++) {
+ //                    R[i*columns+k] = R[i*columns+k]-subR[(i-j)*columns+k];
+ //                    Q[k*rows+i] = Q[k*rows+i]-subQ[k*rows+i-j];
+ //                }
+ //        	}
+ //        }
+ //    }
+
+	// inline pmTensor pmTensor::deQ() const {
+	// 	pmTensor Q;
+	// 	pmTensor R;
+	// 	QR(Q,R);
+	// 	return Q;
+	// }
+
+	// inline pmTensor pmTensor::deR() const {
+	// 	pmTensor Q;
+	// 	pmTensor R;
+	// 	QR(Q,R);
+	// 	return R;
+	// }
+
+
+	inline pmTensor pmTensor::deR() const {
+		return this->deQ()*(*this);
+	}
+	inline pmTensor pmTensor::deR(pmTensor& Q) const {
+		Q = this->deQ();
+		return Q*(*this);
+	}
+
+	inline pmTensor pmTensor::eigensystem() const {
+		if(rows!=columns) {
+			ProLog::pLogger::error_msgf("Eigensystem cannot be calculated to non-square matrix.");
+		}
+		pmTensor A = *this;
+		pmTensor U = make_identity(rows);
+		for(int i=1;i<20;i++) {
+			pmTensor Q;
+			pmTensor R = A.deR(Q);
+			// pmTensor Q;
+			// pmTensor R;
+			// QR(Q,R);
+			A = R*Q;
+			U = U*Q;
+		}
+		return U;
+	}
+
+	inline pmTensor pmTensor::diagonalize() const {
+		pmTensor V = this->eigensystem();
+		return V.inverse()*(*this)*V;
+	}
+
+	inline pmTensor pmTensor::eigenvalues() const {
+		if(rows!=columns) {
+			ProLog::pLogger::error_msgf("Eigenvalues cannot be calculated to non-square matrix.");
+		}
+		return this->diagonalize();
+	}
+
+
+	// inline pmTensor pmTensor::logm() const {
+	// 	pmTensor V = this->eigensystem();
+	// 	pmTensor D = V.inverse()*(*this)*V;
+	// 	D.x.x = std::log(D.x.x);
+	// 	D.y.y = std::log(D.y.y);
+	// 	D.z.z = std::log(D.z.z);
+	// 	return V*D*V.inverse();
+	// }
 }
 
 

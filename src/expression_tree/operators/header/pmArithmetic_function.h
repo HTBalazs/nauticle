@@ -31,7 +31,7 @@
 
 
 namespace Nauticle {
-	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V};
+	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V};
 	
 	/** This class implements the following operations for the expression tree: summation, subtraction,
 	//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
@@ -96,12 +96,16 @@ namespace Nauticle {
 			case TAN : op_name="tan"; break;
 			case TANH : op_name="tanh"; break;
 			case TRACE : op_name="trace"; break;
+			case DEQ : op_name="deQ"; break;
+			case DER : op_name="deR"; break;
 			case TRANSPOSE : op_name="transpose"; break;
 			case TRUNC : op_name="trunc"; break;
 			case XOR : op_name="xor"; break;
 			case IDENTITY : op_name="identity"; break;
 			case DETERMINANT : op_name="determinant"; break;
 			case INVERSE : op_name="inverse"; break;
+			case EIGSYS : op_name="eigsys"; break;
+			case EIGVAL : op_name="eigval"; break;
 			case EQUAL : op_name="eq"; break;
 			case NOTEQUAL : op_name="neq"; break;
 			case EULER : op_name="euler"; break;
@@ -225,6 +229,10 @@ namespace Nauticle {
 			case TAN : return tan(this->operand[0]->evaluate(i, level));
 			case TANH : return tanh(this->operand[0]->evaluate(i, level));
 			case TRACE : return this->operand[0]->evaluate(i, level).trace();
+			case EIGSYS : return this->operand[0]->evaluate(i, level).eigensystem();
+			case EIGVAL : return this->operand[0]->evaluate(i, level).eigenvalues();
+			case DEQ : return this->operand[0]->evaluate(i, level).deQ();
+			case DER : return this->operand[0]->evaluate(i, level).deR();
 			case TRANSPOSE : return this->operand[0]->evaluate(i, level).transpose();
 			case TRUNC : return trunc(this->operand[0]->evaluate(i, level));
 			case XOR : return (this->operand[0]->evaluate(i, level) != this->operand[1]->evaluate(i, level));
