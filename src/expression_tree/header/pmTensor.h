@@ -1346,10 +1346,6 @@ namespace Nauticle {
 		return pmTensor{};
 	}
 
-	// inline pmTensor pmTensor::deR() const {
-	// 	return this->deQ()*(*this);
-	// }
-
 	// inline void pmTensor::QR(pmTensor& Q, pmTensor& R) const {
 	// 	pmTensor A = *this;
 	// 	Q = make_identity(rows);
