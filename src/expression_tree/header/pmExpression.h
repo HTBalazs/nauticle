@@ -44,6 +44,7 @@ namespace Nauticle {
     	virtual bool is_assigned() const=0;
     	virtual void write_to_string(std::ostream& os) const=0;
         virtual bool is_symmetric() const;
+        virtual bool is_position() const;
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////

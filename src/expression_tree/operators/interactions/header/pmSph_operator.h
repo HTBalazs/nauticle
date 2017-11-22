@@ -193,7 +193,12 @@ namespace Nauticle {
 					if(NOPS==6) {
 						B_j = this->operand[0]->evaluate(j, level);
 					}
-					pmTensor A_j = this->operand[0+sh]->evaluate(j,level).reflect_perpendicular(guide);
+					pmTensor A_j;
+					if(this->operand[0+sh]->is_position()) {
+						A_j = rel_pos+A_i;
+					} else {
+						A_j = this->operand[0+sh]->evaluate(j,level).reflect_perpendicular(guide);
+					}
 					// TODO: optimise
 					if(!this->operand[0+sh]->is_symmetric()) {
 						pmTensor flip = pmTensor::make_tensor(guide, 1);

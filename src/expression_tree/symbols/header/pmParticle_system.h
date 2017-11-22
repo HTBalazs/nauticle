@@ -90,6 +90,7 @@ namespace Nauticle {
 		void set_number_of_nodes(size_t const& N) override;
 		bool is_sorted() const;
 		std::vector<int> get_sorted_idx() const;
+		bool is_position() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
