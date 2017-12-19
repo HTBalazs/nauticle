@@ -279,7 +279,7 @@ int pmParticle_system::pmParticle_space::calculate_hash_key_from_grid_position(p
 /// Returns hash key for particle i.
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmParticle_system::pmParticle_space::calculate_hash_key_from_position(pmTensor const& position) const {
-	pmTensor grid_pos = floor(position/domain.get_cell_size());
+	pmTensor grid_pos = floor(position.divide_term_by_term(domain.get_cell_size()));
 	return calculate_hash_key_from_grid_position(grid_pos);
 }
 
@@ -345,7 +345,7 @@ int pmParticle_system::pmParticle_space::get_hash_key(int const& i) const {
 /// Returns the grid position of of the given point.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmParticle_system::pmParticle_space::get_grid_position(pmTensor const& point) const {
-	return floor(point/domain.get_cell_size());
+	return floor(point.divide_term_by_term(domain.get_cell_size()));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

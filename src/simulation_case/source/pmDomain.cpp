@@ -26,7 +26,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, double const& csize, pmTensor const& bnd) {
+pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd) {
 	if(dmin.numel()!=dmax.numel()) {
 		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
@@ -56,7 +56,7 @@ pmTensor pmDomain::get_maximum() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the cell size of the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
-double pmDomain::get_cell_size() const {
+pmTensor pmDomain::get_cell_size() const {
 	return cell_size;
 }
 
@@ -79,7 +79,7 @@ size_t pmDomain::get_dimensions() const {
 /// minimum corner of the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDomain::get_physical_minimum() const {
-	return minimum*cell_size;
+	return minimum.multiply_term_by_term(cell_size);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -87,14 +87,14 @@ pmTensor pmDomain::get_physical_minimum() const {
 /// maximum corner of the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDomain::get_physical_maximum() const {
-	return maximum*cell_size;
+	return maximum.multiply_term_by_term(cell_size);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the physical size of the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDomain::get_physical_size() const {
-	return (maximum-minimum)*cell_size;
+	return (maximum-minimum).multiply_term_by_term(cell_size);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,8 @@ void pmDomain::print() const {
 	maximum.print();
 	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               boundary: ");
 	boundary.print();
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               cell size: %g", cell_size);
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               cell size: ");
+	cell_size.print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +136,7 @@ void pmDomain::set_maximum(pmTensor const& mx) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Setter for cell_size.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_cell_size(double const& csize) {
+void pmDomain::set_cell_size(pmTensor const& csize) {
 	cell_size = csize;
 }
 

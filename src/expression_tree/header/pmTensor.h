@@ -106,6 +106,8 @@ namespace Nauticle {
 		pmTensor eigensystem() const;
 		pmTensor diagonalize() const;
 		pmTensor eigenvalues() const;
+		double min() const;
+		double max() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1453,6 +1455,32 @@ namespace Nauticle {
 			ProLog::pLogger::error_msgf("Eigenvalues cannot be calculated to non-square matrix.");
 		}
 		return this->diagonalize();
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the minimum element of the tensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline double pmTensor::min() const {
+		double min_value = elements[0];
+		for(int i=1; i<numel(); i++) {
+			if(min_value<elements[i]) {
+				min_value = elements[i];
+			}
+		}
+		return min_value;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the maximum element of the tensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline double pmTensor::max() const {
+		double max_value = elements[0];
+		for(int i=1; i<numel(); i++) {
+			if(max_value>elements[i]) {
+				max_value = elements[i];
+			}
+		}
+		return max_value;
 	}
 }
 
