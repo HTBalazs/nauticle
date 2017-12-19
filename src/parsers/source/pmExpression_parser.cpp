@@ -457,6 +457,11 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<LOG,1>>(operands));
 			}
+			if(it=="logm") {
+				std::array<std::shared_ptr<pmExpression>,1> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<LOGM,1>>(operands));
+			}
 			if(it=="sinh") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);

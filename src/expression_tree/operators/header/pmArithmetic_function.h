@@ -31,7 +31,7 @@
 
 
 namespace Nauticle {
-	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V};
+	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V};
 	
 	/** This class implements the following operations for the expression tree: summation, subtraction,
 	//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
@@ -80,6 +80,7 @@ namespace Nauticle {
 			case GTE : op_name="gte"; break;
 			case IF : op_name="if"; break;
 			case LOG : op_name="log"; break;
+			case LOGM : op_name="logm"; break;
 			case LT : op_name="lt"; break;
 			case LTE : op_name="lte"; break;
 			case MAGNITUDE : op_name="magnitude"; break;
@@ -213,6 +214,7 @@ namespace Nauticle {
 							return (bool)t2[0] ? this->operand[1]->evaluate(i, level) : this->operand[2]->evaluate(i, level);
 						}
 			case LOG : return log(this->operand[0]->evaluate(i, level));
+			case LOGM : return logm(this->operand[0]->evaluate(i, level));
 			case LT : return (this->operand[0]->evaluate(i, level) < this->operand[1]->evaluate(i, level));
 			case LTE : return (this->operand[0]->evaluate(i, level) <= this->operand[1]->evaluate(i, level));
 			case MAGNITUDE : return this->operand[0]->evaluate(i, level).norm();

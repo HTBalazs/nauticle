@@ -100,7 +100,6 @@ namespace Nauticle {
 		pmTensor reflect_perpendicular(pmTensor const& guide) const;
 		pmTensor append(int const& row, int const& col) const;
 		bool is_integer() const;
-		// void QR(pmTensor& Q, pmTensor& R) const;
 		pmTensor deQ() const;
 		pmTensor deR() const;
 		pmTensor deR(pmTensor& Q) const;
@@ -592,6 +591,20 @@ namespace Nauticle {
 			tmp[i] = std::log(tmp[i]);
 		}
 		return tmp;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementation of matrix log operator for pmTensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline pmTensor logm(pmTensor const& tensor) {
+		if(tensor.is_square()) {
+			ProLog::pLogger::error_msgf("Matrix logarithm cannot be calculated to non-square matrix.");
+		} else if(tensor.is_scalar()) {
+			return log(tensor);
+		}
+		pmTensor V = tensor.eigensystem();
+		pmTensor D = log(V.inverse()*(tensor)*V);
+		return V*D*V.inverse();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1311,6 +1324,9 @@ namespace Nauticle {
 		return true;
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Performs QR decomposition and returns Q.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::deQ() const {
 		if(columns!=rows) {
 			ProLog::pLogger::error_msgf("Orthonormal tensor cannot be calculated to non-square matrix.");
@@ -1385,15 +1401,24 @@ namespace Nauticle {
 	// 	return R;
 	// }
 
-
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Performs QR decomposition and returns R.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::deR() const {
 		return this->deQ()*(*this);
 	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Performs QR decomposition writes Q tensor into the given Q and returns R.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::deR(pmTensor& Q) const {
 		Q = this->deQ();
 		return Q*(*this);
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the matrix with the eigenvectors in its columns.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::eigensystem() const {
 		if(rows!=columns) {
 			ProLog::pLogger::error_msgf("Eigensystem cannot be calculated to non-square matrix.");
@@ -1412,27 +1437,23 @@ namespace Nauticle {
 		return U;
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Transorms the tensor to diagonal form.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::diagonalize() const {
 		pmTensor V = this->eigensystem();
 		return V.inverse()*(*this)*V;
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the diagonal form og the tensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::eigenvalues() const {
 		if(rows!=columns) {
 			ProLog::pLogger::error_msgf("Eigenvalues cannot be calculated to non-square matrix.");
 		}
 		return this->diagonalize();
 	}
-
-
-	// inline pmTensor pmTensor::logm() const {
-	// 	pmTensor V = this->eigensystem();
-	// 	pmTensor D = V.inverse()*(*this)*V;
-	// 	D.x.x = std::log(D.x.x);
-	// 	D.y.y = std::log(D.y.y);
-	// 	D.z.z = std::log(D.z.z);
-	// 	return V*D*V.inverse();
-	// }
 }
 
 
