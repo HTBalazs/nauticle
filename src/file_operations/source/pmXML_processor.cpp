@@ -87,8 +87,10 @@ std::shared_ptr<pmWorkspace> pmXML_processor::get_workspace() const {
 			pmTensor_parser tensor_parser{};
 			pmTensor minimum = tensor_parser.string_to_tensor(str_min, workspace);
 			pmTensor maximum = tensor_parser.string_to_tensor(str_max, workspace);
+			if(minimum.numel()!=maximum.numel()) { ProLog::pLogger::error_msgf("Inconsistent domain sizes."); }
 			pmTensor cell_size = tensor_parser.string_to_tensor(str_cell_size, workspace);
 			pmTensor boundary = tensor_parser.string_to_tensor(str_bnd, workspace);
+			if(cell_size.is_scalar()) { cell_size = pmTensor{minimum.numel(),1,cell_size[0]}; }
 			domain = pmDomain{minimum, maximum, cell_size, boundary};
 		}
 		std::shared_ptr<pmGrid_space> grid_space = get_grid_space(ps,workspace, domain);
