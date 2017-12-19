@@ -31,14 +31,14 @@ namespace Nauticle {
 	class pmDomain {
 		pmTensor minimum;
 		pmTensor maximum;
-		double cell_size;
+		pmTensor cell_size;
 		pmTensor boundary;
 	public:
 		pmDomain() {}
-		pmDomain(pmTensor const& dmin, pmTensor const& dmax, double const& csize, pmTensor const& bnd);
+		pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd);
 		pmTensor get_minimum() const;
 		pmTensor get_maximum() const;
-		double get_cell_size() const;
+		pmTensor get_cell_size() const;
 		size_t get_num_cells() const;
 		size_t get_dimensions() const;
 		pmTensor get_physical_minimum() const;
@@ -47,7 +47,7 @@ namespace Nauticle {
 		pmTensor get_boundary() const;
 		void set_minimum(pmTensor const& mn);
 		void set_maximum(pmTensor const& mx);
-		void set_cell_size(double const& csize);
+		void set_cell_size(pmTensor const& csize);
 		void set_boundary(pmTensor const& bnd);
 		void print() const;
 	};

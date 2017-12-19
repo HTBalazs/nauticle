@@ -116,7 +116,7 @@ void pmSfm_operator::print() const {
 pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
 	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
-	double cell_size = this->psys.lock()->get_particle_space()->get_domain().get_cell_size();
+	double cell_size_min = this->psys.lock()->get_particle_space()->get_domain().get_cell_size().min();
 	pmTensor posi = this->psys.lock()->get_value(i);
 	pmTensor vi  = this->operand[0]->evaluate(i,level);
 	pmTensor p0  = this->operand[1]->evaluate(i,level);
@@ -128,12 +128,12 @@ pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 	double k = this->operand[7]->evaluate(i,level)[0];
 	double ci = this->operand[8]->evaluate(i,level)[0];
 	double taui = this->operand[9]->evaluate(i,level)[0];
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 		double Rj = this->operand[4]->evaluate(j,level)[0];
 		double cj = this->operand[8]->evaluate(j,level)[0];
 		pmTensor contribution{dimension,1,0};
 		double d_ji = rel_pos.norm();
-		if(d_ji > NAUTICLE_EPS && d_ji < cell_size) {
+		if(d_ji > NAUTICLE_EPS && d_ji < cell_size_min) {
 			pmTensor n_ji = rel_pos/d_ji;
 			double Rij = Ri+Rj;
 			double cij = (ci+cj)*0.5;

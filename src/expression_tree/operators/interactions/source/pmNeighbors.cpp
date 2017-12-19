@@ -104,7 +104,7 @@ pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!assigned) { ProLog::pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
 
 	double rad = this->operand[0]->evaluate(i,level)[0];
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, double const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor num_neighbors{1,1,0};
 		double distance = rel_pos.norm();
 		if(distance < rad + NAUTICLE_EPS) {
