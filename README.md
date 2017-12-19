@@ -36,7 +36,7 @@ The next Nauticle version will be released in Q1 2018. The most important featur
 - Domains will support different cell sizes in different directions.  
 - Implementation of matrix-logarithm function ("logm").  
 - Implementation of eigen-system calculation (eigenvectors and eigenvalues).  
-- Extension of position field for symmetric boundary condiations.  
+- Extension of position field for symmetric boundary conditions.  
 
 # License #
 The Nauticle code is open-source and freely distributable under the terms of GNU Lesser General Public License v3:  
