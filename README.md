@@ -43,7 +43,7 @@ The next Nauticle version will be released in Q1 2018. The most important featur
 # License #
 The Nauticle code is open-source and freely distributable under the terms of GNU Lesser General Public License v3:  
   
-Copyright 2016-2017 Balazs Toth  
+Copyright 2016-2018 Balazs Toth  
   
 Nauticle is free software: you can redistribute it and/or modify  
 it under the terms of the GNU Lesser General Public License as published by  
