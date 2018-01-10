@@ -8,7 +8,7 @@ The implemented schemes can be employed to build **system of differential and al
 **Nauticle** has a few dependencies which are the following open-source libraries:  
 - [VTK 7.0.0](http://www.vtk.org/download/)  
 - [ProLog](https://bitbucket.org/BalazsToth/prolog)  
-- [HandyXML](https://bitbucket.org/BalazsToth/handyxml)  
+- [yaml-cpp](https://github.com/jbeder/yaml-cpp/)  
 - [CommonUtils](https://bitbucket.org/BalazsToth/commonutils)  
 
 Nauticle can be installed manually or by the automated installation script available in the Installation repository. Currently the automated installation works only on MAC OS systems or Linux distributions that support APT.
