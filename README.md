@@ -36,7 +36,7 @@ The next Nauticle version will be released in Q1 2018. The most important featur
 - Domains will support different cell sizes in different directions.  
 - Implementation of matrix-logarithm function ("logm").  
 - Implementation of eigen-system calculation (eigenvectors and eigenvalues).  
-- Extension of position field for symmetric boundary conditions in SPH operators.  
+- Extension of position field for symmetric and periodic boundary conditions in SPH operators.  
 - Change configuration file type from XML to YAML for better readability.  
 
 
