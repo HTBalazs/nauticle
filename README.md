@@ -37,7 +37,7 @@ The next Nauticle version will be released in Q1 2018. The most important featur
 - Implementation of matrix-logarithm function ("logm").  
 - Implementation of eigen-system calculation (eigenvectors and eigenvalues).  
 - Extension of position field for symmetric boundary conditions in SPH operators.  
-- Change configuration file type from XML to YAML for better readibility.  
+- Change configuration file type from XML to YAML for better readability.  
 
 
 # License #
