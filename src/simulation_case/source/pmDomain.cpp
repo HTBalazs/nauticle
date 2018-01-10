@@ -27,7 +27,7 @@ using namespace Nauticle;
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd) {
-	if(dmin.numel()!=dmax.numel()) {
+	if(dmin.numel()!=dmax.numel() || dmax.numel()!=csize.numel() || csize.numel()!=bnd.numel()) {
 		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
 	if(!dmin.is_integer() || !dmax.is_integer()) {
