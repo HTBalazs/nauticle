@@ -9,6 +9,7 @@ set(EXECUTABLE nauticle)
 link_directories(/usr/local/lib/prolog)
 link_directories(/usr/local/lib/commonutils)
 link_directories(/usr/local/lib/handyxml)
+link_directories(/usr/local/lib)
 
 find_package(VTK REQUIRED)
 
@@ -70,3 +71,4 @@ endif()
 target_link_libraries(${EXEC} /usr/local/lib/prolog/libprolog.a)
 target_link_libraries(${EXEC} /usr/local/lib/handyxml/libhandyxml.a)
 target_link_libraries(${EXEC} /usr/local/lib/commonutils/libcommonutils.a)
+target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)

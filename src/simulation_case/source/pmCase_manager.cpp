@@ -20,7 +20,7 @@
 
 #include "pmCase_manager.h"
 #include "pmLog_stream.h"
-#include "pmXML_processor.h"
+#include "pmYAML_processor.h"
 
 using namespace Nauticle;
 
@@ -28,10 +28,10 @@ using namespace Nauticle;
 /// Reads the configureation file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase_manager::read_file(std::string const& filename) {
-	std::unique_ptr<pmXML_processor> xml_loader{new pmXML_processor};
-	xml_loader->read_file(filename);
-	cas = xml_loader->get_case();
-	parameter_space = xml_loader->get_parameter_space(cas->get_workspace());
+	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
+	yaml_loader->read_file(filename);
+	cas = yaml_loader->get_case();
+	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
 	ProLog::pLogger::footer<ProLog::LCY>();

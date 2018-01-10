@@ -20,21 +20,21 @@
     
 #include <string>
 #include "nauticle.h"
+#include "pmYAML_processor.h"
 
 using namespace Nauticle;
 
 int main(int argc, char* argv[]) {
-
-	std::string default_xml_name = "config.xml";
+	std::string default_yaml_name = pmYAML_processor::get_default_file_name();
 	std::string default_working_dir = "";
 	bool command_switch = false;
 
 // /// Do not modify anything below this line. /// //
-	std::string xml_name = default_xml_name;
+	std::string yaml_name = default_yaml_name;
 	std::string working_dir = default_working_dir;
 	bool exec = false;
 	size_t num_threads = std::thread::hardware_concurrency();;
-	auto exec_fptr=[&](){ if(exec){ pmCase_manager::execute(xml_name,working_dir,num_threads); } };
+	auto exec_fptr=[&](){ if(exec){ pmCase_manager::execute(yaml_name,working_dir,num_threads); } };
 	if(argc<2) {
 		exec = true;
 		exec_fptr();
@@ -59,9 +59,9 @@ int main(int argc, char* argv[]) {
 					working_dir = cp.get_arg(++i);
 					exec = true;
 				}
-			}  else if(cp.get_arg(i)=="-xmlname") {
+			} else if(cp.get_arg(i)=="-yamlname") {
 				if(argc>i+1) {
-					xml_name = cp.get_arg(++i);
+					yaml_name = cp.get_arg(++i);
 					exec = true;
 				}
 			} else {
