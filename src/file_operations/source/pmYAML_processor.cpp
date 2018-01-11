@@ -121,7 +121,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
         	}
         }
 		pmTensor_parser tensor_parser{};
-        workspace->add_field(name, tensor_parser.string_to_tensor(value, workspace), (bool)tensor_parser.string_to_tensor(symmetric, workspace)[0]);
+        workspace->add_field(name, tensor_parser.string_to_tensor_field(value, workspace), (bool)tensor_parser.string_to_tensor(symmetric, workspace)[0]);
     }
 	return workspace;
 }
