@@ -34,7 +34,7 @@ namespace Nauticle {
 	class pmTensor final { 
 		int rows;
 		int columns;
-		double* elements;
+		double elements[9];
 	public:
 		pmTensor();
 		pmTensor(double const& s);
@@ -669,7 +669,7 @@ namespace Nauticle {
 	inline pmTensor::pmTensor() {
 		rows = 0;
 		columns = 0;
-		elements = nullptr;
+		// elements = nullptr;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -678,7 +678,7 @@ namespace Nauticle {
 	inline pmTensor::pmTensor(double const& s) {
 		rows = 1;
 		columns = 1;
-		elements = new double[1];
+		// elements = new double[1];
 		elements[0] = s;
 	}
 
@@ -689,7 +689,7 @@ namespace Nauticle {
 		if(r<1 || c<1) { return; }
 		rows = r;
 		columns = c;
-		elements = new double[r*c];
+		// elements = new double[r*c];
 		for(int i=0; i<r*c; i++) {
 			elements[i] = init;
 		}
@@ -701,7 +701,7 @@ namespace Nauticle {
 	inline pmTensor::pmTensor(pmTensor const& other) {
 		this->rows = other.rows;
 		this->columns = other.columns;
-		elements = new double[rows*columns];
+		// elements = new double[rows*columns];
 		memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
 	}
 
@@ -711,8 +711,9 @@ namespace Nauticle {
 	inline pmTensor::pmTensor(pmTensor&& other) {
 		this->rows = std::move(other.rows);
 		this->columns = std::move(other.columns);
-		this->elements = other.elements;
-		other.elements = nullptr;
+		// this->elements = other.elements;
+		// other.elements = nullptr;
+		memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -793,8 +794,8 @@ namespace Nauticle {
 		if(this!=&other) {
 			this->rows = other.rows;
 			this->columns = other.columns;
-			delete [] elements;
-			elements = new double[rows*columns];
+			// delete [] elements;
+			// elements = new double[rows*columns];
 			memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
 		}
 		return *this;
@@ -807,9 +808,10 @@ namespace Nauticle {
 		if(this!=&other) {
 			this->rows = std::move(other.rows);
 			this->columns = std::move(other.columns);
-			delete [] elements;
-			this->elements = other.elements;
-			other.elements = nullptr;
+			// delete [] elements;
+			// this->elements = other.elements;
+			// other.elements = nullptr;
+			memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
 		}
 		return *this;
 	}
@@ -818,7 +820,7 @@ namespace Nauticle {
 	/// Destructor.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor::~pmTensor() {
-		delete [] elements;
+		// delete [] elements;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
