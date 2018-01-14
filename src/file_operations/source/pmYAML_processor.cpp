@@ -65,27 +65,29 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	std::shared_ptr<pmWorkspace> workspace = std::make_shared<pmWorkspace>();
 	YAML::Node ws = data["simulation"]["case"]["workspace"];
 	// Read constants
-	for(YAML::const_iterator ws_nodes=ws.begin(); ws_nodes!=ws.end(); ws_nodes++) {
-		if(ws_nodes->first.as<std::string>()=="constants") {
-			for(YAML::const_iterator constants=ws_nodes->second.begin(); constants!=ws_nodes->second.end(); constants++) {
-				std::string name = constants->first.as<std::string>();
-				std::string value = constants->second.as<std::string>();
-				pmTensor_parser tensor_parser{};
-				workspace->add_constant(name, tensor_parser.string_to_tensor(value, workspace));
-			}
-		}
-	}
+	YAML::Node const_node = data["simulation"]["case"]["workspace"]["constants"];
+    for(int i=0; i<const_node.size(); i++) {
+    	std::string name;
+    	std::string value;
+        for(YAML::const_iterator it = const_node[i].begin();it!=const_node[i].end();it++) {
+			name = it->first.as<std::string>();
+			value = it->second.as<std::string>();
+        }
+		pmTensor_parser tensor_parser{};
+        workspace->add_constant(name, tensor_parser.string_to_tensor(value, workspace));
+    }
 	// Read variables
-	for(YAML::const_iterator ws_nodes=ws.begin(); ws_nodes!=ws.end(); ws_nodes++) {
-		if(ws_nodes->first.as<std::string>()=="variables") {
-			for(YAML::const_iterator variables=ws_nodes->second.begin(); variables!=ws_nodes->second.end(); variables++) {
-				std::string name = variables->first.as<std::string>();
-				std::string value = variables->second.as<std::string>();
-				pmTensor_parser tensor_parser{};
-				workspace->add_variable(name, tensor_parser.string_to_tensor(value, workspace));
-			}
-		}
-	}
+	YAML::Node var_node = data["simulation"]["case"]["workspace"]["variables"];
+    for(int i=0; i<var_node.size(); i++) {
+    	std::string name;
+    	std::string value;
+        for(YAML::const_iterator it = var_node[i].begin();it!=var_node[i].end();it++) {
+			name = it->first.as<std::string>();
+			value = it->second.as<std::string>();
+        }
+		pmTensor_parser tensor_parser{};
+        workspace->add_variable(name, tensor_parser.string_to_tensor(value, workspace));
+    }
 	if(!workspace->is_existing("dt")) {
 		workspace->add_variable("dt", pmTensor{1,1,0.001});
 	}
