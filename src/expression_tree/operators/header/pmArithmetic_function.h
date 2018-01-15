@@ -18,7 +18,6 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-
 #ifndef _ARITHMFC_H_  
 #define _ARITHMFC_H_  
 
@@ -27,8 +26,6 @@
 #include "prolog/pLogger.h"
 #include "Color_define.h"
 #include <cmath>
-
-
 
 namespace Nauticle {
 	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V};

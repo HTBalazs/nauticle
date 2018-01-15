@@ -28,7 +28,6 @@
 #include "pmNoncopyable.h"
 #include "pmWorkspace.h"
 
-
 namespace Nauticle {
     /** This class analyses a tensor of arbitrary size given in std::string format 
     //	and returns a pmTensor object by value. The tensor must be constructed 

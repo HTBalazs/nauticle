@@ -26,7 +26,6 @@
 #include "nauticle_constants.h"
 #include "Color_define.h"
 
-
 namespace Nauticle {
 	enum DEM_TYPE {
 		LINEAR,

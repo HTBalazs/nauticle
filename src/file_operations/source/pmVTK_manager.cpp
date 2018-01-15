@@ -42,7 +42,3 @@ void pmVTK_manager::set_case(std::shared_ptr<pmCase> c) {
 void pmVTK_manager::set_file_name(std::string const& fn) {
 	file_name = fn;
 }
-
-
-
-
