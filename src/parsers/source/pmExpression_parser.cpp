@@ -223,7 +223,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			if(workspace.use_count()>0) {
 				std::weak_ptr<pmExpression> instance = assign(workspace, it);
 				if(instance.expired()) {
-					ProLog::pLogger::error_msgf("Variable \"%s\" is undefined and cannot be assigned.\n", it.c_str());
+					ProLog::pLogger::error_msgf("Symbol \"%s\" is undefined and cannot be assigned.\n", it.c_str());
 					throw(false);
 				}
 				e.push(instance.lock());
