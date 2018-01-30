@@ -362,6 +362,11 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSph_operator<LAPLACE,1,0,6>>(operands));
 			}
+			if(it=="sph_T") {
+				std::array<std::shared_ptr<pmExpression>,6> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmSph_operator<TENSILE,1,1,6>>(operands));
+			}
 			if(it=="dvm") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);

@@ -31,7 +31,7 @@
 #include "Color_define.h"
 
 namespace Nauticle {
-	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, INERTIA, GRADIENT, DIVERGENCE, LAPLACE };
+	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, INERTIA, GRADIENT, DIVERGENCE, LAPLACE, TENSILE };
 
 	/** This class implements the SPH meshless interpolant operators.
 	//  It requires a pmParticle_system assigned to it.
@@ -80,6 +80,7 @@ namespace Nauticle {
 			case GRADIENT: this->op_name+=std::string{"G"}; break;
 			case DIVERGENCE: this->op_name+=std::string{"D"}; break;
 			case LAPLACE: this->op_name+=std::string{"L"}+Common::to_string(VAR); break;
+			case TENSILE: this->op_name+=std::string{"T"}; break;
 		}
 		if((OP_TYPE==GRADIENT || OP_TYPE==DIVERGENCE) && VAR!=2) {
 			this->op_name+=Common::to_string(VAR)+Common::to_string(K);
@@ -216,7 +217,15 @@ namespace Nauticle {
 					if(NOPS==6) {
 						B_ij = (B_i+B_j)/2.0f;
 					}
-					contribution += B_ij*this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
+					if(OP_TYPE==TENSILE) {
+						pmKernel W;
+						W.set_kernel_type((int)this->operand[3+sh]->evaluate(0)[0], false);
+						double f = W.evaluate(d_ji, (h_i+h_j)/2.0f)/W.evaluate(B_ij[0], (h_i+h_j)/2.0f);
+						f*=f; f*=f;
+						contribution += f*this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
+					} else {
+						contribution += B_ij*this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
+					}
 				}
 			}
 			return contribution;
@@ -350,6 +359,22 @@ namespace Nauticle {
 		pmTensor A_rho_i = A_i/(rho_i*rho_i);
 		pmTensor A_rho_j = A_j/(rho_j*rho_j);
 		return -(A_rho_i+A_rho_j).to_row()*r_ji*(m_j*rho_i*W_ij/d_ji);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Evaluates the operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template<>
+	inline pmTensor pmSph_operator<TENSILE,1,1,6>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
+		pmTensor R = pmTensor{1,1,0};
+		if(A_i[0]>0 && A_j[0]>0) {
+			R = 0.01*(A_i[0]/rho_i/rho_i+A_j[0]/rho_j/rho_j);
+		} else {
+			double R_i = A_i[0]<0?std::abs(A_i[0])/rho_i/rho_i:0.0;
+			double R_j = A_j[0]<0?std::abs(A_j[0])/rho_j/rho_j:0.0;
+			R = 0.2*(R_i+R_j);
+		}
+		return -R*r_ji*(m_j*rho_i*W_ij/d_ji);
 	}
 }
 
