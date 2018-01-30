@@ -367,12 +367,14 @@ namespace Nauticle {
 	template<>
 	inline pmTensor pmSph_operator<TENSILE,1,1,6>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
 		pmTensor R = pmTensor{1,1,0};
-		if(A_i[0]>0 && A_j[0]>0) {
-			R = 0.01*(A_i[0]/rho_i/rho_i+A_j[0]/rho_j/rho_j);
-		} else {
-			double R_i = A_i[0]<0?std::abs(A_i[0])/rho_i/rho_i:0.0;
-			double R_j = A_j[0]<0?std::abs(A_j[0])/rho_j/rho_j:0.0;
-			R = 0.2*(R_i+R_j);
+		for(int idx=0;idx<A_i.numel();idx++) {
+			if(A_i[idx]>0.0 && A_j[idx]>0.0) {
+				R[idx] = 0.01*(A_i[idx]/rho_i/rho_i+A_j[idx]/rho_j/rho_j);
+			} else {
+				double R_i = A_i[idx]<0?std::abs(A_i[idx])/rho_i/rho_i:0.0;
+				double R_j = A_j[idx]<0?std::abs(A_j[idx])/rho_j/rho_j:0.0;
+				R[idx] = 0.2*(R_i+R_j);
+			}
 		}
 		return -R*r_ji*(m_j*rho_i*W_ij/d_ji);
 	}
