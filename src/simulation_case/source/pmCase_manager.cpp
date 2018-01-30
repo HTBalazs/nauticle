@@ -141,7 +141,7 @@ void pmCase_manager::simulate(size_t const& num_threads) {
 /// Prints out the object content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase_manager::print() const {
-	ProLog::pLogger::headerf<ProLog::LGN>("Case");
+	ProLog::pLogger::headerf<ProLog::LGN>("Simulation");
 	if(cas!=nullptr)		cas->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
 	ProLog::pLogger::footerf<ProLog::LGN>();

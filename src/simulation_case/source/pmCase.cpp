@@ -102,10 +102,10 @@ void pmCase::add_equation(std::vector<std::shared_ptr<pmEquation>> func) {
 /// Prints out the content of the pmCase object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::print() const {
-	pLogger::headerf<LBL>("case");
+	pLogger::headerf<LBL>("Case");
 	workspace->print();
 	int f=0;
-	pLogger::titlef<LMA>("equations");
+	pLogger::titlef<LMA>("Equations");
 	for(auto const& it:equations) {
 		f++;
 		pLogger::logf<YEL>("         %i) ", f);
