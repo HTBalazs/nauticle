@@ -38,6 +38,7 @@ The next Nauticle version will be released in Q1 2018. The most important featur
 - Implementation of eigen-system calculation (eigenvectors and eigenvalues).  
 - Extension of position field for symmetric and periodic boundary conditions in SPH operators.  
 - Change configuration file type from XML to YAML for better readability.  
+- New SPH operator for tensile instability correction.  
 
 
 # License #
