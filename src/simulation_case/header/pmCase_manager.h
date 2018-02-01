@@ -58,7 +58,7 @@ namespace Nauticle {
 		pmCase_manager& operator=(pmCase_manager const& other);
 		pmCase_manager& operator=(pmCase_manager&& other);
 		~pmCase_manager() {}
-		static void execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads=8);
+		static void execute(std::string const& yamlname, std::string const& working_dir, size_t const& num_threads=8);
 	};
 }
 

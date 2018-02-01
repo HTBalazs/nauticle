@@ -34,7 +34,7 @@ bool pmExpression_parser::verify_table(std::vector<std::string> table) const {
 			return false;
 		}
 		if(is_word(table[i]) && !is_function(table[i]) && table[i+1]=="(") {
-			ProLog::pLogger::warning_msgf("Unknown function: \"%s\".\n", table[i].c_str());
+			ProLog::pLogger::error_msgf("Unknown function: \"%s\".\n", table[i].c_str());
 			return false;
 		}
 	}

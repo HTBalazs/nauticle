@@ -176,12 +176,12 @@ void pmCase_manager::write_step() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Forwards the xmlname to a pmCase_manager object and executes the simulation.
+/// Forwards the yamlname to a pmCase_manager object and executes the simulation.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCase_manager::execute(std::string const& xmlname, std::string const& working_dir, size_t const& num_threads/*=8*/) {
+/*static*/ void pmCase_manager::execute(std::string const& yamlname, std::string const& working_dir, size_t const& num_threads/*=8*/) {
 	set_working_directory(working_dir);
 	std::shared_ptr<pmCase_manager> cas = std::make_shared<pmCase_manager>();
-	cas->read_file(xmlname);
+	cas->read_file(yamlname);
 	cas->print();
 	cas->simulate(num_threads);
 }
