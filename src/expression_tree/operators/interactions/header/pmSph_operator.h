@@ -31,7 +31,7 @@
 #include "Color_define.h"
 
 namespace Nauticle {
-	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, INERTIA, GRADIENT, DIVERGENCE, LAPLACE, TENSILE };
+	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, INERTIA, GRADIENT, DIVERGENCE, LAPLACE, TENSILE, AVISC };
 
 	/** This class implements the SPH meshless interpolant operators.
 	//  It requires a pmParticle_system assigned to it.
@@ -81,6 +81,7 @@ namespace Nauticle {
 			case DIVERGENCE: this->op_name+=std::string{"D"}; break;
 			case LAPLACE: this->op_name+=std::string{"L"}+Common::to_string(VAR); break;
 			case TENSILE: this->op_name+=std::string{"T"}; break;
+			case AVISC: this->op_name+=std::string{"A"}; break;
 		}
 		if((OP_TYPE==GRADIENT || OP_TYPE==DIVERGENCE) && VAR!=2) {
 			this->op_name+=Common::to_string(VAR)+Common::to_string(K);
@@ -377,6 +378,19 @@ namespace Nauticle {
 			}
 		}
 		return -R*r_ji*(m_j*rho_i*W_ij/d_ji);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Evaluates the operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template<>
+	inline pmTensor pmSph_operator<AVISC,1,1,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
+		pmTensor A_ji = A_j-A_i;
+		pmTensor A_jir_ji = A_ji.transpose()*r_ji;
+		if(A_jir_ji[0]<0) {
+			return -r_ji*(A_jir_ji*m_j/rho_j/d_ji/d_ji/d_ji*W_ij);
+		}
+		return r_ji*0.0;
 	}
 }
 
