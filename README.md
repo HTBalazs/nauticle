@@ -40,6 +40,7 @@ The next Nauticle version will be released in Q1 2018. The most important featur
 - Change configuration file type from XML to YAML for better readability.  
 - New SPH operator for tensile instability correction.  
 - New SPH operator for artifical viscosity.  
+- SPH operator for the calculation of particle-inertia tensor.  
 
 
 # License #
