@@ -147,13 +147,12 @@ std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node partic
 			grid->set_dimensions(domain.get_dimensions());
 			for(YAML::const_iterator grid_nodes=ps_nodes->second.begin();grid_nodes!=ps_nodes->second.end();grid_nodes++) {
 				pmTensor_parser tensor_parser{};
-				if(grid_nodes->first.as<std::string>()=="file") {
-					grid->set_file_name(grid_nodes->second.as<std::string>());
-					break;
-				}
 				if(grid_nodes->first.as<std::string>()=="gid") {
 					gid = tensor_parser.string_to_tensor(grid_nodes->second.as<std::string>(),workspace);
-					grid->set_grid_id(gid[0]);
+					grid->set_grid_id(gid);
+				}
+				if(grid_nodes->first.as<std::string>()=="file") {
+					grid->set_file_name(grid_nodes->second.as<std::string>());
 				}
 				if(grid_nodes->first.as<std::string>()=="gpos") {
 					gpos = tensor_parser.string_to_tensor(grid_nodes->second.as<std::string>(),workspace);
@@ -231,11 +230,11 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::shared_ptr<pmWorkspace> workspace /*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];
 	std::shared_ptr<pmParameter_space> parameter_space = std::make_shared<pmParameter_space>();
-	pmTensor sim_time{1,1,1};
+	pmTensor sim_time{1,1,1.0};
 	pmTensor log_time{1,1,0.1};
-	pmTensor confirm{1,1,0};
-	pmTensor vtk_format{1,1,0};
-	pmTensor file_start{1,1,0};
+	pmTensor confirm{1,1,0.0};
+	pmTensor vtk_format{1,1,0.0};
+	pmTensor file_start{1,1,0.0};
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end(); sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="parameter_space") {
 			for(YAML::const_iterator param_nodes=sim_nodes->second.begin();param_nodes!=sim_nodes->second.end();param_nodes++) {

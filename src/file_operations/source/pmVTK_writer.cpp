@@ -59,7 +59,7 @@ void pmVTK_writer::push_fields_to_polydata() {
 				for(int i=0; i<n; i++) {
 					pmTensor t = it->evaluate(i);
 					if(t.numel()==0){
-						t = pmTensor{1,1,0};
+						t = pmTensor{1,1,0.0};
 					}
 					field->SetTuple(i, &t[0]);
 				}
