@@ -131,7 +131,7 @@ pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 		double Rj = this->operand[4]->evaluate(j,level)[0];
 		double cj = this->operand[8]->evaluate(j,level)[0];
-		pmTensor contribution{dimension,1,0};
+		pmTensor contribution{(int)dimension,1,0.0};
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS && d_ji < cell_size_min) {
 			pmTensor n_ji = rel_pos/d_ji;

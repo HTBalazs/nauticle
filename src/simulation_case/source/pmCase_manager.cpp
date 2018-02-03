@@ -170,8 +170,8 @@ void pmCase_manager::write_step() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /*static*/ void pmCase_manager::set_working_directory(std::string const& working_dir) {
 	char directory[1024];
-	chdir(working_dir.c_str());
-	getcwd(directory, sizeof(directory));
+	int wdir = chdir(working_dir.c_str());
+	char *path = getcwd(directory, sizeof(directory));
 	ProLog::pLogger::logf<ProLog::LCY>("  Working directory is set to: %s\n", directory);
 }
 

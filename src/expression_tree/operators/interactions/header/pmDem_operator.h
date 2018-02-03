@@ -180,7 +180,7 @@ namespace Nauticle {
 
 		if(TYPE==LINEAR) {
 			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-				pmTensor force{dimension,1,0};
+				pmTensor force{(int)dimension,1,0.0};
 				double d_ji = rel_pos.norm();
 				if(d_ji > NAUTICLE_EPS) {
 					double Rj = this->operand[2]->evaluate(j,level)[0];
@@ -219,9 +219,9 @@ namespace Nauticle {
 						pmTensor wi = omi;
 						pmTensor wj = omj;
 						if(dimension==2) {
-							wi = pmTensor{3,1,0};
+							wi = pmTensor{3,1,0.0};
 							wi[2] = omi[0];
-							wj = pmTensor{3,1,0};
+							wj = pmTensor{3,1,0.0};
 							wj[2] = omj[0];
 							pmTensor nji = n_ji.append(3,1);
 							tan_vel += (cross(wi,rci*nji) + cross(wj,rcj*nji)).sub_tensor(0,1,0,0);
@@ -280,9 +280,9 @@ namespace Nauticle {
 						pmTensor wi = omi;
 						pmTensor wj = omj;
 						if(dimension==2) {
-							wi = pmTensor{3,1,0};
+							wi = pmTensor{3,1,0.0};
 							wi[2] = omi[0];
-							wj = pmTensor{3,1,0};
+							wj = pmTensor{3,1,0.0};
 							wj[2] = omj[0];
 							pmTensor nji = n_ji.append(3,1);
 							tan_vel += (cross(wi,rci*nji) + cross(wj,rcj*nji)).sub_tensor(0,1,0,0);
@@ -298,7 +298,7 @@ namespace Nauticle {
 							torque += cross(force.append(3,1),nji*rci).sub_tensor(2,2,0,0);
 						} else if(dimension==3) {
 							tan_vel += cross(wi,rci*n_ji) + cross(wj,rcj*n_ji);
-							pmTensor force{3,1,0};
+							pmTensor force{3,1,0.0};
 							// tangential friction force
 							double vt = tan_vel.norm();
 							if(vt>NAUTICLE_EPS) {

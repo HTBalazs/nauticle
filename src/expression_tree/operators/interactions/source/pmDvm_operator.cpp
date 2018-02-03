@@ -134,7 +134,7 @@ pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 			}
 			w_j *= flip.productum();
 		}
-		pmTensor contribution{dimension,1,0};
+		pmTensor contribution{(int)dimension,1,0.0};
 		if(w_j.norm() == 0) { return contribution; }
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS && d_ji < cell_size_min) {
