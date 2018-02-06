@@ -163,9 +163,9 @@ double pmKernel::dWe2100_raw(double const& q) const {
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp22210(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 1.0/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 1.0/h;
 	return coeff*Wp2220_raw(q);
 }
 
@@ -173,9 +173,9 @@ double pmKernel::Wp22210(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp22220(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 2.0/NAUTICLE_PI/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 2.0/NAUTICLE_PI/h/h;
 	return coeff*Wp2220_raw(q);
 }
 
@@ -183,9 +183,9 @@ double pmKernel::Wp22220(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp22230(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 5.0/4.0/NAUTICLE_PI/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 5.0/4.0/NAUTICLE_PI/h/h/h;
 	return coeff*Wp2220_raw(q);
 }
 
@@ -196,9 +196,9 @@ double pmKernel::Wp22230(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp22210(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 3.0/4.0/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 3.0/4.0/h/h;
 	return coeff*dWp2220_raw(q);
 }
 
@@ -206,9 +206,9 @@ double pmKernel::dWp22210(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp22220(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 6.0/4.0/NAUTICLE_PI/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 6.0/4.0/NAUTICLE_PI/h/h/h;
 	return coeff*dWp2220_raw(q);
 }
 
@@ -216,9 +216,9 @@ double pmKernel::dWp22220(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp22230(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 15.0/16.0/NAUTICLE_PI/h/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 15.0/16.0/NAUTICLE_PI/h/h/h/h;
 	return coeff*dWp2220_raw(q);
 }
 
@@ -229,9 +229,9 @@ double pmKernel::dWp22230(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp32210(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 2.0/3.0/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 2.0/3.0/h;
 	return coeff*Wp3220_raw(q);
 }
 
@@ -239,9 +239,9 @@ double pmKernel::Wp32210(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp32220(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 10.0/7.0/NAUTICLE_PI/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 10.0/7.0/NAUTICLE_PI/h/h;
 	return coeff*Wp3220_raw(q);
 }
 
@@ -249,9 +249,9 @@ double pmKernel::Wp32220(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp32230(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 1.0/NAUTICLE_PI/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 1.0/NAUTICLE_PI/h/h/h;
 	return coeff*Wp3220_raw(q);
 }
 
@@ -262,9 +262,9 @@ double pmKernel::Wp32230(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp32210(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 6.0/12.0/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 6.0/12.0/h/h;
 	return coeff*dWp3220_raw(q);
 }
 
@@ -272,9 +272,9 @@ double pmKernel::dWp32210(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp32220(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 30.0/28.0/NAUTICLE_PI/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 30.0/28.0/NAUTICLE_PI/h/h/h;
 	return coeff*dWp3220_raw(q);
 }
 
@@ -282,9 +282,9 @@ double pmKernel::dWp32220(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp32230(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 3.0/4.0/NAUTICLE_PI/h/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 3.0/4.0/NAUTICLE_PI/h/h/h/h;
 	return coeff*dWp3220_raw(q);
 }
 
@@ -295,9 +295,9 @@ double pmKernel::dWp32230(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp52210(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 3.0/4.0/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 3.0/4.0/h;
 	return coeff*Wp5220_raw(q);
 }
 
@@ -305,9 +305,9 @@ double pmKernel::Wp52210(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp52220(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 7.0/4.0/NAUTICLE_PI/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 7.0/4.0/NAUTICLE_PI/h/h;
 	return coeff*Wp5220_raw(q);
 }
 
@@ -315,9 +315,9 @@ double pmKernel::Wp52220(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::Wp52230(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = 21.0/16.0/NAUTICLE_PI/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = 21.0/16.0/NAUTICLE_PI/h/h/h;
 	return coeff*Wp5220_raw(q);
 }
 
@@ -328,9 +328,9 @@ double pmKernel::Wp52230(double const& distance, double const& cell_size) const 
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp52210(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = -30.0/8.0/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = -30.0/8.0/h/h;
 	return coeff*dWp5220_raw(q);
 }
 
@@ -338,9 +338,9 @@ double pmKernel::dWp52210(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp52220(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = -70.0/8.0/NAUTICLE_PI/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = -70.0/8.0/NAUTICLE_PI/h/h/h;
 	return coeff*dWp5220_raw(q);
 }
 
@@ -348,9 +348,9 @@ double pmKernel::dWp52220(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWp52230(double const& distance, double const& cell_size) const {
-	double h = cell_size/2.0;
-	double q = distance/h;
-	double coeff = -105.0/16.0/NAUTICLE_PI/h/h/h/h;
+	double const h = cell_size/2.0;
+	double const q = distance/h;
+	double const coeff = -105.0/16.0/NAUTICLE_PI/h/h/h/h;
 	return coeff*dWp5220_raw(q);
 }
 
@@ -363,7 +363,7 @@ double pmKernel::dWp52230(double const& distance, double const& cell_size) const
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::We21010(double const& distance, double const& sigma) const {
-	double coeff = 1.0/sigma/sqrt(2.0*NAUTICLE_PI);
+	double const coeff = 1.0/sigma/sqrt(2.0*NAUTICLE_PI);
 	return coeff*We2100_raw(distance/sigma);
 }
 
@@ -371,7 +371,7 @@ double pmKernel::We21010(double const& distance, double const& sigma) const {
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::We21020(double const& distance, double const& sigma) const {
-	double coeff = 1.0/2.0/NAUTICLE_PI/sigma/sigma;
+	double const coeff = 1.0/2.0/NAUTICLE_PI/sigma/sigma;
 	return coeff*We2100_raw(distance/sigma);
 }
 
@@ -379,7 +379,7 @@ double pmKernel::We21020(double const& distance, double const& sigma) const {
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::We21030(double const& distance, double const& sigma) const {
-	double coeff = 1.0/std::pow(2.0*NAUTICLE_PI,1.5)/sigma/sigma/sigma;
+	double const coeff = 1.0/std::pow(2.0*NAUTICLE_PI,1.5)/sigma/sigma/sigma;
 	return coeff*We2100_raw(distance/sigma);
 }
 
@@ -390,7 +390,7 @@ double pmKernel::We21030(double const& distance, double const& sigma) const {
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWe21010(double const& distance, double const& sigma) const {
-	double coeff = -distance/sigma/sigma/sigma/sqrt(2.0*NAUTICLE_PI);
+	double const coeff = -distance/sigma/sigma/sigma/sqrt(2.0*NAUTICLE_PI);
 	return coeff*dWe2100_raw(distance/sigma);
 }
 
@@ -398,7 +398,7 @@ double pmKernel::dWe21010(double const& distance, double const& sigma) const {
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWe21020(double const& distance, double const& sigma) const {
-	double coeff = -distance/2.0/NAUTICLE_PI/sigma/sigma/sigma/sigma;
+	double const coeff = -distance/2.0/NAUTICLE_PI/sigma/sigma/sigma/sigma;
 	return coeff*dWe2100_raw(distance/sigma);
 }
 
@@ -406,7 +406,7 @@ double pmKernel::dWe21020(double const& distance, double const& sigma) const {
 /// Returns the value of the kernel function at the given distance.
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmKernel::dWe21030(double const& distance, double const& sigma) const {
-	double coeff = -distance/sigma/sigma/sigma/sigma/sigma/std::pow(2.0*NAUTICLE_PI,1.5);
+	double const coeff = -distance/sigma/sigma/sigma/sigma/sigma/std::pow(2.0*NAUTICLE_PI,1.5);
 	return coeff*dWe2100_raw(distance/sigma);
 }
 
