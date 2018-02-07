@@ -30,10 +30,10 @@ The few examples discussed in the User's guide cover the following simulations:
 
 The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). The results can be visualized in Paraview v5.2.0 or later.
 
-# Future version #
-The next Nauticle version will be released in Q1 2018. The most important features and bug-fixes:  
+# Version 1.0.180207: #
+The most important features and bug-fixes:  
 - Fix the bug of particle interaction switch for SPH with variable smoothing length (commit:5f46690).  
-- Domains will support different cell sizes in different directions.  
+- Domains support for different cell sizes in different directions.  
 - Implementation of matrix-logarithm function ("logm").  
 - Implementation of eigen-system calculation (eigenvectors and eigenvalues).  
 - Extension of position field for symmetric and periodic boundary conditions in SPH operators.  
@@ -41,7 +41,6 @@ The next Nauticle version will be released in Q1 2018. The most important featur
 - New SPH operator for tensile instability correction (commit: 42cc737).  
 - New SPH operator for artificial viscosity (commit: 8c98566).  
 - SPH operator for the calculation of particle-inertia tensor (commit: dc0c2ae).  
-
 
 # License #
 The Nauticle code is open-source and freely distributable under the terms of GNU Lesser General Public License v3:  
