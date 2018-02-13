@@ -3,6 +3,7 @@
 # Introduction #
 **Nauticle** is a parallel particle based **general purpose** explicit numerical solver under the GNU Lesser General Public License (LGPL). It is designed to make the implementation of particle based models easy and efficient. Some of the particle based solvers are already implemented (n-body problem, SPH, DEM, DVM, SFM) and **new contributions are welcome**.
 The implemented schemes can be employed to build **system of differential and algebraic equations** depending on functions which are interpreted over a spatial distribution of particles.
+
 # Installation #
 
 **Nauticle** has a few dependencies which are the following open-source libraries:  
@@ -29,6 +30,8 @@ The few examples discussed in the User's guide cover the following simulations:
   8. Building evacuation (SFM)  
 
 The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). The results can be visualized in Paraview v5.2.0 or later.
+
+Please visit the Nauticle [YouTube-channel](https://www.youtube.com/channel/UCh3Y325U289BiAqJ6K0Lfqw) to see the visualizations of the examples.
 
 # Version 1.0.180207: #
 The most important features and bug-fixes:  
