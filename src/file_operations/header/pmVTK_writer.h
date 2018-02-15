@@ -24,6 +24,8 @@
 #include <string>
 #include "pmVTK_manager.h"
 #include "pmTensor.h"
+#include <vtkRectilinearGrid.h>
+#include <vtkRectilinearGridWriter.h>
 
 namespace Nauticle {
     enum write_mode { ASCII, BINARY };
@@ -32,6 +34,7 @@ namespace Nauticle {
     */
     class pmVTK_writer : public pmVTK_manager {
     	write_mode mode=ASCII;
+        vtkSmartPointer<vtkRectilinearGrid> rectilinear_grid = vtkSmartPointer<vtkRectilinearGrid>::New();
     private:
     	void push_nodes_to_polydata();
     	void push_fields_to_polydata();

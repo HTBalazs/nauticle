@@ -182,6 +182,38 @@ void pmVTK_writer::update() {
 		case BINARY : writer->SetFileTypeToBinary(); break;
 	}
 	writer->Write();
+	static bool write_domain = true;
+	if(write_domain) {
+		vtkSmartPointer<vtkRectilinearGridWriter> domain_writer = vtkSmartPointer<vtkRectilinearGridWriter>::New();
+		domain_writer->SetFileName("domain.vtk");
+		pmDomain domain = cas->get_workspace()->get_particle_system().lock()->get_particle_space()->get_domain();
+		int dimensions = domain.get_dimensions();
+		pmTensor minimum = domain.get_minimum();
+		pmTensor maximum = domain.get_maximum();
+		pmTensor num_cells = maximum-minimum;
+		pmTensor cell_size = domain.get_cell_size();
+
+		rectilinear_grid->SetDimensions(num_cells[0]+1, dimensions>1?num_cells[1]+1:1.0, dimensions>2?num_cells[2]+1:1.0);
+		
+		vtkSmartPointer<vtkDoubleArray> xArray = vtkSmartPointer<vtkDoubleArray>::New();
+		vtkSmartPointer<vtkDoubleArray> yArray = vtkSmartPointer<vtkDoubleArray>::New();
+		vtkSmartPointer<vtkDoubleArray> zArray = vtkSmartPointer<vtkDoubleArray>::New();
+		for(int i=0; i<=num_cells[0]; i++) {
+			xArray->InsertNextValue((minimum[0]+i)*cell_size[0]);
+		}
+		for(int i=0; i<=(dimensions>1?num_cells[1]:0); i++) {
+			yArray->InsertNextValue(dimensions>1?(minimum[1]+i)*cell_size[1]:0.0);
+		}		
+		for(int i=0; i<=(dimensions>2?num_cells[2]:0); i++) {
+			zArray->InsertNextValue(dimensions>2?(minimum[2]+i)*cell_size[2]:0.0);
+		}
+		rectilinear_grid->SetXCoordinates(xArray);
+		rectilinear_grid->SetYCoordinates(yArray);
+		rectilinear_grid->SetZCoordinates(zArray);
+		domain_writer->SetInputData(rectilinear_grid);
+		domain_writer->Write();
+		write_domain = false;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
