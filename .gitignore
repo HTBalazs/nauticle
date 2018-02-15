@@ -1,1 +1,6 @@
 .DS_Store
+CMakeLists.txt
+CMakeCache.txt
+MakeFile
+build.sh
+update_readme.sh
