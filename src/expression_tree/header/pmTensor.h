@@ -145,15 +145,10 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementation of - operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor operator-(pmTensor const& lhs, pmTensor const& rhs) {
-		if(lhs.numel()==0) { return rhs; }
-		if(rhs.numel()==0) { return lhs; }
-		if(lhs.get_numrows()!=rhs.get_numrows() || lhs.get_numcols()!=rhs.get_numcols()) {
-			ProLog::pLogger::error_msgf("Unable to subtract tensors of different sizes or types.\n");
-		}
-		pmTensor tensor = pmTensor{lhs};
+	inline pmTensor operator-(pmTensor const& rhs) {
+		pmTensor tensor{rhs};
 		for(int i=0; i<tensor.numel(); i++) {
-			tensor[i] -= rhs[i];
+			tensor[i] = -tensor[i];
 		}
 		return tensor;
 	}
@@ -161,10 +156,15 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementation of - operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor operator-(pmTensor const& rhs) {
-		pmTensor tensor{rhs};
+	inline pmTensor operator-(pmTensor const& lhs, pmTensor const& rhs) {
+		if(lhs.numel()==0) { return -rhs; }
+		if(rhs.numel()==0) { return lhs; }
+		if(lhs.get_numrows()!=rhs.get_numrows() || lhs.get_numcols()!=rhs.get_numcols()) {
+			ProLog::pLogger::error_msgf("Unable to subtract tensors of different sizes or types.\n");
+		}
+		pmTensor tensor = pmTensor{lhs};
 		for(int i=0; i<tensor.numel(); i++) {
-			tensor[i] = -tensor[i];
+			tensor[i] -= rhs[i];
 		}
 		return tensor;
 	}
