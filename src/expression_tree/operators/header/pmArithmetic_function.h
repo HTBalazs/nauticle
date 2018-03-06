@@ -248,7 +248,11 @@ namespace Nauticle {
 			case CORRECTOR : return this->operand[0]->evaluate(i, 1)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
 			case VERLET_R : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[3]->evaluate(i, 0) + this->operand[2]->evaluate(i, 0) * std::pow(this->operand[3]->evaluate(i, 0)[0],2) / 2.0;
 			case VERLET_V : return this->operand[0]->evaluate(i, 0)+ (this->operand[1]->evaluate(i, 0)+this->operand[1]->evaluate(i, 1))*this->operand[2]->evaluate(i, 0)/2.0;
-			case LIMIT : return this->operand[0]->evaluate(i, 0)[0]<this->operand[1]->evaluate(i, 0)[0] ? this->operand[1]->evaluate(i, 0) : this->operand[0]->evaluate(i, 0)[0]>this->operand[2]->evaluate(i, 0)[0] ? this->operand[2]->evaluate(i, 0) : this->operand[0]->evaluate(i, 0);
+			case LIMIT : {
+				double minimum = std::min(this->operand[1]->evaluate(i, 0)[0],this->operand[2]->evaluate(i, 0)[0]);
+				double maximum = std::max(this->operand[1]->evaluate(i, 0)[0],this->operand[2]->evaluate(i, 0)[0]);
+				return this->operand[0]->evaluate(i, 0)[0]<minimum ? minimum : (this->operand[0]->evaluate(i, 0)[0]>maximum ? maximum : this->operand[0]->evaluate(i, 0)[0]);
+			}
 		}
 	}
 
