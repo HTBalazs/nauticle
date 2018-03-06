@@ -55,7 +55,7 @@ namespace Nauticle {
 		pmSimulation(pmSimulation&& other);
 		pmSimulation& operator=(pmSimulation const& other);
 		pmSimulation& operator=(pmSimulation&& other);
-		~pmSimulation() {}
+		virtual ~pmSimulation() {}
 		void set_working_directory(std::string const& working_dir) const;
 		void read_file(std::string const& filename);
 		void execute(size_t const& num_threads=8);
