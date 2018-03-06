@@ -18,30 +18,16 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmCase_manager.h"
+#include "pmSimulation.h"
 #include "pmLog_stream.h"
 #include "pmYAML_processor.h"
 
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Reads the configureation file.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmCase_manager::read_file(std::string const& filename) {
-	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
-	yaml_loader->read_file(filename);
-	cas = yaml_loader->get_case();
-	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
-	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
-	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
-	ProLog::pLogger::footer<ProLog::LCY>();
-	ProLog::pLogger::line_feed(1);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase_manager::pmCase_manager(pmCase_manager const& other) {
+pmSimulation::pmSimulation(pmSimulation const& other) {
 	this->cas = std::make_shared<pmCase>(*other.cas);
 	this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
 }
@@ -49,7 +35,7 @@ pmCase_manager::pmCase_manager(pmCase_manager const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase_manager::pmCase_manager(pmCase_manager&& other) {
+pmSimulation::pmSimulation(pmSimulation&& other) {
 	this->cas = std::move(other.cas);
 	this->parameter_space = std::move(other.parameter_space);
 }
@@ -57,7 +43,7 @@ pmCase_manager::pmCase_manager(pmCase_manager&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase_manager& pmCase_manager::operator=(pmCase_manager const& other) {
+pmSimulation& pmSimulation::operator=(pmSimulation const& other) {
 	if(this!=&other) {
 		this->cas = std::make_shared<pmCase>(*other.cas);
 		this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
@@ -68,14 +54,14 @@ pmCase_manager& pmCase_manager::operator=(pmCase_manager const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmCase_manager& pmCase_manager::operator=(pmCase_manager&& other) {
+pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
 	if(this!=&other) {
 		this->cas = std::move(other.cas);
 		this->parameter_space = std::move(other.parameter_space);
 	}
 	return *this;
 }
-double pmCase_manager::calculate_print_interval() const {
+double pmSimulation::calculate_print_interval() const {
 	static bool constant = false;
 	static double interval = 0;
 	if(!constant) {
@@ -93,7 +79,7 @@ double pmCase_manager::calculate_print_interval() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Runs the calculation.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase_manager::simulate(size_t const& num_threads) {
+void pmSimulation::simulate(size_t const& num_threads) {
 	size_t max_num_threads = std::thread::hardware_concurrency();
 	ProLog::pLogger::logf<ProLog::LGN>("   Number of threads used: %i (%i available)\n", num_threads, max_num_threads);
 	pmLog_stream log_stream{(int)parameter_space->get_parameter_value("file_start")[0]};
@@ -140,7 +126,7 @@ void pmCase_manager::simulate(size_t const& num_threads) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints out the object content.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase_manager::print() const {
+void pmSimulation::print() const {
 	ProLog::pLogger::headerf<ProLog::LGN>("Simulation");
 	if(cas!=nullptr)		cas->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
@@ -150,7 +136,7 @@ void pmCase_manager::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Writes case data to file.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase_manager::write_step() const {
+void pmSimulation::write_step() const {
 	static int counter = parameter_space->get_parameter_value("file_start")[0];
     char ch[5];
     sprintf(&ch[0], "%04i", counter);
@@ -168,7 +154,7 @@ void pmCase_manager::write_step() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets working directory.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCase_manager::set_working_directory(std::string const& working_dir) {
+void pmSimulation::set_working_directory(std::string const& working_dir) const {
 	char directory[1024];
 	int wdir = chdir(working_dir.c_str());
 	char *path = getcwd(directory, sizeof(directory));
@@ -176,13 +162,24 @@ void pmCase_manager::write_step() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Forwards the yamlname to a pmCase_manager object and executes the simulation.
+/// Reads the configureation file.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCase_manager::execute(std::string const& yamlname, std::string const& working_dir, size_t const& num_threads/*=8*/) {
-	set_working_directory(working_dir);
-	std::shared_ptr<pmCase_manager> cas = std::make_shared<pmCase_manager>();
-	cas->read_file(yamlname);
-	cas->print();
-	cas->simulate(num_threads);
+void pmSimulation::read_file(std::string const& filename) {
+	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
+	yaml_loader->read_file(filename);
+	cas = yaml_loader->get_case();
+	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
+	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
+	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
+	ProLog::pLogger::footer<ProLog::LCY>();
+	ProLog::pLogger::line_feed(1);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Forwards the yamlname to a pmSimulation object and executes the simulation.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::execute(size_t const& num_threads/*=8*/) {
+	print();
+	simulate(num_threads);
 }
 

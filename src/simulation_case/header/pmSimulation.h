@@ -32,7 +32,7 @@
 
 namespace Nauticle {
 	/** This class represents the problem to solve. The contructor recieves the file
-	//  name of the *.XML configuration file.
+	//  name of the *.YAML configuration file.
 	//	It contains three objects:
 	//  	- cas: contains all the equations to solve
 	//		- parameter space: this object holds the general constant values relating
@@ -40,8 +40,8 @@ namespace Nauticle {
 	//		- particle system: if contains a particle cloud on which the equations and fields
 	//		are interpreted.
 	*/
-	class pmCase_manager final {
-	private:
+	class pmSimulation {
+	protected:
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
 		write_mode vtk_write_mode = ASCII;
@@ -49,16 +49,16 @@ namespace Nauticle {
 		double calculate_print_interval() const;
 		void simulate(size_t const& num_threads);
 		void write_step() const;
-		void read_file(std::string const& filename);
-		static void set_working_directory(std::string const& working_dir);
 	public:
-		pmCase_manager() {}
-		pmCase_manager(pmCase_manager const& other);
-		pmCase_manager(pmCase_manager&& other);
-		pmCase_manager& operator=(pmCase_manager const& other);
-		pmCase_manager& operator=(pmCase_manager&& other);
-		~pmCase_manager() {}
-		static void execute(std::string const& yamlname, std::string const& working_dir, size_t const& num_threads=8);
+		pmSimulation() {}
+		pmSimulation(pmSimulation const& other);
+		pmSimulation(pmSimulation&& other);
+		pmSimulation& operator=(pmSimulation const& other);
+		pmSimulation& operator=(pmSimulation&& other);
+		~pmSimulation() {}
+		void set_working_directory(std::string const& working_dir) const;
+		void read_file(std::string const& filename);
+		void execute(size_t const& num_threads=8);
 	};
 }
 
