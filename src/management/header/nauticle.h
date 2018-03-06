@@ -24,7 +24,7 @@
 /** This file collects the necessary files to include Nauticle.
 */
 #include "pmVersion.h"
-#include "pmCase_manager.h"
+#include "pmSimulation.h"
 #include "pmCommand_parser.h"
 
 #endif //_NAUTICLE_H_
