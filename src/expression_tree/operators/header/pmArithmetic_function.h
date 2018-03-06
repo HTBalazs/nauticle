@@ -28,7 +28,7 @@
 #include <cmath>
 
 namespace Nauticle {
-	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V};
+	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V, LIMIT};
 	
 	/** This class implements the following operations for the expression tree: summation, subtraction,
 	//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
@@ -111,6 +111,7 @@ namespace Nauticle {
 			case CORRECTOR : op_name="corrector"; break;
 			case VERLET_R : op_name="verlet_r"; break;
 			case VERLET_V : op_name="verlet_v"; break;
+			case LIMIT : op_name="limit"; break;
 		}
 	}
 
@@ -247,6 +248,7 @@ namespace Nauticle {
 			case CORRECTOR : return this->operand[0]->evaluate(i, 1)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
 			case VERLET_R : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[3]->evaluate(i, 0) + this->operand[2]->evaluate(i, 0) * std::pow(this->operand[3]->evaluate(i, 0)[0],2) / 2.0;
 			case VERLET_V : return this->operand[0]->evaluate(i, 0)+ (this->operand[1]->evaluate(i, 0)+this->operand[1]->evaluate(i, 1))*this->operand[2]->evaluate(i, 0)/2.0;
+			case LIMIT : return this->operand[0]->evaluate(i, 0)[0]<this->operand[1]->evaluate(i, 0)[0] ? this->operand[1]->evaluate(i, 0) : this->operand[0]->evaluate(i, 0)[0]>this->operand[2]->evaluate(i, 0)[0] ? this->operand[2]->evaluate(i, 0) : this->operand[0]->evaluate(i, 0);
 		}
 	}
 

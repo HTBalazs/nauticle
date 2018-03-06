@@ -36,7 +36,7 @@ namespace Nauticle {
 	//	Destroying a solver object destroys the workspace and equations
 	//  either.
 	*/
-	class pmCase final {
+	class pmCase {
 		std::shared_ptr<pmWorkspace> workspace;
 		std::vector<std::shared_ptr<pmEquation>> equations;
 	public:
