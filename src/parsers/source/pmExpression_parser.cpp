@@ -382,6 +382,11 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmSfm_operator>(operands));
 			}
+			if(it=="dpd") {
+				std::array<std::shared_ptr<pmExpression>,7> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmDpd_operator>(operands));
+			}
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
