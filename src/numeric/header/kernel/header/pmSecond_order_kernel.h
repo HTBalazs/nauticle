@@ -21,15 +21,15 @@
 #ifndef _SECOND_ORDER_KERNEL_H_
 #define _SECOND_ORDER_KERNEL_H_
 
-#include "pmKernel.h"
+#include "pmKernel_function.h"
 #include <cmath>
 #include "nauticle_constants.h"
 
-namespace nauticle {
+namespace Nauticle {
     /** This class contains the second order kernel smoothing kernel implementations for 1, 2 and 3 dimensions.
     */
     template<size_t dimension, bool derivative>
-    class pmSecond_order_kernel : public pmKernel<dimension,derivative> {
+    class pmSecond_order_kernel : public pmKernel_function {
         double coefficient(double const& h) const override;
         double kernel_at(double const& q) const;
     public:
@@ -42,7 +42,7 @@ namespace nauticle {
     /////////////////////////////////////////////////////////////////////////////////////////
     template<size_t dimension, bool derivative>
     pmSecond_order_kernel<dimension,derivative>::pmSecond_order_kernel() {
-        name = derivative?"d":""+"Wp222"+std::to_string(dimension)+"0";
+        this->name = derivative?std::string("d"):std::string("")+std::string("Wp222")+std::to_string(dimension)+std::string("0");
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ namespace nauticle {
         if(!derivative) {
             return 3.0/16.0*q*q-0.75*q+0.75;
         } else {
-            return 1.0-q/2.0;
+            return q/2.0-1.0;
         }
     }
 

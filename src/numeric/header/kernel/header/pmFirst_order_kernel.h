@@ -21,15 +21,15 @@
 #ifndef _FIRST_ORDER_KERNEL_H_
 #define _FIRST_ORDER_KERNEL_H_
 
-#include "pmKernel.h"
+#include "pmKernel_function.h"
 #include <cmath>
 #include "nauticle_constants.h"
 
-namespace nauticle {
+namespace Nauticle {
 	/** This class contains the first order smoothing kernel implementations for 1, 2 and 3 dimensions.
 	*/
     template<size_t dimension, bool derivative>
-    class pmFirst_order_kernel : public pmKernel<dimension,derivative> {
+    class pmFirst_order_kernel : public pmKernel_function {
         double coefficient(double const& influence_radius) const override;
         double kernel_at(double const& q) const;
     public:
@@ -42,7 +42,7 @@ namespace nauticle {
     /////////////////////////////////////////////////////////////////////////////////////////
     template<size_t dimension, bool derivative>
     pmFirst_order_kernel<dimension,derivative>::pmFirst_order_kernel() {
-        name = derivative?"d":""+"Wp111"+std::to_string(dimension)+"0";
+        this->name = derivative?std::string("d"):std::string("")+std::string("Wp111")+std::to_string(dimension)+std::string("0");
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////

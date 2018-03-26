@@ -21,23 +21,20 @@
 #ifndef _KERNEL_FUNCTION_H_
 #define _KERNEL_FUNCTION_H_
 
-namespace nauticle {
+namespace Nauticle {
 	/** This abstract class implements the parent of the kernel functions.
 	*/
-	template<size_t dimension, bool derivative>
 	class pmKernel_function {
 	protected:
 		std::string name;
 	protected:
 		virtual double coefficient(double const& influence_radius) const=0;
 	public:
-		pmKernel_function();
 		std::string get_name() const;
 		virtual double evaluate(double const& r, double const& influence_radius) const=0;
 	};
 
-	template<size_t dimension, bool derivative>
-	std::string pmKernel_function<dimension,derivative>::get_name() const {
+	inline std::string pmKernel_function::get_name() const {
 		return name;
 	}
 }

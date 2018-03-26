@@ -21,17 +21,17 @@
 #ifndef _THIRD_ORDER_KERNEL_H_
 #define _THIRD_ORDER_KERNEL_H_
 
-#include "pmKernel.h"
+#include "pmKernel_function.h"
 #include <cmath>
 #include "nauticle_constants.h"
 
-namespace nauticle {
+namespace Nauticle {
 	/** This class contains the third order smoothing kernel implementations for 1, 2 and 3 dimensions.
 	*/
     template<size_t dimension, bool derivative>
-    class pmThird_order_kernel : public pmKernel<dimension,derivative> {
+    class pmThird_order_kernel : public pmKernel_function {
         double coefficient(double const& h) const override;
-        double kernel_at(double const& q) h;
+        double kernel_at(double const& q) const;
     public:
         pmThird_order_kernel();
         double evaluate(double const& r, double const& influence_radius) const override;
@@ -42,7 +42,7 @@ namespace nauticle {
     /////////////////////////////////////////////////////////////////////////////////////////
     template<size_t dimension, bool derivative>
     pmThird_order_kernel<dimension,derivative>::pmThird_order_kernel() {
-        name = derivative?"d":""+"Wp322"+std::to_string(dimension)+"0";
+        this->name = derivative?std::string("d"):std::string("")+std::string("Wp322")+std::to_string(dimension)+std::string("0");
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////

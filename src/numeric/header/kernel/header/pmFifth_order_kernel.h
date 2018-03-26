@@ -21,15 +21,15 @@
 #ifndef _FIFTH_ORDER_KERNEL_H_
 #define _FIFTH_ORDER_KERNEL_H_
 
-#include "pmKernel.h"
+#include "pmKernel_function.h"
 #include <cmath>
 #include "nauticle_constants.h"
 
-namespace nauticle {
+namespace Nauticle {
 	/** This class contains the quintic (Wendland) smoothing kernel implementations for 1, 2 and 3 dimensions.
 	*/
 	template<size_t dimension, bool derivative>
-	class pmFifth_order_kernel : public pmKernel<dimension,derivative> {
+	class pmFifth_order_kernel : public pmKernel_function {
 		double coefficient(double const& h) const override;
 		double kernel_at(double const& q) const;
 	public:
@@ -42,7 +42,7 @@ namespace nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<size_t dimension, bool derivative>
 	pmFifth_order_kernel<dimension,derivative>::pmFifth_order_kernel() {
-		name = derivative?"d":""+"Wp522"+std::to_string(dimension)+"0";
+		this->name = derivative?std::string("d"):std::string("")+std::string("Wp522")+std::to_string(dimension)+std::string("0");
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////

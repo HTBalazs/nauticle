@@ -21,20 +21,19 @@
 #ifndef _GAUSSIAN_KERNEL_H_
 #define _GAUSSIAN_KERNEL_H_
 
-#include "pmKernel.h"
+#include "pmKernel_function.h"
 #include <cmath>
 #include "nauticle_constants.h"
 
-namespace nauticle {
+namespace Nauticle {
 	/** This class contains the exponential (Gaussian) smoothing kernel implementations for 1, 2 and 3 dimensions.
 	*/
     template<size_t dimension, bool derivative>
-    class pmGaussian_kernel : public pmKernel<dimension,derivative> {
-        double coefficient(double const& h) const override;
-        double kernel_at(double const& q) const;
+    class pmGaussian_kernel : public pmKernel_function {
+        double coefficient(double const& sigma) const override;
     public:
         pmGaussian_kernel();
-        double evaluate(double const& r, double const& influence_radius) const override;
+        double evaluate(double const& r, double const& sigma) const override;
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -42,38 +41,32 @@ namespace nauticle {
     /////////////////////////////////////////////////////////////////////////////////////////
     template<size_t dimension, bool derivative>
     pmGaussian_kernel<dimension,derivative>::pmGaussian_kernel() {
-        name = derivative?"d":""+"We210"+std::to_string(dimension)+"0";
+        this->name = derivative?std::string("d"):std::string("")+std::string("We210")+std::to_string(dimension)+std::string("0");
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
     /// Returns the normalization coefficient of the kernel function or its derivative.
     /////////////////////////////////////////////////////////////////////////////////////////
     template<size_t dimension, bool derivative>
-    double pmGaussian_kernel<dimension,derivative>::coefficient(double const& h) const {
+    double pmGaussian_kernel<dimension,derivative>::coefficient(double const& sigma) const {
         switch(dimension) {
             default:
-            case 1 : return derivative ? 1.0/h/h/h/sqrt(2.0*NAUTICLE_PI) : 1.0/h/sqrt(2.0*NAUTICLE_PI);
-            case 2 : return derivative ? 1.0/2.0/NAUTICLE_PI/h/h/h/h : 1.0/2.0/NAUTICLE_PI/h/h;
-            case 3 : return derivative ? 1.0/h/h/h/h/h/std::pow(2.0*NAUTICLE_PI,1.5) : 1.0/std::pow(2.0*NAUTICLE_PI,1.5)/h/h/h;
+            case 1 : return 1.0/std::sqrt(2.0*NAUTICLE_PI*sigma*sigma);
+            case 2 : return 1.0/NAUTICLE_PI/sigma/sigma;
+            case 3 : return 1.0/std::pow(NAUTICLE_PI,1.5)/sigma/sigma/sigma;
         }
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /// Returns the value of the kernel function or its derivative at a given place q=r/h.
-    /////////////////////////////////////////////////////////////////////////////////////////
-    template<size_t dimension, bool derivative>
-    double pmGaussian_kernel<dimension,derivative>::kernel_at(double const& q) const {
-        return (derivative?-q:1.0)*exp(-q*q/4.0);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
     /// Returns the kernel value or its derivative at a given distance r and radius influence_radius.
     /////////////////////////////////////////////////////////////////////////////////////////
     template<size_t dimension, bool derivative>
-    double pmGaussian_kernel<dimension,derivative>::evaluate(double const& r, double const& influence_radius) const {
-        double h = influence_radius/2.0;
-        double q = r/h;
-        return coefficient(h)*kernel_at(q);
+    double pmGaussian_kernel<dimension,derivative>::evaluate(double const& r, double const& sigma) const {
+        if(!derivative) {
+            return coefficient(sigma)*std::exp(-r*r/sigma/sigma);
+        } else {
+            return -r/sigma/sigma*coefficient(sigma)*std::exp(-r*r/sigma/sigma);
+        }
     }
 }
 

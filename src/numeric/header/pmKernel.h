@@ -21,6 +21,7 @@
 #ifndef _KERNEL_H_
 #define _KERNEL_H_
 
+#include "pmKernel_includes.h"
 #include <memory>
 #include <cstdio>
 
