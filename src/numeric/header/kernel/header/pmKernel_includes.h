@@ -18,28 +18,14 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _KERNEL_H_
-#define _KERNEL_H_
+#ifndef _KERNEL_INCLUDES_H_
+#define _KERNEL_INCLUDES_H_
 
-namespace nauticle {
-	/** This abstract class implements the parent of the kernel functions.
-	*/
-	template<size_t dimension, bool derivative>
-	class pmKernel {
-	protected:
-		std::string name;
-	protected:
-		virtual double coefficient(double const& influence_radius) const=0;
-	public:
-		pmKernel();
-		std::string get_name() const;
-		virtual double evaluate(double const& r, double const& influence_radius) const=0;
-	};
+#include "pmZeroth_order_kernel.h"
+#include "pmFirst_order_kernel.h"
+#include "pmSecond_order_kernel.h"
+#include "pmThird_order_kernel.h"
+#include "pmFifth_order_kernel.h"
+#include "pmGaussian_kernel.h"
 
-	template<size_t dimension, bool derivative>
-	std::string pmKernel<dimension,derivative>::get_name() const {
-		return name;
-	}
-}
-
-#endif //_KERNEL_H_
+#endif //_KERNEL_INCLUDES_H_

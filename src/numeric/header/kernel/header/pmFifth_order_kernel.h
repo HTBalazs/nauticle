@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _QUINTIC_KERNEL_H_
-#define _QUINTIC_KERNEL_H_
+#ifndef _FIFTH_ORDER_KERNEL_H_
+#define _FIFTH_ORDER_KERNEL_H_
 
 #include "pmKernel.h"
 #include <cmath>
@@ -29,11 +29,11 @@ namespace nauticle {
 	/** This class contains the quintic (Wendland) smoothing kernel implementations for 1, 2 and 3 dimensions.
 	*/
 	template<size_t dimension, bool derivative>
-	class pmQuintic_kernel : public pmKernel<dimension,derivative> {
+	class pmFifth_order_kernel : public pmKernel<dimension,derivative> {
 		double coefficient(double const& h) const override;
 		double kernel_at(double const& q) const;
 	public:
-		pmQuintic_kernel();
+		pmFifth_order_kernel();
 		double evaluate(double const& r, double const& influence_radius) const override;
 	};
 
@@ -41,7 +41,7 @@ namespace nauticle {
 	/// Constructor.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<size_t dimension, bool derivative>
-	pmQuintic_kernel<dimension,derivative>::pmQuintic_kernel() {
+	pmFifth_order_kernel<dimension,derivative>::pmFifth_order_kernel() {
 		name = derivative?"d":""+"Wp522"+std::to_string(dimension)+"0";
 	}
 
@@ -49,7 +49,7 @@ namespace nauticle {
 	/// Returns the normalization coefficient of the kernel function or its derivative.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<size_t dimension, bool derivative>
-	double pmQuintic_kernel<dimension,derivative>::coefficient(double const& h) const {
+	double pmFifth_order_kernel<dimension,derivative>::coefficient(double const& h) const {
 		switch(dimension) {
 			default:
 			case 1 : return derivative ? 30.0/8.0/h/h : 3.0/4.0/h;
@@ -62,7 +62,7 @@ namespace nauticle {
 	/// Returns the value of the kernel function or its derivative at a given place q=r/h.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<size_t dimension, bool derivative>
-	double pmQuintic_kernel<dimension,derivative>::kernel_at(double const& q) const {
+	double pmFifth_order_kernel<dimension,derivative>::kernel_at(double const& q) const {
 		if(!derivative) {
 			double val = (1.0-q/2.0);
 			val*=val; val*=val;
@@ -77,11 +77,11 @@ namespace nauticle {
 	/// Returns the kernel value or its derivative at a given distance r and radius influence_radius.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<size_t dimension, bool derivative>
-	double pmQuintic_kernel<dimension,derivative>::evaluate(double const& r, double const& influence_radius) const {
+	double pmFifth_order_kernel<dimension,derivative>::evaluate(double const& r, double const& influence_radius) const {
 		double h = influence_radius/2.0;
 		double q = r/h;
 		return coefficient(h)*kernel_at(q);
 	}
 }
 
-#endif // _QUINTIC_KERNEL_H_
+#endif // _FIFTH_ORDER_KERNEL_H_
