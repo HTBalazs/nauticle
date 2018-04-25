@@ -198,13 +198,13 @@ void pmVTK_writer::update() {
 		vtkSmartPointer<vtkDoubleArray> xArray = vtkSmartPointer<vtkDoubleArray>::New();
 		vtkSmartPointer<vtkDoubleArray> yArray = vtkSmartPointer<vtkDoubleArray>::New();
 		vtkSmartPointer<vtkDoubleArray> zArray = vtkSmartPointer<vtkDoubleArray>::New();
-		for(int i=0; i<=num_cells[0]; i++) {
+		for(int i=0; i<=num_cells[0]+NAUTICLE_EPS; i++) {
 			xArray->InsertNextValue((minimum[0]+i)*cell_size[0]);
 		}
-		for(int i=0; i<=(dimensions>1?num_cells[1]:0); i++) {
+		for(int i=0; i<=(dimensions>1?num_cells[1]+NAUTICLE_EPS:0); i++) {
 			yArray->InsertNextValue(dimensions>1?(minimum[1]+i)*cell_size[1]:0.0);
 		}		
-		for(int i=0; i<=(dimensions>2?num_cells[2]:0); i++) {
+		for(int i=0; i<=(dimensions>2?num_cells[2]+NAUTICLE_EPS:0); i++) {
 			zArray->InsertNextValue(dimensions>2?(minimum[2]+i)*cell_size[2]:0.0);
 		}
 		rectilinear_grid->SetXCoordinates(xArray);
