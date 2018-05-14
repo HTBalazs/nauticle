@@ -25,7 +25,7 @@
 
 using namespace Nauticle;
 
-std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "We21010", "We21020", "We21030", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k", "simulation", "workspace", "case", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "grid", "equations", "condition"};
+std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp01110", "Wp01120", "Wp01130", "Wp11110", "Wp11120", "Wp11130", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "We21010", "We21020", "We21030", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k", "simulation", "workspace", "case", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "grid", "equations", "condition"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -37,18 +37,24 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("true", pmTensor{1,1,1}, true);
 	this->add_constant("false", pmTensor{1,1,0}, true);
 	this->add_constant("pi", pmTensor{1,1,NAUTICLE_PI}, true);
-	this->add_constant("Wp22210", pmTensor{1,1,0}, true);
-	this->add_constant("Wp22220", pmTensor{1,1,1}, true);
-	this->add_constant("Wp22230", pmTensor{1,1,2}, true);
-	this->add_constant("Wp32210", pmTensor{1,1,3}, true);
-	this->add_constant("Wp32220", pmTensor{1,1,4}, true);
-	this->add_constant("Wp32230", pmTensor{1,1,5}, true);
-	this->add_constant("Wp52210", pmTensor{1,1,6}, true);
-	this->add_constant("Wp52220", pmTensor{1,1,7}, true);
-	this->add_constant("Wp52230", pmTensor{1,1,8}, true);
-	this->add_constant("We21010", pmTensor{1,1,9}, true);
-	this->add_constant("We21020", pmTensor{1,1,10}, true);
-	this->add_constant("We21030", pmTensor{1,1,11}, true);
+	this->add_constant("Wp01110", pmTensor{1,1,0}, true);
+	this->add_constant("Wp01120", pmTensor{1,1,1}, true);
+	this->add_constant("Wp01130", pmTensor{1,1,2}, true);
+	this->add_constant("Wp11110", pmTensor{1,1,3}, true);
+	this->add_constant("Wp11120", pmTensor{1,1,4}, true);
+	this->add_constant("Wp11130", pmTensor{1,1,5}, true);
+	this->add_constant("Wp22210", pmTensor{1,1,6}, true);
+	this->add_constant("Wp22220", pmTensor{1,1,7}, true);
+	this->add_constant("Wp22230", pmTensor{1,1,8}, true);
+	this->add_constant("Wp32210", pmTensor{1,1,9}, true);
+	this->add_constant("Wp32220", pmTensor{1,1,10}, true);
+	this->add_constant("Wp32230", pmTensor{1,1,11}, true);
+	this->add_constant("Wp52210", pmTensor{1,1,12}, true);
+	this->add_constant("Wp52220", pmTensor{1,1,13}, true);
+	this->add_constant("Wp52230", pmTensor{1,1,14}, true);
+	this->add_constant("We21010", pmTensor{1,1,15}, true);
+	this->add_constant("We21020", pmTensor{1,1,16}, true);
+	this->add_constant("We21030", pmTensor{1,1,17}, true);
 	this->add_constant("ASCII", pmTensor{1,1,0}, true);
 	this->add_constant("BINARY", pmTensor{1,1,1}, true);
 	this->add_constant("periodic", pmTensor{1,1,0}, true);
