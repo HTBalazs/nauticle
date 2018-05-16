@@ -71,7 +71,7 @@ namespace Nauticle {
 		this->operand = std::move(op);
 		size_t type = (int)this->operand[3]->evaluate(0)[0];
 		this->kernel = std::make_shared<pmKernel>();
-		this->kernel->set_kernel_type(type, OP_TYPE==SAMPLE || OP_TYPE==XSAMPLE?false:true);
+		this->kernel->set_kernel_type(type, OP_TYPE==INERTIA || OP_TYPE==SAMPLE || OP_TYPE==XSAMPLE?false:true);
 		this->op_name = std::string{"sph_"};
 		switch(OP_TYPE) {
 			case SAMPLE: this->op_name+=std::string{"S"}; break;
