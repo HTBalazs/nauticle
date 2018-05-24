@@ -220,7 +220,7 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 	cas->add_workspace(workspace);
 	cas->add_equation(equations);
 	cas->initialize();
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("    Initial conditions: from XML file.\n");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("    Initial conditions: from YAML file.\n");
 	return cas;
 }
 

@@ -79,7 +79,7 @@ std::string pmCommand_parser::get_arg(std::string s) {
 	ProLog::pLogger::log<ProLog::WHT>("1) -help                  Display Nauticle information.\n");
 	ProLog::pLogger::log<ProLog::WHT>("2) -wsres                 Lists all reserved names in workspace.\n");
 	ProLog::pLogger::log<ProLog::WHT>("3) -numthreads <number>   Defines the number of threads to use. Default is detected.\n");
-	ProLog::pLogger::log<ProLog::WHT>("4) -yamlname <filename>    Defines the name of the XML input file.\n");
+	ProLog::pLogger::log<ProLog::WHT>("4) -yamlname <filename>    Defines the name of the YAML input file.\n");
 	ProLog::pLogger::log<ProLog::WHT>("5) -logfile <filename>    Defines the name of the output log file.\n");
 	ProLog::pLogger::log<ProLog::WHT>("6) -wdir <directory>      Defines the working directory. FULL path of an EXISTING directory is required.\n");
 	ProLog::pLogger::log<ProLog::WHT>("7) -version               Prints the version number.\n");
