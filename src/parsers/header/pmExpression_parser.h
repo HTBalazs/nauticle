@@ -38,6 +38,7 @@
 #include "pmDvm_operator.h"
 #include "pmSfm_operator.h"
 #include "pmDpd_operator.h"
+#include "pmMd_operator.h"
 #include "pmFmin.h"
 #include "pmFmax.h"
 #include "pmFmean.h"
