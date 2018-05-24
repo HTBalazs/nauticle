@@ -28,10 +28,21 @@ The few examples discussed in the User's guide cover the following simulations:
   6. Dam-break flow (SPH)  
   7. Melting solid phase (SPH)  
   8. Building evacuation (SFM)  
+  9. Molecular dynamics (MC)  
 
 The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). The results can be visualized in Paraview v5.2.0 or later.
 
 Please visit the Nauticle [YouTube-channel](https://www.youtube.com/channel/UCh3Y325U289BiAqJ6K0Lfqw) to see the visualizations of the examples.
+
+# Version 1.0.180524: #
+The most important features and bug-fixes:  
+- Implementation of the Lennard-Jones interaction.  
+- Fix kernel bug in SPH inertia tensor.  
+- domain.vtk file output for all simulations.  
+- Redesigned kernel function class.  
+- Renamed class pmCase_manager to class pmSimulation.  
+- Implement arithmetic function "limit" in the SFL-tree.  
+- Zeroth and first order kernel implementations.  
 
 # Version 1.0.180207: #
 The most important features and bug-fixes:  
