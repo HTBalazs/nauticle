@@ -36,50 +36,49 @@ pmKernel::pmKernel() {
 /// Set kernel type of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmKernel::set_kernel_type(size_t const& i, bool const& derivative) {
-	std::cout << i << std::endl;
 	if(derivative) {
 		switch(i) {
 			default:
-			case 0: kernel = std::make_shared<pmZeroth_order_kernel<1,true>>(); break;
-			case 1: kernel = std::make_shared<pmZeroth_order_kernel<2,true>>(); break;
-			case 2: kernel = std::make_shared<pmZeroth_order_kernel<3,true>>(); break;
-			case 3: kernel = std::make_shared<pmFirst_order_kernel<1,true>>(); break;
-			case 4: kernel = std::make_shared<pmFirst_order_kernel<2,true>>(); break;
-			case 5: kernel = std::make_shared<pmFirst_order_kernel<3,true>>(); break;
-			case 6: kernel = std::make_shared<pmSecond_order_kernel<1,true>>(); break;
-			case 7: kernel = std::make_shared<pmSecond_order_kernel<2,true>>(); break;
-			case 8: kernel = std::make_shared<pmSecond_order_kernel<3,true>>(); break;
-			case 9: kernel = std::make_shared<pmThird_order_kernel<1,true>>(); break;
-			case 10: kernel = std::make_shared<pmThird_order_kernel<2,true>>(); break;
-			case 11: kernel = std::make_shared<pmThird_order_kernel<3,true>>(); break;
-			case 12: kernel = std::make_shared<pmFifth_order_kernel<1,true>>(); break;
-			case 13: kernel = std::make_shared<pmFifth_order_kernel<2,true>>(); break;
-			case 14: kernel = std::make_shared<pmFifth_order_kernel<3,true>>(); break;
-			case 15: kernel = std::make_shared<pmGaussian_kernel<1,true>>(); break;
-			case 16: kernel = std::make_shared<pmGaussian_kernel<2,true>>(); break;
-			case 17: kernel = std::make_shared<pmGaussian_kernel<3,true>>(); break;
+			case 0: kernel = std::make_shared<pmSecond_order_kernel<1,true>>(); break;
+			case 1: kernel = std::make_shared<pmSecond_order_kernel<2,true>>(); break;
+			case 2: kernel = std::make_shared<pmSecond_order_kernel<3,true>>(); break;
+			case 3: kernel = std::make_shared<pmThird_order_kernel<1,true>>(); break;
+			case 4: kernel = std::make_shared<pmThird_order_kernel<2,true>>(); break;
+			case 5: kernel = std::make_shared<pmThird_order_kernel<3,true>>(); break;
+			case 6: kernel = std::make_shared<pmFifth_order_kernel<1,true>>(); break;
+			case 7: kernel = std::make_shared<pmFifth_order_kernel<2,true>>(); break;
+			case 8: kernel = std::make_shared<pmFifth_order_kernel<3,true>>(); break;
+			case 9: kernel = std::make_shared<pmGaussian_kernel<1,true>>(); break;
+			case 10: kernel = std::make_shared<pmGaussian_kernel<2,true>>(); break;
+			case 11: kernel = std::make_shared<pmGaussian_kernel<3,true>>(); break;
+			case 12: kernel = std::make_shared<pmZeroth_order_kernel<1,true>>(); break;
+			case 13: kernel = std::make_shared<pmZeroth_order_kernel<2,true>>(); break;
+			case 14: kernel = std::make_shared<pmZeroth_order_kernel<3,true>>(); break;
+			case 15: kernel = std::make_shared<pmFirst_order_kernel<1,true>>(); break;
+			case 16: kernel = std::make_shared<pmFirst_order_kernel<2,true>>(); break;
+			case 17: kernel = std::make_shared<pmFirst_order_kernel<3,true>>(); break;
 		}
 	} else {
 		switch(i) {
 			default:
-			case 0: kernel = std::make_shared<pmZeroth_order_kernel<1,false>>(); break;
-			case 1: kernel = std::make_shared<pmZeroth_order_kernel<2,false>>(); break;
-			case 2: kernel = std::make_shared<pmZeroth_order_kernel<3,false>>(); break;
-			case 3: kernel = std::make_shared<pmFirst_order_kernel<1,false>>(); break;
-			case 4: kernel = std::make_shared<pmFirst_order_kernel<2,false>>(); break;
-			case 5: kernel = std::make_shared<pmFirst_order_kernel<3,false>>(); break;
-			case 6: kernel = std::make_shared<pmSecond_order_kernel<1,false>>(); break;
-			case 7: kernel = std::make_shared<pmSecond_order_kernel<2,false>>(); break;
-			case 8: kernel = std::make_shared<pmSecond_order_kernel<3,false>>(); break;
-			case 9: kernel = std::make_shared<pmThird_order_kernel<1,false>>(); break;
-			case 10: kernel = std::make_shared<pmThird_order_kernel<2,false>>(); break;
-			case 11: kernel = std::make_shared<pmThird_order_kernel<3,false>>(); break;
-			case 12: kernel = std::make_shared<pmFifth_order_kernel<1,false>>(); break;
-			case 13: kernel = std::make_shared<pmFifth_order_kernel<2,false>>(); break;
-			case 14: kernel = std::make_shared<pmFifth_order_kernel<3,false>>(); break;
-			case 15: kernel = std::make_shared<pmGaussian_kernel<1,false>>(); break;
-			case 16: kernel = std::make_shared<pmGaussian_kernel<2,false>>(); break;
-			case 17: kernel = std::make_shared<pmGaussian_kernel<3,false>>(); break;
+			case 0: kernel = std::make_shared<pmSecond_order_kernel<1,false>>(); break;
+			case 1: kernel = std::make_shared<pmSecond_order_kernel<2,false>>(); break;
+			case 2: kernel = std::make_shared<pmSecond_order_kernel<3,false>>(); break;
+			case 3: kernel = std::make_shared<pmThird_order_kernel<1,false>>(); break;
+			case 4: kernel = std::make_shared<pmThird_order_kernel<2,false>>(); break;
+			case 5: kernel = std::make_shared<pmThird_order_kernel<3,false>>(); break;
+			case 6: kernel = std::make_shared<pmFifth_order_kernel<1,false>>(); break;
+			case 7: kernel = std::make_shared<pmFifth_order_kernel<2,false>>(); break;
+			case 8: kernel = std::make_shared<pmFifth_order_kernel<3,false>>(); break;
+			case 9: kernel = std::make_shared<pmGaussian_kernel<1,false>>(); break;
+			case 10: kernel = std::make_shared<pmGaussian_kernel<2,false>>(); break;
+			case 11: kernel = std::make_shared<pmGaussian_kernel<3,false>>(); break;
+			case 12: kernel = std::make_shared<pmZeroth_order_kernel<1,false>>(); break;
+			case 13: kernel = std::make_shared<pmZeroth_order_kernel<2,false>>(); break;
+			case 14: kernel = std::make_shared<pmZeroth_order_kernel<3,false>>(); break;
+			case 15: kernel = std::make_shared<pmFirst_order_kernel<1,false>>(); break;
+			case 16: kernel = std::make_shared<pmFirst_order_kernel<2,false>>(); break;
+			case 17: kernel = std::make_shared<pmFirst_order_kernel<3,false>>(); break;
 		}
 	}
 }
