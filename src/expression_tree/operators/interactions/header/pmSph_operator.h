@@ -69,9 +69,9 @@ namespace Nauticle {
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	pmSph_operator<OP_TYPE,VAR,K,NOPS>::pmSph_operator(std::array<std::shared_ptr<pmExpression>,NOPS> op) {
 		this->operand = std::move(op);
-		size_t type = (int)this->operand[3]->evaluate(0)[0];
+		size_t type = (int)this->operand[NOPS==6?4:3]->evaluate(0)[0];
 		this->kernel = std::make_shared<pmKernel>();
-		this->kernel->set_kernel_type(type, OP_TYPE==INERTIA || OP_TYPE==SAMPLE || OP_TYPE==XSAMPLE?false:true);
+		this->kernel->set_kernel_type(type, (OP_TYPE==INERTIA || OP_TYPE==SAMPLE || OP_TYPE==XSAMPLE)?false:true);
 		this->op_name = std::string{"sph_"};
 		switch(OP_TYPE) {
 			case SAMPLE: this->op_name+=std::string{"S"}; break;
