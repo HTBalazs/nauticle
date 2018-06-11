@@ -861,7 +861,7 @@ namespace Nauticle {
 	inline pmTensor& pmTensor::operator++() {
 		// *this += double{1};
 		// return *this;
-		return this->operator+=(double{1});
+		return this->operator+=(pmTensor{this->rows,this->columns,1.0});
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -870,7 +870,7 @@ namespace Nauticle {
 	inline pmTensor& pmTensor::operator--() {
 		// *this -= double{1};
 		// return *this;
-		return this->operator-=(double{1});
+		return this->operator-=(pmTensor{this->rows,this->columns,1.0});
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -878,7 +878,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::operator++(int) {
 		pmTensor tensor{*this};	
-		(*this)++;
+		++(*this);
 		return tensor;
 	}
 
@@ -887,7 +887,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::operator--(int) {
 		pmTensor tensor{*this};	
-		(*this)--;
+		--(*this);
 		return tensor;
 	}
 
@@ -1409,7 +1409,7 @@ namespace Nauticle {
 	/// Performs QR decomposition and returns R.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::deR() const {
-		return this->deQ()*(*this);
+		return this->deQ().transpose()*(*this);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1417,7 +1417,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::deR(pmTensor& Q) const {
 		Q = this->deQ();
-		return Q*(*this);
+		return Q.transpose()*(*this);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
