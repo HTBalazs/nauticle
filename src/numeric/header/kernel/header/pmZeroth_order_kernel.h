@@ -53,7 +53,7 @@ namespace Nauticle {
 		switch(dimension) {
 			default:
 			case 1 : return derivative ? 0.0 : 0.5/influence_radius;
-			case 2 : return derivative ? 0.0 : 2.0/NAUTICLE_PI/influence_radius/influence_radius;
+			case 2 : return derivative ? 0.0 : 1.0/NAUTICLE_PI/influence_radius/influence_radius;
 			case 3 : return derivative ? 0.0 : 3.0/4.0/NAUTICLE_PI/influence_radius/influence_radius/influence_radius;
 		}
 	}
