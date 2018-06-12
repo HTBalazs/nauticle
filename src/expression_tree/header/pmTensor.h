@@ -1465,7 +1465,7 @@ namespace Nauticle {
 	inline double pmTensor::min() const {
 		double min_value = elements[0];
 		for(int i=1; i<numel(); i++) {
-			if(min_value<elements[i]) {
+			if(min_value>elements[i]) {
 				min_value = elements[i];
 			}
 		}
@@ -1478,7 +1478,7 @@ namespace Nauticle {
 	inline double pmTensor::max() const {
 		double max_value = elements[0];
 		for(int i=1; i<numel(); i++) {
-			if(max_value>elements[i]) {
+			if(max_value<elements[i]) {
 				max_value = elements[i];
 			}
 		}
