@@ -3,6 +3,58 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-pthread -O3")
 project(nauticle_project)
 
+
+
+
+
+
+# Set CMake behavior
+cmake_policy(SET CMP0004 NEW) #
+# Get DOLFIN configuration data (DOLFINConfig.cmake must be in
+# DOLFIN_CMAKE_CONFIG_PATH)
+find_package(DOLFIN REQUIRED) #
+if (EXISTS ${DOLFIN_USE_FILE})
+  include(${DOLFIN_USE_FILE})
+
+  # Default build type (can be overridden by user)
+  if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
+      "Choose the type of build, options are: Debug MinSizeRel Release RelWithDebInfo." FORCE)
+  endif()
+
+  # Do not throw error for 'multi-line comments' (these are typical in
+  # rst which includes LaTeX)
+  include(CheckCXXCompilerFlag)
+  CHECK_CXX_COMPILER_FLAG("-Wno-comment" HAVE_NO_MULTLINE)
+  if (HAVE_NO_MULTLINE)
+    set(CMAKE_CXX_FLAGS "-Wno-comment ${CMAKE_CXX_FLAGS}")
+  endif()
+
+else()
+  # Compiler definitions
+  add_definitions(${DOLFIN_CXX_DEFINITIONS})
+
+  # Compiler flags
+  set(CMAKE_CXX_FLAGS "${DOLFIN_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+
+  # Do not throw error for 'multi-line comments' (these are typical in
+  # rst which includes LaTeX)
+  include(CheckCXXCompilerFlag)
+  CHECK_CXX_COMPILER_FLAG("-Wno-comment" HAVE_NO_MULTLINE)
+  if (HAVE_NO_MULTLINE)
+    set(CMAKE_CXX_FLAGS "-Wno-comment ${CMAKE_CXX_FLAGS}")
+  endif()
+
+  # Include directories
+  include_directories(${DOLFIN_INCLUDE_DIRS})
+  include_directories(SYSTEM ${DOLFIN_3RD_PARTY_INCLUDE_DIRS})
+endif()
+
+
+
+
+
+
 set(VTK_DIR /usr/local/VTK-7.0.0)
 set(EXECUTABLE nauticle)
 
@@ -67,6 +119,7 @@ if(VTK_LIBRARIES)
 	target_link_libraries(${EXEC} ${VTK_LIBRARIES})
 endif()
 
+target_link_libraries(${EXECUTABLE} ${DOLFIN_LIBRARIES})
 target_link_libraries(${EXEC} /usr/local/lib/prolog/libprolog.a)
 target_link_libraries(${EXEC} /usr/local/lib/commonutils/libcommonutils.a)
 target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)
