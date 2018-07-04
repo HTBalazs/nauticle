@@ -32,7 +32,7 @@ namespace Nauticle {
 
 	class pmFenics_operator : public pmInteraction<5> {
 	private:
-		// Problem problem;
+		Problem problem;
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmFenics_operator() {}
