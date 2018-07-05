@@ -203,7 +203,7 @@ public:
     a0->vector()->zero();
   }
 
-  std::vector<std::shared_ptr<Elem>> calculation(std::vector<double> const fx, std::vector<double> const fy, double const& _dt) {
+  std::vector<std::shared_ptr<Elem>> calculation(std::vector<double> const qx, std::vector<double> const qy, double const& _dt) {
     dt = std::make_shared<const Constant>(_dt);    // time step
 
     // Neumann Boundary conditions

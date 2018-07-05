@@ -30,13 +30,13 @@
 
 namespace Nauticle {
 
-	class pmFenics_operator : public pmInteraction<5> {
+	class pmFenics_operator : public pmInteraction<7> {
 	private:
 		std::shared_ptr<Problem> problem;
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmFenics_operator() {}
-		pmFenics_operator(std::array<std::shared_ptr<pmExpression>,5> op);
+		pmFenics_operator(std::array<std::shared_ptr<pmExpression>,7> op);
 		pmFenics_operator(pmFenics_operator const& other);
 		pmFenics_operator(pmFenics_operator&& other);
 		pmFenics_operator& operator=(pmFenics_operator const& other);

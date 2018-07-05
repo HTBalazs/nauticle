@@ -283,7 +283,7 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				e.push(std::make_shared<pmDem_operator<LINEAR,7>>(operands));
 			}
 			if(it=="fenics") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
+				std::array<std::shared_ptr<pmExpression>,7> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmFenics_operator>(operands));
 			}

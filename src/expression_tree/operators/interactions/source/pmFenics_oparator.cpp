@@ -26,7 +26,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFenics_operator::pmFenics_operator(std::array<std::shared_ptr<pmExpression>,5> op) {
+pmFenics_operator::pmFenics_operator(std::array<std::shared_ptr<pmExpression>,7> op) {
     problem = std::make_shared<Problem>();
     operand = std::move(op);
 }
@@ -100,25 +100,25 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
     if(!assigned) { ProLog::pLogger::error_msgf("FEM model is not assigned to any particle system.\n"); }
     std::shared_ptr<pmParticle_system> ps = psys.lock();
     // create vector of forces
-    float gid = operand[1]->evaluate(i,level)[0];
-    std::vector<double> q;
-    q.push_back(0);
+    int solid_id = operand[1]->evaluate(i,level)[0];
+    std::vector<double> qx;
+    std::vector<double> qy;
     for(int j=0; j<ps->get_field_size(); j++) {
-        if(gid==operand[0]->evaluate(j,level)[0]) {
-            q.push_back(operand[2]->evaluate(j,level)[1]);
+        if(solid_id==(int)operand[0]->evaluate(j,level)[0]) {
+            pmTensor q = operand[2]->evaluate(j,level);
+            qx.push_back(q[0]);
+            qy.push_back(q[1]);
         }
     }
-    q.push_back(0);
-    double dt = operand[4]->evaluate(0,level)[0];
-    std::vector<std::shared_ptr<Elem>> elem = problem.calculation(q, dt);
+    double dt = operand[8]->evaluate(0,level)[0];
+    std::vector<std::shared_ptr<Elem>> elem = problem.calculation(qx, qy, dt);
     int k=0;
     // for(int j=0; j<ps->get_field_size(); j++) {
-    //     if(gid==operand[0]->evaluate(j,level)[0]) {
+    //     if(solid_id==operand[0]->evaluate(j,level)[0]) {
     //         pmTensor position{2,1,0};
     //         position[0] = -0.5+elem[k]->x; // hydrostatic
     //         position[1] = -1.025+elem[k]->w; // hydrostatic
-    //         ps->set_value(position,j);  
- 
+    //         ps->set_value(position,j);
     //         pmTensor velocity{2,1,0};
     //         velocity[1] = elem[k]->wdot; // hydrostatic
     //         std::dynamic_pointer_cast<pmField>(operand[3])->set_value(velocity,j);
