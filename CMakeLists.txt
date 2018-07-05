@@ -119,7 +119,7 @@ if(VTK_LIBRARIES)
 	target_link_libraries(${EXEC} ${VTK_LIBRARIES})
 endif()
 
-target_link_libraries(${EXECUTABLE} ${DOLFIN_LIBRARIES})
+target_link_libraries(${EXEC} ${DOLFIN_LIBRARIES})
 target_link_libraries(${EXEC} /usr/local/lib/prolog/libprolog.a)
 target_link_libraries(${EXEC} /usr/local/lib/commonutils/libcommonutils.a)
 target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)

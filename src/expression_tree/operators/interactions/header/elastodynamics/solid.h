@@ -1,24 +1,46 @@
-// Copyright (C) 2009 Mirko Maraldi and Garth N. Wells
-//
-// This file is part of DOLFIN.
-//
-// DOLFIN is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// DOLFIN is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with DOLFIN. If not, see <http://www.gnu.org/licenses/>.
-//
-// Modified by Anders Logg, 2011
-//
-// First added:  2009-01-22
-// Last changed: 2011-06-28
+/*
+    Copyright 2016-2018 Balazs Toth
+    This file is part of Nauticle.
+
+    Nauticle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Nauticle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
+
+    For more information please visit: https://bitbucket.org/nauticleproject/
+
+    The content of this file is based on the former work (FEniCS elastodynamics demo):
+
+    // Copyright (C) 2009 Mirko Maraldi and Garth N. Wells
+    //
+    // This file is part of DOLFIN.
+    //
+    // DOLFIN is free software: you can redistribute it and/or modify
+    // it under the terms of the GNU Lesser General Public License as published by
+    // the Free Software Foundation, either version 3 of the License, or
+    // (at your option) any later version.
+    //
+    // DOLFIN is distributed in the hope that it will be useful,
+    // but WITHOUT ANY WARRANTY; without even the implied warranty of
+    // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    // GNU Lesser General Public License for more details.
+    //
+    // You should have received a copy of the GNU Lesser General Public License
+    // along with DOLFIN. If not, see <http://www.gnu.org/licenses/>.
+    //
+    // Modified by Anders Logg, 2011
+    //
+    // First added:  2009-01-22
+    // Last changed: 2011-06-28
+*/
 
 #include <dolfin.h>
 #include "ElastoDynamics.h"
@@ -29,13 +51,17 @@ using namespace dolfin;
 // External load
 class Pressure : public Expression
 {
+  double px;
+  double py;
 public:
-
-  Pressure()
-    : Expression(2) {}
+  Pressure() : Expression(2) {}
+  Pressure(double const& x, double const& y) : Expression(2) {
+    px = x;
+    py = y;
+  }
   void eval(Array<double>& values, const Array<double>& x) const {
-    values[0] = 0.0;
-    values[1] = 0.001;
+    values[0] = px;
+    values[1] = py;
   }
 
 };
@@ -157,9 +183,6 @@ public:
 
     // Create mesh
     mesh = std::make_shared<Mesh>("solid.xml");
-    // Point x0{0.0, 0.0};
-    // Point x1{1, 0.05};
-    // mesh = std::make_shared<Mesh>(RectangleMesh(x0, x1, 50, 5, "right"));
 
     // Create function space
     V = std::make_shared<ElastoDynamics::FunctionSpace>(mesh);
@@ -180,7 +203,7 @@ public:
     a0->vector()->zero();
   }
 
-  std::vector<std::shared_ptr<Elem>> calculation(double _dt) {
+  std::vector<std::shared_ptr<Elem>> calculation(std::vector<double> const fx, std::vector<double> const fy, double const& _dt) {
     dt = std::make_shared<const Constant>(_dt);    // time step
 
     // Neumann Boundary conditions
@@ -262,19 +285,3 @@ public:
     return cells;
   }
 };
-
-
-int main(int argc, char* argv[])
-{
-  init(argc, argv);
-  Problem problem;
-  std::vector<std::shared_ptr<Elem>> elems;
-  double dt = 1.0/32.0;
-  for(int i=0; i<100; i++) {
-    elems.push_back(problem.calculation(dt));
-  }
-
-
-
-  return 0;
-}

@@ -27,6 +27,7 @@ using namespace Nauticle;
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmFenics_operator::pmFenics_operator(std::array<std::shared_ptr<pmExpression>,5> op) {
+    problem = std::make_shared<Problem>();
     operand = std::move(op);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -34,6 +35,7 @@ pmFenics_operator::pmFenics_operator(std::array<std::shared_ptr<pmExpression>,5>
 /////////////////////////////////////////////////////////////////////////////////////////
 pmFenics_operator::pmFenics_operator(pmFenics_operator const& other) {
     this->assigned = false;
+    this->problem = other.problem;
     for(int i=0; i<this->operand.size(); i++) {
         this->operand[i] = other.operand[i]->clone();
     }
@@ -43,6 +45,7 @@ pmFenics_operator::pmFenics_operator(pmFenics_operator const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmFenics_operator::pmFenics_operator(pmFenics_operator&& other) {
     this->psys = std::move(other.psys);
+    this->problem = std::move(other.problem);
     this->assigned = std::move(other.assigned);
     this->operand = std::move(other.operand);
 }
@@ -52,6 +55,7 @@ pmFenics_operator::pmFenics_operator(pmFenics_operator&& other) {
 pmFenics_operator& pmFenics_operator::operator=(pmFenics_operator const& other) {
     if(this!=&other) {
         this->assigned = false;
+        this->problem = other.problem;
         for(int i=0; i<this->operand.size(); i++) {
             this->operand[i] = other.operand[i]->clone();
         }
@@ -64,6 +68,7 @@ pmFenics_operator& pmFenics_operator::operator=(pmFenics_operator const& other) 
 pmFenics_operator& pmFenics_operator::operator=(pmFenics_operator&& other) {
     if(this!=&other) {
         this->psys = std::move(other.psys);
+        this->problem = std::move(other.problem);
         this->assigned = std::move(other.assigned);
         this->operand = std::move(other.operand);
     }
@@ -100,12 +105,12 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
     q.push_back(0);
     for(int j=0; j<ps->get_field_size(); j++) {
         if(gid==operand[0]->evaluate(j,level)[0]) {
-            q.push_back(operand[2]->evaluate(j,level)[1]); // hydrostatic
+            q.push_back(operand[2]->evaluate(j,level)[1]);
         }
     }
     q.push_back(0);
     double dt = operand[4]->evaluate(0,level)[0];
-    // std::vector<std::shared_ptr<Elem>> elem = problem.calculation(q, dt);
+    std::vector<std::shared_ptr<Elem>> elem = problem.calculation(q, dt);
     int k=0;
     // for(int j=0; j<ps->get_field_size(); j++) {
     //     if(gid==operand[0]->evaluate(j,level)[0]) {
@@ -124,7 +129,7 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
 }
  
 int pmFenics_operator::get_field_size() const {
-    return psys.lock()->get_field_size();
+    return 1;
 }
 
 #include "Color_undefine.h"
