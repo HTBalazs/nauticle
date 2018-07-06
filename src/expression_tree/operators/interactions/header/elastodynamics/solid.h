@@ -51,17 +51,17 @@ using namespace dolfin;
 // External load
 class Pressure : public Expression
 {
-  double px;
-  double py;
+  std::vector<double> px;
+  std::vector<double> py;
 public:
   Pressure() : Expression(2) {}
-  Pressure(double const& x, double const& y) : Expression(2) {
-    px = x;
-    py = y;
+  Pressure(std::vector<double> const& _px, std::vector<double> const& _py) : Expression(2) {
+    px = _px;
+    py = _py;
   }
-  void eval(Array<double>& values, const Array<double>& x) const {
-    values[0] = px;
-    values[1] = py;
+  void eval(Array<double>& values, const Array<double>& x, const ufc::cell& cell) const {
+    values[0] = px[cell.index];
+    values[1] = py[cell.index];
   }
 
 };
@@ -131,9 +131,16 @@ void update_v(Function& v, const Function& a, const Function& a0,
 class Elem {
 public:
   int index;
-  double x,y;
-  double u,v;
+  double x0, y0; // original position
+  double ux, uy; // deformation
+  double vx, vy; // velocity
+  double ax, ay; // acceleration
+  double x, y; // new position
   Elem() {}
+  void compute_new_position() {
+    x = x0 + ux;
+    y = y0 + uy;    
+  }
 };
 
 class Problem {
@@ -195,15 +202,15 @@ public:
 
     file_u = std::make_shared<File>("u.pvd", "compressed");
 
-    p = std::make_shared<Pressure>();
-    p0 = std::make_shared<Pressure>();
 
     u0->vector()->zero();
     v0->vector()->zero();
     a0->vector()->zero();
   }
 
-  std::vector<std::shared_ptr<Elem>> calculation(std::vector<double> const qx, std::vector<double> const qy, double const& _dt) {
+  void calculation(std::vector<double> const fx, std::vector<double> const fy, double const& _dt, std::vector<double> px, std::vector<double> py, std::vector<double> vx, std::vector<double> vy) {
+    p = std::make_shared<Pressure>(fx,fy);
+    p0 = std::make_shared<Pressure>(fx,fy);
     dt = std::make_shared<const Constant>(_dt);    // time step
 
     // Neumann Boundary conditions
@@ -252,10 +259,20 @@ public:
     *u0 = *u; *v0 = *v; *a0 = *a;
     *file_u << *u;
 
-    return transform(u);
+    std::vector<std::shared_ptr<Elem>> elem = transform(u,v,a);
+    px.reserve(elem.size());
+    py.reserve(elem.size());
+    vx.reserve(elem.size());
+    vy.reserve(elem.size());
+    for(int i=0; i<elem.size(); i++) {
+      px.push_back(elem[i]->x);
+      py.push_back(elem[i]->y);
+      vx.push_back(elem[i]->vx);
+      vy.push_back(elem[i]->vy);
+    }
   }
 
-  std::vector<std::shared_ptr<Elem>> transform(std::shared_ptr<Function> u) const
+  std::vector<std::shared_ptr<Elem>> transform(std::shared_ptr<Function> u, std::shared_ptr<Function> v, std::shared_ptr<Function> a) const
   {
     std::vector<std::shared_ptr<Elem>> cells;
  
@@ -269,16 +286,25 @@ public:
       Array<double> coords(2);
       coords[0] = po.x();
       coords[1] = po.y();
-      Array<double> cvals(2);
-      u->eval(cvals, coords);
+      Array<double> uvals(2);
+      Array<double> vvals(2);
+      Array<double> avals(2);
+      u->eval(uvals, coords);
+      v->eval(vvals, coords);
+      a->eval(avals, coords);
        
       // create an Elem
       std::shared_ptr<Elem> cll = std::make_shared<Elem>();
       cll->index = e->index();
       cll->x = po.x();
       cll->y = po.y();
-      cll->u = cvals[0];
-      cll->v = cvals[1];      
+      cll->ux = uvals[0];
+      cll->uy = uvals[1];      
+      cll->vx = vvals[0];
+      cll->vy = vvals[1];      
+      cll->ax = avals[0];
+      cll->ay = avals[1];     
+      cll->compute_new_position(); 
       cells.push_back(cll);
     }
  

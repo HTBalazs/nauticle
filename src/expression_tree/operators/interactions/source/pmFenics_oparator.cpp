@@ -20,6 +20,7 @@
  
 #include "pmFenics_operator.h"
 #include "Color_define.h"
+#include <algorithm>
 
 using namespace Nauticle;
  
@@ -101,6 +102,7 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
     std::shared_ptr<pmParticle_system> ps = psys.lock();
     // create vector of forces
     int solid_id = operand[1]->evaluate(i,level)[0];
+    std::vector<int> id;
     std::vector<double> qx;
     std::vector<double> qy;
     for(int j=0; j<ps->get_field_size(); j++) {
@@ -108,23 +110,45 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
             pmTensor q = operand[2]->evaluate(j,level);
             qx.push_back(q[0]);
             qy.push_back(q[1]);
+            id.push_back((int)operand[0]->evaluate(j,level)[0]);
         }
     }
+    std::vector<int> nauticle2fenics;
+    nauticle2fenics.resize(id.size());
+    std::iota(nauticle2fenics.begin(),nauticle2fenics.end(),0);
+    pmSort::sort_by_vector(nauticle2fenics,id,pmSort::ascending);
+    pmSort::reorder(qx,nauticle2fenics);
+    pmSort::reorder(qy,nauticle2fenics);
+    
+    // calc
     double dt = operand[8]->evaluate(0,level)[0];
-    std::vector<std::shared_ptr<Elem>> elem = problem.calculation(qx, qy, dt);
+    std::vector<double> px;
+    std::vector<double> py;
+    std::vector<double> vx;
+    std::vector<double> vy;
+    problem->calculation(qx, qy, dt, px, py, vx, vy);
+    
+    std::vector<int> fenics2nauticle;
+    fenics2nauticle.resize(id.size());
+    std::iota(fenics2nauticle.begin(),fenics2nauticle.end(),0);
+    pmSort::sort_by_vector(fenics2nauticle,nauticle2fenics,pmSort::ascending);
+    pmSort::reorder(px,fenics2nauticle);
+    pmSort::reorder(py,fenics2nauticle);
+    
     int k=0;
-    // for(int j=0; j<ps->get_field_size(); j++) {
-    //     if(solid_id==operand[0]->evaluate(j,level)[0]) {
-    //         pmTensor position{2,1,0};
-    //         position[0] = -0.5+elem[k]->x; // hydrostatic
-    //         position[1] = -1.025+elem[k]->w; // hydrostatic
-    //         ps->set_value(position,j);
-    //         pmTensor velocity{2,1,0};
-    //         velocity[1] = elem[k]->wdot; // hydrostatic
-    //         std::dynamic_pointer_cast<pmField>(operand[3])->set_value(velocity,j);
-    //         k++;
-    //     }
-    // }
+    for(int j=0; j<ps->get_field_size(); j++) {
+        if(solid_id==(int)operand[0]->evaluate(j,level)[0]) {
+            pmTensor velocity{2,1,0};
+            velocity[0] = vx[k];
+            velocity[1] = vy[k];
+            pmTensor position{2,1,0};
+            position[0] = px[k];
+            position[1] = py[k];
+            std::dynamic_pointer_cast<pmField>(operand[3])->set_value(position,j);
+            std::dynamic_pointer_cast<pmField>(operand[4])->set_value(velocity,j);
+            k++;
+        }
+    }
     return pmTensor{1,1,1};
 }
  

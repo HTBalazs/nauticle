@@ -26,7 +26,7 @@
 #include <array>
 #include "pmInteraction.h"
 #include "pmTensor.h"
-// #include "fenics_include/Elastodynamics.h"
+#include "solid.h"
 
 namespace Nauticle {
 
