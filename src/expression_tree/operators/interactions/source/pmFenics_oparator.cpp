@@ -101,13 +101,13 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
     if(!assigned) { ProLog::pLogger::error_msgf("FEM model is not assigned to any particle system.\n"); }
     std::shared_ptr<pmParticle_system> ps = psys.lock();
     // create vector of forces
-    int solid_id = operand[1]->evaluate(i,level)[0];
+    int solid_id = operand[2]->evaluate(i,level)[0];
     std::vector<int> id;
     std::vector<double> qx;
     std::vector<double> qy;
     for(int j=0; j<ps->get_field_size(); j++) {
-        if(solid_id==(int)operand[0]->evaluate(j,level)[0]) {
-            pmTensor q = operand[2]->evaluate(j,level);
+        if(solid_id==(int)operand[1]->evaluate(j,level)[0]) {
+            pmTensor q = operand[3]->evaluate(j,level);
             qx.push_back(q[0]);
             qy.push_back(q[1]);
             id.push_back((int)operand[0]->evaluate(j,level)[0]);
@@ -121,7 +121,7 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
     pmSort::reorder(qy,nauticle2fenics);
     
     // calc
-    double dt = operand[8]->evaluate(0,level)[0];
+    double dt = operand[6]->evaluate(0,level)[0];
     std::vector<double> px;
     std::vector<double> py;
     std::vector<double> vx;
@@ -137,15 +137,15 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
     
     int k=0;
     for(int j=0; j<ps->get_field_size(); j++) {
-        if(solid_id==(int)operand[0]->evaluate(j,level)[0]) {
+        if(solid_id==(int)operand[1]->evaluate(j,level)[0]) {
             pmTensor velocity{2,1,0};
             velocity[0] = vx[k];
             velocity[1] = vy[k];
             pmTensor position{2,1,0};
             position[0] = px[k];
             position[1] = py[k];
-            std::dynamic_pointer_cast<pmField>(operand[3])->set_value(position,j);
-            std::dynamic_pointer_cast<pmField>(operand[4])->set_value(velocity,j);
+            std::dynamic_pointer_cast<pmField>(operand[4])->set_value(position,j);
+            std::dynamic_pointer_cast<pmField>(operand[5])->set_value(velocity,j);
             k++;
         }
     }

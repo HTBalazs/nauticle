@@ -42,6 +42,9 @@
     // Last changed: 2011-06-28
 */
 
+#ifndef _SOLID_H_
+#define _SOLID_H_
+
 #include <dolfin.h>
 #include "ElastoDynamics.h"
 #include <iostream>
@@ -63,37 +66,24 @@ public:
     values[0] = px[cell.index];
     values[1] = py[cell.index];
   }
-
 };
 
-// Right boundary
-class RightBoundary : public SubDomain
+class PressureBoundary : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const
-  {
-    if (1.0 - x[0] < DOLFIN_EPS && on_boundary)
+  {        
+    if (!(-0.5+DOLFIN_EPS > x[1]) && on_boundary)
       return true;
     else
       return false;
   }
 };
 
-class LeftBoundary : public SubDomain
+class BottomBoundary : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const
   {
-    if (x[0] < DOLFIN_EPS)
-      return true;
-    else
-      return false;
-  }
-};
-
-class TopBoundary : public SubDomain
-{
-  bool inside(const Array<double>& x, bool on_boundary) const
-  {
-    if (0.05 - x[1] < DOLFIN_EPS && on_boundary)
+    if (-0.5+DOLFIN_EPS > x[1] && on_boundary)
       return true;
     else
       return false;
@@ -101,7 +91,7 @@ class TopBoundary : public SubDomain
 };
 
 // Acceleration update
-void update_a(Function& a, const Function& u, const Function& a0,
+inline void update_a(Function& a, const Function& u, const Function& a0,
               const Function& v0,  const Function& u0,
               double beta, double dt)
 {
@@ -116,7 +106,7 @@ void update_a(Function& a, const Function& u, const Function& a0,
 }
 
 // Velocity update
-void update_v(Function& v, const Function& a, const Function& a0,
+inline void update_v(Function& v, const Function& a, const Function& a0,
               const Function& v0, double gamma, double dt)
 {
   // v = dt * ((1-gamma)*a0 + gamma*a) + v0
@@ -168,6 +158,7 @@ class Problem {
 
 public:
   Problem() {
+    set_log_active(false);
     double _rho = 1.0;  // mass density
     double _eta = 0.25; // damping coefficient
     double E = 1.0;     // Youngs modulus
@@ -208,21 +199,23 @@ public:
     a0->vector()->zero();
   }
 
-  void calculation(std::vector<double> const fx, std::vector<double> const fy, double const& _dt, std::vector<double> px, std::vector<double> py, std::vector<double> vx, std::vector<double> vy) {
+  void calculation(std::vector<double> const fx, std::vector<double> const fy, double const& _dt, std::vector<double>& px, std::vector<double>& py, std::vector<double>& vx, std::vector<double>& vy) {
     p = std::make_shared<Pressure>(fx,fy);
     p0 = std::make_shared<Pressure>(fx,fy);
     dt = std::make_shared<const Constant>(_dt);    // time step
 
     // Neumann Boundary conditions
-    TopBoundary top_boundary;
-    auto top_boundary_function = std::make_shared<MeshFunction<std::size_t>>(mesh, 1);
-    top_boundary.mark(*top_boundary_function, 3);
+    PressureBoundary pressure_boundary;
+    auto pressure_boundary_function = std::make_shared<MeshFunction<std::size_t>>(mesh, 1);
+    pressure_boundary.mark(*pressure_boundary_function, 3);
+
     // Dirichlet boundary conditions
-    auto left_boundary = std::make_shared<LeftBoundary>();
-    auto right_boundary = std::make_shared<RightBoundary>();
+    auto bottom_boundary_dirichlet = std::make_shared<BottomBoundary>();
+    // auto left_boundary = std::make_shared<LeftBoundary>();
+    // auto right_boundary = std::make_shared<RightBoundary>();
     auto zero = std::make_shared<Constant>(0.0, 0.0);
-    DirichletBC bc(V, zero, left_boundary);
-    DirichletBC bc2(V, zero, right_boundary);
+    DirichletBC bc(V, zero, bottom_boundary_dirichlet);
+    // DirichletBC bc2(V, zero, right_boundary);
 
     // Create forms
     ElastoDynamics::BilinearForm a_form(V, V);
@@ -250,14 +243,17 @@ public:
     L.p0 = p0;
 
     // Attach subdomains
-    a_form.ds = top_boundary_function;
-    L.ds = top_boundary_function;
+    a_form.ds = pressure_boundary_function;
+    L.ds = pressure_boundary_function;
 
-    solve(a_form == L, *u, {&bc, &bc2});
+    solve(a_form == L, *u, {&bc});
     update_a(*a, *u, *a0, *v0, *u0, *beta, *dt);
     update_v(*v, *a, *a0, *v0, *gamma, *dt);
     *u0 = *u; *v0 = *v; *a0 = *a;
-    *file_u << *u;
+    
+    static int count=0;
+    if(count%200==0) *file_u << *u;
+    count++;
 
     std::vector<std::shared_ptr<Elem>> elem = transform(u,v,a);
     px.reserve(elem.size());
@@ -296,8 +292,8 @@ public:
       // create an Elem
       std::shared_ptr<Elem> cll = std::make_shared<Elem>();
       cll->index = e->index();
-      cll->x = po.x();
-      cll->y = po.y();
+      cll->x0 = po.x();
+      cll->y0 = po.y();
       cll->ux = uvals[0];
       cll->uy = uvals[1];      
       cll->vx = vvals[0];
@@ -311,3 +307,5 @@ public:
     return cells;
   }
 };
+
+#endif // _SOLID_H_
