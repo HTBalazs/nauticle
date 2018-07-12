@@ -26,7 +26,7 @@
 #include <array>
 #include "pmInteraction.h"
 #include "pmTensor.h"
-#include "solid.h"
+#include "0_hydrostatic_solid.h"
 
 namespace Nauticle {
 
