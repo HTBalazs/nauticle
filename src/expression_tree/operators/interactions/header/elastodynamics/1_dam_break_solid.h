@@ -1,45 +1,45 @@
 /*
-    Copyright 2016-2018 Balazs Toth
-    This file is part of Nauticle.
+  Copyright 2016-2018 Balazs Toth
+  This file is part of Nauticle.
 
-    Nauticle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  Nauticle is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    Nauticle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+  Nauticle is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Lesser General Public License
+  along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/nauticleproject/
+  For more information please visit: https://bitbucket.org/nauticleproject/
 
-    The content of this file is based on the former work (FEniCS elastodynamics demo):
+  The content of this file is based on the former work (FEniCS elastodynamics demo):
 
-    // Copyright (C) 2009 Mirko Maraldi and Garth N. Wells
-    //
-    // This file is part of DOLFIN.
-    //
-    // DOLFIN is free software: you can redistribute it and/or modify
-    // it under the terms of the GNU Lesser General Public License as published by
-    // the Free Software Foundation, either version 3 of the License, or
-    // (at your option) any later version.
-    //
-    // DOLFIN is distributed in the hope that it will be useful,
-    // but WITHOUT ANY WARRANTY; without even the implied warranty of
-    // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    // GNU Lesser General Public License for more details.
-    //
-    // You should have received a copy of the GNU Lesser General Public License
-    // along with DOLFIN. If not, see <http://www.gnu.org/licenses/>.
-    //
-    // Modified by Anders Logg, 2011
-    //
-    // First added:  2009-01-22
-    // Last changed: 2011-06-28
+  // Copyright (C) 2009 Mirko Maraldi and Garth N. Wells
+  //
+  // This file is part of DOLFIN.
+  //
+  // DOLFIN is free software: you can redistribute it and/or modify
+  // it under the terms of the GNU Lesser General Public License as published by
+  // the Free Software Foundation, either version 3 of the License, or
+  // (at your option) any later version.
+  //
+  // DOLFIN is distributed in the hope that it will be useful,
+  // but WITHOUT ANY WARRANTY; without even the implied warranty of
+  // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  // GNU Lesser General Public License for more details.
+  //
+  // You should have received a copy of the GNU Lesser General Public License
+  // along with DOLFIN. If not, see <http://www.gnu.org/licenses/>.
+  //
+  // Modified by Anders Logg, 2011
+  //
+  // First added:  2009-01-22
+  // Last changed: 2011-06-28
 */
 
 #ifndef _SOLID_H_
@@ -50,23 +50,6 @@
 #include <iostream>
 
 using namespace dolfin;
-
-// External load
-class Pressure : public Expression
-{
-  std::vector<double> px;
-  std::vector<double> py;
-public:
-  Pressure() : Expression(2) {}
-  Pressure(std::vector<double> const& _px, std::vector<double> const& _py) : Expression(2) {
-    px = _px;
-    py = _py;
-  }
-  void eval(Array<double>& values, const Array<double>& x, const ufc::cell& cell) const {
-    values[0] = px[cell.index];
-    values[1] = py[cell.index];
-  }
-};
 
 class PressureBoundary : public SubDomain
 {
@@ -79,11 +62,11 @@ class PressureBoundary : public SubDomain
   }
 };
 
-class BottomBoundary : public SubDomain
+class ClampedBoundary : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const
   {
-    if (-0.5+DOLFIN_EPS > x[1] && on_boundary)
+    if ((-0.5+DOLFIN_EPS > x[1]) && on_boundary)
       return true;
     else
       return false;
@@ -153,21 +136,19 @@ class Problem {
   std::shared_ptr<Function> a;
   std::shared_ptr<Function> a0;
   std::shared_ptr<File> file_u;
-  std::shared_ptr<Pressure> p;
-  std::shared_ptr<Pressure> p0;
 
 public:
   Problem() {
     set_log_active(false);
-    double _rho = 1.0;  // mass density
+    parameters["reorder_dofs_serial"]=false;
+    double _rho = 2700.0;  // mass density
     double _eta = 0.25; // damping coefficient
-    double E = 1.0;     // Youngs modulus
-    double nu = 0.4;     // Poisson ratio
+    double E = 5e5;     // Youngs modulus
+    double nu = 0.34;     // Poisson ratio
     double _alpha_m = 0.2;
     double _alpha_f = 0.4;
     double _beta = 0.36;
     double _gamma = 0.7;
-    double _dt = 1.0/32.0;
 
     rho = std::make_shared<const Constant>(_rho);
     eta = std::make_shared<const Constant>(_eta); // damping coefficient
@@ -199,9 +180,11 @@ public:
     a0->vector()->zero();
   }
 
-  void calculation(std::vector<double> const fx, std::vector<double> const fy, double const& _dt, std::vector<double>& px, std::vector<double>& py, std::vector<double>& vx, std::vector<double>& vy) {
-    p = std::make_shared<Pressure>(fx,fy);
-    p0 = std::make_shared<Pressure>(fx,fy);
+  void calculation(std::vector<double> const force, double const& _dt, std::vector<double>& px, std::vector<double>& py, std::vector<double>& vx, std::vector<double>& vy) {
+    auto p = std::make_shared<Function>(V);
+    auto p0 = std::make_shared<Function>(V);
+    (p->vector())->set_local(force);
+    (p0->vector())->set_local(force);
     dt = std::make_shared<const Constant>(_dt);    // time step
 
     // Neumann Boundary conditions
@@ -210,7 +193,7 @@ public:
     pressure_boundary.mark(*pressure_boundary_function, 3);
 
     // Dirichlet boundary conditions
-    auto bottom_boundary_dirichlet = std::make_shared<BottomBoundary>();
+    auto bottom_boundary_dirichlet = std::make_shared<ClampedBoundary>();
     // auto left_boundary = std::make_shared<LeftBoundary>();
     // auto right_boundary = std::make_shared<RightBoundary>();
     auto zero = std::make_shared<Constant>(0.0, 0.0);
@@ -241,11 +224,11 @@ public:
     L.f = f;
     L.p = p;
     L.p0 = p0;
-
+    
     // Attach subdomains
     a_form.ds = pressure_boundary_function;
     L.ds = pressure_boundary_function;
-
+ 
     solve(a_form == L, *u, {&bc});
     update_a(*a, *u, *a0, *v0, *u0, *beta, *dt);
     update_v(*v, *a, *a0, *v0, *gamma, *dt);

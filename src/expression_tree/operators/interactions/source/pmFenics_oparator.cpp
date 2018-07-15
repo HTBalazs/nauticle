@@ -120,13 +120,20 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
     pmSort::reorder(qx,nauticle2fenics);
     pmSort::reorder(qy,nauticle2fenics);
     
+    std::vector<double> q;
+    for(int i=0; i<qx.size(); i++) {
+        q.push_back(qx[i]);
+    }
+    for(int i=0; i<qy.size(); i++) {
+        q.push_back(qy[i]);
+    }
     // calc
     double dt = operand[6]->evaluate(0,level)[0];
     std::vector<double> px;
     std::vector<double> py;
     std::vector<double> vx;
     std::vector<double> vy;
-    problem->calculation(qx, qy, dt, px, py, vx, vy);
+    problem->calculation(q, dt, px, py, vx, vy);
     
     std::vector<int> fenics2nauticle;
     fenics2nauticle.resize(id.size());
@@ -149,6 +156,7 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
             k++;
         }
     }
+
     return pmTensor{1,1,1};
 }
  
