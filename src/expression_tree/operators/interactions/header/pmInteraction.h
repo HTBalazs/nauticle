@@ -26,6 +26,7 @@
 #include <functional>
 #include "pmOperator.h"
 #include "pmParticle_system.h"
+#include "pmCounter.h"
 
 namespace Nauticle {
 	/** This interface forms the base for the interaction models. Since interactions
@@ -33,7 +34,8 @@ namespace Nauticle {
 	//  to the interaction model. The assignment is stored inside this interface.
 	*/
 	template <size_t S>
-	class pmInteraction : public pmOperator<S> {
+	class pmInteraction : public pmOperator<S>, public pmCounter<uint> {
+		std::string identifier = "IDENTIFIER_";
 		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, pmTensor const&, pmTensor const& guide)>;
 		using Func_pos = std::function<pmTensor(pmTensor const&, int const&, pmTensor const&)>;
 	protected:
@@ -41,6 +43,7 @@ namespace Nauticle {
 		std::weak_ptr<pmParticle_system> psys;
 		bool assigned=false;
 	protected:
+		pmInteraction();
 		virtual ~pmInteraction() {}
 		void assign(std::weak_ptr<pmParticle_system> ps) override;
 		bool is_assigned() const override;
@@ -50,7 +53,18 @@ namespace Nauticle {
 		pmTensor interact(pmTensor const& pos_i, Func_pos contribute) const;
 	public:
 		virtual void write_to_string(std::ostream& os) const override;
+		std::string get_identifier() const;
 	};
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Constructor
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <size_t S>
+	pmInteraction<S>::pmInteraction() {
+	    char ch[5];
+	    sprintf(&ch[0], "%04i", counter);
+	    identifier += ch;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Assigns SPH object to the given particle system.
@@ -190,6 +204,14 @@ namespace Nauticle {
 			}
 		}
 		os << ")";
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the unique interaction identifier.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <size_t S>
+	std::string pmInteraction<S>::get_identifier() const {
+		return identifier;
 	}
 }
 

@@ -17,7 +17,19 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
+
+#define Q(x) #x
+#define QUOTE(x) Q(x)
+#define ADD_INTERACTION(NUMBER_OF_OPERANDS, INTERACTION_DECL, INTERACTION_NAME)  														\
+if(it==INTERACTION_NAME) { 																												\
+	std::array<std::shared_ptr<pmExpression>,NUMBER_OF_OPERANDS> operands; 																\
+	stack_extract(e, operands); 																										\
+	std::shared_ptr<INTERACTION_DECL> interaction = std::make_shared<INTERACTION_DECL>(operands); 										\
+	std::string op_list = "std::shared_ptr<" + std::string{QUOTE(INTERACTION_DECL)} + "> " + interaction->get_identifier() + ";\n"; 	\
+	std::cout << op_list;																									\
+	e.push(interaction); 																												\
+}
+
 #include <algorithm>
 #include "pmExpression_parser.h"
 #include "commonutils/Common.h"
@@ -287,91 +299,40 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmDem_operator<ANGULAR,7>>(operands));
 			}
-			if(it=="sph_X") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<XSAMPLE,0,0,5>>(operands));
-			}
-			if(it=="sph_S") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<SAMPLE,0,0,5>>(operands));
-			}
-			if(it=="sph_I") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<INERTIA,0,0,5>>(operands));
-			}
-			if(it=="sph_G00") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,0,0,5>>(operands));
-			}
-			if(it=="sph_G01") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,0,1,5>>(operands));
-			}
-			if(it=="sph_G10") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,1,0,5>>(operands));
-			}
-			if(it=="sph_G11") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,1,1,5>>(operands));
-			}
-			if(it=="sph_G") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<GRADIENT,2,0,5>>(operands));
-			}
-			if(it=="sph_D00") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,0,0,5>>(operands));
-			}
-			if(it=="sph_D01") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,0,1,5>>(operands));
-			}
-			if(it=="sph_D10") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,1,0,5>>(operands));
-			}
-			if(it=="sph_D11") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,1,1,5>>(operands));
-			}
-			if(it=="sph_D") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<DIVERGENCE,2,0,5>>(operands));
-			}
-			if(it=="sph_L0") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<LAPLACE,0,0,5>>(operands));
-			}
-			if(it=="sph_L1") {
-				std::array<std::shared_ptr<pmExpression>,6> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<LAPLACE,1,0,6>>(operands));
-			}
-			if(it=="sph_T") {
-				std::array<std::shared_ptr<pmExpression>,6> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<TENSILE,1,1,6>>(operands));
-			}
-			if(it=="sph_A") {
-				std::array<std::shared_ptr<pmExpression>,5> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSph_operator<AVISC,1,1,5>>(operands));
-			}
+			using sph_X = pmSph_operator<XSAMPLE,0,0,5>;
+			ADD_INTERACTION(5, sph_X, "sph_X")
+			using sph_S = pmSph_operator<SAMPLE,0,0,5>;
+			ADD_INTERACTION(5, sph_S, "sph_S")
+			using sph_I = pmSph_operator<INERTIA,0,0,5>;
+			ADD_INTERACTION(5, sph_I, "sph_I")
+			using sph_G00 = pmSph_operator<GRADIENT,0,0,5>;
+			ADD_INTERACTION(5, sph_G00, "sph_G00")
+			using sph_G01 = pmSph_operator<GRADIENT,0,1,5>;
+			ADD_INTERACTION(5, sph_G01, "sph_G01")
+			using sph_G10 = pmSph_operator<GRADIENT,1,0,5>;
+			ADD_INTERACTION(5, sph_G10, "sph_G10")
+			using sph_G11 = pmSph_operator<GRADIENT,1,1,5>;
+			ADD_INTERACTION(5, sph_G11, "sph_G11")
+			using sph_G = pmSph_operator<GRADIENT,2,0,5>;
+			ADD_INTERACTION(5, sph_G, "sph_G")
+			using sph_D00 = pmSph_operator<DIVERGENCE,0,0,5>;
+			ADD_INTERACTION(5, sph_D00, "sph_D00")
+			using sph_D01 = pmSph_operator<DIVERGENCE,0,1,5>;
+			ADD_INTERACTION(5, sph_D01, "sph_D01")
+			using sph_D10 = pmSph_operator<DIVERGENCE,1,0,5>;
+			ADD_INTERACTION(5, sph_D10, "sph_D10")
+			using sph_D11 = pmSph_operator<DIVERGENCE,1,1,5>;
+			ADD_INTERACTION(5, sph_D11, "sph_D11")
+			using sph_D = pmSph_operator<DIVERGENCE,2,0,5>;
+			ADD_INTERACTION(5, sph_D, "sph_D")
+			using sph_L0 = pmSph_operator<LAPLACE,0,0,5>;
+			ADD_INTERACTION(5, sph_L0, "sph_L0")
+			using sph_L1 = pmSph_operator<LAPLACE,1,0,6>;
+			ADD_INTERACTION(6, sph_L1, "sph_L1")
+			using sph_T = pmSph_operator<TENSILE,1,1,6>;
+			ADD_INTERACTION(6, sph_T, "sph_T")
+			using sph_A = pmSph_operator<AVISC,1,1,5>;
+			ADD_INTERACTION(5, sph_A, "sph_A")
 			if(it=="dvm") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
