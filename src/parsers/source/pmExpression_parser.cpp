@@ -21,11 +21,11 @@
 #define Q(x) #x
 #define QUOTE(x) Q(x)
 #define ADD_INTERACTION(NUMBER_OF_OPERANDS, INTERACTION_DECL, INTERACTION_NAME)  														\
-if(it==INTERACTION_NAME) { 																												\
+if(it==std::string{#INTERACTION_DECL}) { 																												\
 	std::array<std::shared_ptr<pmExpression>,NUMBER_OF_OPERANDS> operands; 																\
 	stack_extract(e, operands); 																										\
 	std::shared_ptr<INTERACTION_DECL> interaction = std::make_shared<INTERACTION_DECL>(operands); 										\
-	std::string op_list = "std::shared_ptr<" + std::string{QUOTE(INTERACTION_DECL)} + "> " + interaction->get_identifier() + ";\n"; 	\
+	std::string op_list = "std::shared_ptr<" + std::string{INTERACTION_NAME} + "> " + interaction->get_identifier() + ";\n"; 	\
 	std::cout << op_list;																									\
 	e.push(interaction); 																												\
 }
@@ -284,70 +284,52 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<CROSS,2>>(operands));
 			}
-			if(it=="nbody") {
-				std::array<std::shared_ptr<pmExpression>,2> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmNbody_operator>(operands));
-			}
-			if(it=="dem_l") {
-				std::array<std::shared_ptr<pmExpression>,7> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmDem_operator<LINEAR,7>>(operands));
-			}
-			if(it=="dem_a") {
-				std::array<std::shared_ptr<pmExpression>,7> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmDem_operator<ANGULAR,7>>(operands));
-			}
+			using nbody = pmNbody_operator;
+			ADD_INTERACTION(2, nbody, "pmNbody_operator")
+			using dem_l = pmDem_operator<LINEAR,7>;
+			ADD_INTERACTION(7, dem_l, "pmDem_operator<LINEAR,7>")
+			using dem_a = pmDem_operator<ANGULAR,7>;
+			ADD_INTERACTION(7, dem_a, "pmDem_operator<ANGULAR,7>")
 			using sph_X = pmSph_operator<XSAMPLE,0,0,5>;
-			ADD_INTERACTION(5, sph_X, "sph_X")
+			ADD_INTERACTION(5, sph_X, "pmSph_operator<XSAMPLE,0,0,5>")
 			using sph_S = pmSph_operator<SAMPLE,0,0,5>;
-			ADD_INTERACTION(5, sph_S, "sph_S")
+			ADD_INTERACTION(5, sph_S, "pmSph_operator<SAMPLE,0,0,5>")
 			using sph_I = pmSph_operator<INERTIA,0,0,5>;
-			ADD_INTERACTION(5, sph_I, "sph_I")
+			ADD_INTERACTION(5, sph_I, "pmSph_operator<INERTIA,0,0,5>")
 			using sph_G00 = pmSph_operator<GRADIENT,0,0,5>;
-			ADD_INTERACTION(5, sph_G00, "sph_G00")
+			ADD_INTERACTION(5, sph_G00, "pmSph_operator<GRADIENT,0,0,5>")
 			using sph_G01 = pmSph_operator<GRADIENT,0,1,5>;
-			ADD_INTERACTION(5, sph_G01, "sph_G01")
+			ADD_INTERACTION(5, sph_G01, "pmSph_operator<GRADIENT,0,1,5>")
 			using sph_G10 = pmSph_operator<GRADIENT,1,0,5>;
-			ADD_INTERACTION(5, sph_G10, "sph_G10")
+			ADD_INTERACTION(5, sph_G10, "pmSph_operator<GRADIENT,1,0,5>")
 			using sph_G11 = pmSph_operator<GRADIENT,1,1,5>;
-			ADD_INTERACTION(5, sph_G11, "sph_G11")
+			ADD_INTERACTION(5, sph_G11, "pmSph_operator<GRADIENT,1,1,5>")
 			using sph_G = pmSph_operator<GRADIENT,2,0,5>;
-			ADD_INTERACTION(5, sph_G, "sph_G")
+			ADD_INTERACTION(5, sph_G, "pmSph_operator<GRADIENT,2,0,5>")
 			using sph_D00 = pmSph_operator<DIVERGENCE,0,0,5>;
-			ADD_INTERACTION(5, sph_D00, "sph_D00")
+			ADD_INTERACTION(5, sph_D00, "pmSph_operator<DIVERGENCE,0,0,5>")
 			using sph_D01 = pmSph_operator<DIVERGENCE,0,1,5>;
-			ADD_INTERACTION(5, sph_D01, "sph_D01")
+			ADD_INTERACTION(5, sph_D01, "pmSph_operator<DIVERGENCE,0,1,5>")
 			using sph_D10 = pmSph_operator<DIVERGENCE,1,0,5>;
-			ADD_INTERACTION(5, sph_D10, "sph_D10")
+			ADD_INTERACTION(5, sph_D10, "pmSph_operator<DIVERGENCE,1,0,5>")
 			using sph_D11 = pmSph_operator<DIVERGENCE,1,1,5>;
-			ADD_INTERACTION(5, sph_D11, "sph_D11")
+			ADD_INTERACTION(5, sph_D11, "pmSph_operator<DIVERGENCE,1,1,5>")
 			using sph_D = pmSph_operator<DIVERGENCE,2,0,5>;
-			ADD_INTERACTION(5, sph_D, "sph_D")
+			ADD_INTERACTION(5, sph_D, "pmSph_operator<DIVERGENCE,2,0,5>")
 			using sph_L0 = pmSph_operator<LAPLACE,0,0,5>;
-			ADD_INTERACTION(5, sph_L0, "sph_L0")
+			ADD_INTERACTION(5, sph_L0, "pmSph_operator<LAPLACE,0,0,5>")
 			using sph_L1 = pmSph_operator<LAPLACE,1,0,6>;
-			ADD_INTERACTION(6, sph_L1, "sph_L1")
+			ADD_INTERACTION(6, sph_L1, "pmSph_operator<LAPLACE,1,0,6>")
 			using sph_T = pmSph_operator<TENSILE,1,1,6>;
-			ADD_INTERACTION(6, sph_T, "sph_T")
+			ADD_INTERACTION(6, sph_T, "pmSph_operator<TENSILE,1,1,6>")
 			using sph_A = pmSph_operator<AVISC,1,1,5>;
-			ADD_INTERACTION(5, sph_A, "sph_A")
-			if(it=="dvm") {
-				std::array<std::shared_ptr<pmExpression>,2> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmDvm_operator>(operands));
-			}
-			if(it=="sfm") {
-				std::array<std::shared_ptr<pmExpression>,10> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmSfm_operator>(operands));
-			}
-			if(it=="md") {
-				std::array<std::shared_ptr<pmExpression>,3> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmMd_operator>(operands));
-			}
+			ADD_INTERACTION(5, sph_A, "pmSph_operator<AVISC,1,1,5>")
+			using dvm = pmDvm_operator;
+			ADD_INTERACTION(2, dvm, "pmDvm_operator")
+			using sfm = pmSfm_operator;
+			ADD_INTERACTION(10, sfm, "pmSfm_operator")
+			using md = pmMd_operator;
+			ADD_INTERACTION(3, md, "pmMd_operator")
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
