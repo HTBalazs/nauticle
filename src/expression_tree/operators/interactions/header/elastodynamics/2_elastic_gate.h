@@ -59,7 +59,7 @@ class PressureBoundary : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const
   {        
-    if (!(-0.5+DOLFIN_EPS > x[1]) && on_boundary)
+    if (!(0.079-DOLFIN_EPS < x[1]) && on_boundary)
       return true;
     else
       return false;
@@ -70,7 +70,7 @@ class ClampedBoundary : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const
   {
-    if ((-0.5+DOLFIN_EPS > x[1]) && on_boundary)
+    if ((0.079-DOLFIN_EPS < x[1]) && on_boundary)
       return true;
     else
       return false;
