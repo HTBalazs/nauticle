@@ -20,14 +20,13 @@
 
 #define Q(x) #x
 #define QUOTE(x) Q(x)
-#define ADD_INTERACTION(NUMBER_OF_OPERANDS, INTERACTION_DECL, INTERACTION_NAME)  														\
-if(it==std::string{#INTERACTION_DECL}) { 																												\
-	std::array<std::shared_ptr<pmExpression>,NUMBER_OF_OPERANDS> operands; 																\
-	stack_extract(e, operands); 																										\
-	std::shared_ptr<INTERACTION_DECL> interaction = std::make_shared<INTERACTION_DECL>(operands); 										\
+#define ADD_INTERACTION(NUMBER_OF_OPERANDS, INTERACTION_DECL, INTERACTION_NAME)  												\
+if(it==std::string{#INTERACTION_DECL}) { 																						\
+	std::array<std::shared_ptr<pmExpression>,NUMBER_OF_OPERANDS> operands; 														\
+	stack_extract(e, operands); 																								\
+	std::shared_ptr<INTERACTION_DECL> interaction = std::make_shared<INTERACTION_DECL>(operands); 								\
 	std::string op_list = "std::shared_ptr<" + std::string{INTERACTION_NAME} + "> " + interaction->get_identifier() + ";\n"; 	\
-	std::cout << op_list;																									\
-	e.push(interaction); 																												\
+	e.push(interaction); 																										\
 }
 
 #include <algorithm>
