@@ -199,7 +199,7 @@ public:
     a0->vector()->zero();
   }
 
-  void calculation(std::vector<double> const force, double const& _dt, std::vector<double>& px, std::vector<double>& py, std::vector<double>& vx, std::vector<double>& vy) {
+  void calculation(std::vector<double> const& force, double const& _dt, std::vector<double>& px, std::vector<double>& py, std::vector<double>& vx, std::vector<double>& vy) {
     auto p = std::make_shared<Function>(V);
     auto p0 = std::make_shared<Function>(V);
     (p->vector())->set_local(force);
