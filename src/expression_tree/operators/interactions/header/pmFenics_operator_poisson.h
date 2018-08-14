@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _FENICS_OPERATOR_H_
-#define _FENICS_OPERATOR_H_
+#ifndef _FENICS_OPERATOR_POISSON_H_
+#define _FENICS_OPERATOR_POISSON_H_
 
 #include <iostream>
 #include <memory>
@@ -27,39 +27,36 @@
 #include "pmInteraction.h"
 #include "pmTensor.h"
 
-#include "0_hydrostatic_solid.h"
-// #include "1_dam_break_solid.h"
-// #include "2_elastic_gate.h"
-
+#include "0_poisson.h"
 
 namespace Nauticle {
 
-	class pmFenics_operator : public pmInteraction<7> {
+	class pmFenics_operator_poisson : public pmInteraction<6> {
 	private:
-		std::shared_ptr<Problem> problem;
+		std::shared_ptr<Problem_poisson> problem;
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
-		pmFenics_operator() {}
-		pmFenics_operator(std::array<std::shared_ptr<pmExpression>,7> op);
-		pmFenics_operator(pmFenics_operator const& other);
-		pmFenics_operator(pmFenics_operator&& other);
-		pmFenics_operator& operator=(pmFenics_operator const& other);
-		pmFenics_operator& operator=(pmFenics_operator&& other);
-		virtual ~pmFenics_operator() {}
+		pmFenics_operator_poisson() {}
+		pmFenics_operator_poisson(std::array<std::shared_ptr<pmExpression>,6> op);
+		pmFenics_operator_poisson(pmFenics_operator_poisson const& other);
+		pmFenics_operator_poisson(pmFenics_operator_poisson&& other);
+		pmFenics_operator_poisson& operator=(pmFenics_operator_poisson const& other);
+		pmFenics_operator_poisson& operator=(pmFenics_operator_poisson&& other);
+		virtual ~pmFenics_operator_poisson() {}
 		void print() const override;
 		pmTensor process(pmTensor const& A_i, pmTensor const& A_j, float const& rho_i, float const& rho_j, float const& m_i, float const& m_j, pmTensor const& r_ji, float const& d_ji, float const& W_ij) const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		std::shared_ptr<pmFenics_operator> clone() const;
+		std::shared_ptr<pmFenics_operator_poisson> clone() const;
 		int get_field_size() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementaton of << operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline std::ostream& operator<<(std::ostream& os, pmFenics_operator const* obj) {
+	inline std::ostream& operator<<(std::ostream& os, pmFenics_operator_poisson const* obj) {
 		obj->write_to_string(os);
 		return os;
 	}
 }
 
-#endif // _FENICS_OPERATOR_H_
+#endif // _FENICS_OPERATOR_POISSON_H_

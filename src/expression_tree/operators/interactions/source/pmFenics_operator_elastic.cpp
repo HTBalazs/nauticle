@@ -18,7 +18,7 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
  
-#include "pmFenics_operator.h"
+#include "pmFenics_operator_elastic.h"
 #include "Color_define.h"
 #include <algorithm>
 
@@ -27,14 +27,14 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFenics_operator::pmFenics_operator(std::array<std::shared_ptr<pmExpression>,7> op) {
+pmFenics_operator_elastic::pmFenics_operator_elastic(std::array<std::shared_ptr<pmExpression>,7> op) {
     problem = std::make_shared<Problem>();
     operand = std::move(op);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFenics_operator::pmFenics_operator(pmFenics_operator const& other) {
+pmFenics_operator_elastic::pmFenics_operator_elastic(pmFenics_operator_elastic const& other) {
     this->assigned = false;
     this->problem = other.problem;
     for(int i=0; i<this->operand.size(); i++) {
@@ -44,7 +44,7 @@ pmFenics_operator::pmFenics_operator(pmFenics_operator const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFenics_operator::pmFenics_operator(pmFenics_operator&& other) {
+pmFenics_operator_elastic::pmFenics_operator_elastic(pmFenics_operator_elastic&& other) {
     this->psys = std::move(other.psys);
     this->problem = std::move(other.problem);
     this->assigned = std::move(other.assigned);
@@ -53,7 +53,7 @@ pmFenics_operator::pmFenics_operator(pmFenics_operator&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFenics_operator& pmFenics_operator::operator=(pmFenics_operator const& other) {
+pmFenics_operator_elastic& pmFenics_operator_elastic::operator=(pmFenics_operator_elastic const& other) {
     if(this!=&other) {
         this->assigned = false;
         this->problem = other.problem;
@@ -66,7 +66,7 @@ pmFenics_operator& pmFenics_operator::operator=(pmFenics_operator const& other) 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFenics_operator& pmFenics_operator::operator=(pmFenics_operator&& other) {
+pmFenics_operator_elastic& pmFenics_operator_elastic::operator=(pmFenics_operator_elastic&& other) {
     if(this!=&other) {
         this->psys = std::move(other.psys);
         this->problem = std::move(other.problem);
@@ -78,26 +78,26 @@ pmFenics_operator& pmFenics_operator::operator=(pmFenics_operator&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Clone implementation.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmFenics_operator::clone_impl() const {
-    return std::make_shared<pmFenics_operator>(*this);
+std::shared_ptr<pmExpression> pmFenics_operator_elastic::clone_impl() const {
+    return std::make_shared<pmFenics_operator_elastic>(*this);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmFenics_operator> pmFenics_operator::clone() const {
-    return std::static_pointer_cast<pmFenics_operator, pmExpression>(clone_impl());
+std::shared_ptr<pmFenics_operator_elastic> pmFenics_operator_elastic::clone() const {
+    return std::static_pointer_cast<pmFenics_operator_elastic, pmExpression>(clone_impl());
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints N-body content.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFenics_operator::print() const {
-    ProLog::pLogger::logf<NAUTICLE_COLOR>("fenics");
+void pmFenics_operator_elastic::print() const {
+    ProLog::pLogger::logf<NAUTICLE_COLOR>("fe_elastic");
     print_operands();
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
+pmTensor pmFenics_operator_elastic::evaluate(int const& i, size_t const& level/*=0*/) const {
     if(!assigned) { ProLog::pLogger::error_msgf("FEM model is not assigned to any particle system.\n"); }
     std::shared_ptr<pmParticle_system> ps = psys.lock();
     // create vector of forces
@@ -160,7 +160,7 @@ pmTensor pmFenics_operator::evaluate(int const& i, size_t const& level/*=0*/) co
     return pmTensor{1,1,1};
 }
  
-int pmFenics_operator::get_field_size() const {
+int pmFenics_operator_elastic::get_field_size() const {
     return 1;
 }
 

@@ -282,10 +282,15 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmDem_operator<LINEAR,7>>(operands));
 			}
-			if(it=="fenics") {
+			if(it=="fe_elastic") {
 				std::array<std::shared_ptr<pmExpression>,7> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmFenics_operator>(operands));
+				e.push(std::make_shared<pmFenics_operator_elastic>(operands));
+			}
+			if(it=="fe_poisson") {
+				std::array<std::shared_ptr<pmExpression>,6> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmFenics_operator_poisson>(operands));
 			}
 			if(it=="dem_a") {
 				std::array<std::shared_ptr<pmExpression>,7> operands;
