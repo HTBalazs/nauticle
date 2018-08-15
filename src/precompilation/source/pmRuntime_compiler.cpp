@@ -18,6 +18,10 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
+#ifndef INSTALL_DIR
+#define INSTALL_DIR std::string("/usr/local/include/nauticle/")
+#endif //INSTALL_DIR
+
 #include "pmRuntime_compiler.h"
 
 using namespace Nauticle;
@@ -27,7 +31,7 @@ void pmRuntime_compiler::add_case(std::shared_ptr<pmCase> c) {
     cas = c;
 }
 
-void pmRuntime_compiler::set_code_name(std::string const& n) {
+void pmRuntime_compiler::set_name(std::string const& n) {
     session_name = n;
 }
 
@@ -39,13 +43,14 @@ void pmRuntime_compiler::generate_code() const {
     header.add_include("vector", true);
     header.add_include("algorithm", true);
     header.add_include("memory", true);
+    header.add_include("iostream", true);
     header.add_namespace("Nauticle");
     c2CPP_class cl{"pmHardcoded_case"};
     cl.add_interface("pmInterface");
     cl.add_member_type("std::shared_ptr<pmCase>", "cas", false, "", "");
     c2CPP_declaration arg{"std::shared_ptr<pmCase>", "c", false, "", ""};
     cl.add_member_function("void", "set_case", false, "", std::vector<c2CPP_declaration>{arg}, PUBLIC, "\tcas = c;", false, true);
-    cl.add_member_function("void", "update", false, "", std::vector<c2CPP_declaration>{}, PUBLIC, "\t", false, true);
+    cl.add_member_function("void", "update", false, "", std::vector<c2CPP_declaration>{}, PUBLIC, "\tstd::cout << 2 << std::endl;", false, true);
     header.get_namespace("Nauticle").add_class(cl);
     c2CPP_source_file source{header};
     c2CPP_code_generator cgen;
@@ -54,12 +59,12 @@ void pmRuntime_compiler::generate_code() const {
     cgen.write_files();
 }
 
-void pmRuntime_compiler::update() {
+void pmRuntime_compiler::compile() const {
     this->generate_code();
     // Compile generated files
     c2Compiler compiler{session_name};
     compiler.set_compiler("clang++");
-    compiler.add_flag("-std=c++14 -O3 -I /usr/local/include/nauticle/");
+    compiler.add_flag("-std=c++14 -O3 -I " + INSTALL_DIR);
     compiler.compile();
 }
 
@@ -71,3 +76,15 @@ pmInterface* pmRuntime_compiler::create_object() {
 void pmRuntime_compiler::destroy_object(pmInterface* obj) {
     loader->destroy_object(obj);
 }
+
+void pmRuntime_compiler::clean_up() const {
+    std::string deletion = "rm " + session_name + ".h";
+    deletion += " " + session_name + ".cpp ";
+    deletion += " " + session_name + ".o ";
+    deletion += " lib" + session_name + ".so ";
+    system(deletion.c_str());
+}
+
+
+
+

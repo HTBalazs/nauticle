@@ -25,6 +25,22 @@
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Destructor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmSimulation::~pmSimulation() {
+	this->runtime_compiler->clean_up();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Constructor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmSimulation::pmSimulation() {
+	this->runtime_compiler = std::make_shared<pmRuntime_compiler>();
+	this->runtime_compiler->compile();
+	this->binary_case = std::shared_ptr<pmInterface>{runtime_compiler->create_object()};
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmSimulation::pmSimulation(pmSimulation const& other) {
@@ -107,7 +123,11 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
 		}
 		// Solve equations
-		cas->solve(num_threads);
+		// if(true) {
+			// runtime_compiler->update();
+		// } else {
+			cas->solve(num_threads);
+		// }
 		current_time += next_dt;
 		substeps++;
 		if(printing) {

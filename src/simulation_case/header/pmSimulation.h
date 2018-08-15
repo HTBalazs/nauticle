@@ -29,6 +29,7 @@
 #include "pmCase.h"
 #include "pmVTK_writer.h"
 #include "pmParameter_space.h"
+#include "pmRuntime_compiler.h"
 
 namespace Nauticle {
 	/** This class represents the problem to solve. The contructor recieves the file
@@ -45,17 +46,19 @@ namespace Nauticle {
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
 		write_mode vtk_write_mode = ASCII;
+		std::shared_ptr<pmRuntime_compiler> runtime_compiler;
+		std::shared_ptr<pmInterface> binary_case;
 		void print() const;
 		double calculate_print_interval() const;
 		void simulate(size_t const& num_threads);
 		void write_step() const;
 	public:
-		pmSimulation() {}
+		pmSimulation();
 		pmSimulation(pmSimulation const& other);
 		pmSimulation(pmSimulation&& other);
 		pmSimulation& operator=(pmSimulation const& other);
 		pmSimulation& operator=(pmSimulation&& other);
-		virtual ~pmSimulation() {}
+		virtual ~pmSimulation();
 		void set_working_directory(std::string const& working_dir) const;
 		void read_file(std::string const& filename);
 		void execute(size_t const& num_threads=8);

@@ -40,10 +40,11 @@ namespace Nauticle {
         void generate_code() const;
     public:
         void add_case(std::shared_ptr<pmCase> c);
-        void set_code_name(std::string const& n);
-        void update();
+        void set_name(std::string const& n);
+        void compile() const;
         pmInterface* create_object();
         void destroy_object(pmInterface* obj);
+        void clean_up() const;
     };
 }
 
