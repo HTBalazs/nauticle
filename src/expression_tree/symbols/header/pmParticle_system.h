@@ -61,7 +61,7 @@ namespace Nauticle {
 			void update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& idx);
 			std::vector<unsigned int> const& get_start() const;
 			std::vector<unsigned int> const& get_end() const;
-			int get_hash_key(int const& i) const;
+			int const& get_hash_key(int const& i) const;
 			pmTensor get_grid_position(pmTensor const& point) const;
 			pmDomain get_domain() const;
 			void print() const;

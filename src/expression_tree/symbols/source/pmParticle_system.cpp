@@ -337,7 +337,7 @@ std::vector<unsigned int> const& pmParticle_system::pmParticle_space::get_end() 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the hash key of particle i.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmParticle_system::pmParticle_space::get_hash_key(int const& i) const {
+int const& pmParticle_system::pmParticle_space::get_hash_key(int const& i) const {
 	return hash_key[i];
 }
 

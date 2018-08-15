@@ -33,7 +33,7 @@ namespace Nauticle {
     	std::vector<pmTensor> value;
     public:
     	virtual ~pmSingle() override {}
-    	pmTensor get_value(int const& i=0) const override;
+    	pmTensor const& get_value(int const& i=0) const override;
     	virtual pmTensor evaluate(int const&, size_t const& level=0) const override;
     	void printv() const override;
     	std::shared_ptr<pmSingle> clone() const;
