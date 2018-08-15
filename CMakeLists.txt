@@ -72,3 +72,14 @@ target_link_libraries(${EXEC} /usr/local/lib/prolog/libprolog.a)
 target_link_libraries(${EXEC} /usr/local/lib/commonutils/libcommonutils.a)
 target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)
 target_link_libraries(${EXEC} /usr/local/lib/c2c/libc2c.a)
+
+# Define library and include directories (do not modify the installation directories below)
+set(STATIC_LIB_DIR /usr/local/lib/nauticle)
+set(INCLUDE_DIR /usr/local/include/nauticle)
+# set archive output to <project_directory>/lib
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib/)
+# generate libnauticle.a file
+add_library(nauticle STATIC ${SOURCES})
+# install lib and include directories
+install(TARGETS nauticle DESTINATION ${STATIC_LIB_DIR})
+install(FILES ${HEADERS} DESTINATION ${INCLUDE_DIR})
