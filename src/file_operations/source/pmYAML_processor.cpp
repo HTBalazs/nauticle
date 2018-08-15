@@ -235,6 +235,7 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 	pmTensor confirm{1,1,0.0};
 	pmTensor vtk_format{1,1,0.0};
 	pmTensor file_start{1,1,0.0};
+	pmTensor compile_case{1,1,0.0};
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end(); sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="parameter_space") {
 			for(YAML::const_iterator param_nodes=sim_nodes->second.begin();param_nodes!=sim_nodes->second.end();param_nodes++) {
@@ -285,6 +286,15 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 						file_start = tmp;
 					}
 				}
+				if(param_nodes->first.as<std::string>()=="compile_case") {
+					std::string str_compile_case = param_nodes->second.as<std::string>();
+					pmTensor tmp = tensor_parser.string_to_tensor(str_compile_case, workspace);
+					if(!tmp.is_scalar()) {
+						ProLog::pLogger::warning_msgf("compile_case must be scalar! Default value is applied.\n");
+					} else {
+						compile_case = tmp;
+					}
+				}
 			}
 		}
 	}
@@ -293,6 +303,7 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 	parameter_space->add_parameter("confirm_on_exit", confirm);
 	parameter_space->add_parameter("output_format", vtk_format);
 	parameter_space->add_parameter("file_start", file_start);
+	parameter_space->add_parameter("compile_case", compile_case);
 	return parameter_space;
 }
 

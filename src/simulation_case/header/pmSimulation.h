@@ -25,6 +25,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <functional>
 #include "prolog/pLogger.h"
 #include "pmCase.h"
 #include "pmVTK_writer.h"
@@ -43,6 +44,7 @@ namespace Nauticle {
 	*/
 	class pmSimulation {
 	protected:
+		void (pmSimulation::*solver)(size_t const&);
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
 		write_mode vtk_write_mode = ASCII;
@@ -53,7 +55,7 @@ namespace Nauticle {
 		void simulate(size_t const& num_threads);
 		void write_step() const;
 	public:
-		pmSimulation();
+		pmSimulation() {}
 		pmSimulation(pmSimulation const& other);
 		pmSimulation(pmSimulation&& other);
 		pmSimulation& operator=(pmSimulation const& other);
@@ -62,6 +64,8 @@ namespace Nauticle {
 		void set_working_directory(std::string const& working_dir) const;
 		void read_file(std::string const& filename);
 		void execute(size_t const& num_threads=8);
+		void interpreter_solve(size_t const& num_threads=8);
+		void binary_solve(size_t const& num_threads=8);
 	};
 }
 

@@ -50,7 +50,7 @@ void pmRuntime_compiler::generate_code() const {
     cl.add_member_type("std::shared_ptr<pmCase>", "cas", false, "", "");
     c2CPP_declaration arg{"std::shared_ptr<pmCase>", "c", false, "", ""};
     cl.add_member_function("void", "set_case", false, "", std::vector<c2CPP_declaration>{arg}, PUBLIC, "\tcas = c;", false, true);
-    cl.add_member_function("void", "update", false, "", std::vector<c2CPP_declaration>{}, PUBLIC, "\tstd::cout << 2 << std::endl;", false, true);
+    cl.add_member_function("void", "solve", false, "", std::vector<c2CPP_declaration>{}, PUBLIC, "\tstd::cout << 2 << std::endl;", false, true);
     header.get_namespace("Nauticle").add_class(cl);
     c2CPP_source_file source{header};
     c2CPP_code_generator cgen;

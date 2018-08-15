@@ -28,16 +28,9 @@ using namespace Nauticle;
 /// Destructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmSimulation::~pmSimulation() {
-	this->runtime_compiler->clean_up();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmSimulation::pmSimulation() {
-	this->runtime_compiler = std::make_shared<pmRuntime_compiler>();
-	this->runtime_compiler->compile();
-	this->binary_case = std::shared_ptr<pmInterface>{runtime_compiler->create_object()};
+	if(this->runtime_compiler.use_count()!=0) {
+		this->runtime_compiler->clean_up();
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -77,6 +70,10 @@ pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
 	}
 	return *this;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Calculate the time interval of printing results in files.
+/////////////////////////////////////////////////////////////////////////////////////////
 double pmSimulation::calculate_print_interval() const {
 	static bool constant = false;
 	static double interval = 0;
@@ -123,11 +120,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
 		}
 		// Solve equations
-		// if(true) {
-			// runtime_compiler->update();
-		// } else {
-			cas->solve(num_threads);
-		// }
+		(this->*solver)(num_threads);
 		current_time += next_dt;
 		substeps++;
 		if(printing) {
@@ -193,6 +186,15 @@ void pmSimulation::read_file(std::string const& filename) {
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
 	ProLog::pLogger::footer<ProLog::LCY>();
 	ProLog::pLogger::line_feed(1);
+
+	if(parameter_space->get_parameter_value("compile_case")[0] != 0) {
+		this->runtime_compiler = std::make_shared<pmRuntime_compiler>();
+		this->runtime_compiler->compile();
+		this->binary_case = std::shared_ptr<pmInterface>{runtime_compiler->create_object()};
+		solver = &pmSimulation::binary_solve;//std::bind(&pmSimulation::binary_solve, this);
+	} else {
+		solver = &pmSimulation::interpreter_solve;//std::bind(&pmSimulation::interpreter_solve, this);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -201,5 +203,19 @@ void pmSimulation::read_file(std::string const& filename) {
 void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 	print();
 	simulate(num_threads);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Solve the equations in binary mode.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::binary_solve(size_t const& num_threads/*=8*/) {
+	binary_case->solve();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Solve the equations in interpreter mode.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::interpreter_solve(size_t const& num_threads/*=8*/) {
+	cas->solve(num_threads);
 }
 
