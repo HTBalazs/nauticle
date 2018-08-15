@@ -120,7 +120,8 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
 		}
 		// Solve equations
-		(this->*solver)(num_threads);
+		(this->*solver)(num_threads); // calls either "binary_solve(numthreads)" or "interpreter_solve(numthreads)"
+
 		current_time += next_dt;
 		substeps++;
 		if(printing) {
@@ -189,6 +190,7 @@ void pmSimulation::read_file(std::string const& filename) {
 
 	if(parameter_space->get_parameter_value("compile_case")[0] != 0) {
 		this->runtime_compiler = std::make_shared<pmRuntime_compiler>();
+		this->runtime_compiler->set_case(cas);
 		this->runtime_compiler->compile();
 		this->binary_case = std::shared_ptr<pmInterface>{runtime_compiler->create_object()};
 		solver = &pmSimulation::binary_solve;//std::bind(&pmSimulation::binary_solve, this);
@@ -209,7 +211,7 @@ void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 /// Solve the equations in binary mode.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSimulation::binary_solve(size_t const& num_threads/*=8*/) {
-	binary_case->solve();
+	binary_case->solve(num_threads);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

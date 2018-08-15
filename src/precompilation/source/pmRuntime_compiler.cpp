@@ -27,7 +27,7 @@
 using namespace Nauticle;
 using namespace c2c;
 
-void pmRuntime_compiler::add_case(std::shared_ptr<pmCase> c) {
+void pmRuntime_compiler::set_case(std::shared_ptr<pmCase> c) {
     cas = c;
 }
 
