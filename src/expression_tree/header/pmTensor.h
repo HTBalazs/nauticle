@@ -64,8 +64,8 @@ namespace Nauticle {
 		double& operator[](int const& i);
 		double const& operator[](int const& i) const;
 		~pmTensor();
-		int get_numrows() const;
-		int get_numcols() const;
+		int const& get_numrows() const;
+		int const& get_numcols() const;
 		bool is_column() const;
 		bool is_row() const;
 		bool is_vector() const;
@@ -894,14 +894,14 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the number of rows.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline int pmTensor::get_numrows() const {
+	inline int const& pmTensor::get_numrows() const {
 		return rows;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the number of columns.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline int pmTensor::get_numcols() const {
+	inline int const& pmTensor::get_numcols() const {
 		return columns;
 	}
 

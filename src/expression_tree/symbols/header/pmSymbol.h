@@ -32,8 +32,8 @@ namespace Nauticle {
 		std::string name = "";
 	public:
 		virtual ~pmSymbol() {}
-		virtual std::string get_name() const;
-		virtual pmTensor get_value(int const& i=0) const=0;
+		virtual std::string const& get_name() const;
+		virtual pmTensor const& get_value(int const& i=0) const=0;
 		virtual void print() const override;
 		virtual void printv() const=0;
 		virtual void set_storage_depth(size_t const& d) override {}
