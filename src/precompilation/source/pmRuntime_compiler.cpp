@@ -18,11 +18,18 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef INSTALL_DIR
-#define INSTALL_DIR std::string("/usr/local/include/nauticle/")
-#endif //INSTALL_DIR
+#ifndef INCLUDE_DIR
+#define INCLUDE_DIR std::string{"-I /usr/local/include/nauticle/"}
+#endif //INCLUDE_DIR
+#ifndef LIB_FILES
+#define LIB_FILES std::string{"-L /usr/local/lib/nauticle/ -l nauticle -L /usr/local/lib/prolog/ -l prolog -L/usr/local/lib/c2c -l c2c"}
+#endif //LIB_FILES
 
 #include "pmRuntime_compiler.h"
+#include "c2c/c2CPP_class.h"
+#include "c2c/c2CPP_source_file.h"
+#include "c2c/c2CPP_code_generator.h"
+#include "c2c/c2Compiler.h"
 
 using namespace Nauticle;
 using namespace c2c;
@@ -35,22 +42,42 @@ void pmRuntime_compiler::set_name(std::string const& n) {
     session_name = n;
 }
 
-void pmRuntime_compiler::generate_code() const {
-    // Generate C++ code
-    c2CPP_header_file header{session_name};
+void pmRuntime_compiler::add_includes(c2CPP_header_file& header) const {
     header.add_include("pmInterface.h", false);
+    header.add_include("pmConstant.h", false);
+    header.add_include("pmVariable.h", false);
+    header.add_include("pmParticle_system.h", false);
+    header.add_include("pmWorkspace.h", false);
     header.add_include("string", true);
     header.add_include("vector", true);
     header.add_include("algorithm", true);
     header.add_include("memory", true);
     header.add_include("iostream", true);
+}
+
+void pmRuntime_compiler::generate_code() const {
+    // Generate C++ code
+    c2CPP_header_file header{session_name};
+    add_includes(header);
     header.add_namespace("Nauticle");
-    c2CPP_class cl{"pmHardcoded_case"};
+    
+    c2CPP_class cl{"pmBinary_case"};
     cl.add_interface("pmInterface");
-    cl.add_member_type("std::shared_ptr<pmCase>", "cas", false, "", "");
-    c2CPP_declaration arg{"std::shared_ptr<pmCase>", "c", false, "", ""};
-    cl.add_member_function("void", "set_case", false, "", std::vector<c2CPP_declaration>{arg}, PUBLIC, "\tcas = c;", false, true);
-    cl.add_member_function("void", "solve", false, "", std::vector<c2CPP_declaration>{}, PUBLIC, "\tstd::cout << 2 << std::endl;", false, true);
+
+    std::string init_code = "\t\tauto ws = cas->get_workspace();\n";
+    std::vector<c2CPP_declaration> declarations = cas->get_workspace()->generate_declarations(init_code);
+    for(auto const& it:declarations) {
+        cl.add_member_type(c2CPP_class_member_type{it});
+    }
+
+    cl.add_member_function("void", "initialize", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::shared_ptr<pmCase>", "cas", false, "", ""}}, PUBLIC, init_code, false, true);
+    std::string solver="";
+    auto equations = cas->get_equations();
+    for(auto const& it:equations) {
+        solver += it->generate_evaluator_code();
+    }
+    cl.add_member_function("void", "solve", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"size_t", "num_threads", true, "&", ""}}, PUBLIC, solver, false, true);
+    
     header.get_namespace("Nauticle").add_class(cl);
     c2CPP_source_file source{header};
     c2CPP_code_generator cgen;
@@ -61,10 +88,13 @@ void pmRuntime_compiler::generate_code() const {
 
 void pmRuntime_compiler::compile() const {
     this->generate_code();
-    // Compile generated files
+    // Compile generated code
     c2Compiler compiler{session_name};
     compiler.set_compiler("clang++");
-    compiler.add_flag("-std=c++14 -O3 -I " + INSTALL_DIR);
+    compiler.add_flag("-std=c++14");
+    compiler.add_flag("-O3");
+    compiler.add_includes(INCLUDE_DIR);
+    compiler.add_libraries(LIB_FILES);
     compiler.compile();
 }
 

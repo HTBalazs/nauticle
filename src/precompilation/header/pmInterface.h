@@ -31,7 +31,7 @@ namespace Nauticle {
     class pmInterface : public c2Interface {
     public:
         ~pmInterface() override {}
-        virtual void set_case(std::shared_ptr<pmCase> c)=0;
+        virtual void initialize(std::shared_ptr<pmCase> c)=0;
     	virtual void solve(size_t const& num_threads)=0;
     };
 }

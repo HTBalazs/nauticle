@@ -54,6 +54,7 @@ namespace Nauticle {
 	public:
 		virtual void write_to_string(std::ostream& os) const override;
 		std::string get_identifier() const;
+		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -211,6 +212,11 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	std::string pmInteraction<S>::get_identifier() const {
+		return identifier;
+	}
+
+	template <size_t S>
+	std::string pmInteraction<S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
 		return identifier;
 	}
 }

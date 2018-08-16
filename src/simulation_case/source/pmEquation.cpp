@@ -205,7 +205,16 @@ void pmEquation::set_condition(std::shared_ptr<pmExpression> cond) {
 	condition = cond;
 }
 
-
+std::string pmEquation::generate_evaluator_code() const {
+	std::stringstream os;
+	this->write_to_string(os);
+	std::string code = "\t// " + os.str() + "\n";
+	code += "\tfor(int i=0; i<ws_" + lhs->get_name() + "->get_field_size(); i++) {\n";
+	code += "\t\tif(" + condition->generate_evaluator_code("i", "0") + "[0]!=0) {\n";
+	code += "\t\t\tws_" + lhs->get_name() + "->set_value(" + rhs->generate_evaluator_code("i","0") + ",i);\n";
+	code += "\t\t}\n\t}\n";
+	return code;
+}
 
 
 

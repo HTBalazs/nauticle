@@ -438,9 +438,46 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 					}
 				}
 			} else {
-				field->set_number_of_nodes(N);				
+				field->set_number_of_nodes(N);
 			}
 		}
 	}
 	num_nodes = N;
 }
+
+std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::string& init_code) const {
+	std::vector<c2c::c2CPP_declaration> declaration;
+	for(auto const& it:this->get<pmConstant>(true)) {
+		declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmConstant>", "ws_" + it->get_name(), false, "", ""});
+        init_code += "\t\tws_" + it->get_name() + " = std::dynamic_pointer_cast<pmConstant>(ws->get_instance(\"" + it->get_name() + "\").lock());\n"; 
+    }
+    for(auto const& it:this->get<pmVariable>()) {
+        declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmVariable>", "ws_" + it->get_name(), false, "", ""});
+        init_code += "\t\tws_" + it->get_name() + " = std::dynamic_pointer_cast<pmVariable>(ws->get_instance(\"" + it->get_name() + "\").lock());\n";
+    }
+    for(auto const& it:this->get<pmField>()) {
+        std::string type;
+        if(it->get_name()=="r") {
+            type = "pmParticle_system";
+        } else {
+            type = "pmField";
+        }
+		declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<" + type + ">", "ws_" + it->get_name(), false, "", ""});
+        init_code += "\t\tws_" + it->get_name() + " = std::dynamic_pointer_cast<" + type + ">(ws->get_instance(\"" + it->get_name() + "\").lock());\n";
+    }
+    return declaration;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

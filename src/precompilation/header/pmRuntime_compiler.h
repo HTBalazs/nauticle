@@ -22,12 +22,12 @@
 #define _CODE_GEN_H_
 
 #include "c2c/c2CPP_header_file.h"
-#include "c2c/c2CPP_source_file.h"
-#include "c2c/c2CPP_code_generator.h"
-#include "c2c/c2Compiler.h"
 #include "c2c/c2Loader.h"
 #include "pmInterface.h"
 #include "pmCase.h"
+#include "pmConstant.h"
+#include "pmVariable.h"
+#include "pmParticle_system.h"
 #include <string>
 #include <memory>
 #include <vector>
@@ -35,9 +35,10 @@
 namespace Nauticle {
     class pmRuntime_compiler {
         std::shared_ptr<pmCase> cas;
-        std::string session_name = "nauticle_binary_case";
+        std::string session_name = "pmBinary_case";
         std::shared_ptr<c2c::c2Loader> loader;
         void generate_code() const;
+        void add_includes(c2c::c2CPP_header_file& header) const;
     public:
         void set_case(std::shared_ptr<pmCase> c);
         void set_name(std::string const& n);

@@ -45,6 +45,7 @@ namespace Nauticle {
     	virtual void write_to_string(std::ostream& os) const=0;
         virtual bool is_symmetric() const;
         virtual bool is_position() const;
+        virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const=0;
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////

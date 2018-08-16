@@ -67,6 +67,7 @@ namespace Nauticle {
 		void set_lhs(std::shared_ptr<pmSymbol> left);
 		void set_rhs(std::shared_ptr<pmExpression> right);
 		void set_condition(std::shared_ptr<pmExpression> cond);
+		std::string generate_evaluator_code() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

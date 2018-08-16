@@ -193,9 +193,10 @@ void pmSimulation::read_file(std::string const& filename) {
 		this->runtime_compiler->set_case(cas);
 		this->runtime_compiler->compile();
 		this->binary_case = std::shared_ptr<pmInterface>{runtime_compiler->create_object()};
-		solver = &pmSimulation::binary_solve;//std::bind(&pmSimulation::binary_solve, this);
+		this->binary_case->initialize(cas);
+		solver = &pmSimulation::binary_solve;
 	} else {
-		solver = &pmSimulation::interpreter_solve;//std::bind(&pmSimulation::interpreter_solve, this);
+		solver = &pmSimulation::interpreter_solve;
 	}
 }
 
