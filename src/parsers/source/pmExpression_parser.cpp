@@ -24,8 +24,7 @@
 if(it==std::string{#INTERACTION_DECL}) { 																						\
 	std::array<std::shared_ptr<pmExpression>,NUMBER_OF_OPERANDS> operands; 														\
 	stack_extract(e, operands); 																								\
-	std::shared_ptr<INTERACTION_DECL> interaction = std::make_shared<INTERACTION_DECL>(operands); 								\
-	std::string op_list = "std::shared_ptr<" + std::string{INTERACTION_NAME} + "> " + interaction->get_identifier() + ";\n"; 	\
+	auto interaction = std::make_shared<INTERACTION_DECL>(operands);							 								\
 	e.push(interaction); 																										\
 }
 
@@ -329,6 +328,8 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			ADD_INTERACTION(10, sfm, "pmSfm_operator")
 			using md = pmMd_operator;
 			ADD_INTERACTION(3, md, "pmMd_operator")
+			using neighbors = pmNeighbors;
+			ADD_INTERACTION(1, neighbors, "pmNeighbors")
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
@@ -619,11 +620,6 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<INVERSE,1>>(operands));
-			}
-			if(it=="neighbors") {
-				std::array<std::shared_ptr<pmExpression>,1> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmNeighbors>(operands));
 			}
 		} else if(is_number(it)) {
 			e.push(std::make_shared<pmConstant>(pmTensor{stof(it)}));

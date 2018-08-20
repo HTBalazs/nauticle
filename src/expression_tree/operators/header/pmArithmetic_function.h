@@ -195,25 +195,14 @@ namespace Nauticle {
 			case COT : return cot(this->operand[0]->evaluate(i, level));
 			case COTH : return coth(this->operand[0]->evaluate(i, level));
 			case CROSS : return cross(this->operand[0]->evaluate(i, level),this->operand[1]->evaluate(i, level));
-			case ELEM : {
-							pmTensor t1 = this->operand[0]->evaluate(i, level);
-							pmTensor row = this->operand[1]->evaluate(i, level);
-							pmTensor column = this->operand[2]->evaluate(i, level);
-							if(!row.is_scalar() || !column.is_scalar()) { ProLog::pLogger::error_msgf("Element indices must be scalars.\n"); }
-							if(row[0]>t1.get_numrows() || column[0]>t1.get_numcols()) { ProLog::pLogger::error_msgf("Element indices out of bounds.\n"); }
-							return pmTensor{1,1,t1(row(0,0),column(0,0))};
-						}
+			case ELEM : return this->operand[0]->evaluate(i, level).elem(this->operand[1]->evaluate(i, level)[0],this->operand[2]->evaluate(i, level)[0]);
 			case EXP : return exp(this->operand[0]->evaluate(i, level));
 			case FLOOR : return floor(this->operand[0]->evaluate(i, level));
 			case GT : return (this->operand[0]->evaluate(i, level) > this->operand[1]->evaluate(i, level));
 			case GTE : return (this->operand[0]->evaluate(i, level) >= this->operand[1]->evaluate(i, level));
 			case EQUAL : return (this->operand[0]->evaluate(i, level) == this->operand[1]->evaluate(i, level));
 			case NOTEQUAL : return !(this->operand[0]->evaluate(i, level) == this->operand[1]->evaluate(i, level));
-			case IF : 	{
-							pmTensor t2 = this->operand[0]->evaluate(i, level);
-							if(!t2.is_scalar()) { ProLog::pLogger::error_msgf("Logical value should be scalar.\n"); }
-							return (bool)t2[0] ? this->operand[1]->evaluate(i, level) : this->operand[2]->evaluate(i, level);
-						}
+			case IF : return tensor_if((bool)this->operand[0]->evaluate(i, level)[0], this->operand[1]->evaluate(i, level), this->operand[2]->evaluate(i, level));
 			case LOG : return log(this->operand[0]->evaluate(i, level));
 			case LOGM : return logm(this->operand[0]->evaluate(i, level));
 			case LT : return (this->operand[0]->evaluate(i, level) < this->operand[1]->evaluate(i, level));
@@ -241,21 +230,13 @@ namespace Nauticle {
 			case XOR : return (this->operand[0]->evaluate(i, level) != this->operand[1]->evaluate(i, level));
 			case DETERMINANT : return this->operand[0]->evaluate(i, level).determinant();
 			case INVERSE : return this->operand[0]->evaluate(i, level).inverse();
-			case IDENTITY : {
-								pmTensor t3 = this->operand[0]->evaluate(i, level);
-								if(!t3.is_scalar()) { ProLog::pLogger::error_msgf("Not scalar in identity.\n"); }
-								return pmTensor::make_identity((int)t3[0]); 
-							}
+			case IDENTITY : return pmTensor::make_identity((int)this->operand[0]->evaluate(i, level)[0]);
 			case EULER : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
 			case PREDICTOR : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
 			case CORRECTOR : return this->operand[0]->evaluate(i, 1)+this->operand[1]->evaluate(i, 0) * this->operand[2]->evaluate(i, 0);
 			case VERLET_R : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[3]->evaluate(i, 0) + this->operand[2]->evaluate(i, 0) * std::pow(this->operand[3]->evaluate(i, 0)[0],2) / 2.0;
 			case VERLET_V : return this->operand[0]->evaluate(i, 0)+ (this->operand[1]->evaluate(i, 0)+this->operand[1]->evaluate(i, 1))*this->operand[2]->evaluate(i, 0)/2.0;
-			case LIMIT : {
-				double minimum = std::min(this->operand[1]->evaluate(i, 0)[0],this->operand[2]->evaluate(i, 0)[0]);
-				double maximum = std::max(this->operand[1]->evaluate(i, 0)[0],this->operand[2]->evaluate(i, 0)[0]);
-				return this->operand[0]->evaluate(i, 0)[0]<minimum ? minimum : (this->operand[0]->evaluate(i, 0)[0]>maximum ? maximum : this->operand[0]->evaluate(i, 0)[0]);
-			}
+			case LIMIT : return limit(this->operand[0]->evaluate(i, level)[0], this->operand[1]->evaluate(i, level)[0], this->operand[2]->evaluate(i, level)[0]);
 		}
 	}
 
@@ -300,24 +281,14 @@ namespace Nauticle {
 			case COT : code = "cot(" + STR_ARG(0,i,level) + ")"; break;
 			case COTH : code = "coth(" + STR_ARG(0,i,level) + ")"; break;
 			case CROSS : code = "cross(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case ELEM : {	
-							code = "auto lambda = [&]()->pmTensor{\npmTensor t1 = "+STR_ARG(0,i,level)+";\n" + "pmTensor row = "+STR_ARG(1,i,level)+";\n"+"pmTensor column = "+STR_ARG(2,i,level)+";\n";
-							code += "if(!row.is_scalar() || !column.is_scalar()) { ProLog::pLogger::error_msgf(\"Element indices must be scalars.\n\"); }\n";
-							code += "if(row[0]>t1.get_numrows() || column[0]>t1.get_numcols()) { ProLog::pLogger::error_msgf(\"Element indices out of bounds.\n\"); }\n";
-							code += "return pmTensor{1,1,t1(row(0,0),column(0,0))};\n";
-							code += "};\n";
-						}; break;
+			case ELEM : code = "(" + STR_ARG(0,i,level) + ".elem(" + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + "))"; break;
 			case EXP : code = "exp(" + STR_ARG(0,i,level) + ")"; break;
 			case FLOOR : code = "floor(" + STR_ARG(0,i,level) + ")"; break;
 			case GT : code = "(" + STR_ARG(0,i,level) + ">" + STR_ARG(1,i,level) + ")"; break;
 			case GTE : code = "(" + STR_ARG(0,i,level) + ">=" + STR_ARG(1,i,level) + ")"; break;
 			case EQUAL : code = "(" + STR_ARG(0,i,level) + "==" + STR_ARG(1,i,level) + ")"; break;
 			case NOTEQUAL : code = "(" + STR_ARG(0,i,level) + "==" + STR_ARG(1,i,level) + ")"; break;
-			case IF : 	{
-							code = "{\npmTensor t2 = "+STR_ARG(0,i,level)+";\n";
-							code += "if(!t2.is_scalar()) { ProLog::pLogger::error_msgf(\"Logical value should be scalar.\n\"); }\n";
-							code += "(bool)t2[0] ?"+STR_ARG(1,i,level)+":"+STR_ARG(2,i,level)+";\n";
-						}; break;
+			case IF : code = "tensor_if(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + ")"; break;
 			case LOG : code = "log(" + STR_ARG(0,i,level) + ")"; break;
 			case LOGM : code = "logm(" + STR_ARG(0,i,level) + ")"; break;
 			case LT : code = "(" + STR_ARG(0,i,level) + "<" + STR_ARG(1,i,level) + ")"; break;
@@ -345,21 +316,13 @@ namespace Nauticle {
 			case XOR : code = "(" + STR_ARG(0,i,level) + "!=" + STR_ARG(1,i,level) + ")"; break;
 			case DETERMINANT : code = STR_ARG(0,i,level) + ".determinant()"; break;
 			case INVERSE : code = STR_ARG(0,i,level) + ".inverse()"; break;
-			case IDENTITY : {
-								code = "{\npmTensor t3 = "+STR_ARG(0,i,level)+";\n";
-								code += "if(!t3.is_scalar()) { ProLog::pLogger::error_msgf(\"Not scalar in identity.\n\"); }\n";
-								code += "pmTensor::make_identity((int)t3[0]);\n";
-							}; break;
+			case IDENTITY : code = "pmTensor::make_identity(" + STR_ARG(0,i,level) + "[0]);\n"; break;
 			case EULER : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case PREDICTOR : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case CORRECTOR : code = "(" + STR_ARG(0,i,"1") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case VERLET_R : code = "(" +  STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(3,i,"0") + "+" + STR_ARG(2,i,"0") + "*" + "std::pow(" + STR_ARG(3,i,"0") + "[0],2) / 2.0)"; break;
 			case VERLET_V : code = "(" + STR_ARG(0,i,"0") + "(" + STR_ARG(1,i,"0") + "+" + STR_ARG(1,i,"1") + ")*" + STR_ARG(2,i,"0") + "/2.0)"; break;
-			case LIMIT : 	{
-								code = "double minimum = std::min("+STR_ARG(1,i,level)+"[0],"+STR_ARG(2,i,level)+"[0]);\n";
-								code = "double maximum = std::max("+STR_ARG(1,i,level)+"[0],"+STR_ARG(2,i,level)+"[0]);\n";
-								// code = return this->operand[0]->evaluate(i, 0)[0]<minimum ? minimum : (this->operand[0]->evaluate(i, 0)[0]>maximum ? maximum : this->operand[0]->evaluate(i, 0)[0]);
-							}; break;
+			case LIMIT : code = "limit(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "[0]," + STR_ARG(2,i,level) + "[0])"; break;
 		}
 		return code;
 	}

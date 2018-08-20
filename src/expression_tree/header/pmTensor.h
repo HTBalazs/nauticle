@@ -108,6 +108,7 @@ namespace Nauticle {
 		pmTensor eigenvalues() const;
 		double min() const;
 		double max() const;
+		pmTensor elem(size_t const& r, size_t const& c) const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -646,6 +647,15 @@ namespace Nauticle {
 			tensor = tensor * T1;
 		}
 		return tensor;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Implementation of limit operator for pmTensor.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline pmTensor limit(double const& value, double const& minimum, double const& maximum) {
+		double mn = std::min(value, minimum);
+		double mx = std::max(value, minimum);
+		return value<mn ? mn : (value>mx ? mx : value);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1482,6 +1492,21 @@ namespace Nauticle {
 			}
 		}
 		return max_value;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the tensor element in the given row and column.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline pmTensor pmTensor::elem(size_t const& r, size_t const& c) const {
+		if(r>rows || c>columns) { ProLog::pLogger::error_msgf("Element indices out of bounds.\n"); }
+		return elements[r*columns+c];
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns t1 if state is true, and t2 if state is false.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline pmTensor tensor_if(bool const& state, pmTensor const& t1, pmTensor const& t2) {
+		return state ? t1 : t2;
 	}
 }
 
