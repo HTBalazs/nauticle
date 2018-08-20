@@ -75,7 +75,7 @@ class Boundary_poisson : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const
   {
-    if(!(-0.99+DOLFIN_EPS > x[0] || 0.99-DOLFIN_EPS < x[0] || -0.49+DOLFIN_EPS > x[1]) && on_boundary)
+    if(!(-0.5-DOLFIN_EPS > x[0] || 0.5+DOLFIN_EPS < x[0] || -0.5-DOLFIN_EPS > x[1] || 0.5+DOLFIN_EPS < x[1]) && on_boundary)
       return true;
     else
       return false;
@@ -86,7 +86,7 @@ class Boundary_poisson : public SubDomain
 class Neumann_Boundary_poisson : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const {
-    if((-0.99+DOLFIN_EPS > x[0] || 0.99-DOLFIN_EPS < x[0] || -0.49+DOLFIN_EPS > x[1]) && on_boundary)
+    if((-0.5-DOLFIN_EPS > x[0] || 0.5+DOLFIN_EPS < x[0] || -0.5-DOLFIN_EPS > x[1] || 0.5+DOLFIN_EPS < x[1]) && on_boundary)
       return true;
     else
       return false;

@@ -106,19 +106,15 @@ pmTensor pmFenics_operator_poisson::evaluate(int const& i, size_t const& level/*
     double dt = operand[5]->evaluate(i,level)[0];
     std::vector<double> x;
     std::vector<double> y;
-    for(int j=0; j<ps->get_field_size(); j++) {
-        pmTensor posj = operand[0]->evaluate(j,level);
-        x.push_back(posj[0]);
-        y.push_back(posj[1]);
-    }
     std::vector<double> vx;
     std::vector<double> vy;
-
-    std::vector<double> v;
     for(int j=0; j<ps->get_field_size(); j++) {
-        pmTensor velj = operand[1]->evaluate(j,level);
-        vx.push_back(velj[0]);
-        vy.push_back(velj[1]);
+        pmTensor vec = operand[0]->evaluate(j,level);
+        x.push_back(vec[0]);
+        y.push_back(vec[1]);
+        vec = operand[1]->evaluate(j,level);
+        vx.push_back(vec[0]);
+        vy.push_back(vec[1]);
     }
     vx.insert(vx.end(), vy.begin(), vy.end());
     problem->create_mesh(x, y, alpha);
