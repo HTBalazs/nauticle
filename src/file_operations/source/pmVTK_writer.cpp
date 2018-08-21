@@ -193,7 +193,7 @@ void pmVTK_writer::update() {
 		pmTensor num_cells = maximum-minimum;
 		pmTensor cell_size = domain.get_cell_size();
 
-		rectilinear_grid->SetDimensions(num_cells[0]+1, dimensions>1?num_cells[1]+1:1.0, dimensions>2?num_cells[2]+1:1.0);
+		rectilinear_grid->SetDimensions(num_cells[0]+1.0+NAUTICLE_EPS, dimensions>1?num_cells[1]+1.0+NAUTICLE_EPS:1.0, dimensions>2?num_cells[2]+1.0+NAUTICLE_EPS:1.0);
 		
 		vtkSmartPointer<vtkDoubleArray> xArray = vtkSmartPointer<vtkDoubleArray>::New();
 		vtkSmartPointer<vtkDoubleArray> yArray = vtkSmartPointer<vtkDoubleArray>::New();
