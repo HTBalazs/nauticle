@@ -64,8 +64,9 @@ void pmRuntime_compiler::generate_code() const {
     c2CPP_class cl{"pmBinary_case"};
     cl.add_interface("pmInterface");
 
-    std::string init_code = "\t\tauto ws = cas->get_workspace();\n";
+    std::string init_code = "\t\tws = cas->get_workspace();\n";
     std::vector<c2CPP_declaration> declarations = cas->get_workspace()->generate_declarations(init_code);
+    cl.add_member_type("std::shared_ptr<pmWorkspace>", "ws", false, "", "");
     for(auto const& it:declarations) {
         cl.add_member_type(c2CPP_class_member_type{it});
     }

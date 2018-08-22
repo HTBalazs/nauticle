@@ -213,6 +213,9 @@ std::string pmEquation::generate_evaluator_code() const {
 	code += "\t\tif(" + condition->generate_evaluator_code("i", "0") + "[0]!=0) {\n";
 	code += "\t\t\tws_" + lhs->get_name() + "->set_value(" + rhs->generate_evaluator_code("i","0") + ",i);\n";
 	code += "\t\t}\n\t}\n";
+	if(lhs->get_name()=="r") {
+		code += "\tws->sort_all_by_position();\n";
+	}
 	return code;
 }
 
