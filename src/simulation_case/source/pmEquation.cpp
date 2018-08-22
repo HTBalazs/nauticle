@@ -209,17 +209,22 @@ std::string pmEquation::generate_evaluator_code() const {
 	std::stringstream os;
 	this->write_to_string(os);
 	std::string code = "\t// " + os.str() + "\n";
-	code += "\tfor(int i=0; i<ws_" + lhs->get_name() + "->get_field_size(); i++) {\n";
-	code += "\t\tif(" + condition->generate_evaluator_code("i", "0") + "[0]!=0) {\n";
-	code += "\t\t\tws_" + lhs->get_name() + "->set_value(" + rhs->generate_evaluator_code("i","0") + ",i);\n";
-	code += "\t\t}\n\t}\n";
+	code += "\t{\n";
+
+	code += "\tint p_end = ws_" + lhs->get_name() + "->get_field_size();\n\tauto process = [&](int const& start, int const& end){\n";
+	code += "\t\tint new_end = end>ws_" + lhs->get_name() + "->get_field_size() ? ws_" + lhs->get_name() + "->get_field_size() : end;\n";
+	code += "\t\tfor(int i=start; i<new_end; i++) {\n";
+	code += "\t\t\tif(" + condition->generate_evaluator_code("i", "0") + "[0]!=0) {\n";
+	code += "\t\t\t\tws_" + lhs->get_name() + "->set_value(" + rhs->generate_evaluator_code("i","0") + ",i);\n";
+	code += "\t\t\t}\n\t\t}\n";
+	code += "\t};\n";
+	code += "\tstd::vector<std::thread> th;\n	int number_of_threads = std::min((int)num_threads,p_end);\n	int ppt = p_end/number_of_threads; // particle per thread\n	for(int i=0; i<p_end; i+=ppt) {\n		th.push_back(std::thread{process, i, i+ppt});\n	}\n	for(auto& it:th) {\n		it.join();\n	}\n";
 	if(lhs->get_name()=="r") {
 		code += "\tws->sort_all_by_position();\n";
 	}
+	code += "\t}\n";
 	return code;
 }
-
-
 
 
 
