@@ -28,11 +28,9 @@ namespace Nauticle {
 	/** This interface forms the base for single and field expressions. It holds a name.
 	*/
 	class pmSymbol : public pmExpression {
-	protected:
-		std::string name = "";
 	public:
 		virtual ~pmSymbol() {}
-		virtual std::string const& get_name() const;
+		virtual std::string const& get_name() const override;
 		virtual pmTensor const& get_value(int const& i=0) const=0;
 		virtual void print() const override;
 		virtual void printv() const=0;

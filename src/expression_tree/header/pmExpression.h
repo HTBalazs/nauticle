@@ -32,12 +32,14 @@ namespace Nauticle {
     */
     class pmExpression {
     protected:
+        std::string name = "";
     	virtual std::shared_ptr<pmExpression> clone_impl() const=0;
     public:
     	virtual ~pmExpression() {}
     	virtual pmTensor evaluate(int const&, size_t const& level=0) const=0;
     	virtual void print() const=0;
-    	virtual int get_field_size() const=0;
+        virtual int get_field_size() const=0;
+    	virtual std::string const& get_name() const;
     	virtual void set_storage_depth(size_t const& d)=0;
     	std::shared_ptr<pmExpression> clone() const;
     	virtual void assign(std::weak_ptr<pmParticle_system> ps) {}

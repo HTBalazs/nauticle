@@ -35,7 +35,7 @@ namespace Nauticle {
 	*/
 	template <size_t S>
 	class pmInteraction : public pmOperator<S>, public pmCounter<uint> {
-		std::string identifier = "IDENTIFIER_";
+		std::string declaration_type;
 		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, pmTensor const&, pmTensor const& guide)>;
 		using Func_pos = std::function<pmTensor(pmTensor const&, int const&, pmTensor const&)>;
 	protected:
@@ -53,7 +53,8 @@ namespace Nauticle {
 		pmTensor interact(pmTensor const& pos_i, Func_pos contribute) const;
 	public:
 		virtual void write_to_string(std::ostream& os) const override;
-		std::string get_identifier() const;
+		void set_declaration_type(std::string const& decl_type);
+		std::string const& get_declaration_type() const;
 		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 	};
 
@@ -62,9 +63,10 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	pmInteraction<S>::pmInteraction() {
+		this->name = "INTERACTION_";
 	    char ch[5];
 	    sprintf(&ch[0], "%04i", counter);
-	    identifier += ch;
+	    this->name += ch;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -207,17 +209,19 @@ namespace Nauticle {
 		os << ")";
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Returns the unique interaction identifier.
-	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
-	std::string pmInteraction<S>::get_identifier() const {
-		return identifier;
+	void pmInteraction<S>::set_declaration_type(std::string const& decl_type) {
+		declaration_type = decl_type;
+	}
+
+	template <size_t S>
+	std::string const& pmInteraction<S>::get_declaration_type() const {
+		return declaration_type;
 	}
 
 	template <size_t S>
 	std::string pmInteraction<S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
-		return identifier;
+		return this->name + "->evaluate(" + i + "," + level + ")";
 	}
 }
 

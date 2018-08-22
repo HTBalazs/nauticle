@@ -465,9 +465,23 @@ std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::stri
 		declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<" + type + ">", "ws_" + it->get_name(), false, "", ""});
         init_code += "\t\tws_" + it->get_name() + " = std::dynamic_pointer_cast<" + type + ">(ws->get_instance(\"" + it->get_name() + "\").lock());\n";
     }
+    size_t i = 0;
+    for(auto const& it:interactions) {
+        declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmExpression>", it->get_name(), false, "", ""});
+        init_code += "\t\t" + it->get_name() + " = ws->get_interactions()[" + std::to_string(i) + "];\n";
+        i++;
+    }
     return declaration;
 }
 
+
+void pmWorkspace::add_interaction(std::shared_ptr<pmExpression> ia) {
+	interactions.push_back(ia);
+}
+
+std::vector<std::shared_ptr<pmExpression>> const& pmWorkspace::get_interactions() const {
+	return interactions;
+}
 
 
 

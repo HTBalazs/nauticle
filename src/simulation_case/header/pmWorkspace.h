@@ -45,6 +45,7 @@ namespace Nauticle {
 		std::stack<int> deleted_ids;
 		size_t num_constants;
 		size_t num_variables;
+		std::vector<std::shared_ptr<pmExpression>> interactions;
 	private:
 		bool verify_name(std::string const& name) const;
 		bool is_constant(std::shared_ptr<pmSymbol> term) const;
@@ -82,6 +83,8 @@ namespace Nauticle {
 		template <typename T> std::vector<std::shared_ptr<T>> get(bool const& forced=false) const;
 		void set_number_of_nodes(size_t const& N);
 		std::vector<c2c::c2CPP_declaration> generate_declarations(std::string& init_code) const;
+		void add_interaction(std::shared_ptr<pmExpression> ia);
+		std::vector<std::shared_ptr<pmExpression>> const& get_interactions() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

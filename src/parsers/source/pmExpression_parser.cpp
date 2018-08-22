@@ -20,12 +20,14 @@
 
 #define Q(x) #x
 #define QUOTE(x) Q(x)
-#define ADD_INTERACTION(NUMBER_OF_OPERANDS, INTERACTION_DECL, INTERACTION_NAME)  												\
-if(it==std::string{#INTERACTION_DECL}) { 																						\
+#define ADD_INTERACTION(NUMBER_OF_OPERANDS, INTERACTION_NAME, INTERACTION_DECL)  												\
+if(it==std::string{#INTERACTION_NAME}) { 																						\
 	std::array<std::shared_ptr<pmExpression>,NUMBER_OF_OPERANDS> operands; 														\
 	stack_extract(e, operands); 																								\
-	auto interaction = std::make_shared<INTERACTION_DECL>(operands);							 								\
+	auto interaction = std::make_shared<INTERACTION_NAME>(operands);							 								\
+	interaction->set_declaration_type(INTERACTION_DECL);																		\
 	e.push(interaction); 																										\
+	workspace->add_interaction(interaction);																					\
 }
 
 #include <algorithm>
@@ -330,6 +332,36 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			ADD_INTERACTION(3, md, "pmMd_operator")
 			using neighbors = pmNeighbors;
 			ADD_INTERACTION(1, neighbors, "pmNeighbors")
+			if(it=="fmin") {
+				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
+				auto interaction = std::make_shared<pmFmin>(operand);
+				interaction->set_declaration_type("pmFmin");
+				workspace->add_interaction(interaction);
+				e.push(interaction);
+			}
+			if(it=="fmax") {
+				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
+				auto interaction = std::make_shared<pmFmax>(operand);
+				interaction->set_declaration_type("pmFmax");
+				workspace->add_interaction(interaction);
+				e.push(interaction);
+			}
+			if(it=="fmean") {
+				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
+				auto interaction = std::make_shared<pmFmean>(operand);
+				interaction->set_declaration_type("pmFmean");
+				workspace->add_interaction(interaction);
+				e.push(interaction);
+			}
+			if(it=="fsum") {
+				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
+				auto interaction = std::make_shared<pmFsum>(operand);
+				interaction->set_declaration_type("pmFsum");
+				workspace->add_interaction(interaction);
+				e.push(interaction);
+			}
+
+
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
@@ -549,22 +581,6 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				std::array<std::shared_ptr<pmExpression>,3> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<LIMIT,3>>(operands));
-			}
-			if(it=="fmin") {
-				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				e.push(std::make_shared<pmFmin>(operand));
-			}
-			if(it=="fmax") {
-				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				e.push(std::make_shared<pmFmax>(operand));
-			}
-			if(it=="fmean") {
-				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				e.push(std::make_shared<pmFmean>(operand));
-			}
-			if(it=="fsum") {
-				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
-				e.push(std::make_shared<pmFsum>(operand));
 			}
 			if(it=="not") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
