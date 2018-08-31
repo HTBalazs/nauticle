@@ -74,6 +74,7 @@ void pmRuntime_compiler::generate_code() const {
     cl.add_member_function("void", "initialize", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::shared_ptr<pmCase>", "cas", false, "", ""}}, PUBLIC, init_code, false, true);
     std::string solver="";
     auto equations = cas->get_equations();
+    solver += "\tws->sort_all_by_position();\n";
     for(auto const& it:equations) {
         solver += it->generate_evaluator_code();
     }
