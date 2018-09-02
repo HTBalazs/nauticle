@@ -264,7 +264,7 @@ bool pmParticle_system::pmParticle_space::is_up_to_date() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 double pmParticle_system::pmParticle_space::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const {
 	if(i>=cells.numel()) { return 0.0; }
-	return cells[i]*flatten(cells, grid_pos, i+1)+grid_pos[i];
+	return std::round((cells[i])*flatten(cells, grid_pos, i+1)+grid_pos[i]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -337,7 +337,7 @@ std::vector<unsigned int> const& pmParticle_system::pmParticle_space::get_end() 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the hash key of particle i.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmParticle_system::pmParticle_space::get_hash_key(int const& i) const {
+int const& pmParticle_system::pmParticle_space::get_hash_key(int const& i) const {
 	return hash_key[i];
 }
 

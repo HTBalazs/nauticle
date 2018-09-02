@@ -51,7 +51,7 @@ namespace Nauticle {
 		void printv() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		virtual void set_value(pmTensor const& value, int const& i=0) override;
-		pmTensor get_value(int const& i) const override;
+		pmTensor const& get_value(int const& i) const override;
 		int get_field_size() const override;
 		std::string get_type() const override;
 		void set_storage_depth(size_t const& d) override;
