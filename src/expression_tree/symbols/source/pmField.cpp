@@ -203,3 +203,20 @@ bool pmField::is_symmetric() const {
 void pmField::set_symmetry(bool const& sym) {
 	symmetric = sym;
 }
+
+
+void pmField::delete_member(size_t const& i) {
+	for(auto& level_it:value) {
+		level_it.erase(level_it.begin()+i);
+	}
+}
+
+void pmField::add_member(pmTensor const& v/*=pmTensor{}*/) {
+	pmTensor tensor = v;
+	if(tensor.numel()==0) {
+		tensor = value[0].back();
+	}
+	for(auto& level_it:value) {
+		level_it.push_back(tensor);
+	}
+}

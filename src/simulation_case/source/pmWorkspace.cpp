@@ -444,3 +444,37 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 	}
 	num_nodes = N;
 }
+
+void pmWorkspace::delete_particle(size_t const& i) {
+	if(num_nodes==1) {
+		ProLog::pLogger::warning_msgf("Cannot delete the last particle.");
+	}
+	for(auto& it:this->get<pmField>()) {
+		it->delete_member(i);
+	}
+	num_nodes--;
+}
+
+void pmWorkspace::delete_particle(size_t const& i) {
+	if(num_nodes==1) {
+		ProLog::pLogger::warning_msgf("Cannot delete the last particle.");
+	}
+	for(auto& it:this->get<pmField>()) {
+		it->delete_member(i);
+	}
+	num_nodes--;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
