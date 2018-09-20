@@ -81,7 +81,7 @@ namespace Nauticle {
 		template <typename T> std::vector<std::shared_ptr<T>> get() const;
 		void set_number_of_nodes(size_t const& N);
 		void delete_particle(size_t const& i);
-		void add_particle(pmTensor const& i);
+		void add_particle();
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
