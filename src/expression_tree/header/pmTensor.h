@@ -23,6 +23,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <functional>
+#include <cstdlib>
 #include "prolog/pLogger.h"
 #include "nauticle_constants.h"
 
@@ -524,7 +526,7 @@ namespace Nauticle {
 		}
 		pmTensor tensor{T1.get_numrows(), T1.get_numcols()};
 		for(int i=0; i< T1.numel(); i++) {
-			tensor[i] = (int)T1[i] % (int)T2[i];
+			tensor[i] = T1[i]-std::floor(T1[i]/T2[i])*T2[i];
 		}
 		return tensor;
 	}

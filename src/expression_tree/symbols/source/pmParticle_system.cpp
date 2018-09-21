@@ -235,10 +235,11 @@ pmParticle_system::pmParticle_space& pmParticle_system::pmParticle_space::operat
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::pmParticle_space::restrict_particles(std::vector<std::vector<pmTensor>>& value) const {
 	if(up_to_date) { return; }
-	pmTensor domain_size = domain.get_physical_size();
-	pmTensor domain_minimum = domain.get_physical_minimum();
+	pmTensor domain_cell_size = domain.get_cell_size();
+	pmTensor domain_cell_number = domain.get_maximum()-domain.get_minimum();
 	for(int i=0; i<value[0].size(); i++) {
-		pmTensor shift = floor((value[0][i]-domain_minimum).divide_term_by_term(domain_size)).multiply_term_by_term(domain_size);
+		pmTensor g = get_grid_position(value[0][i]);
+		pmTensor shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(domain_cell_size);
 		for(auto& it:value) {
 			it[i] = it[i] - shift;
 		}
@@ -272,14 +273,14 @@ double pmParticle_system::pmParticle_space::flatten(pmTensor const& cells, pmTen
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmParticle_system::pmParticle_space::calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const {
 	pmTensor cells = domain.get_maximum()-domain.get_minimum();
-	return flatten(cells, grid_pos-domain.get_minimum(), 0);
+	return flatten(cells, grid_pos, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns hash key for particle i.
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmParticle_system::pmParticle_space::calculate_hash_key_from_position(pmTensor const& position) const {
-	pmTensor grid_pos = floor(position.divide_term_by_term(domain.get_cell_size()));
+	pmTensor grid_pos = get_grid_position(position);
 	return calculate_hash_key_from_grid_position(grid_pos);
 }
 
@@ -345,7 +346,7 @@ int const& pmParticle_system::pmParticle_space::get_hash_key(int const& i) const
 /// Returns the grid position of of the given point.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmParticle_system::pmParticle_space::get_grid_position(pmTensor const& point) const {
-	return floor(point.divide_term_by_term(domain.get_cell_size()));
+	return round(floor(point.divide_term_by_term(domain.get_cell_size()))-domain.get_minimum());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
