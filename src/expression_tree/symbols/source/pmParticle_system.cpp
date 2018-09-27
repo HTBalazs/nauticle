@@ -426,3 +426,17 @@ void pmParticle_system::pmParticle_space::set_number_of_nodes(size_t const& N) {
 bool pmParticle_system::is_position() const {
     return true;
 }
+
+
+void pmParticle_system::delete_member(size_t const& i) {
+	pmField::delete_member(i);
+	sorted_idx.push_back(0);
+}
+void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
+	pmField::add_member(v);
+	sorted_idx.push_back(0);
+}
+void pmParticle_system::duplicate_member(size_t const& i) {
+	pmField::duplicate_member(i);
+	sorted_idx.push_back(0);
+}

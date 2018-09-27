@@ -296,3 +296,35 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 	return parameter_space;
 }
 
+
+
+std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle_splitter(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
+	YAML::Node sim = data["simulation"];
+	std::vector<std::shared_ptr<pmParticle_splitter>> splitter_list;
+	if(!sim["splitter"]) {
+		return splitter_list;
+	}
+	std::string condition = "false";
+	std::string radius_field = "h";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="splitter") {
+			std::shared_ptr<pmParticle_splitter> splitter = std::make_shared<pmParticle_splitter>();
+			splitter->set_workspace(workspace);
+			for(YAML::const_iterator splitter_nodes=sim_nodes->second.begin();splitter_nodes!=sim_nodes->second.end();splitter_nodes++) {
+				std::shared_ptr<pmExpression_parser> expr_parser = std::make_shared<pmExpression_parser>();
+				if(splitter_nodes->first.as<std::string>()=="condition") {
+					condition = splitter_nodes->second.as<std::string>();
+					std::shared_ptr<pmExpression> expr = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+					splitter->set_condition(expr);
+				}
+				if(splitter_nodes->first.as<std::string>()=="radius_field") {
+					radius_field = splitter_nodes->second.as<std::string>();
+					std::shared_ptr<pmField> expr = expr_parser->analyse_expression<pmField>(radius_field,workspace);
+					splitter->set_radius(expr);
+				}
+			}
+			splitter_list.push_back(splitter);
+		}
+	}
+	return splitter_list;
+}

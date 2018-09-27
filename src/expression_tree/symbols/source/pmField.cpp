@@ -220,3 +220,9 @@ void pmField::add_member(pmTensor const& v/*=pmTensor{}*/) {
 		level_it.push_back(tensor);
 	}
 }
+
+void pmField::duplicate_member(size_t const& i) {
+	for(auto& it:value) {
+		it.push_back(it[i]);
+	}
+}

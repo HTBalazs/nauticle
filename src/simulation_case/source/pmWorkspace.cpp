@@ -450,19 +450,28 @@ void pmWorkspace::delete_particle(size_t const& i) {
 		ProLog::pLogger::warning_msgf("Cannot delete the last particle.");
 	}
 	for(auto& it:this->get<pmField>()) {
+		if(it->get_name()=="id") {
+			deleted_ids.push(it->evaluate(i,0)[0]);
+		}
 		it->delete_member(i);
 	}
 	num_nodes--;
 }
 
-void pmWorkspace::add_particle() {
+void pmWorkspace::duplicate_particle(size_t const& i) {
 	for(auto& it:this->get<pmField>()) {
-		it->add_member();
+		it->duplicate_member(i);
+		if(it->get_name()=="id") {
+			if(deleted_ids.empty()) {
+				it->set_value(num_nodes,num_nodes);
+			} else {
+				it->set_value(deleted_ids.top(),num_nodes);
+				deleted_ids.pop();
+			}
+		}
 	}
 	num_nodes++;
 }
-
-
 
 
 

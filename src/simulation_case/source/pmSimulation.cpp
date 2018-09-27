@@ -93,6 +93,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	write_step();
 	bool printing;
 	while(current_time < simulated_time) {
+		this->update_particle_modifiers();
 		dt = cas->get_workspace()->get_value("dt")[0];
 		double next_dt = dt;
 		// get printing interval
@@ -168,6 +169,7 @@ void pmSimulation::read_file(std::string const& filename) {
 	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
 	yaml_loader->read_file(filename);
 	cas = yaml_loader->get_case();
+	particle_splitter = yaml_loader->get_particle_splitter(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
@@ -183,3 +185,11 @@ void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 	simulate(num_threads);
 }
 
+void pmSimulation::update_particle_modifiers() {
+	if(particle_splitter.empty()) {
+		return;
+	}
+	for(auto& it:particle_splitter) {
+		it->update();
+	}
+}

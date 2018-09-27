@@ -91,6 +91,9 @@ namespace Nauticle {
 		bool is_sorted() const;
 		std::vector<int> get_sorted_idx() const;
 		bool is_position() const override;
+		virtual void delete_member(size_t const& i) override;
+		virtual void add_member(pmTensor const& v=pmTensor{}) override;
+		virtual void duplicate_member(size_t const& i) override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
