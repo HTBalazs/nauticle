@@ -207,7 +207,9 @@ void pmField::set_symmetry(bool const& sym) {
 
 void pmField::delete_member(size_t const& i) {
 	for(auto& level_it:value) {
-		level_it.erase(level_it.begin()+i);
+		level_it[i] = level_it.back();
+		level_it.pop_back();
+		// level_it.erase(level_it.begin()+i);
 	}
 }
 

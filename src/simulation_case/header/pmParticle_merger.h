@@ -18,32 +18,31 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _PARTICLE_MODIFIER_H_
-#define _PARTICLE_MODIFIER_H_
+#ifndef _PARTICLE_MERGER_H_
+#define _PARTICLE_MERGER_H_
 
 #include "pmWorkspace.h"
-#include "pmExpression.h"
-#include "pmField.h"
+#include "pmParticle_modifier.h"
+#include "pmInteraction.h"
+#include <utility>
 #include <memory>
 #include <vector>
 
 namespace Nauticle {
-	class pmParticle_modifier {
-	protected:
-		std::shared_ptr<pmWorkspace> workspace;
-		std::shared_ptr<pmExpression> condition;
-        std::shared_ptr<pmField> radius;
-        std::shared_ptr<pmField> mass;
-		std::shared_ptr<pmExpression> frequency;
-	protected:
-		std::vector<size_t> get_candidates() const;
-	public:
-        void set_condition(std::shared_ptr<pmExpression> cdn);
-		void set_frequency(std::shared_ptr<pmExpression> frq);
-        void set_radius(std::shared_ptr<pmField> rad);
-        void set_mass(std::shared_ptr<pmField> ms);
-		virtual void set_workspace(std::shared_ptr<pmWorkspace> ws);
+	class pmParticle_merger : public pmParticle_modifier, public pmInteraction<0> {
+        std::shared_ptr<pmField> velocity;
+    private:
+        std::shared_ptr<pmExpression> clone_impl() const override;
+        void make_pairs(std::pair<std::vector<size_t>,std::vector<size_t>>& pairs, std::vector<size_t> candidates) const;
+        pmTensor evaluate(int const& i, size_t const& level=0) const override;
+        int get_nearest_neighbor(size_t const& i) const;
+        void print() const override {}
+    public:
+		void update();
+        std::shared_ptr<pmParticle_merger> clone() const;
+        virtual void set_workspace(std::shared_ptr<pmWorkspace> ws) override;
+        void set_velocity(std::shared_ptr<pmField> vel);
 	};
 }
 
-#endif // _PARTICLE_MODIFIER_H_
+#endif // _PARTICLE_MERGER_H_

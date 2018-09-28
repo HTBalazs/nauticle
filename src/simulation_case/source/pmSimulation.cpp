@@ -170,6 +170,7 @@ void pmSimulation::read_file(std::string const& filename) {
 	yaml_loader->read_file(filename);
 	cas = yaml_loader->get_case();
 	particle_splitter = yaml_loader->get_particle_splitter(cas->get_workspace());
+	particle_merger = yaml_loader->get_particle_merger(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
@@ -186,10 +187,10 @@ void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 }
 
 void pmSimulation::update_particle_modifiers() {
-	if(particle_splitter.empty()) {
-		return;
-	}
 	for(auto& it:particle_splitter) {
+		it->update();
+	}
+	for(auto& it:particle_merger) {
 		it->update();
 	}
 }

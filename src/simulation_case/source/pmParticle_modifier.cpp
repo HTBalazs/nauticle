@@ -35,6 +35,9 @@ std::vector<size_t> pmParticle_modifier::get_candidates() const {
 void pmParticle_modifier::set_condition(std::shared_ptr<pmExpression> cdn) {
     condition = cdn;
 }
+void pmParticle_modifier::set_frequency(std::shared_ptr<pmExpression> frq) {
+    frequency = frq;
+}
 void pmParticle_modifier::set_radius(std::shared_ptr<pmField> rad) {
     radius = rad;
 }

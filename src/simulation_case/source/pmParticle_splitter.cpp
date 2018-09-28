@@ -24,6 +24,11 @@
 using namespace Nauticle;
 
 void pmParticle_splitter::update() {
+    static int count = -1;
+    count++;
+    if(count%(int)(frequency->evaluate(0)[0]) != 0) {
+        return;
+    }
     std::vector<size_t> candidates = this->get_candidates();
     double step = 2.0*NAUTICLE_PI/num_new;
     for(auto const& it:candidates) {

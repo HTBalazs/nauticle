@@ -30,6 +30,7 @@
 #include "pmVTK_writer.h"
 #include "pmParameter_space.h"
 #include "pmParticle_splitter.h"
+#include "pmParticle_merger.h"
 
 namespace Nauticle {
 	/** This class represents the problem to solve. The contructor recieves the file
@@ -46,6 +47,7 @@ namespace Nauticle {
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
 		std::vector<std::shared_ptr<pmParticle_splitter>> particle_splitter;
+		std::vector<std::shared_ptr<pmParticle_merger>> particle_merger;
 		write_mode vtk_write_mode = ASCII;
 		void print() const;
 		double calculate_print_interval() const;
