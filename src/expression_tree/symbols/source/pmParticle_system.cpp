@@ -421,6 +421,13 @@ void pmParticle_system::pmParticle_space::set_number_of_nodes(size_t const& N) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Return the number of particles managed in the neighbor search.
+/////////////////////////////////////////////////////////////////////////////////////////
+size_t pmParticle_system::pmParticle_space::get_number_of_nodes() const {
+	return hash_key.size();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns if the object is the position.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmParticle_system::is_position() const {
@@ -431,12 +438,15 @@ bool pmParticle_system::is_position() const {
 void pmParticle_system::delete_member(size_t const& i) {
 	pmField::delete_member(i);
 	sorted_idx.push_back(0);
+	particle_space->set_number_of_nodes(sorted_idx.size());
 }
 void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	pmField::add_member(v);
 	sorted_idx.push_back(0);
+	particle_space->set_number_of_nodes(sorted_idx.size());
 }
 void pmParticle_system::duplicate_member(size_t const& i) {
 	pmField::duplicate_member(i);
 	sorted_idx.push_back(0);
+	particle_space->set_number_of_nodes(sorted_idx.size());
 }

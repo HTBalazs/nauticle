@@ -68,6 +68,7 @@ namespace Nauticle {
 			std::vector<pmTensor> const& get_cell_iterator() const;
 			std::shared_ptr<pmParticle_space> clone() const;
 			void set_number_of_nodes(size_t const& N);
+			size_t get_number_of_nodes() const;
 		};
 		std::shared_ptr<pmParticle_space> particle_space;
 		std::vector<int> sorted_idx;
