@@ -38,6 +38,9 @@ void pmParticle_modifier::set_condition(std::shared_ptr<pmExpression> cdn) {
 void pmParticle_modifier::set_radius(std::shared_ptr<pmField> rad) {
     radius = rad;
 }
+void pmParticle_modifier::set_mass(std::shared_ptr<pmField> ms) {
+    mass = ms;
+}
 void pmParticle_modifier::set_workspace(std::shared_ptr<pmWorkspace> ws) {
 	workspace = ws;
 }

@@ -28,7 +28,9 @@ void pmParticle_splitter::update() {
     double step = 2.0*NAUTICLE_PI/num_new;
     for(auto const& it:candidates) {
         double R_original = radius->evaluate(it,0)[0];
+        double m_original = mass->evaluate(it,0)[0];
         radius->set_value(alpha*R_original,it);
+        mass->set_value(m_original/(num_new+1),it);
         double angle = pmRandom::random(0,2.0*NAUTICLE_PI);
         for(int i=0; i<num_new; i++) {
             workspace->duplicate_particle(it);
@@ -39,6 +41,7 @@ void pmParticle_splitter::update() {
             new_pos[1] += R_original*epsilon*std::sin(i*step+angle);
             ps->set_value(new_pos,num_nodes-1);
             radius->set_value(alpha*R_original,num_nodes-1);
+            mass->set_value(m_original/(num_new+1),num_nodes-1);
         }
     }
 }

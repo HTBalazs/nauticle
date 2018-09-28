@@ -306,6 +306,7 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 	}
 	std::string condition = "false";
 	std::string radius_field = "h";
+	std::string mass_field = "m";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="splitter") {
 			std::shared_ptr<pmParticle_splitter> splitter = std::make_shared<pmParticle_splitter>();
@@ -321,6 +322,11 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 					radius_field = splitter_nodes->second.as<std::string>();
 					std::shared_ptr<pmField> expr = expr_parser->analyse_expression<pmField>(radius_field,workspace);
 					splitter->set_radius(expr);
+				}
+				if(splitter_nodes->first.as<std::string>()=="mass_field") {
+					mass_field = splitter_nodes->second.as<std::string>();
+					std::shared_ptr<pmField> expr = expr_parser->analyse_expression<pmField>(mass_field,workspace);
+					splitter->set_mass(expr);
 				}
 			}
 			splitter_list.push_back(splitter);

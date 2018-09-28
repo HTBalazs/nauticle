@@ -32,12 +32,14 @@ namespace Nauticle {
 	protected:
 		std::shared_ptr<pmWorkspace> workspace;
 		std::shared_ptr<pmExpression> condition;
-		std::shared_ptr<pmField> radius;
+        std::shared_ptr<pmField> radius;
+		std::shared_ptr<pmField> mass;
 	protected:
 		std::vector<size_t> get_candidates() const;
 	public:
         void set_condition(std::shared_ptr<pmExpression> cdn);
-		void set_radius(std::shared_ptr<pmField> rad);
+        void set_radius(std::shared_ptr<pmField> rad);
+		void set_mass(std::shared_ptr<pmField> ms);
 		void set_workspace(std::shared_ptr<pmWorkspace> ws);
 	};
 }
