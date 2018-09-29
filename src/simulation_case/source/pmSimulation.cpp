@@ -30,6 +30,10 @@ using namespace Nauticle;
 pmSimulation::pmSimulation(pmSimulation const& other) {
 	this->cas = std::make_shared<pmCase>(*other.cas);
 	this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
+	for(auto const& it:other.particle_modifier) {
+		this->particle_modifier.push_back(it->clone());
+	}
+	this->vtk_write_mode = other.vtk_write_mode;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +42,8 @@ pmSimulation::pmSimulation(pmSimulation const& other) {
 pmSimulation::pmSimulation(pmSimulation&& other) {
 	this->cas = std::move(other.cas);
 	this->parameter_space = std::move(other.parameter_space);
+	this->particle_modifier = std::move(other.particle_modifier);
+	this->vtk_write_mode = std::move(other.vtk_write_mode);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +53,10 @@ pmSimulation& pmSimulation::operator=(pmSimulation const& other) {
 	if(this!=&other) {
 		this->cas = std::make_shared<pmCase>(*other.cas);
 		this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
+		for(auto const& it:other.particle_modifier) {
+			this->particle_modifier.push_back(it->clone());
+		}
+		this->vtk_write_mode = other.vtk_write_mode;
 	}
 	return *this;
 }
@@ -58,9 +68,15 @@ pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
 	if(this!=&other) {
 		this->cas = std::move(other.cas);
 		this->parameter_space = std::move(other.parameter_space);
+		this->particle_modifier = std::move(other.particle_modifier);
+		this->vtk_write_mode = std::move(other.vtk_write_mode);
 	}
 	return *this;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Calculates the next print interval.
+/////////////////////////////////////////////////////////////////////////////////////////
 double pmSimulation::calculate_print_interval() const {
 	static bool constant = false;
 	static double interval = 0;
@@ -131,6 +147,9 @@ void pmSimulation::print() const {
 	ProLog::pLogger::headerf<ProLog::LGN>("Simulation");
 	if(cas!=nullptr)		cas->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
+	for(auto const& it:particle_modifier) {
+		it->print();
+	}
 	ProLog::pLogger::footerf<ProLog::LGN>();
 }
 
@@ -169,8 +188,10 @@ void pmSimulation::read_file(std::string const& filename) {
 	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
 	yaml_loader->read_file(filename);
 	cas = yaml_loader->get_case();
-	particle_splitter = yaml_loader->get_particle_splitter(cas->get_workspace());
-	particle_merger = yaml_loader->get_particle_merger(cas->get_workspace());
+	auto particle_splitter = yaml_loader->get_particle_splitter(cas->get_workspace());
+	auto particle_merger = yaml_loader->get_particle_merger(cas->get_workspace());
+	particle_modifier.insert(particle_modifier.end(), particle_splitter.begin(), particle_splitter.end());
+	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
@@ -187,10 +208,7 @@ void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 }
 
 void pmSimulation::update_particle_modifiers() {
-	for(auto& it:particle_splitter) {
-		it->update();
-	}
-	for(auto& it:particle_merger) {
+	for(auto& it:particle_modifier) {
 		it->update();
 	}
 }

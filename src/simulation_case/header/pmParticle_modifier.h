@@ -34,15 +34,23 @@ namespace Nauticle {
 		std::shared_ptr<pmExpression> condition;
         std::shared_ptr<pmField> radius;
         std::shared_ptr<pmField> mass;
-		std::shared_ptr<pmExpression> frequency;
+		std::shared_ptr<pmExpression> period;
 	protected:
 		std::vector<size_t> get_candidates() const;
+        virtual std::shared_ptr<pmParticle_modifier> clone_impl() const=0;
 	public:
         void set_condition(std::shared_ptr<pmExpression> cdn);
-		void set_frequency(std::shared_ptr<pmExpression> frq);
+		void set_period(std::shared_ptr<pmExpression> pr);
         void set_radius(std::shared_ptr<pmField> rad);
         void set_mass(std::shared_ptr<pmField> ms);
+        std::shared_ptr<pmExpression> const& get_condition() const;
+        std::shared_ptr<pmExpression> const& get_period() const;
+        std::shared_ptr<pmField> const& get_radius() const;
+        std::shared_ptr<pmField> const& get_mass() const;
 		virtual void set_workspace(std::shared_ptr<pmWorkspace> ws);
+        virtual void update()=0;
+        virtual void print() const=0;
+        std::shared_ptr<pmParticle_modifier> clone() const;
 	};
 }
 

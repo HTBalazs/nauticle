@@ -209,7 +209,12 @@ void pmField::delete_member(size_t const& i) {
 	for(auto& level_it:value) {
 		level_it[i] = level_it.back();
 		level_it.pop_back();
-		// level_it.erase(level_it.begin()+i);
+	}
+}
+
+void pmField::delete_set(std::vector<size_t> const& delete_indices) {
+	for(auto& level_it:value) {
+		deleter(level_it, delete_indices);
 	}
 }
 
@@ -227,4 +232,21 @@ void pmField::duplicate_member(size_t const& i) {
 	for(auto& it:value) {
 		it.push_back(it[i]);
 	}
+}
+
+
+void pmField::deleter(std::vector<pmTensor>& data, std::vector<size_t> const& delete_indices) {
+    std::vector<bool> markedElements(data.size(), false);
+    std::vector<pmTensor> tempBuffer;
+    tempBuffer.reserve(data.size()-delete_indices.size());
+
+    for (std::vector<size_t>::const_iterator itDel = delete_indices.begin(); itDel != delete_indices.end(); itDel++)
+        markedElements[*itDel] = true;
+
+    for (size_t i=0; i<data.size(); i++)
+    {
+        if (!markedElements[i])
+            tempBuffer.push_back(data[i]);
+    }
+    data = tempBuffer;
 }

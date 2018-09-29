@@ -46,8 +46,7 @@ namespace Nauticle {
 	protected:
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
-		std::vector<std::shared_ptr<pmParticle_splitter>> particle_splitter;
-		std::vector<std::shared_ptr<pmParticle_merger>> particle_merger;
+		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
 		write_mode vtk_write_mode = ASCII;
 		void print() const;
 		double calculate_print_interval() const;

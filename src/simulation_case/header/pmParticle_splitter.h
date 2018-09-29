@@ -28,12 +28,17 @@
 
 namespace Nauticle {
 	class pmParticle_splitter : public pmParticle_modifier {
-		double epsilon = 0.4;
-		double alpha = 0.9;
-		size_t num_new = 6;
-	private:
+        double epsilon = 0.4;
+        double alpha = 0.9;
+        size_t num_new = 6;
+        static size_t counter;
+    protected:
+        virtual std::shared_ptr<pmParticle_modifier> clone_impl() const override;
     public:
-		void update();
+        pmParticle_splitter();
+		void update() override;
+        void print() const override;
+        std::shared_ptr<pmParticle_splitter> clone() const;
 	};
 }
 

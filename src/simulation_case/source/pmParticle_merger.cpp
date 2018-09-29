@@ -24,18 +24,34 @@
 
 using namespace Nauticle;
 
+size_t pmParticle_merger::counter = 0;
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Constructor.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmParticle_merger::pmParticle_merger() {
+    nearest = std::make_shared<pmNearest_neighbor>();
+    counter++;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Clone implementation.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmParticle_merger::clone_impl() const {
+std::shared_ptr<pmExpression> pmParticle_merger::pmNearest_neighbor::clone_impl() const {
+    return std::make_shared<pmNearest_neighbor>(*this);
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Clone implementation.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmParticle_modifier> pmParticle_merger::clone_impl() const {
     return std::make_shared<pmParticle_merger>(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the copy of the object.
+/// Returns a copy of the field.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmParticle_merger> pmParticle_merger::clone() const {
-    return std::static_pointer_cast<pmParticle_merger, pmExpression>(clone_impl());
+    return std::static_pointer_cast<pmParticle_merger, pmParticle_modifier>(clone_impl());
 }
 
 void pmParticle_merger::make_pairs(std::pair<std::vector<size_t>,std::vector<size_t>>& pairs, std::vector<size_t> candidates) const {
@@ -43,7 +59,7 @@ void pmParticle_merger::make_pairs(std::pair<std::vector<size_t>,std::vector<siz
     std::vector<size_t> id1;
     std::vector<size_t> id2;
     while(!candidates.empty() && i<candidates.size()) {
-        int other = get_nearest_neighbor(candidates[i]);
+        int other = (int)nearest->evaluate(candidates[i])[0];
         if(other>=0) {
             std::vector<size_t>::iterator it = std::find(id2.begin(), id2.end(), other);
             if(it==id2.end()) {
@@ -67,7 +83,7 @@ void pmParticle_merger::make_pairs(std::pair<std::vector<size_t>,std::vector<siz
     pairs.second = id2;
 }
 
-pmTensor pmParticle_merger::evaluate(int const& i, size_t const& level/*=0*/) const {
+pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t const& level/*=0*/) const {
     if(!assigned) { ProLog::pLogger::error_msgf("Particle merger is not assigned to any particle system.\n"); }
     int nearest = -1;
     double distance = 1e12;
@@ -85,14 +101,10 @@ pmTensor pmParticle_merger::evaluate(int const& i, size_t const& level/*=0*/) co
     return pmTensor{1,1,(double)nearest};
 }
 
-int pmParticle_merger::get_nearest_neighbor(size_t const& i) const {
-    return (int)(evaluate(i)[0]);
-}
-
 void pmParticle_merger::update() {
     static int count = -1;
     count++;
-    if(count%(int)(frequency->evaluate(0)[0]) != 0) {
+    if(count%(int)(period->evaluate(0)[0]) != 0) {
         return;
     }
     std::pair<std::vector<size_t>,std::vector<size_t>> pairs;
@@ -136,19 +148,32 @@ void pmParticle_merger::update() {
 
 void pmParticle_merger::set_workspace(std::shared_ptr<pmWorkspace> ws) {
     pmParticle_modifier::set_workspace(ws);
-    this->assign(ws->get_particle_system());
+    nearest->assign(ws->get_particle_system());
 }
 
 void pmParticle_merger::set_velocity(std::shared_ptr<pmField> vel) {
     velocity = vel;
 }
 
+std::shared_ptr<pmField> const& pmParticle_merger::get_velocity() const {
+    return velocity;
+}
 
-
-
-
-
-
+void pmParticle_merger::print() const {
+    static bool print_header = true;
+    if(print_header) {
+        ProLog::pLogger::headerf<ProLog::LBL>("Particle merger:");
+        print_header = false;
+    }
+    ProLog::pLogger::titlef<ProLog::LMA>("Splitter %i:\n", counter);
+    ProLog::pLogger::logf<ProLog::YEL>("        condition: "); condition->print();
+    ProLog::pLogger::logf<ProLog::YEL>("        radius: %s\n", radius->get_name().c_str());
+    ProLog::pLogger::logf<ProLog::YEL>("        mass: %s\n", mass->get_name().c_str());
+    ProLog::pLogger::logf<ProLog::YEL>("        velocity: %s\n", velocity->get_name().c_str());
+    ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print();
+    
+    ProLog::pLogger::footerf<ProLog::LBL>();
+}
 
 
 

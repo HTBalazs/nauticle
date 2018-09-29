@@ -64,8 +64,10 @@ namespace Nauticle {
 		bool is_symmetric() const override;
 		void set_symmetry(bool const& sym);
 		virtual void delete_member(size_t const& i);
+		void delete_set(std::vector<size_t> const& indexes);
 		virtual void add_member(pmTensor const& v=pmTensor{});
 		virtual void duplicate_member(size_t const& i);
+		void deleter(std::vector<pmTensor>& data, std::vector<size_t> const& delete_indices);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

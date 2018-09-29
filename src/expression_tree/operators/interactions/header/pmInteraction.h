@@ -42,13 +42,13 @@ namespace Nauticle {
 		bool assigned=false;
 	protected:
 		virtual ~pmInteraction() {}
-		void assign(std::weak_ptr<pmParticle_system> ps) override;
 		bool is_assigned() const override;
 		int get_field_size() const override;
 		bool cutoff_cell(pmTensor const& beta, pmTensor const& delta, size_t const& dimensions) const;
 		pmTensor interact(int const& i, Func_ith contribute) const;
 		pmTensor interact(pmTensor const& pos_i, Func_pos contribute) const;
 	public:
+		void assign(std::weak_ptr<pmParticle_system> ps) override;
 		virtual void write_to_string(std::ostream& os) const override;
 	};
 

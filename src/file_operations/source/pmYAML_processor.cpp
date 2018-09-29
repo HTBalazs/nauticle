@@ -304,37 +304,39 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 	if(!sim["splitter"]) {
 		return splitter_list;
 	}
+	// default values
 	std::string condition = "false";
 	std::string radius_field = "h";
 	std::string mass_field = "m";
-	std::string frequency = "1";
+	std::string period = "1";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="splitter") {
-			std::shared_ptr<pmParticle_splitter> splitter = std::make_shared<pmParticle_splitter>();
+			auto splitter = std::make_shared<pmParticle_splitter>();
 			splitter->set_workspace(workspace);
+			auto expr_parser = std::make_shared<pmExpression_parser>();
 			for(YAML::const_iterator splitter_nodes=sim_nodes->second.begin();splitter_nodes!=sim_nodes->second.end();splitter_nodes++) {
-				std::shared_ptr<pmExpression_parser> expr_parser = std::make_shared<pmExpression_parser>();
+				// read from configuration file
 				if(splitter_nodes->first.as<std::string>()=="condition") {
 					condition = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmExpression> expr = expr_parser->analyse_expression<pmExpression>(condition,workspace);
-					splitter->set_condition(expr);
 				}
 				if(splitter_nodes->first.as<std::string>()=="radius_field") {
 					radius_field = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmField> expr = expr_parser->analyse_expression<pmField>(radius_field,workspace);
-					splitter->set_radius(expr);
 				}
 				if(splitter_nodes->first.as<std::string>()=="mass_field") {
 					mass_field = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmField> expr = expr_parser->analyse_expression<pmField>(mass_field,workspace);
-					splitter->set_mass(expr);
 				}
-				if(splitter_nodes->first.as<std::string>()=="frequency") {
-					frequency = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmExpression> expr = expr_parser->analyse_expression<pmExpression>(frequency,workspace);
-					splitter->set_frequency(expr);
+				if(splitter_nodes->first.as<std::string>()=="period") {
+					period = splitter_nodes->second.as<std::string>();
 				}
 			}
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			auto expr_radius = expr_parser->analyse_expression<pmField>(radius_field,workspace);
+			auto expr_mass = expr_parser->analyse_expression<pmField>(mass_field,workspace);
+			auto expr_period = expr_parser->analyse_expression<pmExpression>(period,workspace);
+			splitter->set_condition(expr_condition);
+			splitter->set_radius(expr_radius);
+			splitter->set_mass(expr_mass);
+			splitter->set_period(expr_period);
 			splitter_list.push_back(splitter);
 		}
 	}
@@ -347,43 +349,45 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 	if(!sim["merger"]) {
 		return merger_list;
 	}
+	// default values
 	std::string condition = "false";
 	std::string radius_field = "h";
 	std::string mass_field = "m";
 	std::string velocity_field = "v";
-	std::string frequency = "1";
+	std::string period = "1";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="merger") {
-			std::shared_ptr<pmParticle_merger> merger = std::make_shared<pmParticle_merger>();
+			auto merger = std::make_shared<pmParticle_merger>();
 			merger->set_workspace(workspace);
+			auto expr_parser = std::make_shared<pmExpression_parser>();
 			for(YAML::const_iterator splitter_nodes=sim_nodes->second.begin();splitter_nodes!=sim_nodes->second.end();splitter_nodes++) {
-				std::shared_ptr<pmExpression_parser> expr_parser = std::make_shared<pmExpression_parser>();
+				// read from configuration file
 				if(splitter_nodes->first.as<std::string>()=="condition") {
 					condition = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmExpression> expr = expr_parser->analyse_expression<pmExpression>(condition,workspace);
-					merger->set_condition(expr);
 				}
 				if(splitter_nodes->first.as<std::string>()=="radius_field") {
 					radius_field = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmField> expr = expr_parser->analyse_expression<pmField>(radius_field,workspace);
-					merger->set_radius(expr);
 				}
 				if(splitter_nodes->first.as<std::string>()=="mass_field") {
 					mass_field = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmField> expr = expr_parser->analyse_expression<pmField>(mass_field,workspace);
-					merger->set_mass(expr);
 				}
 				if(splitter_nodes->first.as<std::string>()=="velocity_field") {
 					velocity_field = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmField> expr = expr_parser->analyse_expression<pmField>(velocity_field,workspace);
-					merger->set_velocity(expr);
 				}
-				if(splitter_nodes->first.as<std::string>()=="frequency") {
-					frequency = splitter_nodes->second.as<std::string>();
-					std::shared_ptr<pmExpression> expr = expr_parser->analyse_expression<pmExpression>(frequency,workspace);
-					merger->set_frequency(expr);
+				if(splitter_nodes->first.as<std::string>()=="period") {
+					period = splitter_nodes->second.as<std::string>();
 				}
 			}
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			auto expr_radius = expr_parser->analyse_expression<pmField>(radius_field,workspace);
+			auto expr_mass = expr_parser->analyse_expression<pmField>(mass_field,workspace);
+			auto expr_velocity = expr_parser->analyse_expression<pmField>(velocity_field,workspace);
+			auto expr_period = expr_parser->analyse_expression<pmExpression>(period,workspace);
+			merger->set_condition(expr_condition);
+			merger->set_radius(expr_radius);
+			merger->set_mass(expr_mass);
+			merger->set_velocity(expr_velocity);
+			merger->set_period(expr_period);
 			merger_list.push_back(merger);
 		}
 	}

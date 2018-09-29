@@ -458,6 +458,11 @@ void pmWorkspace::delete_particle(size_t const& i) {
 	num_nodes--;
 }
 
+
+void pmWorkspace::delete_set(std::vector<size_t> const& delete_indices) {
+	
+}
+
 void pmWorkspace::duplicate_particle(size_t const& i) {
 	for(auto& it:this->get<pmField>()) {
 		it->duplicate_member(i);

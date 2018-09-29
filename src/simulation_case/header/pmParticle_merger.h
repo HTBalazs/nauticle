@@ -29,19 +29,32 @@
 #include <vector>
 
 namespace Nauticle {
-	class pmParticle_merger : public pmParticle_modifier, public pmInteraction<0> {
-        std::shared_ptr<pmField> velocity;
+	class pmParticle_merger : public pmParticle_modifier {
+        
+        class pmNearest_neighbor : public pmInteraction<0> {
+        protected:
+            virtual std::shared_ptr<pmExpression> clone_impl() const override;
+        public:
+            pmTensor evaluate(int const& i, size_t const& level=0) const override;
+            void print() const override {}
+        };
+
     private:
-        std::shared_ptr<pmExpression> clone_impl() const override;
+        std::shared_ptr<pmNearest_neighbor> nearest;
+        std::shared_ptr<pmField> velocity;
+        static size_t counter;
+    protected:
+        virtual std::shared_ptr<pmParticle_modifier> clone_impl() const override;
+    private:
         void make_pairs(std::pair<std::vector<size_t>,std::vector<size_t>>& pairs, std::vector<size_t> candidates) const;
-        pmTensor evaluate(int const& i, size_t const& level=0) const override;
-        int get_nearest_neighbor(size_t const& i) const;
-        void print() const override {}
     public:
-		void update();
-        std::shared_ptr<pmParticle_merger> clone() const;
+        pmParticle_merger();
+		void update() override;
         virtual void set_workspace(std::shared_ptr<pmWorkspace> ws) override;
         void set_velocity(std::shared_ptr<pmField> vel);
+        std::shared_ptr<pmField> const& get_velocity() const;
+        void print() const override;
+        std::shared_ptr<pmParticle_merger> clone() const;
 	};
 }
 

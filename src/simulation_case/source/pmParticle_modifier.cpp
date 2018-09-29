@@ -35,8 +35,8 @@ std::vector<size_t> pmParticle_modifier::get_candidates() const {
 void pmParticle_modifier::set_condition(std::shared_ptr<pmExpression> cdn) {
     condition = cdn;
 }
-void pmParticle_modifier::set_frequency(std::shared_ptr<pmExpression> frq) {
-    frequency = frq;
+void pmParticle_modifier::set_period(std::shared_ptr<pmExpression> pr) {
+    period = pr;
 }
 void pmParticle_modifier::set_radius(std::shared_ptr<pmField> rad) {
     radius = rad;
@@ -46,4 +46,24 @@ void pmParticle_modifier::set_mass(std::shared_ptr<pmField> ms) {
 }
 void pmParticle_modifier::set_workspace(std::shared_ptr<pmWorkspace> ws) {
 	workspace = ws;
+}
+
+std::shared_ptr<pmExpression> const& pmParticle_modifier::get_condition() const {
+    return condition;
+}
+
+std::shared_ptr<pmExpression> const& pmParticle_modifier::get_period() const {
+    return period;
+}
+
+std::shared_ptr<pmField> const& pmParticle_modifier::get_radius() const {
+    return radius;
+}
+
+std::shared_ptr<pmField> const& pmParticle_modifier::get_mass() const {
+    return mass;
+}
+
+std::shared_ptr<pmParticle_modifier> pmParticle_modifier::clone() const {
+    return clone_impl();
 }
