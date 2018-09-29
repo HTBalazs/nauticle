@@ -28,6 +28,9 @@
 #include <vector>
 
 namespace Nauticle {
+    /** This class implements the base of the particle modifier classes for condition 
+    // driven particle generation and deletion.
+    */
 	class pmParticle_modifier {
 	protected:
 		std::shared_ptr<pmWorkspace> workspace;

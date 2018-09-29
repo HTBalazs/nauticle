@@ -25,6 +25,9 @@ using namespace Nauticle;
 
 size_t pmParticle_splitter::counter = 0;
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Constructor.
+/////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_splitter::pmParticle_splitter() {
     counter++;
 }
@@ -61,17 +64,24 @@ void pmParticle_splitter::update() {
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints the splitter properties.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_splitter::print() const {
     static bool print_header = true;
     if(print_header) {
         ProLog::pLogger::headerf<ProLog::LBL>("Particle splitter:");
         print_header = false;
     }
-    ProLog::pLogger::titlef<ProLog::LMA>("Splitter %i:\n", counter);
+    ProLog::pLogger::titlef<ProLog::LMA>("Splitter");
     ProLog::pLogger::logf<ProLog::YEL>("        condition: "); condition->print();
-    ProLog::pLogger::logf<ProLog::YEL>("        radius: %s\n", radius->get_name().c_str());
-    ProLog::pLogger::logf<ProLog::YEL>("        mass: %s\n", mass->get_name().c_str());
+    ProLog::pLogger::line_feed(1);
+    ProLog::pLogger::logf<ProLog::YEL>("        radius: ");
+    ProLog::pLogger::logf<ProLog::NRM>("%s\n", radius->get_name().c_str());
+    ProLog::pLogger::logf<ProLog::YEL>("        mass: ");
+    ProLog::pLogger::logf<ProLog::NRM>("%s\n", mass->get_name().c_str());
     ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print();
+    ProLog::pLogger::line_feed(1);
     ProLog::pLogger::footerf<ProLog::LBL>();
 }
 

@@ -27,6 +27,8 @@
 #include <vector>
 
 namespace Nauticle {
+    /** This class implements the particle splitting.
+    */
 	class pmParticle_splitter : public pmParticle_modifier {
         double epsilon = 0.4;
         double alpha = 0.9;

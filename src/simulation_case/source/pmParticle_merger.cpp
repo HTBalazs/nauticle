@@ -54,6 +54,10 @@ std::shared_ptr<pmParticle_merger> pmParticle_merger::clone() const {
     return std::static_pointer_cast<pmParticle_merger, pmParticle_modifier>(clone_impl());
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Collect pairs from the given candidates. Non-candidate particles can also be 
+//  selected for merge.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_merger::make_pairs(std::pair<std::vector<size_t>,std::vector<size_t>>& pairs, std::vector<size_t> candidates) const {
     size_t i = 0;
     std::vector<size_t> id1;
@@ -83,6 +87,9 @@ void pmParticle_merger::make_pairs(std::pair<std::vector<size_t>,std::vector<siz
     pairs.second = id2;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Finds the nearest neighbor of the given particle within range.
+/////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t const& level/*=0*/) const {
     if(!assigned) { ProLog::pLogger::error_msgf("Particle merger is not assigned to any particle system.\n"); }
     int nearest = -1;
@@ -101,6 +108,9 @@ pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t co
     return pmTensor{1,1,(double)nearest};
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Performs the particle merging.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_merger::update() {
     static int count = -1;
     count++;
@@ -145,32 +155,46 @@ void pmParticle_merger::update() {
     }
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the workspace object.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_merger::set_workspace(std::shared_ptr<pmWorkspace> ws) {
     pmParticle_modifier::set_workspace(ws);
     nearest->assign(ws->get_particle_system());
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the velocity object.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_merger::set_velocity(std::shared_ptr<pmField> vel) {
     velocity = vel;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the velocity object.
+/////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmField> const& pmParticle_merger::get_velocity() const {
     return velocity;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints the merger properties.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_merger::print() const {
     static bool print_header = true;
     if(print_header) {
         ProLog::pLogger::headerf<ProLog::LBL>("Particle merger:");
         print_header = false;
     }
-    ProLog::pLogger::titlef<ProLog::LMA>("Splitter %i:\n", counter);
-    ProLog::pLogger::logf<ProLog::YEL>("        condition: "); condition->print();
-    ProLog::pLogger::logf<ProLog::YEL>("        radius: %s\n", radius->get_name().c_str());
-    ProLog::pLogger::logf<ProLog::YEL>("        mass: %s\n", mass->get_name().c_str());
-    ProLog::pLogger::logf<ProLog::YEL>("        velocity: %s\n", velocity->get_name().c_str());
-    ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print();
+    ProLog::pLogger::titlef<ProLog::LMA>("Merger");
+    ProLog::pLogger::logf<ProLog::YEL>("        condition: "); condition->print(); ProLog::pLogger::line_feed(1);
+    ProLog::pLogger::logf<ProLog::YEL>("        radius: ");
+    ProLog::pLogger::logf<ProLog::NRM>("%s\n", radius->get_name().c_str());
+    ProLog::pLogger::logf<ProLog::YEL>("        mass: ");
+    ProLog::pLogger::logf<ProLog::NRM>("%s\n", mass->get_name().c_str());
+    ProLog::pLogger::logf<ProLog::YEL>("        velocity: ");
+    ProLog::pLogger::logf<ProLog::NRM>("%s\n", velocity->get_name().c_str());
+    ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print(); ProLog::pLogger::line_feed(1);
     
     ProLog::pLogger::footerf<ProLog::LBL>();
 }
