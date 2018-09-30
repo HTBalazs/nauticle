@@ -434,7 +434,9 @@ bool pmParticle_system::is_position() const {
     return true;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Delete particle from the system.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::delete_member(size_t const& i) {
 	pmField::delete_member(i);
 	size_t const new_size = sorted_idx.size()-1;
@@ -442,6 +444,9 @@ void pmParticle_system::delete_member(size_t const& i) {
 	particle_space->set_number_of_nodes(new_size);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Delete particles indexed in the indices vector.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 	pmField::delete_set(indices);
 	size_t const new_size = sorted_idx.size()-indices.size();
@@ -449,11 +454,19 @@ void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 	sorted_idx.resize(new_size);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Adds a new particle to the system. The position is initialized based on the one in 
+// 	the end of the vector.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	pmField::add_member(v);
 	sorted_idx.push_back(0);
 	particle_space->set_number_of_nodes(sorted_idx.size());
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Duplicates particle with the given index.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::duplicate_member(size_t const& i) {
 	pmField::duplicate_member(i);
 	sorted_idx.push_back(0);

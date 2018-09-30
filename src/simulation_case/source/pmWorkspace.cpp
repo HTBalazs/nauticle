@@ -445,6 +445,9 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 	num_nodes = N;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Removes the ith particle together with its field values from the workspace. 
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::delete_particle(size_t const& i) {
 	if(num_nodes==1) {
 		ProLog::pLogger::warning_msgf("Cannot delete the last particle.");
@@ -458,7 +461,9 @@ void pmWorkspace::delete_particle(size_t const& i) {
 	num_nodes--;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Removes the particles and field values with the indices given in the delete_indices vector.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::delete_particle_set(std::vector<size_t> const& delete_indices) {
 	if(delete_indices.empty()) {
 		return;
@@ -474,6 +479,9 @@ void pmWorkspace::delete_particle_set(std::vector<size_t> const& delete_indices)
 	num_nodes -= delete_indices.size();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Duplicates particle with the given index. Field values are also duplicated.
+/////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::duplicate_particle(size_t const& i) {
 	for(auto& it:this->get<pmField>()) {
 		it->duplicate_member(i);
