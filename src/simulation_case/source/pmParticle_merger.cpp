@@ -72,25 +72,11 @@ void pmParticle_merger::make_pairs(std::pair<std::vector<size_t>,std::vector<siz
                 selected[candidates[i]] = true;
                 selected[other] = true;
             }
-            // if(it==id2.end()) {
-            //     std::vector<size_t>::iterator it = std::find(candidates.begin(), candidates.end(), other);
-            //     if(it!=candidates.end()) {
-            //         *it = candidates.back();
-            //         candidates.pop_back();
-            //     }
-            //     candidates[i] = candidates.back();
-            //     candidates.pop_back();
-            // } else {
-            //     i++;
-            // }
         }
         i++;
     }
     pairs.first = id1;
     pairs.second = id2;
-    // for(int i=0;i <id1.size(); i++) {
-    //     std::cout << id1[i] << " " << id2[i] << std::endl;
-    // }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
