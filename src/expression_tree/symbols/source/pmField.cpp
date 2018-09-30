@@ -236,17 +236,16 @@ void pmField::duplicate_member(size_t const& i) {
 
 
 void pmField::deleter(std::vector<pmTensor>& data, std::vector<size_t> const& delete_indices) {
-    std::vector<bool> markedElements(data.size(), false);
-    std::vector<pmTensor> tempBuffer;
-    tempBuffer.reserve(data.size()-delete_indices.size());
-
-    for (std::vector<size_t>::const_iterator itDel = delete_indices.begin(); itDel != delete_indices.end(); itDel++)
-        markedElements[*itDel] = true;
-
-    for (size_t i=0; i<data.size(); i++)
-    {
-        if (!markedElements[i])
-            tempBuffer.push_back(data[i]);
+    std::vector<bool> marked_elements(data.size(), false);
+    std::vector<pmTensor> temp_buffer;
+    temp_buffer.reserve(data.size()-delete_indices.size());
+    for(auto const& it:delete_indices) {
+        marked_elements[it] = true;
     }
-    data = tempBuffer;
+    for(size_t i=0; i<data.size(); i++) {
+        if(!marked_elements[i]) {
+            temp_buffer.push_back(data[i]);
+        }
+    }
+    data = temp_buffer;
 }

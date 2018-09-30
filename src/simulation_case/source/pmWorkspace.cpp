@@ -459,8 +459,19 @@ void pmWorkspace::delete_particle(size_t const& i) {
 }
 
 
-void pmWorkspace::delete_set(std::vector<size_t> const& delete_indices) {
-	
+void pmWorkspace::delete_particle_set(std::vector<size_t> const& delete_indices) {
+	if(delete_indices.empty()) {
+		return;
+	}
+	for(auto& it:this->get<pmField>()) {
+		if(it->get_name()=="id") {
+			for(auto const& idx_it:delete_indices) {
+				deleted_ids.push(it->evaluate(idx_it,0)[0]);
+			}
+		}
+		it->delete_set(delete_indices);
+	}
+	num_nodes -= delete_indices.size();
 }
 
 void pmWorkspace::duplicate_particle(size_t const& i) {

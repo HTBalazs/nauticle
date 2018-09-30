@@ -62,29 +62,35 @@ void pmParticle_merger::make_pairs(std::pair<std::vector<size_t>,std::vector<siz
     size_t i = 0;
     std::vector<size_t> id1;
     std::vector<size_t> id2;
+    std::vector<bool> selected(workspace->get_number_of_nodes(), false);
     while(!candidates.empty() && i<candidates.size()) {
         int other = (int)nearest->evaluate(candidates[i])[0];
         if(other>=0) {
-            std::vector<size_t>::iterator it = std::find(id2.begin(), id2.end(), other);
-            if(it==id2.end()) {
+            if(!selected[other] && !selected[candidates[i]]) {
                 id1.push_back(candidates[i]);
                 id2.push_back(other);
-                std::vector<size_t>::iterator it = std::find(candidates.begin(), candidates.end(), other);
-                if(it!=candidates.end()) {
-                    *it = candidates.back();
-                    candidates.pop_back();
-                }
-                candidates[i] = candidates.back();
-                candidates.pop_back();
-            } else {
-                i++;
+                selected[candidates[i]] = true;
+                selected[other] = true;
             }
-        } else {
-            i++;
+            // if(it==id2.end()) {
+            //     std::vector<size_t>::iterator it = std::find(candidates.begin(), candidates.end(), other);
+            //     if(it!=candidates.end()) {
+            //         *it = candidates.back();
+            //         candidates.pop_back();
+            //     }
+            //     candidates[i] = candidates.back();
+            //     candidates.pop_back();
+            // } else {
+            //     i++;
+            // }
         }
+        i++;
     }
     pairs.first = id1;
     pairs.second = id2;
+    // for(int i=0;i <id1.size(); i++) {
+    //     std::cout << id1[i] << " " << id2[i] << std::endl;
+    // }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +127,7 @@ void pmParticle_merger::update() {
     this->make_pairs(pairs, this->get_candidates());
     std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
     pmKernel W;
-    std::vector<size_t> to_delete;
+    std::vector<size_t> delete_indices;
     for(int i=0; i<pairs.first.size(); i++) {
         size_t id1 = pairs.first[i];
         size_t id2 = pairs.second[i];
@@ -147,12 +153,10 @@ void pmParticle_merger::update() {
         ps->set_value(pos_M,num_nodes-1);
         velocity->set_value(vel_M,num_nodes-1);
         radius->set_value(rad_M,num_nodes-1);
-        to_delete.push_back(id1);
-        to_delete.push_back(id2);
+        delete_indices.push_back(id1);
+        delete_indices.push_back(id2);
     }
-    for(auto const& it:to_delete) {
-        workspace->delete_particle(it);
-    }
+    workspace->delete_particle_set(delete_indices);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

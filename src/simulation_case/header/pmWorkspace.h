@@ -81,7 +81,7 @@ namespace Nauticle {
 		template <typename T> std::vector<std::shared_ptr<T>> get() const;
 		void set_number_of_nodes(size_t const& N);
 		void delete_particle(size_t const& i);
-		void delete_set(std::vector<size_t> const& delete_indices);
+		void delete_particle_set(std::vector<size_t> const& delete_indices);
 		void duplicate_particle(size_t const& i);
 	};
 

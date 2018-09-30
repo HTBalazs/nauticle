@@ -437,9 +437,18 @@ bool pmParticle_system::is_position() const {
 
 void pmParticle_system::delete_member(size_t const& i) {
 	pmField::delete_member(i);
-	sorted_idx.resize(sorted_idx.size()-1);
-	particle_space->set_number_of_nodes(sorted_idx.size());
+	size_t const new_size = sorted_idx.size()-1;
+	sorted_idx.resize(new_size);
+	particle_space->set_number_of_nodes(new_size);
 }
+
+void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
+	pmField::delete_set(indices);
+	size_t const new_size = sorted_idx.size()-indices.size();
+	particle_space->set_number_of_nodes(new_size);
+	sorted_idx.resize(new_size);
+}
+
 void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	pmField::add_member(v);
 	sorted_idx.push_back(0);
