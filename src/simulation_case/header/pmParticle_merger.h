@@ -29,8 +29,11 @@
 #include <vector>
 
 namespace Nauticle {
+    /** This class implements the pairwise particle merging.
+    */
 	class pmParticle_merger : public pmParticle_modifier {
-        
+        /** This class implements the search for nearest neighbor as an interaction.
+        */  
         class pmNearest_neighbor : public pmInteraction<0> {
         protected:
             virtual std::shared_ptr<pmExpression> clone_impl() const override;
