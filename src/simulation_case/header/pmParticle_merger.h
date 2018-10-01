@@ -27,6 +27,7 @@
 #include <utility>
 #include <memory>
 #include <vector>
+#include <tuple>
 
 namespace Nauticle {
     /** This class implements the pairwise particle merging.
@@ -49,7 +50,7 @@ namespace Nauticle {
     protected:
         virtual std::shared_ptr<pmParticle_modifier> clone_impl() const override;
     private:
-        void make_pairs(std::pair<std::vector<size_t>,std::vector<size_t>>& pairs, std::vector<size_t> candidates) const;
+        void make_tuples(std::tuple<std::vector<size_t>,std::vector<size_t>,std::vector<size_t>>& tuples, std::vector<size_t> candidates) const;
     public:
         pmParticle_merger();
 		void update() override;
