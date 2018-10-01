@@ -132,7 +132,7 @@ void pmParticle_merger::update() {
         W.set_kernel_type(10, false);
         double W_M1 = W.evaluate((pos_M-pos1).norm(),rad1[0]);
         double W_M2 = W.evaluate((pos_M-pos2).norm(),rad2[0]);
-        pmTensor rad_M = std::sqrt(7.0*NAUTICLE_PI*mass_M[0]/(10.0*(W_M1*mass1[0]+W_M2*mass2[0])));
+        pmTensor rad_M = std::sqrt(10.0*mass_M[0]/(7.0*NAUTICLE_PI*(W_M1*mass1[0]+W_M2*mass2[0])));
         workspace->duplicate_particle(id1);
         size_t num_nodes = workspace->get_number_of_nodes();
         mass->set_value(mass_M,num_nodes-1);
