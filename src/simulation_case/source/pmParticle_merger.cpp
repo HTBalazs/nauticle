@@ -91,7 +91,7 @@ void pmParticle_merger::make_tuples(std::tuple<std::vector<size_t>,std::vector<s
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t const& level/*=0*/) const {
     if(!assigned) { ProLog::pLogger::error_msgf("Particle merger is not assigned to any particle system.\n"); }
-    pmSmallest<double, 2> nearest{-1};
+    pmSmallest<double, 2> nearest;
     auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
         if(i!=j) {
             double d_ji = rel_pos.norm();
@@ -100,9 +100,11 @@ pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t co
         return pmTensor{};
     };
     pmTensor T = interact(i, contribute);
-    pmTensor two_nn{2,1,0};
-    two_nn[0] = (double)nearest[0].second;
-    two_nn[1] = (double)nearest[1].second;
+    pmTensor two_nn{2,1,-1};
+    if(nearest.get_number_of_values()==2) {
+        two_nn[0] = (double)nearest[0].second;
+        two_nn[1] = (double)nearest[1].second;
+    }
     return two_nn;
 }
 
@@ -127,40 +129,75 @@ void pmParticle_merger::update() {
         double const mass0 = mass->evaluate(id0)[0];
         double const mass1 = mass->evaluate(id1)[0];
         double const mass2 = mass->evaluate(id2)[0];
-        pmTensor const h0 = radius->evaluate(id0);
-        pmTensor const h1 = radius->evaluate(id1);
-        pmTensor const h2 = radius->evaluate(id2);
+        double const h0 = radius->evaluate(id0)[0];
+        double const h1 = radius->evaluate(id1)[0];
+        double const h2 = radius->evaluate(id2)[0];
         pmTensor const vel0 = velocity->evaluate(id0);
         pmTensor const vel1 = velocity->evaluate(id1);
         pmTensor const vel2 = velocity->evaluate(id2);
         pmTensor const pos0 = ps->evaluate(id0);
         pmTensor const pos1 = ps->evaluate(id1);
         pmTensor const pos2 = ps->evaluate(id2);
-
-        double mass_M = (mass1 + mass2 + mass3)/2.0;
+        double mass_M = (mass0 + mass1 + mass2)/2.0;
         pmTensor pos_p = (pos0*mass0+pos1*mass1+pos2*mass2)/mass_M/2.0;
+        pmTensor pos_g = (pos0+pos1+pos2)/3.0;
         pmTensor vel_p = (vel0*mass0+vel1*mass1+vel2*mass2)/mass_M/2.0;
-        
-        rp0 = (pos_M-pos0).norm();
-        rp1 = (pos_M-pos1).norm();
-        rp2 = (pos_M-pos2).norm();
+
+        double rp0 = (pos_p-pos0).norm();
+        double rp1 = (pos_p-pos1).norm();
+        double rp2 = (pos_p-pos2).norm();
         
         double d = (rp0+rp1+rp2)/3.0;
 
         W.set_kernel_type(10, false);
-        double W_M0 = W.evaluate(rp0,h0[0]);
-        double W_M1 = W.evaluate(rp1,h1[0]);
-        double W_M2 = W.evaluate(rp2,h2[0]);
+        double W_M0 = W.evaluate(rp0,h0);
+        double W_M1 = W.evaluate(rp1,h1);
+        double W_M2 = W.evaluate(rp2,h2);
 
-        double q = ;
-        pmTensor hM = std::sqrt(2.0*mass_M*7.0*std::pow((1-q/2.0),4)*(1+2.0*q)/(4.0*NAUTICLE_PI*(W_M0*mass0+W_M1*mass1+W_M2*mass2)));
+        auto iterate = [](double const& r, double const& W, double const& h_init) {
+            double h = h_init;
+            double const coef = 7.0/4.0/NAUTICLE_PI;
+            for(int i=0; i<10; i++) {
+                h = std::sqrt(coef/W*std::pow(1.0-r/h/2.0,4)*(1.0+2.0*r/h));
+            }
+            return h;
+        };
+// std::cout << d << " " << W << " " << hM << std::endl;
+        double W = (W_M0*mass0+W_M1*mass1+W_M2*mass2)/2.0/mass_M;
+        double hM = iterate(d,W,h0);
 
+        pmTensor rel_pos = pos_g-pos_p;
+        if(rel_pos.norm()<1e-6) {
+            rel_pos[0] = pmRandom::random(-1,1);
+            rel_pos[1] = pmRandom::random(-1,1);
+        }
+
+        pmTensor direction = rel_pos/rel_pos.norm();
+        pmTensor pos_b = pos_p+direction*d;
+        pmTensor pos_a = 2*pos_p-pos_b;
+
+        double G = mass0*(pos0[0]*vel0[1]-pos0[1]*vel0[0])+mass1*(pos1[0]*vel1[1]-pos1[1]*vel1[0])+mass2*(pos2[0]*vel2[1]-pos2[1]*vel2[0]);
+
+        double tangential_vel = G/2.0/d/mass_M;
+        
+        pmTensor pos_ab = (pos_a-pos_p);
+        pmTensor vel_M{2,1,0};
+        vel_M[0] = pos_ab[1];
+        vel_M[1] = -pos_ab[0];
+        vel_M = vel_M/vel_M.norm();
+
+        workspace->duplicate_particle(id1);
         workspace->duplicate_particle(id1);
         size_t num_nodes = workspace->get_number_of_nodes();
         mass->set_value(mass_M,num_nodes-1);
-        ps->set_value(pos_M,num_nodes-1);
-        velocity->set_value(vel_M,num_nodes-1);
+        mass->set_value(mass_M,num_nodes-2);
         radius->set_value(hM,num_nodes-1);
+        radius->set_value(hM,num_nodes-2);
+        ps->set_value(pos_a,num_nodes-1);
+        ps->set_value(pos_b,num_nodes-2);
+        // velocity->set_value(vel_p+vel_M*tangential_vel,num_nodes-1);
+        // velocity->set_value(vel_p-vel_M*tangential_vel,num_nodes-2);
+        delete_indices.push_back(id0);
         delete_indices.push_back(id1);
         delete_indices.push_back(id2);
     }

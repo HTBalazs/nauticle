@@ -34,7 +34,62 @@ namespace Nauticle {
         std::vector<T> const& get_values() const;
         std::vector<int> const& get_indices() const;
         std::pair<T,int> operator[](size_t const& i) const;
+        size_t get_number_of_values() const;
     };
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructor.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    template <typename T, size_t N>
+    pmSmallest<T,N>::pmSmallest() {
+        values.reserve(N);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Pushes the given value to the container if it is smaller than the max element.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    template <typename T, size_t N>
+    void pmSmallest<T,N>::push_value(T const& v, int const& idx) {
+        if(values.size()<N) {
+            values.push_back(v);
+            indices.push_back(idx);
+            return;
+        }
+        auto it = max_element(std::begin(values), std::end(values));
+        if(*it>v) {
+            *it = v;
+            indices[it-values.begin()] = idx;
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Returns the list of minimum elements.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    template <typename T, size_t N>
+    std::vector<T> const& pmSmallest<T,N>::get_values() const {
+        return values;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Returns the list of minimum elements.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    template <typename T, size_t N>
+    std::vector<int> const& pmSmallest<T,N>::get_indices() const {
+        return indices;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Returns the ith element of the list.
+    /////////////////////////////////////////////////////////////////////////////////////////
+    template <typename T, size_t N>
+    std::pair<T,int> pmSmallest<T,N>::operator[](size_t const& i) const {
+        return std::pair<T,int> {values[i],indices[i]};
+    }
+
+    template <typename T, size_t N>
+    size_t pmSmallest<T,N>::get_number_of_values() const {
+        return values.size();
+    }
+
 }
 
 #endif //_SMALLEST_H_
