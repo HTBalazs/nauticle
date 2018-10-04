@@ -143,16 +143,23 @@ void pmParticle_merger::update() {
         pmTensor pos_g = (pos0+pos1+pos2)/3.0;
         pmTensor vel_p = (vel0*mass0+vel1*mass1+vel2*mass2)/mass_M/2.0;
 
-        double rp0 = (pos_p-pos0).norm();
-        double rp1 = (pos_p-pos1).norm();
-        double rp2 = (pos_p-pos2).norm();
+        pmTensor rp0 = pos_p-pos0;
+        pmTensor rp1 = pos_p-pos1;
+        pmTensor rp2 = pos_p-pos2;
+        pmTensor vp0 = vel_p-vel0;
+        pmTensor vp1 = vel_p-vel1;
+        pmTensor vp2 = vel_p-vel2;
+
+        double dp0 = rp0.norm();
+        double dp1 = rp1.norm();
+        double dp2 = rp2.norm();
         
-        double d = (rp0+rp1+rp2)/3.0;
+        double d = (dp0+dp1+dp2)/3.0;
 
         W.set_kernel_type(10, false);
-        double W_M0 = W.evaluate(rp0,h0);
-        double W_M1 = W.evaluate(rp1,h1);
-        double W_M2 = W.evaluate(rp2,h2);
+        double W_M0 = W.evaluate(dp0,2.0*h0);
+        double W_M1 = W.evaluate(dp1,2.0*h1);
+        double W_M2 = W.evaluate(dp2,2.0*h2);
 
         auto iterate = [](double const& r, double const& W, double const& h_init) {
             double h = h_init;
@@ -162,7 +169,6 @@ void pmParticle_merger::update() {
             }
             return h;
         };
-// std::cout << d << " " << W << " " << hM << std::endl;
         double W = (W_M0*mass0+W_M1*mass1+W_M2*mass2)/2.0/mass_M;
         double hM = iterate(d,W,h0);
 
@@ -171,20 +177,19 @@ void pmParticle_merger::update() {
             rel_pos[0] = pmRandom::random(-1,1);
             rel_pos[1] = pmRandom::random(-1,1);
         }
-
         pmTensor direction = rel_pos/rel_pos.norm();
-        pmTensor pos_b = pos_p+direction*d;
+        pmTensor pos_b = pos_p+direction*d/1.2;
         pmTensor pos_a = 2*pos_p-pos_b;
 
-        double G = mass0*(pos0[0]*vel0[1]-pos0[1]*vel0[0])+mass1*(pos1[0]*vel1[1]-pos1[1]*vel1[0])+mass2*(pos2[0]*vel2[1]-pos2[1]*vel2[0]);
+        double G = mass0*(rp0[0]*vp0[1]-rp0[1]*vp0[0])+mass1*(rp1[0]*vp1[1]-rp1[1]*vp1[0])+mass2*(rp2[0]*vp2[1]-rp2[1]*vp2[0]);
 
         double tangential_vel = G/2.0/d/mass_M;
         
-        pmTensor pos_ab = (pos_a-pos_p);
+        pmTensor pos_ap = (pos_a-pos_p);
+        pos_ap = pos_ap/pos_ap.norm();
         pmTensor vel_M{2,1,0};
-        vel_M[0] = pos_ab[1];
-        vel_M[1] = -pos_ab[0];
-        vel_M = vel_M/vel_M.norm();
+        vel_M[0] = pos_ap[1];
+        vel_M[1] = -pos_ap[0];
 
         workspace->duplicate_particle(id1);
         workspace->duplicate_particle(id1);
@@ -195,8 +200,8 @@ void pmParticle_merger::update() {
         radius->set_value(hM,num_nodes-2);
         ps->set_value(pos_a,num_nodes-1);
         ps->set_value(pos_b,num_nodes-2);
-        // velocity->set_value(vel_p+vel_M*tangential_vel,num_nodes-1);
-        // velocity->set_value(vel_p-vel_M*tangential_vel,num_nodes-2);
+        velocity->set_value(vel_p+vel_M*tangential_vel,num_nodes-1);
+        velocity->set_value(vel_p-vel_M*tangential_vel,num_nodes-2);
         delete_indices.push_back(id0);
         delete_indices.push_back(id1);
         delete_indices.push_back(id2);
