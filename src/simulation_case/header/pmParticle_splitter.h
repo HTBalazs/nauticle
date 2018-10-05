@@ -32,7 +32,8 @@ namespace Nauticle {
 	class pmParticle_splitter : public pmParticle_modifier {
         double epsilon = 0.4;
         double alpha = 0.9;
-        size_t num_new = 6;
+        size_t daughters = 6;
+        bool parent = true;
         static size_t counter;
     protected:
         virtual std::shared_ptr<pmParticle_modifier> clone_impl() const override;
@@ -40,6 +41,10 @@ namespace Nauticle {
         pmParticle_splitter();
 		void update() override;
         void print() const override;
+        void set_alpha(double alp);
+        void set_epsilon(double eps);
+        void set_daughters(size_t dau);
+        void set_parent(bool par);
         std::shared_ptr<pmParticle_splitter> clone() const;
 	};
 }

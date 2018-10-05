@@ -309,6 +309,10 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 	std::string radius_field = "h";
 	std::string mass_field = "m";
 	std::string period = "1";
+	std::string alpha = "0.9";
+	std::string epsilon = "0.4";
+	std::string daughters = "6";
+	std::string parent = "0";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="splitter") {
 			auto splitter = std::make_shared<pmParticle_splitter>();
@@ -328,15 +332,35 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 				if(splitter_nodes->first.as<std::string>()=="period") {
 					period = splitter_nodes->second.as<std::string>();
 				}
+				if(splitter_nodes->first.as<std::string>()=="alpha") {
+					alpha = splitter_nodes->second.as<std::string>();
+				}
+				if(splitter_nodes->first.as<std::string>()=="epsilon") {
+					epsilon = splitter_nodes->second.as<std::string>();
+				}
+				if(splitter_nodes->first.as<std::string>()=="daughters") {
+					daughters = splitter_nodes->second.as<std::string>();
+				}
+				if(splitter_nodes->first.as<std::string>()=="parent") {
+					parent = splitter_nodes->second.as<std::string>();
+				}
 			}
 			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
 			auto expr_radius = expr_parser->analyse_expression<pmField>(radius_field,workspace);
 			auto expr_mass = expr_parser->analyse_expression<pmField>(mass_field,workspace);
 			auto expr_period = expr_parser->analyse_expression<pmExpression>(period,workspace);
+			auto expr_alpha = expr_parser->analyse_expression<pmExpression>(alpha,workspace);
+			auto expr_epsilon = expr_parser->analyse_expression<pmExpression>(epsilon,workspace);
+			auto expr_daughter = expr_parser->analyse_expression<pmExpression>(daughters,workspace);
+			auto expr_parent = expr_parser->analyse_expression<pmExpression>(parent,workspace);
 			splitter->set_condition(expr_condition);
 			splitter->set_radius(expr_radius);
 			splitter->set_mass(expr_mass);
 			splitter->set_period(expr_period);
+			splitter->set_alpha(expr_alpha->evaluate(0)[0]);
+			splitter->set_epsilon(expr_epsilon->evaluate(0)[0]);
+			splitter->set_daughters(expr_daughter->evaluate(0)[0]);
+			splitter->set_parent(expr_parent->evaluate(0)[0]);
 			splitter_list.push_back(splitter);
 		}
 	}

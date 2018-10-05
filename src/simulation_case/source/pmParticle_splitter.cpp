@@ -43,14 +43,19 @@ void pmParticle_splitter::update() {
         return;
     }
     std::vector<size_t> candidates = this->get_candidates();
-    double step = 2.0*NAUTICLE_PI/num_new;
+    double step = 2.0*NAUTICLE_PI/daughters;
+    std::vector<size_t> delete_indices;
     for(auto const& it:candidates) {
         double R_original = radius->evaluate(it,0)[0];
         double m_original = mass->evaluate(it,0)[0];
-        radius->set_value(alpha*R_original,it);
-        mass->set_value(m_original/(num_new+1),it);
+        if(parent) {
+            radius->set_value(alpha*R_original,it);
+            mass->set_value(m_original/(daughters+1),it);
+        } else {
+            delete_indices.push_back(it);
+        }
         double angle = pmRandom::random(0,2.0*NAUTICLE_PI);
-        for(int i=0; i<num_new; i++) {
+        for(int i=0; i<daughters; i++) {
             workspace->duplicate_particle(it);
             size_t num_nodes = workspace->get_number_of_nodes();
             std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
@@ -59,9 +64,10 @@ void pmParticle_splitter::update() {
             new_pos[1] += R_original*epsilon*std::sin(i*step+angle);
             ps->set_value(new_pos,num_nodes-1);
             radius->set_value(alpha*R_original,num_nodes-1);
-            mass->set_value(m_original/(num_new+1),num_nodes-1);
+            mass->set_value(m_original/(daughters+1),num_nodes-1);
         }
     }
+    workspace->delete_particle_set(delete_indices);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +106,33 @@ std::shared_ptr<pmParticle_splitter> pmParticle_splitter::clone() const {
     return std::static_pointer_cast<pmParticle_splitter, pmParticle_modifier>(clone_impl());
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set parameter alpha as an expression.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_splitter::set_alpha(double alp) {
+    alpha = alp;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set parameter epsilon as an expression.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_splitter::set_epsilon(double eps) {
+    epsilon = eps;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set parameter daughter as an expression.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_splitter::set_daughters(size_t dau) {
+    daughters = dau;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set parameter parent as an expression.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_splitter::set_parent(bool par) {
+    parent = par;
+}
 
 
 

@@ -125,6 +125,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 		}
 		// Solve equations
 		cas->solve(num_threads);
+
 		current_time += next_dt;
 		substeps++;
 		if(printing) {

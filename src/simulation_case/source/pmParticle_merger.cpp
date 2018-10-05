@@ -113,6 +113,7 @@ void pmParticle_merger::update() {
     this->make_pairs(pairs, this->get_candidates());
     std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
     pmKernel W;
+    W.set_kernel_type(10, false);
     std::vector<size_t> delete_indices;
     for(int i=0; i<pairs.first.size(); i++) {
         size_t id1 = pairs.first[i];
@@ -129,10 +130,9 @@ void pmParticle_merger::update() {
         pmTensor mass_M = mass1 + mass2;
         pmTensor pos_M = (pos1*mass1+pos2*mass2)/mass_M;
         pmTensor vel_M = (vel1*mass1+vel2*mass2)/mass_M;
-        W.set_kernel_type(10, false);
         double W_M1 = W.evaluate((pos_M-pos1).norm(),2*rad1[0]);
         double W_M2 = W.evaluate((pos_M-pos2).norm(),2*rad2[0]);
-        pmTensor rad_M = std::sqrt(10.0*mass_M[0]/(7.0*NAUTICLE_PI*(W_M1*mass1[0]+W_M2*mass2[0])));
+        pmTensor rad_M = sqrt(10.0*mass_M/(7.0*NAUTICLE_PI*(W_M1*mass1+W_M2*mass2)));
         workspace->duplicate_particle(id1);
         size_t num_nodes = workspace->get_number_of_nodes();
         mass->set_value(mass_M,num_nodes-1);
