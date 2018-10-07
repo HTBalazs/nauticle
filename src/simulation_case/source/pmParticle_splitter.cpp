@@ -37,25 +37,32 @@ pmParticle_splitter::pmParticle_splitter() {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_splitter::update() {
     static int update_count = -1;
+
+
+
     update_count++;
     // check if splitting can be performed
     if(update_count%(int)(period->evaluate(0)[0]) != 0) {
         return;
     }
     std::vector<size_t> candidates = this->get_candidates();
-    double step = 2.0*NAUTICLE_PI/daughters;
     std::vector<size_t> delete_indices;
     for(auto const& it:candidates) {
+        double num_daughters = daughters->evaluate(it,0)[0];
+        double alpha = smoothing_ratio->evaluate(it,0)[0];
+        double epsilon = separation_parameter->evaluate(it,0)[0];
+        double generate_at_parent = parent->evaluate(it,0)[0];
         double R_original = radius->evaluate(it,0)[0];
         double m_original = mass->evaluate(it,0)[0];
-        if(parent) {
+        if(generate_at_parent) {
             radius->set_value(alpha*R_original,it);
-            mass->set_value(m_original/(daughters+1),it);
+            mass->set_value(m_original/(num_daughters+1),it);
         } else {
             delete_indices.push_back(it);
         }
+        double step = 2.0*NAUTICLE_PI/num_daughters;
         double angle = pmRandom::random(0,2.0*NAUTICLE_PI);
-        for(int i=0; i<daughters; i++) {
+        for(int i=0; i<num_daughters; i++) {
             workspace->duplicate_particle(it);
             size_t num_nodes = workspace->get_number_of_nodes();
             std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
@@ -64,7 +71,7 @@ void pmParticle_splitter::update() {
             new_pos[1] += R_original*epsilon*std::sin(i*step+angle);
             ps->set_value(new_pos,num_nodes-1);
             radius->set_value(alpha*R_original,num_nodes-1);
-            mass->set_value(m_original/(daughters+1),num_nodes-1);
+            mass->set_value(m_original/(num_daughters+1),num_nodes-1);
         }
     }
     workspace->delete_particle_set(delete_indices);
@@ -86,7 +93,12 @@ void pmParticle_splitter::print() const {
     ProLog::pLogger::logf<ProLog::NRM>("%s\n", radius->get_name().c_str());
     ProLog::pLogger::logf<ProLog::YEL>("        mass: ");
     ProLog::pLogger::logf<ProLog::NRM>("%s\n", mass->get_name().c_str());
+    ProLog::pLogger::logf<ProLog::YEL>("        number of daughters: "); daughters->print();
+    ProLog::pLogger::logf<ProLog::YEL>("        smoothing_ratio: "); smoothing_ratio->print();
+    ProLog::pLogger::logf<ProLog::YEL>("        separation parameter: "); separation_parameter->print();
+    ProLog::pLogger::logf<ProLog::YEL>("        generate at parent: "); parent->print();
     ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print();
+
     ProLog::pLogger::line_feed(1);
     ProLog::pLogger::footerf<ProLog::LBL>();
 }
@@ -107,31 +119,31 @@ std::shared_ptr<pmParticle_splitter> pmParticle_splitter::clone() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Set parameter alpha as an expression.
+/// Set parameter smoothing_ratio as an expression.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_splitter::set_alpha(double alp) {
-    alpha = alp;
+void pmParticle_splitter::set_smoothing_ratio(std::shared_ptr<pmExpression> sr) {
+    smoothing_ratio = sr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Set parameter epsilon as an expression.
+/// Set parameter separation_parameter as an expression.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_splitter::set_epsilon(double eps) {
-    epsilon = eps;
+void pmParticle_splitter::set_separation_parameter(std::shared_ptr<pmExpression> sp) {
+    separation_parameter = sp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Set parameter daughter as an expression.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_splitter::set_daughters(size_t dau) {
-    daughters = dau;
+void pmParticle_splitter::set_daughters(std::shared_ptr<pmExpression> dr) {
+    daughters = dr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Set parameter parent as an expression.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_splitter::set_parent(bool par) {
-    parent = par;
+void pmParticle_splitter::set_parent(std::shared_ptr<pmExpression> pr) {
+    parent = pr;
 }
 
 
