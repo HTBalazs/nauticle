@@ -229,71 +229,122 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::shared_ptr<pmWorkspace> workspace /*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];
-	std::shared_ptr<pmParameter_space> parameter_space = std::make_shared<pmParameter_space>();
-	pmTensor sim_time{1,1,1.0};
-	pmTensor log_time{1,1,0.1};
-	pmTensor confirm{1,1,0.0};
-	pmTensor vtk_format{1,1,0.0};
-	pmTensor file_start{1,1,0.0};
-	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end(); sim_nodes++) {
+	auto parameter_space = std::make_shared<pmParameter_space>();
+	if(!sim["parameter_space"]) {
+		return parameter_space;
+	}
+	// default values
+	std::string simulated_time = "1";
+	std::string run_simulation = "true";
+	std::string log_time = "1";
+	std::string confirm = "false";
+	std::string vtk_format = "ASCII";
+	std::string file_start = "0";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="parameter_space") {
-			for(YAML::const_iterator param_nodes=sim_nodes->second.begin();param_nodes!=sim_nodes->second.end();param_nodes++) {
-
-				pmTensor_parser tensor_parser{};
-				if(param_nodes->first.as<std::string>()=="simulated_time") {
-					std::string str_sim_time = param_nodes->second.as<std::string>();
-					pmTensor tmp = tensor_parser.string_to_tensor(str_sim_time, workspace);
-					if(!tmp.is_scalar()) {
-						ProLog::pLogger::warning_msgf("Simulated time must be scalar! Default value is applied.\n");
-					} else {
-						sim_time = tmp;
-					}
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator parameter_nodes=sim_nodes->second.begin();parameter_nodes!=sim_nodes->second.end();parameter_nodes++) {
+				// read from configuration file
+				if(parameter_nodes->first.as<std::string>()=="simulated_time") {
+					simulated_time = parameter_nodes->second.as<std::string>();
 				}
-				if(param_nodes->first.as<std::string>()=="print_interval") {
-					std::string str_log_time = param_nodes->second.as<std::string>();
-					pmTensor tmp = tensor_parser.string_to_tensor(str_log_time, workspace);
-					if(!tmp.is_scalar()) {
-						ProLog::pLogger::warning_msgf("Print interval must be scalar! Default value is applied.\n");
-					} else {
-						log_time = tmp;
-					}
+				if(parameter_nodes->first.as<std::string>()=="run_simulation") {
+					run_simulation = parameter_nodes->second.as<std::string>();
 				}
-				if(param_nodes->first.as<std::string>()=="confirm_on_exit") {
-					std::string str_confirm = param_nodes->second.as<std::string>();
-					pmTensor tmp= tensor_parser.string_to_tensor(str_confirm, workspace);
-					if(!tmp.is_scalar()) {
-						ProLog::pLogger::warning_msgf("Print interval must be scalar! Default value is applied.\n");
-					} else {
-						confirm = tmp;
-					}
+				if(parameter_nodes->first.as<std::string>()=="log_time") {
+					log_time = parameter_nodes->second.as<std::string>();
 				}
-				if(param_nodes->first.as<std::string>()=="output_format") {
-					std::string str_vtk_format = param_nodes->second.as<std::string>();
-					pmTensor tmp = tensor_parser.string_to_tensor(str_vtk_format, workspace);
-					if(!tmp.is_scalar()) {
-						ProLog::pLogger::warning_msgf("Output format must be scalar! Default value is applied.\n");
-					} else {
-						vtk_format = tmp;
-					}
+				if(parameter_nodes->first.as<std::string>()=="confirm") {
+					confirm = parameter_nodes->second.as<std::string>();
 				}
-				if(param_nodes->first.as<std::string>()=="file_start") {
-					std::string str_file_start = param_nodes->second.as<std::string>();
-					pmTensor tmp = tensor_parser.string_to_tensor(str_file_start, workspace);
-					if(!tmp.is_scalar()) {
-						ProLog::pLogger::warning_msgf("Starting number must be scalar! Default value is applied.\n");
-					} else {
-						file_start = tmp;
-					}
+				if(parameter_nodes->first.as<std::string>()=="vtk_format") {
+					vtk_format = parameter_nodes->second.as<std::string>();
+				}
+				if(parameter_nodes->first.as<std::string>()=="file_start") {
+					file_start = parameter_nodes->second.as<std::string>();
 				}
 			}
+			auto expr_simulated_time = expr_parser->analyse_expression<pmExpression>(simulated_time,workspace);
+			auto expr_run_simulation = expr_parser->analyse_expression<pmExpression>(run_simulation,workspace);
+			auto expr_log_time = expr_parser->analyse_expression<pmExpression>(log_time,workspace);
+			auto expr_confirm = expr_parser->analyse_expression<pmExpression>(confirm,workspace);
+			auto expr_vtk_format = expr_parser->analyse_expression<pmExpression>(vtk_format,workspace);
+			auto expr_file_start = expr_parser->analyse_expression<pmExpression>(file_start,workspace);
+			parameter_space->add_parameter("simulated_time", expr_simulated_time);
+			parameter_space->add_parameter("run_simulation", expr_run_simulation);
+			parameter_space->add_parameter("print_interval", expr_log_time);
+			parameter_space->add_parameter("confirm_on_exit", expr_confirm);
+			parameter_space->add_parameter("output_format", expr_vtk_format);
+			parameter_space->add_parameter("file_start", expr_file_start);
 		}
 	}
-	parameter_space->add_parameter("simulated_time", sim_time);
-	parameter_space->add_parameter("print_interval", log_time);
-	parameter_space->add_parameter("confirm_on_exit", confirm);
-	parameter_space->add_parameter("output_format", vtk_format);
-	parameter_space->add_parameter("file_start", file_start);
 	return parameter_space;
+	// YAML::Node sim = data["simulation"];
+	// std::shared_ptr<pmParameter_space> parameter_space = std::make_shared<pmParameter_space>();
+	// pmTensor sim_time{1,1,1.0};
+	// pmTensor log_time{1,1,0.1};
+	// pmTensor confirm{1,1,0.0};
+	// pmTensor vtk_format{1,1,0.0};
+	// pmTensor file_start{1,1,0.0};
+	// for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end(); sim_nodes++) {
+	// 	if(sim_nodes->first.as<std::string>()=="parameter_space") {
+	// 		for(YAML::const_iterator param_nodes=sim_nodes->second.begin();param_nodes!=sim_nodes->second.end();param_nodes++) {
+
+	// 			pmTensor_parser tensor_parser{};
+	// 			if(param_nodes->first.as<std::string>()=="simulated_time") {
+	// 				std::string str_sim_time = param_nodes->second.as<std::string>();
+	// 				pmTensor tmp = tensor_parser.string_to_tensor(str_sim_time, workspace);
+	// 				if(!tmp.is_scalar()) {
+	// 					ProLog::pLogger::warning_msgf("Simulated time must be scalar! Default value is applied.\n");
+	// 				} else {
+	// 					sim_time = tmp;
+	// 				}
+	// 			}
+	// 			if(param_nodes->first.as<std::string>()=="print_interval") {
+	// 				std::string str_log_time = param_nodes->second.as<std::string>();
+	// 				pmTensor tmp = tensor_parser.string_to_tensor(str_log_time, workspace);
+	// 				if(!tmp.is_scalar()) {
+	// 					ProLog::pLogger::warning_msgf("Print interval must be scalar! Default value is applied.\n");
+	// 				} else {
+	// 					log_time = tmp;
+	// 				}
+	// 			}
+	// 			if(param_nodes->first.as<std::string>()=="confirm_on_exit") {
+	// 				std::string str_confirm = param_nodes->second.as<std::string>();
+	// 				pmTensor tmp= tensor_parser.string_to_tensor(str_confirm, workspace);
+	// 				if(!tmp.is_scalar()) {
+	// 					ProLog::pLogger::warning_msgf("Print interval must be scalar! Default value is applied.\n");
+	// 				} else {
+	// 					confirm = tmp;
+	// 				}
+	// 			}
+	// 			if(param_nodes->first.as<std::string>()=="output_format") {
+	// 				std::string str_vtk_format = param_nodes->second.as<std::string>();
+	// 				pmTensor tmp = tensor_parser.string_to_tensor(str_vtk_format, workspace);
+	// 				if(!tmp.is_scalar()) {
+	// 					ProLog::pLogger::warning_msgf("Output format must be scalar! Default value is applied.\n");
+	// 				} else {
+	// 					vtk_format = tmp;
+	// 				}
+	// 			}
+	// 			if(param_nodes->first.as<std::string>()=="file_start") {
+	// 				std::string str_file_start = param_nodes->second.as<std::string>();
+	// 				pmTensor tmp = tensor_parser.string_to_tensor(str_file_start, workspace);
+	// 				if(!tmp.is_scalar()) {
+	// 					ProLog::pLogger::warning_msgf("Starting number must be scalar! Default value is applied.\n");
+	// 				} else {
+	// 					file_start = tmp;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// parameter_space->add_parameter("simulated_time", sim_time);
+	// parameter_space->add_parameter("print_interval", log_time);
+	// parameter_space->add_parameter("confirm_on_exit", confirm);
+	// parameter_space->add_parameter("output_format", vtk_format);
+	// parameter_space->add_parameter("file_start", file_start);
+	// return parameter_space;
 }
 
 

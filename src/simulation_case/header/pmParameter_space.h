@@ -21,13 +21,14 @@
 #ifndef _PARAMETERS_H_
 #define _PARAMETERS_H_
 
+#include "pmTensor.h"
+#include "pmExpression.h"
+#include "prolog/pLogger.h"
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include <memory>
 #include <string>
-#include "pmTensor.h"
-#include "prolog/pLogger.h"
 
 namespace Nauticle {
 	/** This class contains parameters for the calculations.
@@ -37,14 +38,10 @@ namespace Nauticle {
 		*/
 		class pmParameter {
 			std::string name = "";
-			pmTensor value = pmTensor{};
+			std::shared_ptr<pmExpression> value;
 		public:
 			pmParameter()=delete;
-			pmParameter(std::string const& n, pmTensor const& v);
-			pmParameter(pmParameter const&)=default;
-			pmParameter(pmParameter&&)=default;
-			pmParameter& operator=(pmParameter const&)=default;
-			pmParameter& operator=(pmParameter&&)=default;
+			pmParameter(std::string const& n, std::shared_ptr<pmExpression> const& expr);
 			std::string get_name() const;
 			pmTensor get_value() const;
 			void print() const;
@@ -57,7 +54,7 @@ namespace Nauticle {
 		pmParameter_space(pmParameter_space&& other);
 		pmParameter_space& operator=(pmParameter_space const& other);
 		pmParameter_space& operator=(pmParameter_space&& other);
-		void add_parameter(std::string const& n, pmTensor const& v);
+		void add_parameter(std::string const& n, std::shared_ptr<pmExpression> const& expr);
 		void delete_parameter(std::string const& n);
 		pmTensor get_parameter_value(std::string const& n) const;
 		void print() const;
