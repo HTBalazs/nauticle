@@ -238,7 +238,7 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 	std::string run_simulation = "true";
 	std::string log_time = "1";
 	std::string confirm = "false";
-	std::string vtk_format = "ASCII";
+	std::string output_format = "ASCII";
 	std::string file_start = "0";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="parameter_space") {
@@ -257,8 +257,8 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 				if(parameter_nodes->first.as<std::string>()=="confirm") {
 					confirm = parameter_nodes->second.as<std::string>();
 				}
-				if(parameter_nodes->first.as<std::string>()=="vtk_format") {
-					vtk_format = parameter_nodes->second.as<std::string>();
+				if(parameter_nodes->first.as<std::string>()=="output_format") {
+					output_format = parameter_nodes->second.as<std::string>();
 				}
 				if(parameter_nodes->first.as<std::string>()=="file_start") {
 					file_start = parameter_nodes->second.as<std::string>();
@@ -268,13 +268,13 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 			auto expr_run_simulation = expr_parser->analyse_expression<pmExpression>(run_simulation,workspace);
 			auto expr_log_time = expr_parser->analyse_expression<pmExpression>(log_time,workspace);
 			auto expr_confirm = expr_parser->analyse_expression<pmExpression>(confirm,workspace);
-			auto expr_vtk_format = expr_parser->analyse_expression<pmExpression>(vtk_format,workspace);
+			auto expr_output_format = expr_parser->analyse_expression<pmExpression>(output_format,workspace);
 			auto expr_file_start = expr_parser->analyse_expression<pmExpression>(file_start,workspace);
 			parameter_space->add_parameter("simulated_time", expr_simulated_time);
 			parameter_space->add_parameter("run_simulation", expr_run_simulation);
 			parameter_space->add_parameter("print_interval", expr_log_time);
 			parameter_space->add_parameter("confirm_on_exit", expr_confirm);
-			parameter_space->add_parameter("output_format", expr_vtk_format);
+			parameter_space->add_parameter("output_format", expr_output_format);
 			parameter_space->add_parameter("file_start", expr_file_start);
 		}
 	}
