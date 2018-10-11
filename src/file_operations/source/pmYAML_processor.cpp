@@ -236,8 +236,8 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 	// default values
 	std::string simulated_time = "1";
 	std::string run_simulation = "true";
-	std::string log_time = "1";
-	std::string confirm = "false";
+	std::string print_interval = "1";
+	std::string confirm_on_exit = "false";
 	std::string output_format = "ASCII";
 	std::string file_start = "0";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
@@ -251,11 +251,11 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 				if(parameter_nodes->first.as<std::string>()=="run_simulation") {
 					run_simulation = parameter_nodes->second.as<std::string>();
 				}
-				if(parameter_nodes->first.as<std::string>()=="log_time") {
-					log_time = parameter_nodes->second.as<std::string>();
+				if(parameter_nodes->first.as<std::string>()=="print_interval") {
+					print_interval = parameter_nodes->second.as<std::string>();
 				}
-				if(parameter_nodes->first.as<std::string>()=="confirm") {
-					confirm = parameter_nodes->second.as<std::string>();
+				if(parameter_nodes->first.as<std::string>()=="confirm_on_exit") {
+					confirm_on_exit = parameter_nodes->second.as<std::string>();
 				}
 				if(parameter_nodes->first.as<std::string>()=="output_format") {
 					output_format = parameter_nodes->second.as<std::string>();
@@ -266,8 +266,8 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 			}
 			auto expr_simulated_time = expr_parser->analyse_expression<pmExpression>(simulated_time,workspace);
 			auto expr_run_simulation = expr_parser->analyse_expression<pmExpression>(run_simulation,workspace);
-			auto expr_log_time = expr_parser->analyse_expression<pmExpression>(log_time,workspace);
-			auto expr_confirm = expr_parser->analyse_expression<pmExpression>(confirm,workspace);
+			auto expr_log_time = expr_parser->analyse_expression<pmExpression>(print_interval,workspace);
+			auto expr_confirm = expr_parser->analyse_expression<pmExpression>(confirm_on_exit,workspace);
 			auto expr_output_format = expr_parser->analyse_expression<pmExpression>(output_format,workspace);
 			auto expr_file_start = expr_parser->analyse_expression<pmExpression>(file_start,workspace);
 			parameter_space->add_parameter("simulated_time", expr_simulated_time);
