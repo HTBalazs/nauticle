@@ -94,11 +94,14 @@ void pmParticle_splitter::print() const {
     ProLog::pLogger::logf<ProLog::YEL>("        mass: ");
     ProLog::pLogger::logf<ProLog::NRM>("%s\n", mass->get_name().c_str());
     ProLog::pLogger::logf<ProLog::YEL>("        number of daughters: "); daughters->print();
+    ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        smoothing_ratio: "); smoothing_ratio->print();
+    ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        separation parameter: "); separation_parameter->print();
+    ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        generate at parent: "); parent->print();
+    ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print();
-
     ProLog::pLogger::line_feed(1);
     ProLog::pLogger::footerf<ProLog::LBL>();
 }
