@@ -49,7 +49,6 @@ namespace Nauticle {
 		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
 		write_mode vtk_write_mode = ASCII;
 		void print() const;
-		double calculate_print_interval() const;
 		void simulate(size_t const& num_threads);
 		void write_step() const;
 	public:

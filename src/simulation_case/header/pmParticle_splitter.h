@@ -30,9 +30,10 @@ namespace Nauticle {
     /** This class implements the particle splitting.
     */
 	class pmParticle_splitter : public pmParticle_modifier {
-        double epsilon = 0.4;
-        double alpha = 0.9;
-        size_t num_new = 6;
+        std::shared_ptr<pmExpression> separation_parameter;
+        std::shared_ptr<pmExpression> smoothing_ratio;
+        std::shared_ptr<pmExpression> daughters;
+        std::shared_ptr<pmExpression> parent;
         static size_t counter;
     protected:
         virtual std::shared_ptr<pmParticle_modifier> clone_impl() const override;
@@ -40,6 +41,10 @@ namespace Nauticle {
         pmParticle_splitter();
 		void update() override;
         void print() const override;
+        void set_smoothing_ratio(std::shared_ptr<pmExpression> sr);
+        void set_separation_parameter(std::shared_ptr<pmExpression> sp);
+        void set_daughters(std::shared_ptr<pmExpression> dr);
+        void set_parent(std::shared_ptr<pmExpression> pr);
         std::shared_ptr<pmParticle_splitter> clone() const;
 	};
 }

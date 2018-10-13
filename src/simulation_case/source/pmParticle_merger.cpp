@@ -121,6 +121,7 @@ void pmParticle_merger::update() {
     this->make_tuples(tuples, this->get_candidates());
     std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
     pmKernel W;
+    W.set_kernel_type(10, false);
     std::vector<size_t> delete_indices;
     for(int i=0; i<std::get<0>(tuples).size(); i++) {
         size_t const id0 = std::get<0>(tuples)[i];

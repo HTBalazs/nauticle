@@ -75,24 +75,6 @@ pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Calculates the next print interval.
-/////////////////////////////////////////////////////////////////////////////////////////
-double pmSimulation::calculate_print_interval() const {
-	static bool constant = false;
-	static double interval = 0;
-	if(!constant) {
-		bool governed_by_workspace = cas->get_workspace()->is_existing("print_interval");
-		if(governed_by_workspace) {
-			interval = cas->get_workspace()->get_value("print_interval")[0];
-		} else {
-			interval = parameter_space->get_parameter_value("print_interval")[0];
-			constant = true;
-		}
-	}
-	return interval;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Runs the calculation.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSimulation::simulate(size_t const& num_threads) {
@@ -103,17 +85,17 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	double current_time=0;
 	double previous_printing_time=0;
 	int substeps=0;
-	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
 	double dt = cas->get_workspace()->get_value("dt")[0];
+	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
 	log_stream.print_step_info(dt, substeps, current_time, simulated_time);
 	write_step();
 	bool printing;
-	while(current_time < simulated_time) {
+	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
 		this->update_particle_modifiers();
 		dt = cas->get_workspace()->get_value("dt")[0];
 		double next_dt = dt;
 		// get printing interval
-		double print_interval = calculate_print_interval();
+		double print_interval = parameter_space->get_parameter_value("print_interval")[0];
 		// time to next printing
 		double to_next_print = previous_printing_time + print_interval - current_time;
 		// do we have to print?
@@ -125,6 +107,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 		}
 		// Solve equations
 		cas->solve(num_threads);
+
 		current_time += next_dt;
 		substeps++;
 		if(printing) {

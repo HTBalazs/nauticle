@@ -28,8 +28,7 @@ using namespace Nauticle;
 std::vector<size_t> pmParticle_modifier::get_candidates() const {
 	std::vector<size_t> indices;
     for(int i=0; i<workspace->get_number_of_nodes(); i++) {
-        bool split = condition->evaluate(i,0)[0];
-        if(split) {
+        if(condition->evaluate(i,0)[0]) {
             indices.push_back(i);
         }
     }
