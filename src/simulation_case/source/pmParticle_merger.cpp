@@ -162,20 +162,33 @@ void pmParticle_merger::update() {
         double W_M1 = W.evaluate(dp1,2.0*h1);
         double W_M2 = W.evaluate(dp2,2.0*h2);
 
-        auto iterate = [](double const& r, double const& W, double const& h_init) {
+        auto iterate = [](double const& r, double const& W, double const& h_init)->double {
             double h = h_init;
             double const coef = 7.0/4.0/NAUTICLE_PI;
-            for(int i=0; i<100; i++) {
+            size_t maxit = 100;
+            for(int i=0; i<maxit; i++) {
                 double h_prev = h;
                 h = std::sqrt(coef/W*std::pow(1.0-r/h/2.0,4)*(1.0+2.0*r/h));
                 if(std::abs((h-h_prev)/h)<1e-6) {
                     break;
                 }
+                if(i==maxit-1) {
+                    return -1.0;
+                }
             }
             return h;
         };
         double W = (W_M0*mass0+W_M1*mass1+W_M2*mass2)/2.0/mass_M;
-        double hM = iterate(d,W,h0);
+
+        double hM = -1.0;
+        for(int i=0; i<10; i++) {
+            hM = iterate(d,W,h0);
+            if(hM<0) {
+                d *= 0.95;
+            }
+        }
+        if(hM<0) continue;
+
 
         pmTensor direction;
         pmTensor rel_pos = pos_g-pos_p;
@@ -193,7 +206,7 @@ void pmParticle_merger::update() {
         } else {
             direction = rel_pos/rel_pos.norm();
         }
-        pmTensor pos_b = pos_p+direction*d/1.2;
+        pmTensor pos_b = pos_p+direction*d;
         pmTensor pos_a = 2*pos_p-pos_b;
 
         double G = mass0*(rp0[0]*vp0[1]-rp0[1]*vp0[0])+mass1*(rp1[0]*vp1[1]-rp1[1]*vp1[0])+mass2*(rp2[0]*vp2[1]-rp2[1]*vp2[0]);
