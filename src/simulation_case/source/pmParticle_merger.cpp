@@ -130,8 +130,8 @@ void pmParticle_merger::update() {
         pmTensor mass_M = mass1 + mass2;
         pmTensor pos_M = (pos1*mass1+pos2*mass2)/mass_M;
         pmTensor vel_M = (vel1*mass1+vel2*mass2)/mass_M;
-        double W_M1 = W.evaluate((pos_M-pos1).norm(),2*rad1[0]);
-        double W_M2 = W.evaluate((pos_M-pos2).norm(),2*rad2[0]);
+        double W_M1 = W.evaluate((pos_M-pos1).norm(),2.0*rad1[0]);
+        double W_M2 = W.evaluate((pos_M-pos2).norm(),2.0*rad2[0]);
         pmTensor rad_M = sqrt(10.0*mass_M/(7.0*NAUTICLE_PI*(W_M1*mass1+W_M2*mass2)));
         workspace->duplicate_particle(id1);
         size_t num_nodes = workspace->get_number_of_nodes();

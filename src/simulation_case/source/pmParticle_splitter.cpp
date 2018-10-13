@@ -48,10 +48,10 @@ void pmParticle_splitter::update() {
     std::vector<size_t> candidates = this->get_candidates();
     std::vector<size_t> delete_indices;
     for(auto const& it:candidates) {
-        double num_daughters = daughters->evaluate(it,0)[0];
         double alpha = smoothing_ratio->evaluate(it,0)[0];
         double epsilon = separation_parameter->evaluate(it,0)[0];
-        double generate_at_parent = parent->evaluate(it,0)[0];
+        bool generate_at_parent = (bool)parent->evaluate(it,0)[0];
+        size_t num_daughters = (size_t)daughters->evaluate(it,0)[0]-(generate_at_parent?1:0);
         double R_original = radius->evaluate(it,0)[0];
         double m_original = mass->evaluate(it,0)[0];
         if(generate_at_parent) {
@@ -71,7 +71,7 @@ void pmParticle_splitter::update() {
             new_pos[1] += R_original*epsilon*std::sin(i*step+angle);
             ps->set_value(new_pos,num_nodes-1);
             radius->set_value(alpha*R_original,num_nodes-1);
-            mass->set_value(m_original/(num_daughters+1),num_nodes-1);
+            mass->set_value(m_original/(num_daughters+(generate_at_parent?1:0)),num_nodes-1);
         }
     }
     workspace->delete_particle_set(delete_indices);
