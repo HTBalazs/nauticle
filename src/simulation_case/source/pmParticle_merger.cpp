@@ -191,21 +191,17 @@ void pmParticle_merger::update() {
 
 
         pmTensor direction;
-        pmTensor rel_pos = pos_g-pos_p;
-        if(rel_pos.norm()<1e-6) {
-            pmTensor pos01 = pos0-pos1;
-            pmTensor pos02 = pos0-pos2;
-            pmTensor pos12 = pos1-pos2;
-            if(pos01.norm()>pos02.norm() && pos01.norm()>pos12.norm()) {
-                direction = pos01/pos01.norm();   
-            } else if(pos02.norm()>pos01.norm() && pos02.norm()>pos12.norm()) {
-                direction = pos02/pos02.norm();
-            } else {
-                direction = pos12/pos12.norm();   
-            }
+        pmTensor pos01 = pos0-pos1;
+        pmTensor pos02 = pos0-pos2;
+        pmTensor pos12 = pos1-pos2;
+        if(pos01.norm()>pos02.norm() && pos01.norm()>pos12.norm()) {
+            direction = pos01/pos01.norm();   
+        } else if(pos02.norm()>pos01.norm() && pos02.norm()>pos12.norm()) {
+            direction = pos02/pos02.norm();
         } else {
-            direction = rel_pos/rel_pos.norm();
+            direction = pos12/pos12.norm();   
         }
+
         pmTensor pos_b = pos_p+direction*d;
         pmTensor pos_a = 2*pos_p-pos_b;
 
@@ -228,8 +224,8 @@ void pmParticle_merger::update() {
         radius->set_value(hM,num_nodes-2);
         ps->set_value(pos_a,num_nodes-1);
         ps->set_value(pos_b,num_nodes-2);
-        velocity->set_value(vel_p+vel_M*tangential_vel,num_nodes-1);
-        velocity->set_value(vel_p-vel_M*tangential_vel,num_nodes-2);
+        velocity->set_value(vel_p-vel_M*tangential_vel,num_nodes-1);
+        velocity->set_value(vel_p+vel_M*tangential_vel,num_nodes-2);
         delete_indices.push_back(id0);
         delete_indices.push_back(id1);
         delete_indices.push_back(id2);
