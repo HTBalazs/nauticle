@@ -155,40 +155,34 @@ void pmParticle_merger::update() {
         double dp1 = rp1.norm();
         double dp2 = rp2.norm();
         
-        double d = (dp0+dp1+dp2)/3.0;
-
         W.set_kernel_type(10, false);
         double W_M0 = W.evaluate(dp0,2.0*h0);
         double W_M1 = W.evaluate(dp1,2.0*h1);
         double W_M2 = W.evaluate(dp2,2.0*h2);
+        double Wp = (W_M0*mass0+W_M1*mass1+W_M2*mass2)/2.0/mass_M;
+        double hM = std::sqrt(1.0/std::exp(1.0)/NAUTICLE_PI/Wp);
+        double d = (dp0+dp1+dp2)/3.0;
 
-        auto iterate = [](double const& r, double const& W, double const& h_init)->double {
-            double h = h_init;
-            double const coef = 7.0/4.0/NAUTICLE_PI;
-            size_t maxit = 100;
-            for(int i=0; i<maxit; i++) {
-                double h_prev = h;
-                h = std::sqrt(coef/W*std::pow(1.0-r/h/2.0,4)*(1.0+2.0*r/h));
-                if(std::abs((h-h_prev)/h)<1e-6) {
-                    break;
+        if(d>hM) {
+            d = hM;
+        } else {
+            auto iterate = [](double const& r, double const& W, double const& h_init)->double {
+                double h = h_init;
+                size_t maxit = 100;
+                for(int i=0; i<maxit; i++) {
+                    double h_prev = h;
+                    h = std::sqrt(1.0/NAUTICLE_PI/W*std::exp(-r*r/h*h));
+                    if(std::abs((h-h_prev)/h)<1e-6) {
+                        break;
+                    }
+                    if(i==maxit-1) {
+                        return -1.0;
+                    }
                 }
-                if(i==maxit-1) {
-                    return -1.0;
-                }
-            }
-            return h;
-        };
-        double W = (W_M0*mass0+W_M1*mass1+W_M2*mass2)/2.0/mass_M;
-
-        double hM = -1.0;
-        for(int i=0; i<10; i++) {
-            hM = iterate(d,W,h0);
-            if(hM<0) {
-                d *= 0.95;
-            }
+                return h;
+            };
+            hM = iterate(d,Wp,hM);
         }
-        if(hM<0) continue;
-
 
         pmTensor direction;
         pmTensor pos01 = pos0-pos1;
