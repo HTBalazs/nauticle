@@ -141,7 +141,6 @@ void pmParticle_merger::update() {
         pmTensor const pos2 = ps->evaluate(id2);
         double mass_M = (mass0 + mass1 + mass2)/2.0;
         pmTensor pos_p = (pos0*mass0+pos1*mass1+pos2*mass2)/mass_M/2.0;
-        pmTensor pos_g = (pos0+pos1+pos2)/3.0;
         pmTensor vel_p = (vel0*mass0+vel1*mass1+vel2*mass2)/mass_M/2.0;
 
         pmTensor rp0 = pos_p-pos0;
