@@ -154,13 +154,13 @@ void pmParticle_merger::update() {
         double dp1 = rp1.norm();
         double dp2 = rp2.norm();
         
-        W.set_kernel_type(10, false);
+        W.set_kernel_type(16, false);
         double W_M0 = W.evaluate(dp0,2.0*h0);
         double W_M1 = W.evaluate(dp1,2.0*h1);
         double W_M2 = W.evaluate(dp2,2.0*h2);
         double Wp = (W_M0*mass0+W_M1*mass1+W_M2*mass2)/2.0/mass_M;
         double hM = std::sqrt(1.0/std::exp(1.0)/NAUTICLE_PI/Wp);
-        double d = (dp0+dp1+dp2)/3.0;
+        double d = 0.9*(dp0+dp1+dp2)/3.0;
 
         if(d>hM) {
             d = hM;
