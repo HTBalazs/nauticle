@@ -42,7 +42,6 @@ namespace Nauticle {
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmNeighbors> clone() const;
 		int get_field_size() const override;
-		virtual void write_to_string(std::ostream& os) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

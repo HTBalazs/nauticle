@@ -28,7 +28,8 @@ using namespace Nauticle;
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNeighbors::pmNeighbors(std::array<std::shared_ptr<pmExpression>,1> op) {
-	operand = std::move(op);
+	this->operand = std::move(op);
+	this->op_name = "neighbors";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,7 @@ pmNeighbors::pmNeighbors(pmNeighbors const& other) {
 	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
+		this->op_name = "neighbors";
 	}
 }
 
@@ -48,6 +50,7 @@ pmNeighbors::pmNeighbors(pmNeighbors&& other) {
 	this->psys = std::move(other.psys);
 	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
+	this->op_name = "neighbors";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -58,6 +61,7 @@ pmNeighbors& pmNeighbors::operator=(pmNeighbors const& other) {
 		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
+			this->op_name = "neighbors";
 		}
 	}
 	return *this;
@@ -71,6 +75,7 @@ pmNeighbors& pmNeighbors::operator=(pmNeighbors&& other) {
 		this->psys = std::move(other.psys);
 		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
+		this->op_name = "neighbors";
 	}
 	return *this;
 }
@@ -120,13 +125,6 @@ pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmNeighbors::get_field_size() const {
 	return psys.lock()->get_field_size();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Writes object to string.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmNeighbors::write_to_string(std::ostream& os) const {
-	os << "neighbors()" << std::endl;
 }
 
 
