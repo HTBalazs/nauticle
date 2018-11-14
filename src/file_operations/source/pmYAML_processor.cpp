@@ -298,6 +298,7 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 	std::string separation_parameter = "0.4";
 	std::string daughters = "6";
 	std::string parent = "1";
+	std::string rotation = "0";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="splitter") {
 			auto splitter = std::make_shared<pmParticle_splitter>();
@@ -329,6 +330,9 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 				if(splitter_nodes->first.as<std::string>()=="parent") {
 					parent = splitter_nodes->second.as<std::string>();
 				}
+				if(splitter_nodes->first.as<std::string>()=="rotation") {
+					rotation = splitter_nodes->second.as<std::string>();
+				}
 			}
 			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
 			auto expr_radius = expr_parser->analyse_expression<pmField>(radius_field,workspace);
@@ -338,6 +342,7 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 			auto expr_separation_parameter = expr_parser->analyse_expression<pmExpression>(separation_parameter,workspace);
 			auto expr_daughter = expr_parser->analyse_expression<pmExpression>(daughters,workspace);
 			auto expr_parent = expr_parser->analyse_expression<pmExpression>(parent,workspace);
+			auto expr_rotation = expr_parser->analyse_expression<pmExpression>(rotation,workspace);
 			splitter->set_condition(expr_condition);
 			splitter->set_radius(expr_radius);
 			splitter->set_mass(expr_mass);
@@ -346,6 +351,7 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 			splitter->set_separation_parameter(expr_separation_parameter);
 			splitter->set_daughters(expr_daughter);
 			splitter->set_parent(expr_parent);
+			splitter->set_rotation(expr_rotation);
 			splitter_list.push_back(splitter);
 		}
 	}

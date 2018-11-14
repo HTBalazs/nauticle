@@ -61,7 +61,7 @@ void pmParticle_splitter::update() {
             delete_indices.push_back(it);
         }
         double step = 2.0*NAUTICLE_PI/num_daughters;
-        double angle = pmRandom::random(0,2.0*NAUTICLE_PI);
+        double angle = rotation->evaluate(it,0)[0];
         for(int i=0; i<num_daughters; i++) {
             workspace->duplicate_particle(it);
             size_t num_nodes = workspace->get_number_of_nodes();
@@ -149,7 +149,12 @@ void pmParticle_splitter::set_parent(std::shared_ptr<pmExpression> pr) {
     parent = pr;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set parameter rotation as an expression.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_splitter::set_rotation(std::shared_ptr<pmExpression> rot) {
+    rotation = rot;
+}
 
 
 
