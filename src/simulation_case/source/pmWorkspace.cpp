@@ -60,6 +60,9 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("periodic", pmTensor{1,1,0}, true);
 	this->add_constant("symmetric", pmTensor{1,1,1}, true);
 	this->add_constant("cutoff", pmTensor{1,1,2}, true);
+	this->add_variable("write_case", pmTensor{1,1,0});
+	this->add_variable("substeps", pmTensor{1,1,0});
+	this->add_variable("all_steps", pmTensor{1,1,0});
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
