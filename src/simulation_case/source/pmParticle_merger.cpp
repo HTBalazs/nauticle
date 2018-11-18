@@ -37,6 +37,13 @@ pmParticle_merger::pmParticle_merger() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Set condition for neighbor selection.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_merger::pmNearest_neighbor::set_neighbor_condition(std::shared_ptr<pmExpression> ncd) {
+    neighbor_condition = ncd;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Clone implementation.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmExpression> pmParticle_merger::pmNearest_neighbor::clone_impl() const {
@@ -93,7 +100,7 @@ pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t co
     if(!assigned) { ProLog::pLogger::error_msgf("Particle merger is not assigned to any particle system.\n"); }
     pmSmallest<double, 2> nearest;
     auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-        if(i!=j) {
+        if(i!=j && neighbor_condition->evaluate(j,level)[0]) {
             double d_ji = rel_pos.norm();
             nearest.push_value(d_ji,j);
         }
@@ -239,6 +246,13 @@ void pmParticle_merger::set_workspace(std::shared_ptr<pmWorkspace> ws) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_merger::set_velocity(std::shared_ptr<pmField> vel) {
     velocity = vel;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set condition for neighbor selection.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_merger::set_neighbor_condition(std::shared_ptr<pmExpression> ncd) {
+    nearest->set_neighbor_condition(ncd);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

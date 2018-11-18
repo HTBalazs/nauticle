@@ -366,6 +366,7 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 	}
 	// default values
 	std::string condition = "false";
+	std::string neighbor_condition = "true";
 	std::string radius_field = "h";
 	std::string mass_field = "m";
 	std::string velocity_field = "v";
@@ -392,13 +393,18 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 				if(splitter_nodes->first.as<std::string>()=="period") {
 					period = splitter_nodes->second.as<std::string>();
 				}
+				if(splitter_nodes->first.as<std::string>()=="neighbor_condition") {
+					neighbor_condition = splitter_nodes->second.as<std::string>();
+				}
 			}
 			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			auto expr_neighbor_condition = expr_parser->analyse_expression<pmExpression>(neighbor_condition,workspace);
 			auto expr_radius = expr_parser->analyse_expression<pmField>(radius_field,workspace);
 			auto expr_mass = expr_parser->analyse_expression<pmField>(mass_field,workspace);
 			auto expr_velocity = expr_parser->analyse_expression<pmField>(velocity_field,workspace);
 			auto expr_period = expr_parser->analyse_expression<pmExpression>(period,workspace);
 			merger->set_condition(expr_condition);
+			merger->set_neighbor_condition(expr_neighbor_condition);
 			merger->set_radius(expr_radius);
 			merger->set_mass(expr_mass);
 			merger->set_velocity(expr_velocity);

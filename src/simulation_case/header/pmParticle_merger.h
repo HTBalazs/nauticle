@@ -37,8 +37,10 @@ namespace Nauticle {
         */  
         class pmNearest_neighbor : public pmInteraction<0> {
         protected:
+            std::shared_ptr<pmExpression> neighbor_condition;
             virtual std::shared_ptr<pmExpression> clone_impl() const override;
         public:
+            void set_neighbor_condition(std::shared_ptr<pmExpression> ncd);
             pmTensor evaluate(int const& i, size_t const& level=0) const override;
             void print() const override {}
         };
@@ -53,9 +55,10 @@ namespace Nauticle {
         void make_tuples(std::tuple<std::vector<size_t>,std::vector<size_t>,std::vector<size_t>>& tuples, std::vector<size_t> candidates) const;
     public:
         pmParticle_merger();
-		void update() override;
+        void update() override;
         virtual void set_workspace(std::shared_ptr<pmWorkspace> ws) override;
         void set_velocity(std::shared_ptr<pmField> vel);
+        void set_neighbor_condition(std::shared_ptr<pmExpression> ncd);
         std::shared_ptr<pmField> const& get_velocity() const;
         void print() const override;
         std::shared_ptr<pmParticle_merger> clone() const;
