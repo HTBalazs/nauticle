@@ -91,6 +91,9 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	if(!workspace->is_existing("dt")) {
 		workspace->add_variable("dt", pmTensor{1,1,0.001});
 	}
+	workspace->add_variable("write_case", pmTensor{1,1,0});
+	workspace->add_variable("substeps", pmTensor{1,1,0});
+	workspace->add_variable("all_steps", pmTensor{1,1,0});
 	// Read particle system
 	YAML::Node psys = data["simulation"]["case"]["workspace"]["particle_system"];
 	// Read domain
