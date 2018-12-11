@@ -683,6 +683,16 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmNeighbors>(operands));
 			}
+			if(it=="kuramoto_pure") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmKuramoto_operator<2>>(operands));
+			}
+			if(it=="kuramoto_weighted") {
+				std::array<std::shared_ptr<pmExpression>,3> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmKuramoto_operator<3>>(operands));
+			}
 		} else if(is_number(it)) {
 			e.push(std::make_shared<pmConstant>(pmTensor{stof(it)}));
 		}
