@@ -316,7 +316,7 @@ namespace Nauticle {
 			case XOR : code = "(" + STR_ARG(0,i,level) + "!=" + STR_ARG(1,i,level) + ")"; break;
 			case DETERMINANT : code = STR_ARG(0,i,level) + ".determinant()"; break;
 			case INVERSE : code = STR_ARG(0,i,level) + ".inverse()"; break;
-			case IDENTITY : code = "pmTensor::make_identity(" + STR_ARG(0,i,level) + "[0]);\n"; break;
+			case IDENTITY : code = "pmTensor::make_identity(" + STR_ARG(0,i,level) + ")"; break;
 			case EULER : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case PREDICTOR : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case CORRECTOR : code = "(" + STR_ARG(0,i,"1") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
