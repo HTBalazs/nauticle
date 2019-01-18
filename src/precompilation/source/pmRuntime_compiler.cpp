@@ -48,6 +48,7 @@ void pmRuntime_compiler::add_includes(c2CPP_header_file& header) const {
     header.add_include("pmVariable.h", false);
     header.add_include("pmParticle_system.h", false);
     header.add_include("pmWorkspace.h", false);
+    header.add_include("pmRandom.h", false);
     header.add_include("string", true);
     header.add_include("vector", true);
     header.add_include("algorithm", true);
