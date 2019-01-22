@@ -33,6 +33,9 @@ pmSimulation::pmSimulation(pmSimulation const& other) {
 	for(auto const& it:other.particle_modifier) {
 		this->particle_modifier.push_back(it->clone());
 	}
+	for(auto const& it:other.background) {
+		this->background.push_back(it->clone());
+	}
 	this->vtk_write_mode = other.vtk_write_mode;
 }
 
@@ -43,6 +46,7 @@ pmSimulation::pmSimulation(pmSimulation&& other) {
 	this->cas = std::move(other.cas);
 	this->parameter_space = std::move(other.parameter_space);
 	this->particle_modifier = std::move(other.particle_modifier);
+	this->background = std::move(other.background);
 	this->vtk_write_mode = std::move(other.vtk_write_mode);
 }
 
@@ -55,6 +59,9 @@ pmSimulation& pmSimulation::operator=(pmSimulation const& other) {
 		this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
 		for(auto const& it:other.particle_modifier) {
 			this->particle_modifier.push_back(it->clone());
+		}
+		for(auto const& it:other.background) {
+			this->background.push_back(it->clone());
 		}
 		this->vtk_write_mode = other.vtk_write_mode;
 	}
@@ -69,6 +76,7 @@ pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
 		this->cas = std::move(other.cas);
 		this->parameter_space = std::move(other.parameter_space);
 		this->particle_modifier = std::move(other.particle_modifier);
+		this->background = std::move(other.background);
 		this->vtk_write_mode = std::move(other.vtk_write_mode);
 	}
 	return *this;
@@ -92,6 +100,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	bool printing;
 	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
 		this->update_particle_modifiers();
+		this->update_background_fields();
 		dt = cas->get_workspace()->get_value("dt")[0];
 		double next_dt = dt;
 		// get printing interval
@@ -131,6 +140,9 @@ void pmSimulation::print() const {
 	if(cas!=nullptr)		cas->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
 	for(auto const& it:particle_modifier) {
+		it->print();
+	}
+	for(auto const& it:background) {
 		it->print();
 	}
 	ProLog::pLogger::footerf<ProLog::LGN>();
@@ -175,6 +187,7 @@ void pmSimulation::read_file(std::string const& filename) {
 	auto particle_merger = yaml_loader->get_particle_merger(cas->get_workspace());
 	particle_modifier.insert(particle_modifier.end(), particle_splitter.begin(), particle_splitter.end());
 	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
+	background = yaml_loader->get_background(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
@@ -195,6 +208,15 @@ void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSimulation::update_particle_modifiers() {
 	for(auto& it:particle_modifier) {
+		it->update();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Updates background interpolations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::update_background_fields() {
+	for(auto& it:background) {
 		it->update();
 	}
 }

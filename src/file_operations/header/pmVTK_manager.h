@@ -55,6 +55,7 @@ namespace Nauticle {
     	void set_case(std::shared_ptr<pmCase> c);
     	virtual void update()=0;
     	void set_file_name(std::string const& file_name);
+        vtkSmartPointer<vtkPolyData> get_polydata() const;
     };
 }
 

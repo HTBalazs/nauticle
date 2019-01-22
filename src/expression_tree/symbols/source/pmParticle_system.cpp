@@ -472,3 +472,15 @@ void pmParticle_system::duplicate_member(size_t const& i) {
 	sorted_idx.push_back(0);
 	particle_space->set_number_of_nodes(sorted_idx.size());
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the collection of particle positions as vtkPoints.
+/////////////////////////////////////////////////////////////////////////////////////////
+vtkSmartPointer<vtkPoints> pmParticle_system::generate_vtkpoints(size_t const& level/*=0*/) const {
+	auto points = vtkSmartPointer<vtkPoints>::New();
+	for(auto const& it:value[level]) {
+		size_t n = it.numel();
+		points->InsertNextPoint(it[0], n>1?it[1]:0.0, n>2?it[2]:0.0);
+	}
+	return points;
+}

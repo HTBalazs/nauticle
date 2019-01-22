@@ -32,6 +32,7 @@
 #include "pmParameter_space.h"
 #include "pmParticle_splitter.h"
 #include "pmParticle_merger.h"
+#include "pmBackground.h"
 
 namespace Nauticle {
     /**	This class extracts data from YAML configuration file.
@@ -49,6 +50,7 @@ namespace Nauticle {
         std::shared_ptr<pmParameter_space> get_parameter_space(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmParticle_splitter>> get_particle_splitter(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmParticle_merger>> get_particle_merger(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
+        std::vector<std::shared_ptr<pmBackground>> get_background(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
     };
 }
 

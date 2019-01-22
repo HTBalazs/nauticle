@@ -281,7 +281,37 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 	return parameter_space;
 }
 
-
+std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
+	YAML::Node sim = data["simulation"];
+	std::vector<std::shared_ptr<pmBackground>> background_list;
+	if(!sim["background"]) {
+		return background_list;
+	}
+	// default values
+	std::string file_name = "background.vtk";
+	std::string interpolate_to = "";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="background") {
+			auto background = std::make_shared<pmBackground>();
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator background_nodes=sim_nodes->second.begin();background_nodes!=sim_nodes->second.end();background_nodes++) {
+				// read from configuration file
+				if(background_nodes->first.as<std::string>()=="interpolate_to") {
+					interpolate_to = background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="file") {
+					file_name = background_nodes->second.as<std::string>();
+				}
+			}
+			auto expr_interpolate_to = expr_parser->analyse_expression<pmField>(interpolate_to,workspace);
+			background->set_file_name(file_name);
+			background->set_field(expr_interpolate_to);
+			background->set_particle_system(workspace->get_particle_system().lock());
+			background_list.push_back(background);
+		}
+	}
+	return background_list;
+}
 
 std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle_splitter(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];

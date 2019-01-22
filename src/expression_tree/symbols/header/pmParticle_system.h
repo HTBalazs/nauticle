@@ -22,6 +22,8 @@
 #define _PARTICLE_SYSTEM_H_
 
 #include <string>
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "pmDomain.h"
 #include "pmSort.h"
 #include "pmField.h"
@@ -96,6 +98,7 @@ namespace Nauticle {
 		virtual void delete_set(std::vector<size_t> const& indices) override;
 		virtual void add_member(pmTensor const& v=pmTensor{}) override;
 		virtual void duplicate_member(size_t const& i) override;
+		vtkSmartPointer<vtkPoints> generate_vtkpoints(size_t const& level=0) const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
