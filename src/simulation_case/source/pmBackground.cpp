@@ -113,7 +113,7 @@ void pmBackground::read_file() {
 /// Performs interpolation using the given field and particle system.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmBackground::interpolate() {
-	if(psys.usecount()==0 || field.usecount()==0 || polydata==NULL) {
+	if(psys.use_count()==0 || field.use_count()==0 || polydata==NULL) {
 		return;
 	}
 	auto points = psys->generate_vtkpoints();
