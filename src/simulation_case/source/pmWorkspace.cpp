@@ -25,7 +25,7 @@
 
 using namespace Nauticle;
 
-std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp01110", "Wp01120", "Wp01130", "Wp11110", "Wp11120", "Wp11130", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "We21010", "We21020", "We21030", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k", "simulation", "workspace", "case", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "grid", "equations", "condition"};
+std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp01110", "Wp01120", "Wp01130", "Wp11110", "Wp11120", "Wp11130", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "We21010", "We21020", "We21030", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k", "simulation", "workspace", "case", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "grid", "equations", "condition", "write_step", "substeps", "all_steps"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.

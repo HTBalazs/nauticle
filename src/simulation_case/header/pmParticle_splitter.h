@@ -34,6 +34,7 @@ namespace Nauticle {
         std::shared_ptr<pmExpression> smoothing_ratio;
         std::shared_ptr<pmExpression> daughters;
         std::shared_ptr<pmExpression> parent;
+        std::shared_ptr<pmExpression> rotation;
         static size_t counter;
     protected:
         virtual std::shared_ptr<pmParticle_modifier> clone_impl() const override;
@@ -45,6 +46,7 @@ namespace Nauticle {
         void set_separation_parameter(std::shared_ptr<pmExpression> sp);
         void set_daughters(std::shared_ptr<pmExpression> dr);
         void set_parent(std::shared_ptr<pmExpression> pr);
+        void set_rotation(std::shared_ptr<pmExpression> rot);
         std::shared_ptr<pmParticle_splitter> clone() const;
 	};
 }
