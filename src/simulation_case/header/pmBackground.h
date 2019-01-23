@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -29,12 +29,8 @@
 #include "pmVTK_reader.h"
 
 namespace Nauticle {
-	/** This class represents the mathematical problem to solve. It contains two 
-	//	objects:
-	//		- workspace: it manages all the variables and named constants,
-	//		- equations: vector of equations governing the problem.
-	//	Destroying a solver object destroys the workspace and equations
-	//  either.
+	/** This class represents the background function, which can be used to 
+	//  interpolate data to the particle system.
 	*/
 	class pmBackground {
 		std::string file_name;

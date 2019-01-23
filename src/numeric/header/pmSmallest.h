@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -84,7 +84,10 @@ namespace Nauticle {
     std::pair<T,int> pmSmallest<T,N>::operator[](size_t const& i) const {
         return std::pair<T,int> {values[i],indices[i]};
     }
-
+    
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// Returns the ith element of the list.
+    /////////////////////////////////////////////////////////////////////////////////////////
     template <typename T, size_t N>
     size_t pmSmallest<T,N>::get_number_of_values() const {
         return values.size();

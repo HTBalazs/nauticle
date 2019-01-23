@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -284,6 +284,9 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 	return parameter_space;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns thecollection of background functions if specified in the configuration file.
+/////////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];
 	std::vector<std::shared_ptr<pmBackground>> background_list;
@@ -316,6 +319,9 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 	return background_list;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the collection of particle splitters specified in the configuration file.
+/////////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle_splitter(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];
 	std::vector<std::shared_ptr<pmParticle_splitter>> splitter_list;
@@ -391,6 +397,9 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 	return splitter_list;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the collection of particle mergerss specified in the configuration file.
+/////////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_merger(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];
 	std::vector<std::shared_ptr<pmParticle_merger>> merger_list;

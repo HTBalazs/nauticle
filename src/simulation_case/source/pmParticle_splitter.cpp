@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -37,9 +37,6 @@ pmParticle_splitter::pmParticle_splitter() {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_splitter::update() {
     static int update_count = -1;
-
-
-
     update_count++;
     // check if splitting can be performed
     if(update_count%(int)(period->evaluate(0)[0]) != 0) {
