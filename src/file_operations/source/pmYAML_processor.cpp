@@ -91,9 +91,6 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	if(!workspace->is_existing("dt")) {
 		workspace->add_variable("dt", pmTensor{1,1,0.001});
 	}
-	workspace->add_variable("write_case", pmTensor{1,1,0});
-	workspace->add_variable("substeps", pmTensor{1,1,0});
-	workspace->add_variable("all_steps", pmTensor{1,1,0});
 	// Read particle system
 	YAML::Node psys = data["simulation"]["case"]["workspace"]["particle_system"];
 	// Read domain
@@ -218,6 +215,9 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 	}
 	// Read YAML case if initial condition not found.
 	std::shared_ptr<pmWorkspace> workspace = get_workspace();
+	workspace->add_variable("write_case", pmTensor{1,1,0});
+	workspace->add_variable("substeps", pmTensor{1,1,0});
+	workspace->add_variable("all_steps", pmTensor{1,1,0});
 	std::vector<std::shared_ptr<pmEquation>> equations = this->get_equations(workspace);
 	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
 	cas->add_workspace(workspace);

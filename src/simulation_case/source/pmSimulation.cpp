@@ -94,12 +94,13 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	double previous_printing_time=0;
 	double dt = cas->get_workspace()->get_value("dt")[0];
 	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
-	log_stream.print_step_info(dt, 0, 0, simulated_time);
-	write_step();
 	bool printing;
 	std::shared_ptr<pmVariable> ws_write_case = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("write_case").lock());
 	std::shared_ptr<pmVariable> ws_substeps = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("substeps").lock());
 	std::shared_ptr<pmVariable> ws_all_steps = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("all_steps").lock());
+	log_stream.print_step_info(dt, (int)ws_substeps->get_value()[0], (int)ws_all_steps->get_value()[0], current_time, simulated_time);
+	ws_substeps->set_value(0.0);
+	write_step();
 	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
 		this->update_particle_modifiers();
 		this->update_background_fields();
@@ -128,7 +129,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 				cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
 			}
 			write_step();
-			log_stream.print_step_info(dt>print_interval?print_interval:dt, (int)ws_substeps->get_value()[0], current_time, simulated_time);
+			log_stream.print_step_info(dt>print_interval?print_interval:dt, (int)ws_substeps->get_value()[0], (int)ws_all_steps->get_value()[0], current_time, simulated_time);
 			ws_substeps->set_value(pmTensor{1,1,0});
 			previous_printing_time = current_time;
 			ws_write_case->set_value(pmTensor{1,1,0});
