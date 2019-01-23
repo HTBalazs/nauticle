@@ -43,6 +43,7 @@
 #include "pmFmean.h"
 #include "pmFsum.h"
 #include "pmNeighbors.h"
+#include "pmKuramoto_operator.h"
 #include "pmArithmetic_operator.h"
 #include "pmArithmetic_function.h"
 
