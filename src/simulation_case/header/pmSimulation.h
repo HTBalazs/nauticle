@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -31,6 +31,9 @@
 #include "pmVTK_writer.h"
 #include "pmParameter_space.h"
 #include "pmRuntime_compiler.h"
+#include "pmParticle_splitter.h"
+#include "pmParticle_merger.h"
+#include "pmBackground.h"
 
 namespace Nauticle {
 	/** This class represents the problem to solve. The contructor recieves the file
@@ -47,11 +50,12 @@ namespace Nauticle {
 		void (pmSimulation::*solver)(size_t const&);
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
+		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
+		std::vector<std::shared_ptr<pmBackground>> background;
 		write_mode vtk_write_mode = ASCII;
 		std::shared_ptr<pmRuntime_compiler> runtime_compiler;
 		std::shared_ptr<pmInterface> binary_case;
 		void print() const;
-		double calculate_print_interval() const;
 		void simulate(size_t const& num_threads);
 		void write_step() const;
 	public:
@@ -66,6 +70,8 @@ namespace Nauticle {
 		void execute(size_t const& num_threads=8);
 		void interpreter_solve(size_t const& num_threads=8);
 		void binary_solve(size_t const& num_threads=8);
+		void update_particle_modifiers();
+		void update_background_fields();
 	};
 }
 

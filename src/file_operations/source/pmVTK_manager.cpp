@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -41,4 +41,11 @@ void pmVTK_manager::set_case(std::shared_ptr<pmCase> c) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_manager::set_file_name(std::string const& fn) {
 	file_name = fn;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the polydata object.
+/////////////////////////////////////////////////////////////////////////////////////////
+vtkSmartPointer<vtkPolyData> pmVTK_manager::get_polydata() const {
+    return polydata;
 }

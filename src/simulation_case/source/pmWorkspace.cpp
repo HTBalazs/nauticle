@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 
 using namespace Nauticle;
 
-std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp01110", "Wp01120", "Wp01130", "Wp11110", "Wp11120", "Wp11130", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "We21010", "We21020", "We21030", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k", "simulation", "workspace", "case", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "grid", "equations", "condition"};
+std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp01110", "Wp01120", "Wp01130", "Wp11110", "Wp11120", "Wp11130", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "We21010", "We21020", "We21030", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k", "simulation", "workspace", "case", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "grid", "equations", "condition", "write_step", "substeps", "all_steps"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -483,15 +483,56 @@ std::vector<std::shared_ptr<pmExpression>> const& pmWorkspace::get_interactions(
 	return interactions;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Removes the ith particle together with its field values from the workspace. 
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmWorkspace::delete_particle(size_t const& i) {
+	if(num_nodes==1) {
+		ProLog::pLogger::warning_msgf("Cannot delete the last particle.");
+	}
+	for(auto& it:this->get<pmField>()) {
+		if(it->get_name()=="id") {
+			deleted_ids.push(it->evaluate(i,0)[0]);
+		}
+		it->delete_member(i);
+	}
+	num_nodes--;
+}
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Removes the particles and field values with the indices given in the delete_indices vector.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmWorkspace::delete_particle_set(std::vector<size_t> const& delete_indices) {
+	if(delete_indices.empty()) {
+		return;
+	}
+	for(auto& it:this->get<pmField>()) {
+		if(it->get_name()=="id") {
+			for(auto const& idx_it:delete_indices) {
+				deleted_ids.push(it->evaluate(idx_it,0)[0]);
+			}
+		}
+		it->delete_set(delete_indices);
+	}
+	num_nodes -= delete_indices.size();
+}
 
-
-
-
-
-
-
-
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Duplicates particle with the given index. Field values are also duplicated.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmWorkspace::duplicate_particle(size_t const& i) {
+	for(auto& it:this->get<pmField>()) {
+		it->duplicate_member(i);
+		if(it->get_name()=="id") {
+			if(deleted_ids.empty()) {
+				it->set_value(num_nodes,num_nodes);
+			} else {
+				it->set_value(deleted_ids.top(),num_nodes);
+				deleted_ids.pop();
+			}
+		}
+	}
+	num_nodes++;
+}
 
 

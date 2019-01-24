@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -45,13 +45,13 @@ namespace Nauticle {
 	protected:
 		pmInteraction();
 		virtual ~pmInteraction() {}
-		void assign(std::weak_ptr<pmParticle_system> ps) override;
 		bool is_assigned() const override;
 		int get_field_size() const override;
 		bool cutoff_cell(pmTensor const& beta, pmTensor const& delta, size_t const& dimensions) const;
 		pmTensor interact(int const& i, Func_ith contribute) const;
 		pmTensor interact(pmTensor const& pos_i, Func_pos contribute) const;
 	public:
+		void assign(std::weak_ptr<pmParticle_system> ps) override;
 		virtual void write_to_string(std::ostream& os) const override;
 		void set_declaration_type(std::string const& decl_type);
 		std::string const& get_declaration_type() const;
@@ -141,7 +141,7 @@ namespace Nauticle {
 		pmTensor grid_pos_i = ps->get_particle_space()->get_grid_position(pos_i);
 		for(auto const& it:cell_iterator) {
 			pmTensor grid_pos_j{grid_pos_i+it};
-			pmTensor delta = -floor((grid_pos_j-domain_minimum).divide_term_by_term(domain_cells));
+			pmTensor delta = -floor((grid_pos_j).divide_term_by_term(domain_cells));
 			// Ignore cells through cutoff boundary
 			if(cutoff_cell(beta, delta, dimensions)) {
 				continue;

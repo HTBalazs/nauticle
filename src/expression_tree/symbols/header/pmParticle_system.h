@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -68,6 +68,7 @@ namespace Nauticle {
 			std::vector<pmTensor> const& get_cell_iterator() const;
 			std::shared_ptr<pmParticle_space> clone() const;
 			void set_number_of_nodes(size_t const& N);
+			size_t get_number_of_nodes() const;
 		};
 		std::shared_ptr<pmParticle_space> particle_space;
 		std::vector<int> sorted_idx;
@@ -91,6 +92,10 @@ namespace Nauticle {
 		bool is_sorted() const;
 		std::vector<int> get_sorted_idx() const;
 		bool is_position() const override;
+		virtual void delete_member(size_t const& i) override;
+		virtual void delete_set(std::vector<size_t> const& indices) override;
+		virtual void add_member(pmTensor const& v=pmTensor{}) override;
+		virtual void duplicate_member(size_t const& i) override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

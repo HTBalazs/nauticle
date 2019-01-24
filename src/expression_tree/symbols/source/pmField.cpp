@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -202,4 +202,63 @@ bool pmField::is_symmetric() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::set_symmetry(bool const& sym) {
 	symmetric = sym;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Deletes the member of the field with the given index.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmField::delete_member(size_t const& i) {
+	for(auto& level_it:value) {
+		level_it[i] = level_it.back();
+		level_it.pop_back();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Deletes the set of members of the fiels listed in the given delete_indices vector.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmField::delete_set(std::vector<size_t> const& delete_indices) {
+	for(auto& level_it:value) {
+		deleter(level_it, delete_indices);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Adds a member to the field initialized with the last member in the container.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmField::add_member(pmTensor const& v/*=pmTensor{}*/) {
+	pmTensor tensor = v;
+	if(tensor.numel()==0) {
+		tensor = value[0].back();
+	}
+	for(auto& level_it:value) {
+		level_it.push_back(tensor);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Duplicates the member with the given index.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmField::duplicate_member(size_t const& i) {
+	for(auto& it:value) {
+		it.push_back(it[i]);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Safely removes the members given in the list without changing the order of the members.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmField::deleter(std::vector<pmTensor>& data, std::vector<size_t> const& delete_indices) {
+    std::vector<bool> marked_elements(data.size(), false);
+    std::vector<pmTensor> temp_buffer;
+    temp_buffer.reserve(data.size()-delete_indices.size());
+    for(auto const& it:delete_indices) {
+        marked_elements[it] = true;
+    }
+    for(size_t i=0; i<data.size(); i++) {
+        if(!marked_elements[i]) {
+            temp_buffer.push_back(data[i]);
+        }
+    }
+    data = temp_buffer;
 }

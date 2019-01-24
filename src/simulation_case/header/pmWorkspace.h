@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -85,6 +85,9 @@ namespace Nauticle {
 		std::vector<c2c::c2CPP_declaration> generate_declarations(std::string& init_code) const;
 		void add_interaction(std::shared_ptr<pmExpression> ia);
 		std::vector<std::shared_ptr<pmExpression>> const& get_interactions() const;
+		void delete_particle(size_t const& i);
+		void delete_particle_set(std::vector<size_t> const& delete_indices);
+		void duplicate_particle(size_t const& i);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@ namespace Nauticle {
     public:
         pmLog_stream();
     	pmLog_stream(int const& num_start);
-    	void print_step_info(double const& dt, int const& substeps, double const& current_time, double const& simulated_time);
+    	void print_step_info(double const& dt, int const& substeps, int const& all_steps, double const& current_time, double const& simulated_time);
     	void print_substep_info(double const& dt, int const& substeps) const;
     	void print_finish(bool const& confirm) const;
     	void print_start() const;

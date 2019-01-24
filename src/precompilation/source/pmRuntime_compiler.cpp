@@ -19,7 +19,7 @@
 */
 
 #ifndef INCLUDE_DIR
-#define INCLUDE_DIR std::string{"-I /usr/local/include/nauticle/"}
+#define INCLUDE_DIR std::string{"-I /usr/local/include/nauticle/ -I /usr/local/VTK-7.0.0/Common/Core/"}
 #endif //INCLUDE_DIR
 #ifndef LIB_FILES
 #define LIB_FILES std::string{"-L /usr/local/lib/nauticle/ -l nauticle -L /usr/local/lib/prolog/ -l prolog -L/usr/local/lib/c2c -l c2c"}
@@ -90,7 +90,7 @@ void pmRuntime_compiler::generate_code() const {
 }
 
 void pmRuntime_compiler::compile() const {
-    this->generate_code();
+    // this->generate_code();
     // Compile generated code
     c2Compiler compiler{session_name};
     compiler.set_compiler("clang++");

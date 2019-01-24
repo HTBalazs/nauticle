@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@ pmLog_stream::pmLog_stream(int const& num_start) : pmLog_stream() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the information relating to the current step.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLog_stream::print_step_info(double const& dt, int const& substeps, double const& current_time, double const& simulated_time) {
+void pmLog_stream::print_step_info(double const& dt, int const& substeps, int const& all_steps, double const& current_time, double const& simulated_time) {
 	static int counter = 51;
 
 	if(counter==51) {
@@ -68,8 +68,8 @@ void pmLog_stream::print_step_info(double const& dt, int const& substeps, double
 	double difference = timer->get_difference().count();
 	double fps = difference==0?0:(double)substeps/difference;
 	struct tm est_end = timer->get_estimated_finish((double)current_time/simulated_time*100.0);
-	num_total_steps+=substeps;
-	logf<ProLog::WHT>(" %5i   %1.3e      %5i      %6i   %.3f   %06.2f   %02i.%02i.%4i %02i:%02i\n", num_steps, (double)dt, substeps, num_total_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
+	num_total_steps = all_steps;
+	logf<ProLog::WHT>(" %5i   %1.3e      %5i      %6i   %.3f   %06.2f   %02i.%02i.%4i %02i:%02i\n", num_steps, (double)dt, substeps, all_steps, (double)current_time, (double)fps, est_end.tm_mday, est_end.tm_mon+1, est_end.tm_year+1900, est_end.tm_hour, est_end.tm_min);
 	timer->tic();
 	counter++;
 	num_steps++;

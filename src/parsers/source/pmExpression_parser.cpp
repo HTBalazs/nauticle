@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -636,6 +636,21 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<INVERSE,1>>(operands));
+			}
+			if(it=="neighbors") {
+				std::array<std::shared_ptr<pmExpression>,1> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmNeighbors>(operands));
+			}
+			if(it=="kuramoto_pure") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmKuramoto_operator<2>>(operands));
+			}
+			if(it=="kuramoto_weighted") {
+				std::array<std::shared_ptr<pmExpression>,3> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmKuramoto_operator<3>>(operands));
 			}
 		} else if(is_number(it)) {
 			e.push(std::make_shared<pmConstant>(pmTensor{stof(it)}));

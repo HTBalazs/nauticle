@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -63,6 +63,11 @@ namespace Nauticle {
 		virtual void write_to_string(std::ostream& os) const override;
 		bool is_symmetric() const override;
 		void set_symmetry(bool const& sym);
+		virtual void delete_member(size_t const& i);
+		virtual void delete_set(std::vector<size_t> const& indices);
+		virtual void add_member(pmTensor const& v=pmTensor{});
+		virtual void duplicate_member(size_t const& i);
+		void deleter(std::vector<pmTensor>& data, std::vector<size_t> const& delete_indices);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -43,6 +43,7 @@
 #include "pmFmean.h"
 #include "pmFsum.h"
 #include "pmNeighbors.h"
+#include "pmKuramoto_operator.h"
 #include "pmArithmetic_operator.h"
 #include "pmArithmetic_function.h"
 

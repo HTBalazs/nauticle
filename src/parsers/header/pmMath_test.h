@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ namespace Nauticle {
 	protected:
 		std::string const one_op_minus = "#";
 		// list of functions and operators
-		static std::string const list_of_functions[84];
+		static std::string const list_of_functions[86];
 		static std::string const list_of_operators[];
 	protected:
 		virtual ~pmMath_test()=default;

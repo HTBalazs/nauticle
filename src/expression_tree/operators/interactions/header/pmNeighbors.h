@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -42,7 +42,6 @@ namespace Nauticle {
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmNeighbors> clone() const;
 		int get_field_size() const override;
-		virtual void write_to_string(std::ostream& os) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

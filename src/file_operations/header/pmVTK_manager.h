@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -55,6 +55,7 @@ namespace Nauticle {
     	void set_case(std::shared_ptr<pmCase> c);
     	virtual void update()=0;
     	void set_file_name(std::string const& file_name);
+        vtkSmartPointer<vtkPolyData> get_polydata() const;
     };
 }
 

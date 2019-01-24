@@ -17,99 +17,90 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
-#include "pmFmin.h"
-#include "Color_define.h"
+
+#include "pmParticle_modifier.h"
 
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Constructor.
+/// Generates and returns the listof potential candidates based on the condition expresion.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFmin::pmFmin(std::shared_ptr<pmExpression> op0) {
-	operand[0] = op0;
+std::vector<size_t> pmParticle_modifier::get_candidates() const {
+	std::vector<size_t> indices;
+    for(int i=0; i<workspace->get_number_of_nodes(); i++) {
+        if(condition->evaluate(i,0)[0]) {
+            indices.push_back(i);
+        }
+    }
+    return indices;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor.
+/// Sets the condition object.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFmin::pmFmin(pmFmin const& other) {
-	this->operand[0] = other.operand[0]->clone();
+void pmParticle_modifier::set_condition(std::shared_ptr<pmExpression> cdn) {
+    condition = cdn;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor.
+/// Sets the period object.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFmin::pmFmin(pmFmin&& other) {
-	this->operand = std::move(other.operand);
+void pmParticle_modifier::set_period(std::shared_ptr<pmExpression> pr) {
+    period = pr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator.
+/// Sets the radius object.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFmin& pmFmin::operator=(pmFmin const& other) {
-	if(this!=&other) {
-		this->operand[0] = other.operand[0]->clone();
-	}
-	return *this;
+void pmParticle_modifier::set_radius(std::shared_ptr<pmField> rad) {
+    radius = rad;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator.
+/// Sets the mass object.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmFmin& pmFmin::operator=(pmFmin&& other) {
-	if(this!=&other) {
-		this->operand = std::move(other.operand);
-	}
-	return *this;
+void pmParticle_modifier::set_mass(std::shared_ptr<pmField> ms) {
+    mass = ms;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Implements clone.
+/// Sets the workspace object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmFmin::clone_impl() const {
-	return std::make_shared<pmFmin>(*this);
+void pmParticle_modifier::set_workspace(std::shared_ptr<pmWorkspace> ws) {
+	workspace = ws;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the deep copy of the object.
+/// Returns the condition object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmFmin> pmFmin::clone() const {
-	return std::static_pointer_cast<pmFmin, pmExpression>(clone_impl());
+std::shared_ptr<pmExpression> const& pmParticle_modifier::get_condition() const {
+    return condition;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Prints object.
+/// Returns the period object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFmin::print() const {
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("fmin(");
-	operand[0]->print();
-	ProLog::pLogger::logf<NAUTICLE_COLOR>(")");
+std::shared_ptr<pmExpression> const& pmParticle_modifier::get_period() const {
+    return period;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// This function performs the minimum search called by the member function evaluate(...)
-/// inherited from pmFsearch.
+/// Returns the radius object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFmin::process(pmTensor& value, size_t const& level/*=0*/) const {
-	pmTensor tensor = operand[0]->evaluate(0, level);
-	if(!tensor.is_scalar()) {
-		ProLog::pLogger::error_msgf("Fmin can be evaluated only on scalar fields!\n");
-	}
-	value = operand[0]->evaluate(0, level);
-	for(int j=1; j<operand[0]->get_field_size(); j++) {
-		pmTensor tj = operand[0]->evaluate(j, level);
-		if(value(0,0)>tj(0,0)) {
-			value = tj;
-		}
-	}
+std::shared_ptr<pmField> const& pmParticle_modifier::get_radius() const {
+    return radius;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Writes object to string.
+/// Returns the mass object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmFmin::write_to_string(std::ostream& os) const {
-	os << "fmin(" << operand[0] << ")";
+std::shared_ptr<pmField> const& pmParticle_modifier::get_mass() const {
+    return mass;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns a copy of the objecct.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmParticle_modifier> pmParticle_modifier::clone() const {
+    return clone_impl();
+}

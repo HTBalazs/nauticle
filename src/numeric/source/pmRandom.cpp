@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -25,6 +25,11 @@
 /// Generates a uniform distributed random number between minimum and maximum.
 /////////////////////////////////////////////////////////////////////////////////////////
 double Nauticle::pmRandom::random(double const& minimum, double const& maximum) {
+	static bool gen=true;
+	if(gen) {
+		srand(time(NULL));
+		gen=false;
+	}
 	if(minimum>=maximum) {
 		ProLog::pLogger::warning_msgf("Random number cannot be generated if the range is incorrect. Returns zero.\n");
 		return 0.0;

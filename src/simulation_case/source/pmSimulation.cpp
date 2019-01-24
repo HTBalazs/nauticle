@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Balazs Toth
+    Copyright 2016-2019 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -39,6 +39,13 @@ pmSimulation::~pmSimulation() {
 pmSimulation::pmSimulation(pmSimulation const& other) {
 	this->cas = std::make_shared<pmCase>(*other.cas);
 	this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
+	for(auto const& it:other.particle_modifier) {
+		this->particle_modifier.push_back(it->clone());
+	}
+	for(auto const& it:other.background) {
+		this->background.push_back(it->clone());
+	}
+	this->vtk_write_mode = other.vtk_write_mode;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +54,9 @@ pmSimulation::pmSimulation(pmSimulation const& other) {
 pmSimulation::pmSimulation(pmSimulation&& other) {
 	this->cas = std::move(other.cas);
 	this->parameter_space = std::move(other.parameter_space);
+	this->particle_modifier = std::move(other.particle_modifier);
+	this->background = std::move(other.background);
+	this->vtk_write_mode = std::move(other.vtk_write_mode);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +66,13 @@ pmSimulation& pmSimulation::operator=(pmSimulation const& other) {
 	if(this!=&other) {
 		this->cas = std::make_shared<pmCase>(*other.cas);
 		this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
+		for(auto const& it:other.particle_modifier) {
+			this->particle_modifier.push_back(it->clone());
+		}
+		for(auto const& it:other.background) {
+			this->background.push_back(it->clone());
+		}
+		this->vtk_write_mode = other.vtk_write_mode;
 	}
 	return *this;
 }
@@ -67,26 +84,11 @@ pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
 	if(this!=&other) {
 		this->cas = std::move(other.cas);
 		this->parameter_space = std::move(other.parameter_space);
+		this->particle_modifier = std::move(other.particle_modifier);
+		this->background = std::move(other.background);
+		this->vtk_write_mode = std::move(other.vtk_write_mode);
 	}
 	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Calculate the time interval of printing results in files.
-/////////////////////////////////////////////////////////////////////////////////////////
-double pmSimulation::calculate_print_interval() const {
-	static bool constant = false;
-	static double interval = 0;
-	if(!constant) {
-		bool governed_by_workspace = cas->get_workspace()->is_existing("print_interval");
-		if(governed_by_workspace) {
-			interval = cas->get_workspace()->get_value("print_interval")[0];
-		} else {
-			interval = parameter_space->get_parameter_value("print_interval")[0];
-			constant = true;
-		}
-	}
-	return interval;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -99,17 +101,22 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	log_stream.print_start();
 	double current_time=0;
 	double previous_printing_time=0;
-	int substeps=0;
-	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
 	double dt = cas->get_workspace()->get_value("dt")[0];
-	log_stream.print_step_info(dt, substeps, current_time, simulated_time);
-	write_step();
+	double simulated_time = parameter_space->get_parameter_value("simulated_time")[0];
 	bool printing;
-	while(current_time < simulated_time) {
+	std::shared_ptr<pmVariable> ws_write_case = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("write_case").lock());
+	std::shared_ptr<pmVariable> ws_substeps = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("substeps").lock());
+	std::shared_ptr<pmVariable> ws_all_steps = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("all_steps").lock());
+	log_stream.print_step_info(dt, (int)ws_substeps->get_value()[0], (int)ws_all_steps->get_value()[0], current_time, simulated_time);
+	ws_substeps->set_value(0.0);
+	write_step();
+	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
+		this->update_particle_modifiers();
+		this->update_background_fields();
 		dt = cas->get_workspace()->get_value("dt")[0];
 		double next_dt = dt;
 		// get printing interval
-		double print_interval = calculate_print_interval();
+		double print_interval = parameter_space->get_parameter_value("print_interval")[0];
 		// time to next printing
 		double to_next_print = previous_printing_time + print_interval - current_time;
 		// do we have to print?
@@ -118,20 +125,23 @@ void pmSimulation::simulate(size_t const& num_threads) {
 		if(printing) {
 			next_dt = to_next_print;
 			cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,next_dt});
+			ws_write_case->set_value(pmTensor{1,1,1});
 		}
 		// Solve equations
 		(this->*solver)(num_threads); // calls either "binary_solve(numthreads)" or "interpreter_solve(numthreads)"
 
 		current_time += next_dt;
-		substeps++;
+		ws_substeps->set_value(ws_substeps->get_value()+1.0);
+		ws_all_steps->set_value(ws_all_steps->get_value()+1.0);
 		if(printing) {
 			if(cas->get_workspace()->get_value("dt")[0]==next_dt) {
 				cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
 			}
 			write_step();
-			log_stream.print_step_info(dt>print_interval?print_interval:dt, substeps, current_time, simulated_time);
-			substeps=0;
+			log_stream.print_step_info(dt>print_interval?print_interval:dt, (int)ws_substeps->get_value()[0], (int)ws_all_steps->get_value()[0], current_time, simulated_time);
+			ws_substeps->set_value(pmTensor{1,1,0});
 			previous_printing_time = current_time;
+			ws_write_case->set_value(pmTensor{1,1,0});
 		}
 	}
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
@@ -144,6 +154,12 @@ void pmSimulation::print() const {
 	ProLog::pLogger::headerf<ProLog::LGN>("Simulation");
 	if(cas!=nullptr)		cas->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
+	for(auto const& it:particle_modifier) {
+		it->print();
+	}
+	for(auto const& it:background) {
+		it->print();
+	}
 	ProLog::pLogger::footerf<ProLog::LGN>();
 }
 
@@ -182,6 +198,11 @@ void pmSimulation::read_file(std::string const& filename) {
 	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
 	yaml_loader->read_file(filename);
 	cas = yaml_loader->get_case();
+	auto particle_splitter = yaml_loader->get_particle_splitter(cas->get_workspace());
+	auto particle_merger = yaml_loader->get_particle_merger(cas->get_workspace());
+	particle_modifier.insert(particle_modifier.end(), particle_splitter.begin(), particle_splitter.end());
+	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
+	background = yaml_loader->get_background(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
@@ -222,3 +243,20 @@ void pmSimulation::interpreter_solve(size_t const& num_threads/*=8*/) {
 	cas->solve(num_threads);
 }
 
+/// Updates particle splitters and mergers.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::update_particle_modifiers() {
+	cas->get_workspace()->sort_all_by_position();
+	for(auto& it:particle_modifier) {
+		it->update();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Updates background interpolations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::update_background_fields() {
+	for(auto& it:background) {
+		it->update();
+	}
+}
