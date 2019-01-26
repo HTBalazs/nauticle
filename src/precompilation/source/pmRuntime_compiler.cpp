@@ -86,23 +86,21 @@ void pmRuntime_compiler::generate_code() const {
     c2CPP_code_generator cgen;
     cgen.add_header(header);
     cgen.add_source(source);
+    cgen.set_directory(directory);
     cgen.write_files();
 }
 
 void pmRuntime_compiler::compile() const {
-    // this->generate_code();
+    this->generate_code();
     // Compile generated code
     c2Compiler compiler{session_name};
-    compiler.set_compiler("clang++");
-    compiler.add_flag("-std=c++14");
-    compiler.add_flag("-O3");
-    compiler.add_includes(INCLUDE_DIR);
-    compiler.add_libraries(LIB_FILES);
+    compiler.set_directory(directory);
+    compiler.generate_cmake_file();
     compiler.compile();
 }
 
 pmInterface* pmRuntime_compiler::create_object() {
-    loader = std::make_shared<c2Loader>(session_name);
+    loader = std::make_shared<c2Loader>("binary_case",session_name);
     return dynamic_cast<pmInterface*>(loader->create_object());
 }
 
@@ -111,13 +109,8 @@ void pmRuntime_compiler::destroy_object(pmInterface* obj) {
 }
 
 void pmRuntime_compiler::clean_up() const {
-    std::string deletion = "rm " + session_name + ".h";
-    deletion += " " + session_name + ".cpp ";
-    deletion += " " + session_name + ".o ";
-    deletion += " lib" + session_name + ".so ";
-    system(deletion.c_str());
+    std::string command = "rm -r -f binary_case";
+    system(command.c_str());
 }
-
-
 
 

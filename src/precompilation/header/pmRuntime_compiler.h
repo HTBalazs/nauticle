@@ -31,9 +31,11 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unistd.h>
 
 namespace Nauticle {
     class pmRuntime_compiler {
+        std::string directory = "binary_case";
         std::shared_ptr<pmCase> cas;
         std::string session_name = "pmBinary_case";
         std::shared_ptr<c2c::c2Loader> loader;
