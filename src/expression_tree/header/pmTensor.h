@@ -334,15 +334,16 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementation of == operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor operator==(pmTensor const& lhs, pmTensor const& rhs) {
+	inline bool operator==(pmTensor const& lhs, pmTensor const& rhs) {
 		if(lhs.numel() == rhs.numel()) {
-			pmTensor tensor = pmTensor::make_tensor(lhs, 0);
 			for(int i=0; i<lhs.numel(); i++) {
-				tensor[i] = lhs[i] == rhs[i];
+				if(lhs[i] != rhs[i]) {
+					return false;
+				}
 			}
-			return tensor;
+			return true;
 		} else {
-			return pmTensor{1,1,0.0};
+			return false;
 		}
 	}
 
@@ -1509,6 +1510,13 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor tensor_if(bool const& state, pmTensor const& t1, pmTensor const& t2) {
 		return state ? t1 : t2;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns t1 if state is true, and t2 if state is false.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline bool tensor_bool(pmTensor const& tensor) {
+		return tensor[0];
 	}
 }
 

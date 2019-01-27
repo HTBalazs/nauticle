@@ -288,7 +288,7 @@ namespace Nauticle {
 			case GTE : code = "(" + STR_ARG(0,i,level) + ">=" + STR_ARG(1,i,level) + ")"; break;
 			case EQUAL : code = "(" + STR_ARG(0,i,level) + "==" + STR_ARG(1,i,level) + ")"; break;
 			case NOTEQUAL : code = "(" + STR_ARG(0,i,level) + "!=" + STR_ARG(1,i,level) + ")"; break;
-			case IF : code = "tensor_if(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + ")"; break;
+			case IF : code = "tensor_if(tensor_bool(" + STR_ARG(0,i,level) + ")," + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + ")"; break;
 			case LOG : code = "log(" + STR_ARG(0,i,level) + ")"; break;
 			case LOGM : code = "logm(" + STR_ARG(0,i,level) + ")"; break;
 			case LT : code = "(" + STR_ARG(0,i,level) + "<" + STR_ARG(1,i,level) + ")"; break;
