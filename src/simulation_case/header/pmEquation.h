@@ -52,6 +52,8 @@ namespace Nauticle {
 		pmEquation(pmEquation&&);
 		pmEquation& operator=(pmEquation const&);
 		pmEquation& operator=(pmEquation&&);
+		bool operator==(pmEquation const& rhs) const;
+		bool operator!=(pmEquation const& rhs) const;
 		virtual ~pmEquation() {}
 		void print() const;
 		void solve(size_t const& num_threads);

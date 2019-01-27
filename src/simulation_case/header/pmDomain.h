@@ -36,6 +36,8 @@ namespace Nauticle {
 	public:
 		pmDomain() {}
 		pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd);
+		bool operator==(pmDomain const& rhs) const;
+		bool operator!=(pmDomain const& rhs) const;
 		pmTensor const& get_minimum() const;
 		pmTensor const& get_maximum() const;
 		pmTensor const& get_cell_size() const;
