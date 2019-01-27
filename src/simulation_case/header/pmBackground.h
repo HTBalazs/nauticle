@@ -26,7 +26,8 @@
 #include <memory>
 #include "prolog/pLogger.h"
 #include "pmParticle_system.h"
-#include "pmVTK_reader.h"
+#include <vtkSmartPointer.h>
+#include <vtkUnstructuredGrid.h>
 
 namespace Nauticle {
 	/** This class represents the background function, which can be used to 
@@ -36,7 +37,7 @@ namespace Nauticle {
 		std::string file_name;
 		std::shared_ptr<pmField> field;
 		std::shared_ptr<pmParticle_system> psys;
-		vtkSmartPointer<vtkPolyData> polydata;
+		vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid;
 	public:
 		pmBackground() {}
 		pmBackground(pmBackground const& other);
