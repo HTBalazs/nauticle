@@ -56,6 +56,8 @@ namespace Nauticle {
 		pmWorkspace(pmWorkspace&& other);
 		pmWorkspace& operator=(pmWorkspace const& other);
 		pmWorkspace& operator=(pmWorkspace&& other);
+		bool operator==(pmWorkspace const& rhs) const;
+		bool operator!=(pmWorkspace const& rhs) const;
 		virtual ~pmWorkspace() override {}
 		bool is_existing(std::string const& name) const;
 		void merge(std::shared_ptr<pmWorkspace> other);
@@ -66,7 +68,7 @@ namespace Nauticle {
 		void add_particle_system(std::vector<pmTensor> const& values, pmDomain const& domain);
 		void delete_instance(std::string const& name);
 		pmTensor get_value(std::string const& name, int const& i=0) const;
-		std::weak_ptr<pmSymbol> get_instance(std::string const& name) const;
+		std::weak_ptr<pmSymbol> get_instance(std::string const& name, bool const& safe=true) const;
 		std::weak_ptr<pmParticle_system> get_particle_system() const;
 		template <typename T> void print_content(std::string const& title) const;
 		void print() const;

@@ -38,6 +38,8 @@ namespace Nauticle {
 		pmVariable(pmVariable&&)=default;
 		pmVariable& operator=(pmVariable const&)=default;
 		pmVariable& operator=(pmVariable&&)=default;
+		bool operator==(pmVariable const& rhs) const;
+		bool operator!=(pmVariable const& rhs) const;
 		virtual ~pmVariable() override {}
 		void set_storage_depth(size_t const& d) override;
 		pmTensor evaluate(int const&, size_t const& level=0) const override;

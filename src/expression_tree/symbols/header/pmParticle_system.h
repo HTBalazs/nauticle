@@ -57,6 +57,8 @@ namespace Nauticle {
 			pmParticle_space(pmParticle_space&& other);
 			pmParticle_space& operator=(pmParticle_space const& other);
 			pmParticle_space& operator=(pmParticle_space&& other);
+			bool operator==(pmParticle_space const& rhs) const;
+			bool operator!=(pmParticle_space const& rhs) const;
 			void expire();
 			bool is_up_to_date() const;
 			void restrict_particles(std::vector<std::vector<pmTensor>>& value) const;
@@ -83,6 +85,8 @@ namespace Nauticle {
 		pmParticle_system(pmParticle_system&& other);
 		pmParticle_system& operator=(pmParticle_system const& other);
 		pmParticle_system& operator=(pmParticle_system&& other);
+		bool operator==(pmParticle_system const& rhs) const;
+		bool operator!=(pmParticle_system const& rhs) const;
 		virtual ~pmParticle_system() {}
 		void sort_field();
 		virtual void set_value(pmTensor const& value, int const& i=0) override;

@@ -116,6 +116,90 @@ pmWorkspace& pmWorkspace::operator=(pmWorkspace&& other) {
 	return *this;
 }
 
+bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
+	if(this->num_nodes != rhs.num_nodes) {
+		return false;
+	}
+	for(auto const& it:this->get<pmConstant>()) {
+		std::string name = it->get_name();
+		auto rhs_instance = std::dynamic_pointer_cast<pmConstant>(rhs.get_instance(name,false).lock());
+		if(rhs_instance.use_count()!=0) {
+			if(*it != *rhs_instance) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	for(auto const& it:this->get<pmVariable>()) {
+		std::string name = it->get_name();
+		auto rhs_instance = std::dynamic_pointer_cast<pmVariable>(rhs.get_instance(name,false).lock());
+		if(rhs_instance.use_count()!=0) {
+			if(*it != *rhs_instance) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	for(auto const& it:this->get<pmField>()) {
+		std::string name = it->get_name();
+		auto rhs_instance = std::dynamic_pointer_cast<pmField>(rhs.get_instance(name,false).lock());
+		if(rhs_instance.use_count()!=0) {
+			if(*it != *rhs_instance) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	if(*this->get_particle_system().lock() != *rhs.get_particle_system().lock()) {
+		return false;
+	}
+	
+	for(auto const& it:rhs.get<pmConstant>()) {
+		std::string name = it->get_name();
+		auto this_instance = std::dynamic_pointer_cast<pmConstant>(this->get_instance(name,false).lock());
+		if(this_instance.use_count()!=0) {
+			if(*it != *this_instance) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	for(auto const& it:rhs.get<pmVariable>()) {
+		std::string name = it->get_name();
+		auto this_instance = std::dynamic_pointer_cast<pmVariable>(this->get_instance(name,false).lock());
+		if(this_instance.use_count()!=0) {
+			if(*it != *this_instance) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	for(auto const& it:rhs.get<pmField>()) {
+		std::string name = it->get_name();
+		auto this_instance = std::dynamic_pointer_cast<pmField>(this->get_instance(name,false).lock());
+		if(this_instance.use_count()!=0) {
+			if(*it != *this_instance) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Implements the non-identity check.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmWorkspace::operator!=(pmWorkspace const& rhs) const {
+	return !this->operator==(rhs);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Checks if the term is a constant.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -304,13 +388,15 @@ pmTensor pmWorkspace::get_value(std::string const& name, int const& i/*=0*/) con
 /// Returns an instance with the given name. Returns an empty pointer if no such instance
 //  found.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::weak_ptr<pmSymbol> pmWorkspace::get_instance(std::string const& name) const {
+std::weak_ptr<pmSymbol> pmWorkspace::get_instance(std::string const& name, bool const& safe/*=true*/) const {
 	for(auto const& it:definitions) {
 		if(it->get_name()==name) {
 			return std::weak_ptr<pmSymbol>{it};
 		}
 	}
-	ProLog::pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
+	if(safe) {
+		ProLog::pLogger::warning_msgf("No such instance: \"%s\"\n", name.c_str());
+	}
 	return std::weak_ptr<pmSymbol>{};
 }
 

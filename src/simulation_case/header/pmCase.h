@@ -46,6 +46,8 @@ namespace Nauticle {
 		~pmCase() {}
 		pmCase& operator=(pmCase const& rhs);
 		pmCase& operator=(pmCase&& rhs);
+		bool operator==(pmCase const& rhs) const;
+		bool operator!=(pmCase const& rhs) const;
 		void print() const;
 		void solve(size_t const& num_threads, std::string const& name="");
 		void assign_particle_system_to_equations();

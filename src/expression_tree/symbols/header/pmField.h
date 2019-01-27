@@ -47,6 +47,8 @@ namespace Nauticle {
 		pmField(pmField&&);
 		pmField& operator=(pmField const&);
 		pmField& operator=(pmField&&);
+		bool operator==(pmField const& rhs) const;
+		bool operator!=(pmField const& rhs) const;
 		virtual ~pmField() override {}
 		void printv() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;

@@ -39,6 +39,8 @@ namespace Nauticle {
 		pmConstant(pmTensor const& value);
 		pmConstant(pmConstant const&)=default;
 		pmConstant& operator=(pmConstant const&)=default;
+		bool operator==(pmConstant const& rhs) const;
+		bool operator!=(pmConstant const& rhs) const;
 		virtual ~pmConstant() override {}
 		void print() const override;
 		std::shared_ptr<pmConstant> clone() const;
