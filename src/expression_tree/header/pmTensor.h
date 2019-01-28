@@ -656,9 +656,7 @@ namespace Nauticle {
 	/// Implementation of limit operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor limit(double const& value, double const& minimum, double const& maximum) {
-		double mn = std::min(value, minimum);
-		double mx = std::max(value, minimum);
-		return value<mn ? mn : (value>mx ? mx : value);
+		return pmTensor{1,1,value<minimum ? minimum : (value>maximum ? maximum : value)};
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
