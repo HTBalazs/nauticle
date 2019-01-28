@@ -228,7 +228,7 @@ std::string pmEquation::generate_evaluator_code() const {
 	code += "\tint p_end = ws_" + lhs->get_name() + "->get_field_size();\n\tauto process = [&](int const& start, int const& end){\n";
 	code += "\t\tint new_end = end>ws_" + lhs->get_name() + "->get_field_size() ? ws_" + lhs->get_name() + "->get_field_size() : end;\n";
 	code += "\t\tfor(int i=start; i<new_end; i++) {\n";
-	code += "\t\t\tif(" + condition->generate_evaluator_code("i", "0") + "[0]!=0) {\n";
+	code += "\t\t\tif(tensor_cast<bool>(" + condition->generate_evaluator_code("i", "0") + ")) {\n";
 	code += "\t\t\t\tws_" + lhs->get_name() + "->set_value(" + rhs->generate_evaluator_code("i","0") + ",i);\n";
 	code += "\t\t\t}\n\t\t}\n";
 	code += "\t};\n";

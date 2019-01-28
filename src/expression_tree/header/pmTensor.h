@@ -1513,8 +1513,8 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns t1 if state is true, and t2 if state is false.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline bool tensor_bool(pmTensor const& tensor) {
-		return tensor[0];
+	template <typename T> T tensor_cast(pmTensor const& tensor) {
+		return (T)tensor[0];
 	}
 }
 
