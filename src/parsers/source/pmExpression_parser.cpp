@@ -332,6 +332,8 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			ADD_INTERACTION(3, md, "pmMd_operator")
 			using neighbors = pmNeighbors;
 			ADD_INTERACTION(1, neighbors, "pmNeighbors")
+			using kuramoto = pmKuramoto_operator;
+			ADD_INTERACTION(3, kuramoto, "pmKuramoto_operator")
 			if(it=="fmin") {
 				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
 				auto interaction = std::make_shared<pmFmin>(operand);
@@ -360,8 +362,6 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				workspace->add_interaction(interaction);
 				e.push(interaction);
 			}
-
-
 			if(it=="transpose") {
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
@@ -636,21 +636,6 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				std::array<std::shared_ptr<pmExpression>,1> operands;
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<INVERSE,1>>(operands));
-			}
-			if(it=="neighbors") {
-				std::array<std::shared_ptr<pmExpression>,1> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmNeighbors>(operands));
-			}
-			if(it=="kuramoto_pure") {
-				std::array<std::shared_ptr<pmExpression>,2> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmKuramoto_operator<2>>(operands));
-			}
-			if(it=="kuramoto_weighted") {
-				std::array<std::shared_ptr<pmExpression>,3> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmKuramoto_operator<3>>(operands));
 			}
 		} else if(is_number(it)) {
 			e.push(std::make_shared<pmConstant>(pmTensor{stof(it)}));
