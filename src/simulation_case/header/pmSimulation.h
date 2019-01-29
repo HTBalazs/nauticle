@@ -25,10 +25,12 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <functional>
 #include "prolog/pLogger.h"
 #include "pmCase.h"
 #include "pmVTK_writer.h"
 #include "pmParameter_space.h"
+#include "pmRuntime_compiler.h"
 #include "pmParticle_splitter.h"
 #include "pmParticle_merger.h"
 #include "pmBackground.h"
@@ -45,11 +47,14 @@ namespace Nauticle {
 	*/
 	class pmSimulation {
 	protected:
+		void (pmSimulation::*solver)(size_t const&);
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
 		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
 		std::vector<std::shared_ptr<pmBackground>> background;
 		write_mode vtk_write_mode = ASCII;
+		std::shared_ptr<pmRuntime_compiler> runtime_compiler;
+		std::shared_ptr<pmInterface> binary_case;
 		void print() const;
 		void simulate(size_t const& num_threads);
 		void write_step() const;
@@ -59,10 +64,12 @@ namespace Nauticle {
 		pmSimulation(pmSimulation&& other);
 		pmSimulation& operator=(pmSimulation const& other);
 		pmSimulation& operator=(pmSimulation&& other);
-		virtual ~pmSimulation() {}
+		virtual ~pmSimulation();
 		void set_working_directory(std::string const& working_dir) const;
 		void read_file(std::string const& filename);
 		void execute(size_t const& num_threads=8);
+		void interpreter_solve(size_t const& num_threads=8);
+		void binary_solve(size_t const& num_threads=8);
 		void update_particle_modifiers();
 		void update_background_fields();
 	};

@@ -42,3 +42,7 @@ bool pmExpression::is_symmetric() const {
 bool pmExpression::is_position() const {
     return false;
 }
+
+std::string const& pmExpression::get_name() const {
+    return name;
+}

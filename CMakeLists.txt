@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 2.8.9)
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-pthread -O3")
 project(nauticle_project)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-pthread -O3 -fPIC")
+set(CMAKE_BUILD_TYPE Release)
 
 set(VTK_DIR /usr/local/VTK-7.0.0)
 set(EXECUTABLE nauticle)
 
 link_directories(/usr/local/lib/prolog)
 link_directories(/usr/local/lib/commonutils)
+link_directories(/usr/local/lib/c2c)
 link_directories(/usr/local/lib)
 
 find_package(VTK REQUIRED)
@@ -70,3 +72,13 @@ endif()
 target_link_libraries(${EXEC} /usr/local/lib/prolog/libprolog.a)
 target_link_libraries(${EXEC} /usr/local/lib/commonutils/libcommonutils.a)
 target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)
+target_link_libraries(${EXEC} /usr/local/lib/c2c/libc2c.a)
+
+# Define library and include directories (do not modify the installation directories below)
+set(STATIC_LIB_DIR /usr/local/lib/nauticle)
+set(INCLUDE_DIR /usr/local/include/nauticle)
+# generate libnauticle.a file
+add_library(nauticle STATIC ${SOURCES})
+# install lib and include directories
+install(TARGETS nauticle DESTINATION ${STATIC_LIB_DIR})
+install(FILES ${HEADERS} DESTINATION ${INCLUDE_DIR})

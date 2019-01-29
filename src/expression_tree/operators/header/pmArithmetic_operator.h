@@ -45,6 +45,7 @@ namespace Nauticle {
 		pmTensor evaluate(int const&, size_t const& level=0) const override;
 		std::shared_ptr<pmArithmetic_operator> clone() const;
 		void write_to_string(std::ostream& os) const override;
+		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -167,6 +168,28 @@ namespace Nauticle {
 		} else {
 			os << "(" << this->operand[0] << ARI_TYPE << this->operand[1] << ")";
 		}
+	}
+
+	template <char ARI_TYPE, size_t S>
+	std::string pmArithmetic_operator<ARI_TYPE,S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
+		std::string code;
+		if(S==1) {
+			if(ARI_TYPE=='+') {
+				return this->operand[0]->generate_evaluator_code(i,level);
+			} else if(ARI_TYPE=='-') {
+				return std::string{"-"} + this->operand[0]->generate_evaluator_code(i,level);
+			}
+		}
+		switch(ARI_TYPE) {
+			case '+' : code = "(" + this->operand[0]->generate_evaluator_code(i,level) + " + " + this->operand[1]->generate_evaluator_code(i,level) + ")";break;
+			case '-' : code = "(" + this->operand[0]->generate_evaluator_code(i,level) + " - " + this->operand[1]->generate_evaluator_code(i,level) + ")";break;
+			case '*' : code = "(" + this->operand[0]->generate_evaluator_code(i,level) + " * " + this->operand[1]->generate_evaluator_code(i,level) + ")";break;
+			case '/' : code = "(" + this->operand[0]->generate_evaluator_code(i,level) + " / " + this->operand[1]->generate_evaluator_code(i,level) + ")";break;
+			case ':' : code = this->operand[0]->generate_evaluator_code(i,level) + ".multiply_term_by_term(" + this->operand[1]->generate_evaluator_code(i,level) + ")"; break;
+			case '^' : code = "pow(" + this->operand[0]->generate_evaluator_code(i,level) + "," + this->operand[1]->generate_evaluator_code(i,level) + ")"; break;
+			case '%' : code = this->operand[0]->generate_evaluator_code(i,level) + ".divide_term_by_term(" + this->operand[1]->generate_evaluator_code(i,level) + ")"; break;
+		}
+		return code;
 	}
 }
 

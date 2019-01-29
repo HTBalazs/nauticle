@@ -26,6 +26,7 @@
 #include <functional>
 #include "pmOperator.h"
 #include "pmParticle_system.h"
+#include "pmCounter.h"
 
 namespace Nauticle {
 	/** This interface forms the base for the interaction models. Since interactions
@@ -33,7 +34,8 @@ namespace Nauticle {
 	//  to the interaction model. The assignment is stored inside this interface.
 	*/
 	template <size_t S>
-	class pmInteraction : public pmOperator<S> {
+	class pmInteraction : public pmOperator<S>, public pmCounter<uint> {
+		std::string declaration_type;
 		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, pmTensor const&, pmTensor const& guide)>;
 		using Func_pos = std::function<pmTensor(pmTensor const&, int const&, pmTensor const&)>;
 	protected:
@@ -41,6 +43,7 @@ namespace Nauticle {
 		std::weak_ptr<pmParticle_system> psys;
 		bool assigned=false;
 	protected:
+		pmInteraction();
 		virtual ~pmInteraction() {}
 		bool is_assigned() const override;
 		int get_field_size() const override;
@@ -50,7 +53,21 @@ namespace Nauticle {
 	public:
 		void assign(std::weak_ptr<pmParticle_system> ps) override;
 		virtual void write_to_string(std::ostream& os) const override;
+		void set_declaration_type(std::string const& decl_type);
+		std::string const& get_declaration_type() const;
+		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 	};
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Constructor
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <size_t S>
+	pmInteraction<S>::pmInteraction() {
+		this->name = "INTERACTION_";
+	    char ch[5];
+	    sprintf(&ch[0], "%04i", counter);
+	    this->name += ch;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Assigns SPH object to the given particle system.
@@ -190,6 +207,21 @@ namespace Nauticle {
 			}
 		}
 		os << ")";
+	}
+
+	template <size_t S>
+	void pmInteraction<S>::set_declaration_type(std::string const& decl_type) {
+		declaration_type = decl_type;
+	}
+
+	template <size_t S>
+	std::string const& pmInteraction<S>::get_declaration_type() const {
+		return declaration_type;
+	}
+
+	template <size_t S>
+	std::string pmInteraction<S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
+		return this->name + "->evaluate(" + i + "," + level + ")";
 	}
 }
 

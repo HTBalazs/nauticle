@@ -219,9 +219,33 @@ void pmEquation::set_condition(std::shared_ptr<pmExpression> cond) {
 	condition = cond;
 }
 
+std::string pmEquation::generate_evaluator_code() const {
+	std::stringstream os;
+	this->write_to_string(os);
+	std::string code = "\t// " + os.str() + "\n";
+	code += "\t{\n";
 
-
-
+	code += "\t\tint p_end = ws_" + lhs->get_name() + "->get_field_size();\n\t\tauto process = [&](int const& start, int const& end){\n";
+	code += "\t\t\tint field_size = ws_" + lhs->get_name() + "->get_field_size();\n";
+	code += "\t\t\tint new_end = end>field_size ? field_size : end;\n";
+	code += "\t\t\tfor(int i=start; i<new_end; i++) {\n";
+	std::string condition_str = condition->generate_evaluator_code("i", "0");
+	if(condition_str != "ws_true->evaluate(i,0)") {
+		code += "\t\t\t\tif(tensor_cast<bool>(" + condition->generate_evaluator_code("i", "0") + ")) {\n\t";
+	}
+	code += "\t\t\t\tws_" + lhs->get_name() + "->set_value(" + rhs->generate_evaluator_code("i","0") + ",i);\n";
+	if(condition_str != "ws_true->evaluate(i,0)") {
+		code += "\t\t\t\t}\n";
+	}
+	code += "\t\t\t}\n";
+	code += "\t\t};\n";
+	code += "\t\tstd::vector<std::thread> th;\n\t\tint number_of_threads = std::min((int)num_threads,p_end);\n\t\tint ppt = p_end/number_of_threads;\t\t// particle per thread\n\t\tfor(int i=0; i<p_end; i+=ppt) {\n\t\t\tth.push_back(std::thread{process, i, i+ppt});\n\t\t}\n\t\tfor(auto& it:th) {\n\t\t\tit.join();\n\t\t}\n";
+	if(lhs->get_name()=="r") {
+		code += "\tws->sort_all_by_position();\n";
+	}
+	code += "\t}\n";
+	return code;
+}
 
 
 

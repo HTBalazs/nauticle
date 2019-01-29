@@ -29,6 +29,7 @@
 // #include "pmField.h"
 #include "pmParticle_system.h"
 #include "pmMath_test.h"
+#include "c2c/c2CPP_declaration.h"
 
 namespace Nauticle {
 	/** This class contains all the definitions of variables and constants. It also
@@ -44,6 +45,7 @@ namespace Nauticle {
 		std::stack<int> deleted_ids;
 		size_t num_constants;
 		size_t num_variables;
+		std::vector<std::shared_ptr<pmExpression>> interactions;
 	private:
 		bool verify_name(std::string const& name) const;
 		bool is_constant(std::shared_ptr<pmSymbol> term) const;
@@ -80,8 +82,11 @@ namespace Nauticle {
 		size_t get_number_of_constants() const;
 		static void print_reserved_names();
 		static bool is_reserved(std::string const& name);
-		template <typename T> std::vector<std::shared_ptr<T>> get() const;
+		template <typename T> std::vector<std::shared_ptr<T>> get(bool const& forced=false) const;
 		void set_number_of_nodes(size_t const& N);
+		std::vector<c2c::c2CPP_declaration> generate_declarations(std::string& init_code) const;
+		void add_interaction(std::shared_ptr<pmExpression> ia);
+		std::vector<std::shared_ptr<pmExpression>> const& get_interactions() const;
 		void delete_particle(size_t const& i);
 		void delete_particle_set(std::vector<size_t> const& delete_indices);
 		void duplicate_particle(size_t const& i);
@@ -108,10 +113,10 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the instances of type T (stored in pmWorkspace) in an std::vector<T>.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	template <typename T> std::vector<std::shared_ptr<T>> pmWorkspace::get() const {
+	template <typename T> std::vector<std::shared_ptr<T>> pmWorkspace::get(bool const& forced/*=false*/) const {
 		std::vector<std::shared_ptr<T>> vecT;
 		for(auto const& it:definitions) {
-			if(it->is_hidden()) { continue; }
+			if(it->is_hidden() && !forced) { continue; }
 			std::shared_ptr<T> type = std::dynamic_pointer_cast<T>(it);
 			if(type.use_count()>0) {
 				vecT.push_back(type);

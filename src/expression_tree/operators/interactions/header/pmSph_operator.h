@@ -190,10 +190,12 @@ namespace Nauticle {
 			double d_ji = rel_pos.norm();
 			if(d_ji > NAUTICLE_EPS || OP_TYPE==SAMPLE) {
 				double h_j = this->operand[4+sh]->evaluate(j,level)[0];
-				if(d_ji < (h_i+h_j)/2.0) {
-					pmTensor B_j{1,1,1};
+				double h_ij = (h_i+h_j)/2.0;
+				if(d_ji < h_ij) {
+					pmTensor B_ij{1,1,1};
 					if(NOPS==6) {
-						B_j = this->operand[0]->evaluate(j, level);
+						pmTensor B_j = this->operand[0]->evaluate(j, level);
+						B_ij = (B_i+B_j)/2.0f;
 					}
 					pmTensor A_j;
 					if(this->operand[0+sh]->is_position()) {
@@ -203,25 +205,21 @@ namespace Nauticle {
 					}
 					// TODO: optimise
 					if(!this->operand[0+sh]->is_symmetric()) {
-						pmTensor flip = pmTensor::make_tensor(guide, 1);
+						int flip = 1;
 						for(int i=0; i<guide.numel(); i++) {
 							if(guide[i]!=0) {
-								flip = -1;
+								flip *= -1;
 							}
 						}
-						A_j *= flip.productum();
+						A_j *= (double)flip;
 					}
 					double m_j = this->operand[1+sh]->evaluate(j,level)[0];
 					double rho_j = this->operand[2+sh]->evaluate(j,level)[0];
-					double W_ij = this->kernel->evaluate(d_ji, (h_i+h_j)/2.0f);
-					pmTensor B_ij{1,1,1};
-					if(NOPS==6) {
-						B_ij = (B_i+B_j)/2.0f;
-					}
+					double W_ij = this->kernel->evaluate(d_ji, h_ij);
 					if(OP_TYPE==TENSILE) {
 						pmKernel W;
 						W.set_kernel_type((int)this->operand[3+sh]->evaluate(0)[0], false);
-						double f = W.evaluate(d_ji, (h_i+h_j)/2.0f)/W.evaluate(B_ij[0], (h_i+h_j)/2.0f);
+						double f = W.evaluate(d_ji, h_ij)/W.evaluate(B_ij[0], h_ij);
 						f*=f; f*=f;
 						contribution += f*this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
 					} else {

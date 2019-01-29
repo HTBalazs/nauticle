@@ -20,18 +20,18 @@
 
 #include "pmBackground.h"
 #include <vtkCellArray.h>
+#include <vtkDelaunay3D.h>
 #include <vtkPoints.h>
 #include <vtkTriangle.h>
-#include <vtkPolyData.h>
 #include <vtkPointData.h>
 #include <vtkLine.h>
 #include <vtkImageData.h>
 #include <vtkProbeFilter.h>
 #include <vtkDelaunay2D.h>
-#include <vtkXMLPolyDataWriter.h>
 #include <vtkDoubleArray.h>
 #include <vtkMath.h>
 #include <vtkCellLocator.h>
+#include <vtkUnstructuredGridReader.h>
 
 using namespace Nauticle;
 using namespace ProLog;
@@ -102,28 +102,34 @@ void pmBackground::set_file_name(std::string const& fn) {
 /// Reads the input file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmBackground::read_file() {
-	vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
+	auto reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
 	reader->ReadAllScalarsOn();
 	reader->SetFileName(file_name.c_str());
 	reader->Update();
-	polydata = reader->GetOutput();
+	unstructured_grid = reader->GetOutput();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Performs interpolation using the given field and particle system.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmBackground::interpolate() {
-	if(psys.use_count()==0 || field.use_count()==0 || polydata==NULL) {
+	if(psys.use_count()==0 || field.use_count()==0 || unstructured_grid==NULL) {
 		return;
 	}
-	auto points = psys->generate_vtkpoints();
 
-  	auto probePolyData = vtkSmartPointer<vtkPolyData>::New();
-  	probePolyData->SetPoints(points);
- 
+	auto points = vtkSmartPointer<vtkPoints>::New();
+	for(int i=0; i<psys->get_field_size(); i++) {
+		pmTensor tensor = psys->get_value(i);
+		size_t n = tensor.numel();
+		points->InsertNextPoint(tensor[0], n>1?tensor[1]:0.0, n>2?tensor[2]:0.0);
+	}
+
+  	auto probe_unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  	probe_unstructured_grid->SetPoints(points);
+
 	auto probe = vtkSmartPointer<vtkProbeFilter>::New();
-	probe->SetSourceData(polydata);
-	probe->SetInputData(probePolyData);
+	probe->SetSourceData(unstructured_grid);
+	probe->SetInputData(probe_unstructured_grid);
 	probe->Update();
  
 	vtkDataArray* data = probe->GetOutput()->GetPointData()->GetScalars();
