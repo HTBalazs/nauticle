@@ -321,7 +321,7 @@ namespace Nauticle {
 			case PREDICTOR : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case CORRECTOR : code = "(" + STR_ARG(0,i,"1") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case VERLET_R : code = "(" +  STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(3,i,"0") + "+" + STR_ARG(2,i,"0") + "*" + "std::pow(" + STR_ARG(3,i,"0") + "[0],2) / 2.0)"; break;
-			case VERLET_V : code = "(" + STR_ARG(0,i,"0") + "(" + STR_ARG(1,i,"0") + "+" + STR_ARG(1,i,"1") + ")*" + STR_ARG(2,i,"0") + "/2.0)"; break;
+			case VERLET_V : code = "(" + STR_ARG(0,i,"0") + "+(" + STR_ARG(1,i,"0") + "+" + STR_ARG(1,i,"1") + ")*" + STR_ARG(2,i,"0") + "/2.0)"; break;
 			case LIMIT : code = "limit(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "[0]," + STR_ARG(2,i,level) + "[0])"; break;
 		}
 		return code;

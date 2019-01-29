@@ -25,10 +25,10 @@
 /// Generates a uniform distributed random number between minimum and maximum.
 /////////////////////////////////////////////////////////////////////////////////////////
 double Nauticle::pmRandom::random(double const& minimum, double const& maximum) {
-	static bool gen=true;
-	if(gen) {
+	static bool pseudo = true;
+	if(!pseudo) {
 		srand(time(NULL));
-		gen=false;
+		pseudo = false;
 	}
 	if(minimum>=maximum) {
 		ProLog::pLogger::warning_msgf("Random number cannot be generated if the range is incorrect. Returns zero.\n");
