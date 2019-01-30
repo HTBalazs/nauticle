@@ -75,7 +75,7 @@ std::vector<std::shared_ptr<pmEquation>> pmVTK_reader::pop_equations_from_polyda
 	if(!array) { return equations; }
 	int num_values = array->GetNumberOfValues();
 	for(int j=0; j<num_values; j++) {
-		std::string vtkequation = array->GetValue(j);
+		std::string vtkequation = array->GetValue(j).c_str();
 		// set separators for equation and condition
 		size_t sp_f = vtkequation.find(":");
 		size_t sp_c = vtkequation.find("#");
@@ -102,7 +102,7 @@ pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> wor
 			vtkSmartPointer<vtkStringArray> array = vtkStringArray::SafeDownCast(field_data->GetAbstractArray(i));
 			if(!array) { ProLog::pLogger::error_msgf("Domain not defined!\n"); }
 			for(int j=0; j<array->GetSize(); j++) {
-				std::string vtk_inst = array->GetValue(j);
+				std::string vtk_inst = array->GetValue(j).c_str();
 				std::string inst_name = vtk_inst.substr(0, vtk_inst.find(":"));
 				std::string inst_value = vtk_inst.substr(vtk_inst.find(":")+1);
 				std::unique_ptr<pmTensor_parser> tp{new pmTensor_parser};
@@ -126,7 +126,7 @@ void pmVTK_reader::pop_singles_from_polydata(std::string const& type, std::share
 	if(!array) { return; }
 	int num_values = array->GetNumberOfValues();
 	for(int j=0; j<num_values; j++) {
-		std::string vtksingle = array->GetValue(j);
+		std::string vtksingle = array->GetValue(j).c_str();
 		std::string single_name = vtksingle.substr(0, vtksingle.find(":"));
 		std::string single_value = vtksingle.substr(vtksingle.find(":")+1);
 		std::unique_ptr<pmTensor_parser> tp{new pmTensor_parser};
@@ -149,7 +149,7 @@ std::vector<std::string> pmVTK_reader::pop_asymmetric_field_names_from_polydata(
 	if(!array) { return asymmetric_fields; }
 	int num_values = array->GetNumberOfValues();
 	for(int j=0; j<num_values; j++) {
-		std::string vtksingle = array->GetValue(j);
+		std::string vtksingle = array->GetValue(j).c_str();
 		asymmetric_fields.push_back(vtksingle);
 	}
 	return asymmetric_fields;
@@ -167,7 +167,6 @@ void pmVTK_reader::update() {
 	std::shared_ptr<pmWorkspace> workspace = std::make_shared<pmWorkspace>();
 	workspace->delete_instance("id");
 	workspace->set_number_of_nodes(polydata->GetNumberOfPoints());
-
 	// Read constants and variables
 	pop_singles_from_polydata("constants", workspace);
 	pop_singles_from_polydata("variables", workspace);

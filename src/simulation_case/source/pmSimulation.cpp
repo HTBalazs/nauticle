@@ -208,7 +208,6 @@ void pmSimulation::read_file(std::string const& filename) {
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
 	ProLog::pLogger::footer<ProLog::LCY>();
 	ProLog::pLogger::line_feed(1);
-
 	if(parameter_space->get_parameter_value("compile_case")[0] != 0) {
 		this->runtime_compiler = std::make_shared<pmRuntime_compiler>();
 		this->runtime_compiler->set_case(cas);

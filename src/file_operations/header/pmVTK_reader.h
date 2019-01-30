@@ -22,9 +22,9 @@
 #define _VTK_READER_H_
 
 #include "pmVTK_manager.h"
-#include <string>
 #include "prolog/pLogger.h"
 #include "pmTensor_parser.h"
+#include <string>
 
 namespace Nauticle {
     /** This class reads vtk-data from files of ASCII and BINNARY format.
