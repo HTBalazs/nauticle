@@ -106,7 +106,7 @@ std::string pmConstant::generate_evaluator_code(std::string const& i, std::strin
     	return pmSymbol::generate_evaluator_code(i,level);
     } else {
 		char buffer[100] = {};
-		sprintf(buffer, "%1.8e", value[0][0]);
+		sprintf(buffer, "(double)%g", value[0][0]);
 		return std::string{buffer};
     }
 }

@@ -226,8 +226,8 @@ std::string pmEquation::generate_evaluator_code() const {
 	code += "\t{\n";
 
 	code += "\t\tint p_end = ws_" + lhs->get_name() + "->get_field_size();\n\t\tauto process = [&](int const& start, int const& end){\n";
-	code += "\t\t\tint field_size = ws_" + lhs->get_name() + "->get_field_size();\n";
-	code += "\t\t\tint new_end = end>field_size ? field_size : end;\n";
+	// code += "\t\t\tint field_size = ws_" + lhs->get_name() + "->get_field_size();\n";
+	code += "\t\t\tint new_end = end>p_end ? p_end : end;\n";
 	code += "\t\t\tfor(int i=start; i<new_end; i++) {\n";
 	std::string condition_str = condition->generate_evaluator_code("i", "0");
 	if(condition_str != "ws_true->evaluate(i,0)") {
