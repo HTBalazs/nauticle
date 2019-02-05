@@ -11,6 +11,7 @@ The implemented schemes can be employed to build **system of differential and al
 - [ProLog](https://bitbucket.org/BalazsToth/prolog)  
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp/)  
 - [CommonUtils](https://bitbucket.org/BalazsToth/commonutils)  
+- [C2C](https://bitbucket.org/nauticleproject/c2c)  
 
 Nauticle can be installed manually or by the automated installation script available in the Installation repository. Currently the automated installation works only on MAC OS systems or Linux distributions that support APT.
 The Installation script can be downloaded here.
@@ -29,10 +30,21 @@ The few examples discussed in the User's guide cover the following simulations:
   7. Melting solid phase (SPH)  
   8. Building evacuation (SFM)  
   9. Molecular dynamics (MC)  
-
-The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). The results can be visualized in Paraview v5.2.0 or later.
+  10. Adaptive dam-break simulation (SPH)
+ 
+The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). In the same package, undomuented examples are available as well. The results can be visualized in Paraview v5.2.0 or later.
 
 Please visit the Nauticle [YouTube-channel](https://www.youtube.com/channel/UCh3Y325U289BiAqJ6K0Lfqw) to see the visualizations of the examples.
+
+# Version 1.1.190131: #
+The most important features and bug-fixes:  
+- Implementation of particle splitting and merging algorithms.  
+- Angular momentum conservation on particle merging.  
+- Implementation of background functions and interpolations from vtk data.  
+- Parameter space items support periodically evaluated expressions.  
+- New parameters of the simulation are accessible from the Symbolic Form Language (SFL).  
+- Implementation of spatially coupled Kuramoto model as a new interaction.  
+- Optional automated runtime compilation of SFL configuration.  
 
 # Version 1.0.180524: #
 The most important features and bug-fixes:  
@@ -59,7 +71,7 @@ The most important features and bug-fixes:
 # License #
 The Nauticle code is open-source and freely distributable under the terms of GNU Lesser General Public License v3:  
   
-Copyright 2016-2018 Balazs Toth  
+Copyright 2016-2019 Balazs Toth  
   
 Nauticle is free software: you can redistribute it and/or modify  
 it under the terms of the GNU Lesser General Public License as published by  
