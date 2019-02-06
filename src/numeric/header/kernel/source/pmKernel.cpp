@@ -18,10 +18,10 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include <iostream>
-#include <cmath>
 #include "pmKernel.h"
 #include "nauticle_constants.h"
+#include <iostream>
+#include <cmath>
 
 using namespace Nauticle;
 

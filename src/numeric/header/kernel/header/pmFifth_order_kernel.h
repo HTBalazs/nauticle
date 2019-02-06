@@ -22,8 +22,9 @@
 #define _FIFTH_ORDER_KERNEL_H_
 
 #include "pmKernel_function.h"
-#include <cmath>
 #include "nauticle_constants.h"
+#include <cmath>
+#include <string>
 
 namespace Nauticle {
 	/** This class contains the quintic (Wendland) smoothing kernel implementations for 1, 2 and 3 dimensions.

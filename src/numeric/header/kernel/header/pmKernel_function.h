@@ -21,6 +21,8 @@
 #ifndef _KERNEL_FUNCTION_H_
 #define _KERNEL_FUNCTION_H_
 
+#include <string>
+
 namespace Nauticle {
 	/** This abstract class implements the parent of the kernel functions.
 	*/
