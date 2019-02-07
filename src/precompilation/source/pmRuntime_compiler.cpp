@@ -101,16 +101,10 @@ std::shared_ptr<c2Cmake_generator> pmRuntime_compiler::create_cmake_generator() 
     cmake_gen->set_cxx_flags("-pthread -O3 -fPIC");
     cmake_gen->set_cxx_standard("14");
     cmake_gen->add_link_dir("/usr/local/lib/prolog");
-    // cmake_gen->add_link_dir("/usr/local/lib/commonutils");
     cmake_gen->add_link_dir("/usr/local/lib/c2c");
     cmake_gen->add_link_dir("/usr/local/lib/nauticle");
-    cmake_gen->add_include_dir("/usr/local/include/nauticle");
-    cmake_gen->add_include_dir("/usr/local/include/prolog");
-    cmake_gen->add_include_dir("/usr/local/include/c2c");
-    // cmake_gen->add_include_dir("/usr/local/include/commonutils");
+    cmake_gen->add_include_dir("/usr/local/include/");
     cmake_gen->add_dependency("/usr/local/lib/prolog/libprolog.a");
-    // cmake_gen->add_dependency("/usr/local/lib/commonutils/libcommonutils.a");
-    // cmake_gen->add_dependency("/usr/local/lib/libyaml-cpp.a");
     cmake_gen->add_dependency("/usr/local/lib/c2c/libc2c.a");
     cmake_gen->add_dependency("/usr/local/lib/nauticle/libnauticle.a");
     return cmake_gen;
