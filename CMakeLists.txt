@@ -12,6 +12,8 @@ link_directories(/usr/local/lib/commonutils)
 link_directories(/usr/local/lib/c2c)
 link_directories(/usr/local/lib)
 
+include_directories(/usr/local/include)
+
 find_package(VTK REQUIRED)
 
 IF(VTK_FOUND)
