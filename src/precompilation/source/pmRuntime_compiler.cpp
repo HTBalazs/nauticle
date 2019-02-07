@@ -44,12 +44,12 @@ void pmRuntime_compiler::set_session_name(std::string const& n) {
 /// Add includes for the generated header file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmRuntime_compiler::add_includes(std::shared_ptr<c2CPP_header_file> header) const {
-    header->add_include("pmInterface.h", false);
-    header->add_include("pmConstant.h", false);
-    header->add_include("pmVariable.h", false);
-    header->add_include("pmParticle_system.h", false);
-    header->add_include("pmWorkspace.h", false);
-    header->add_include("pmRandom.h", false);
+    header->add_include("nauticle/pmInterface.h", false);
+    header->add_include("nauticle/pmConstant.h", false);
+    header->add_include("nauticle/pmVariable.h", false);
+    header->add_include("nauticle/pmParticle_system.h", false);
+    header->add_include("nauticle/pmWorkspace.h", false);
+    header->add_include("nauticle/pmRandom.h", false);
     header->add_include("string", true);
     header->add_include("vector", true);
     header->add_include("algorithm", true);
