@@ -23,6 +23,6 @@
 
 #define MAJOR_VERSION 1
 #define MINOR_VERSION 1
-#define RELEASE_DATE "master"
+#define RELEASE_DATE "190131"
 
 #endif //_VERSION_H_
