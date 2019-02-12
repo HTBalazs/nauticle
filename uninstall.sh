@@ -1,6 +1,6 @@
 #!/bin/sh
 
 # remove includes
-sudo rm -r -f /usr/local/include/nauticle
+sudo rm -r -f ~/local/include/nauticle
 # remove library files
-sudo rm -r -f /usr/local/lib/nauticle
+sudo rm -r -f ~/local/lib/nauticle
