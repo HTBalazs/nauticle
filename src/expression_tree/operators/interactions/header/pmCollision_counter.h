@@ -150,7 +150,7 @@ namespace Nauticle {
 				pmParticle_system::pmMesh& links = this->psys.lock()->get_links();
 				int link_id = links.get_link_id(idi,idj);
 				if(d_ji < min_dist) {
-					if(link_id<0 && i<j) {
+					if(link_id<0 && idi<idj) {
 						links.add_link(idi,idj,d_ji);
 					}
 				} else if(link_id!=-1) {

@@ -42,6 +42,7 @@ pmParticle_system::pmParticle_system(std::string const& n, std::vector<pmTensor>
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_system::pmParticle_system(pmParticle_system const& other) : pmField{other} {
+	this->mesh = other.mesh;
 	this->particle_space = other.particle_space;
 	this->sorted_idx = other.sorted_idx;
 }
@@ -50,6 +51,7 @@ pmParticle_system::pmParticle_system(pmParticle_system const& other) : pmField{o
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_system::pmParticle_system(pmParticle_system&& other) : pmField{other} {
+	this->mesh = std::move(other.mesh);
 	this->particle_space = std::move(other.particle_space);
 	this->sorted_idx = std::move(other.sorted_idx);
 }
@@ -60,6 +62,7 @@ pmParticle_system::pmParticle_system(pmParticle_system&& other) : pmField{other}
 pmParticle_system& pmParticle_system::operator=(pmParticle_system const& other) {
 	if(this!=&other) {
 		pmField::operator=(other);
+		this->mesh = other.mesh;
 		this->particle_space = other.particle_space;
 		this->sorted_idx = other.sorted_idx;
 	}
@@ -72,6 +75,7 @@ pmParticle_system& pmParticle_system::operator=(pmParticle_system const& other) 
 pmParticle_system& pmParticle_system::operator=(pmParticle_system&& other) {
 	if(this!=&other) {
 		pmField::operator=(other);
+		this->mesh = std::move(other.mesh);
 		this->particle_space = std::move(other.particle_space);
 		this->sorted_idx = std::move(other.sorted_idx);
 	}
@@ -119,6 +123,7 @@ void pmParticle_system::sort_field() {
 	particle_space->update_neighbour_list(value[0], sorted_idx);
 	// reorder particle positions due to sorted_idx
 	pmField::sort_field(sorted_idx);
+	mesh.sort_mesh(sorted_idx);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
