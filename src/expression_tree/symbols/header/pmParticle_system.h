@@ -25,6 +25,7 @@
 #include "pmDomain.h"
 #include "pmSort.h"
 #include "pmField.h"
+#include "pmIdentifier.h"
 
 namespace Nauticle {
 	/** This class manages a cloud of nodes (particles) and forms a spatial domain 
@@ -32,7 +33,36 @@ namespace Nauticle {
 	//  Neighbour search and cloud/grid generation is integrated inside.
 	*/
 	class pmParticle_system final : public pmField {
-		
+	public:
+		class pmMesh {
+			std::vector<double> initial_length;
+			std::vector<int> first;
+			std::vector<int> second;
+			pmIdentifier<int> ID;
+			mutable std::vector<int> sorted_first;
+			mutable std::vector<int> sorted_second;
+			mutable std::vector<int> start_first;
+			mutable std::vector<int> end_first;
+			mutable std::vector<int> start_second;
+			mutable std::vector<int> end_second;
+		private:
+			void sort_lists(std::vector<int>& sorted_link_idx, std::vector<int> const& link_vec) const;
+			void update_helper_vectors(std::vector<int>& start, std::vector<int>& end, std::vector<int> const& sorted_link_idx, std::vector<int> const& link_vec, int const& N) const;
+			void update_links(std::vector<int>& link_vec, std::vector<int> const& sorted_link_idx, std::vector<int> const& start, std::vector<int> const& end, std::vector<int> const& sorted_particle_idx) const;
+			int get_link_index(int const& id) const;
+		public:
+			pmMesh() {}
+			pmMesh(std::vector<int> const& fst, std::vector<int> const& snd);
+			void sort_mesh(std::vector<int> const& sorted_particle_idx);
+			void add_link(int const& i1, int const& i2, double const& l0);
+			int get_link_id(int const& i1, int const& i2) const;
+			void delete_link(int const& id);
+			double get_initial_length(int const& id) const;
+			void reset();
+			int size() const;
+			void print() const;
+		};
+	private:
 		class pmParticle_space final {
 			std::vector<int> hash_key;
 			std::vector<unsigned int> cell_start;
@@ -72,6 +102,7 @@ namespace Nauticle {
 			void set_number_of_nodes(size_t const& N);
 			size_t get_number_of_nodes() const;
 		};
+		pmMesh mesh;
 		std::shared_ptr<pmParticle_space> particle_space;
 		std::vector<int> sorted_idx;
 	protected:
@@ -100,6 +131,7 @@ namespace Nauticle {
 		virtual void delete_set(std::vector<size_t> const& indices) override;
 		virtual void add_member(pmTensor const& v=pmTensor{}) override;
 		virtual void duplicate_member(size_t const& i) override;
+		pmMesh const& get_links() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
