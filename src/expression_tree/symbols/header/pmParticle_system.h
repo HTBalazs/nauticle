@@ -61,6 +61,9 @@ namespace Nauticle {
 			void reset();
 			int size() const;
 			void print() const;
+			std::vector<int> const& get_first() const;
+			std::vector<int> const& get_second() const;
+			pmIdentifier<int> const& get_id() const;
 		};
 	private:
 		class pmParticle_space final {
@@ -131,7 +134,7 @@ namespace Nauticle {
 		virtual void delete_set(std::vector<size_t> const& indices) override;
 		virtual void add_member(pmTensor const& v=pmTensor{}) override;
 		virtual void duplicate_member(size_t const& i) override;
-		pmMesh const& get_links() const;
+		pmMesh& get_links();
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

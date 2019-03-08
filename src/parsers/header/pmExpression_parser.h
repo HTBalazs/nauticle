@@ -46,6 +46,7 @@
 #include "pmKuramoto_operator.h"
 #include "pmArithmetic_operator.h"
 #include "pmArithmetic_function.h"
+#include "pmCollision_counter.h"
 
 namespace Nauticle {
 	/** This class converts the given std::string formatted equation to an pmExpression object.

@@ -186,11 +186,6 @@ namespace Nauticle {
 					double Rj = this->operand[2]->evaluate(j,level)[0];
 					double min_dist = Ri + Rj;
 					if(d_ji < min_dist) {
-						pmParticle_system::pmMesh links = this->psys.lock()->get_links();
-						int link_id = links.get_link_id(i,j);
-						if(link_id<0) {
-							links.add_link(i,j,d_ji);
-						}
 						double mj = this->operand[3]->evaluate(j,level)[0];
 						double Ej = this->operand[4]->evaluate(j,level)[0];
 						double nuj = this->operand[5]->evaluate(j,level)[0];

@@ -342,6 +342,19 @@ void pmParticle_system::pmMesh::print() const {
 	}
 }
 
+std::vector<int> const& pmParticle_system::pmMesh::get_first() const {
+	return first;
+}
+
+std::vector<int> const& pmParticle_system::pmMesh::get_second() const {
+	return second;
+}
+
+pmIdentifier<int> const& pmParticle_system::pmMesh::get_id() const {
+	return ID;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //////////																		/////////
 //////////							pmParticle_space							/////////
@@ -667,6 +680,6 @@ void pmParticle_system::duplicate_member(size_t const& i) {
 	particle_space->set_number_of_nodes(sorted_idx.size());
 }
 
-pmParticle_system::pmMesh const& pmParticle_system::get_links() const {
+pmParticle_system::pmMesh& pmParticle_system::get_links() {
 	return mesh;
 }
