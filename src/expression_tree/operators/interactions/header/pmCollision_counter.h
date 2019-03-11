@@ -139,19 +139,17 @@ namespace Nauticle {
 		if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 		size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
 		double Ri = this->operand[0]->evaluate(i,level)[0];
-		int idi = (int)this->operand[1]->evaluate(i,level)[0];
 		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 			pmTensor force{(int)dimension,1,0.0};
 			double d_ji = rel_pos.norm();
 			if(d_ji > NAUTICLE_EPS) {
 				double Rj = this->operand[0]->evaluate(j,level)[0];
-				int idj = (int)this->operand[1]->evaluate(j,level)[0];
 				double min_dist = Ri + Rj;
 				pmParticle_system::pmMesh& links = this->psys.lock()->get_links();
-				int link_id = links.get_link_id(idi,idj);
+				int link_id = links.get_link_id(i,j);
 				if(d_ji < min_dist) {
-					if(link_id<0 && idi<idj) {
-						links.add_link(idi,idj,d_ji);
+					if(link_id<0 && i<j) {
+						links.add_link(i,j,d_ji);
 					}
 				} else if(link_id!=-1) {
 					links.delete_link(link_id);
