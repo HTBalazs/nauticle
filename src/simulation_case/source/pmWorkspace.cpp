@@ -434,6 +434,9 @@ void pmWorkspace::sort_all_by_position() {
 			term->sort_field(sorted_idx);
 		}
 	}
+	for(auto& it:interactions) {
+		it->update();
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
