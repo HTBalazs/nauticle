@@ -119,9 +119,9 @@ pmTensor pmCollision_counter::evaluate(int const& i, size_t const& level/*=0*/) 
 		int counter = 0;
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS) {
-			int link_idx = this->mesh.get_link_index(i,j);
+			int link_idx = this->pairs.get_link_index(i,j);
 			if(link_idx!=-1) {
-				pmHysteron const& hysteron = this->mesh.get_hysteron(link_idx);
+				pmHysteron const& hysteron = this->pairs.get_hysteron(link_idx);
 				if(hysteron.get_event()==UP) {
 					counter = 1;
 				}
@@ -143,18 +143,18 @@ void pmCollision_counter::update_collision_counter(int const& i, size_t const& l
 			double Rj = this->operand[0]->evaluate(j,level)[0];
 			int condition_j = this->operand[2]->evaluate(j,level)[0];
 			double min_dist = Ri + Rj;
-			int link_idx = this->mesh.get_link_index(i,j);
+			int link_idx = this->pairs.get_link_index(i,j);
 			if(d_ji < min_dist && condition_i<NAUTICLE_EPS && condition_j<NAUTICLE_EPS) {
 				if(i<j) {
 					if(link_idx<0) {
-						this->mesh.add_link(i,j,d_ji);
-						link_idx = this->mesh.get_link_index(i,j);
+						this->pairs.add_link(i,j,d_ji);
+						link_idx = this->pairs.get_link_index(i,j);
 					}
-					pmHysteron& hysteron = this->mesh.get_hysteron(link_idx);
+					pmHysteron& hysteron = this->pairs.get_hysteron(link_idx);
 					hysteron.update(min_dist-d_ji);
 				}
 			} else if(link_idx!=-1) {
-				this->mesh.delete_link(link_idx);
+				this->pairs.delete_link(link_idx);
 			}
 		}
 		return pmTensor{1,1,0};
@@ -163,7 +163,7 @@ void pmCollision_counter::update_collision_counter(int const& i, size_t const& l
 }
 
 void pmCollision_counter::update(size_t const& level/*=0*/) {
-	this->sort_mesh(this->psys.lock()->get_sorted_idx());
+	this->sort_pairs(this->psys.lock()->get_sorted_idx());
 	for(int i=0; i<this->psys.lock()->get_field_size(); i++) {
 		update_collision_counter(i, level);
 	}

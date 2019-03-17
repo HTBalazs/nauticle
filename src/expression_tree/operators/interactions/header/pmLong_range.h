@@ -32,7 +32,7 @@ namespace Nauticle {
     */
     class pmLong_range {
     protected:
-        class pmMesh {
+        class pmPairs {
             std::vector<pmHysteron> hysteron;
             std::vector<double> initial_length;
             std::vector<int> first;
@@ -49,9 +49,9 @@ namespace Nauticle {
             void update_helper_vectors(std::vector<int>& start, std::vector<int>& end, std::vector<int> const& sorted_link_idx, std::vector<int> const& link_vec, int const& N) const;
             void update_links(std::vector<int>& link_vec, std::vector<int> const& sorted_link_idx, std::vector<int> const& start, std::vector<int> const& end, std::vector<int> const& sorted_particle_idx) const;
         public:
-            pmMesh() {}
-            pmMesh(std::vector<int> const& fst, std::vector<int> const& snd);
-            void sort_mesh(std::vector<int> const& sorted_particle_idx);
+            pmPairs() {}
+            pmPairs(std::vector<int> const& fst, std::vector<int> const& snd);
+            void sort_pairs(std::vector<int> const& sorted_particle_idx);
             void add_link(int const& i1, int const& i2, double const& l0);
             int get_link_index(int const& i1, int const& i2) const;
             int get_link_id(int const& i1, int const& i2) const;
@@ -66,12 +66,12 @@ namespace Nauticle {
             pmHysteron& get_hysteron(int const& i);
             pmHysteron const& get_hysteron(int const& i) const;
         };
-        pmMesh mesh;
+        pmPairs pairs;
     public:
         pmLong_range() {}
         virtual ~pmLong_range() {}
-        pmMesh const& get_mesh() const;
-        void sort_mesh(std::vector<int> const& sorted_idx);
+        pmPairs const& get_pairs() const;
+        void sort_pairs(std::vector<int> const& sorted_idx);
     };
 }
 

@@ -37,7 +37,7 @@ namespace Nauticle {
         vtkSmartPointer<vtkRectilinearGrid> rectilinear_grid = vtkSmartPointer<vtkRectilinearGrid>::New();
     private:
         void fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) const;
-        void push_mesh_lines_to_polydata();
+        void push_pairs_to_polydata();
         void push_nodes_to_polydata();
         void push_point_fields_to_polydata();
         void push_cell_fields_to_polydata();

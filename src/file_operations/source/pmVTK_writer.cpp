@@ -33,15 +33,15 @@ void pmVTK_writer::fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Push lines to polydata object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmVTK_writer::push_mesh_lines_to_polydata() {
+void pmVTK_writer::push_pairs_to_polydata() {
 	auto interactions = cas->get_workspace()->get_interactions();
 	for(auto const& it:interactions) {
 		auto long_range = std::dynamic_pointer_cast<pmLong_range>(it);
 		if(long_range) {
-			auto mesh = long_range->get_mesh();
-			std::vector<int> const& first = mesh.get_first();
-			std::vector<int> const& second = mesh.get_second();
-			pmIdentifier<int> const& id = mesh.get_id();
+			auto pairs = long_range->get_pairs();
+			std::vector<int> const& first = pairs.get_first();
+			std::vector<int> const& second = pairs.get_second();
+			pmIdentifier<int> const& id = pairs.get_id();
 			if(first.empty()) { continue; }
 			vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
 			vtkSmartPointer<vtkDoubleArray> line_id = vtkSmartPointer<vtkDoubleArray>::New();
@@ -90,15 +90,15 @@ void pmVTK_writer::push_cell_fields_to_polydata() {
 	for(auto const& it:interactions) {
 		auto long_range = std::dynamic_pointer_cast<pmLong_range>(it);
 		if(long_range) {
-			auto mesh = long_range->get_mesh();
-			size_t n = mesh.size();
+			auto pairs = long_range->get_pairs();
+			size_t n = pairs.size();
 			if(n==0) { continue; }
 			vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
 			field->SetName("hysteron_state");
 			field->SetNumberOfComponents(1);
 			fill_scalar_vertices(field);
 			for(int i=0; i<n; i++) {
-				double length = mesh.get_hysteron(i).get_state();
+				double length = pairs.get_hysteron(i).get_state();
 				field->InsertNextTupleValue(&length);
 			}
 			polydata->GetCellData()->AddArray(field);
@@ -236,7 +236,7 @@ void pmVTK_writer::update() {
 	push_constants_to_polydata();
 	push_equations_to_polydata();
 	push_nodes_to_polydata();
-	push_mesh_lines_to_polydata();
+	push_pairs_to_polydata();
 	push_cell_fields_to_polydata();
 	push_point_fields_to_polydata();
 	push_asymmetric_to_polydata();

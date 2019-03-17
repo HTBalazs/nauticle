@@ -26,7 +26,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmLong_range::pmMesh::pmMesh(std::vector<int> const& fst, std::vector<int> const& snd) : first{fst}, second{snd} {
+pmLong_range::pmPairs::pmPairs(std::vector<int> const& fst, std::vector<int> const& snd) : first{fst}, second{snd} {
     initial_length.resize(first.size());
     ID.resize(first.size());
     hysteron.resize(first.size());
@@ -36,7 +36,7 @@ pmLong_range::pmMesh::pmMesh(std::vector<int> const& fst, std::vector<int> const
 /// Sorts a 0..N vector by link_vec and copies the result into sorted_link_idx.
 /// The content of sorted_link_idx (if there's any) is destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLong_range::pmMesh::sort_lists(std::vector<int>& sorted_link_idx, std::vector<int> const& link_vec)  const {
+void pmLong_range::pmPairs::sort_lists(std::vector<int>& sorted_link_idx, std::vector<int> const& link_vec)  const {
     sorted_link_idx.resize(link_vec.size());
     std::iota(sorted_link_idx.begin(), sorted_link_idx.end(), 0);
     std::vector<int> copy = link_vec;
@@ -47,7 +47,7 @@ void pmLong_range::pmMesh::sort_lists(std::vector<int>& sorted_link_idx, std::ve
 /// Fills the helper start and end vectors. Needs to be called for first and second 
 /// elements of the links separately.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLong_range::pmMesh::update_helper_vectors(std::vector<int>& start, std::vector<int>& end, std::vector<int> const& sorted_link_idx, std::vector<int> const& link_vec, int const& N)  const {
+void pmLong_range::pmPairs::update_helper_vectors(std::vector<int>& start, std::vector<int>& end, std::vector<int> const& sorted_link_idx, std::vector<int> const& link_vec, int const& N)  const {
     start.resize(N);
     end.resize(N);
     std::fill(start.begin(),start.end(),0xFFFFFFFF);
@@ -72,7 +72,7 @@ void pmLong_range::pmMesh::update_helper_vectors(std::vector<int>& start, std::v
 /// Updates the list of links according to the sorted_particle_idx. Needs to be called 
 ///for first and second elements of the links separately.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLong_range::pmMesh::update_links(std::vector<int>& link_vec, std::vector<int> const& sorted_link_idx, std::vector<int> const& start, std::vector<int> const& end, std::vector<int> const& sorted_particle_idx)  const {
+void pmLong_range::pmPairs::update_links(std::vector<int>& link_vec, std::vector<int> const& sorted_link_idx, std::vector<int> const& start, std::vector<int> const& end, std::vector<int> const& sorted_particle_idx)  const {
     for(int i=0; i<sorted_particle_idx.size(); i++) {
         int old_id = sorted_particle_idx[i];
         int new_id = i;
@@ -89,7 +89,7 @@ void pmLong_range::pmMesh::update_links(std::vector<int>& link_vec, std::vector<
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a link given by two particle indices to the mesh.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLong_range::pmMesh::add_link(int const& i1, int const& i2, double const& l0) {
+void pmLong_range::pmPairs::add_link(int const& i1, int const& i2, double const& l0) {
     first.push_back(i1);
     second.push_back(i2);
     initial_length.push_back(l0);
@@ -97,7 +97,7 @@ void pmLong_range::pmMesh::add_link(int const& i1, int const& i2, double const& 
     hysteron.push_back(pmHysteron{});
 }
 
-int pmLong_range::pmMesh::get_link_index(int const& i1, int const& i2) const {
+int pmLong_range::pmPairs::get_link_index(int const& i1, int const& i2) const {
     for(int i=0; i<first.size(); i++) {
         if((first[i]==i1 && second[i]==i2) || (first[i]==i2 && second[i]==i1)) {
             return i;
@@ -106,14 +106,14 @@ int pmLong_range::pmMesh::get_link_index(int const& i1, int const& i2) const {
     return -1;
 }
 
-double pmLong_range::pmMesh::get_initial_length(int const& i) const {
+double pmLong_range::pmPairs::get_initial_length(int const& i) const {
     return initial_length[i];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the ith link.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLong_range::pmMesh::delete_link(int const& i) {
+void pmLong_range::pmPairs::delete_link(int const& i) {
     first.erase(first.begin()+i);
     second.erase(second.begin()+i);
     initial_length.erase(initial_length.begin()+i);
@@ -124,7 +124,7 @@ void pmLong_range::pmMesh::delete_link(int const& i) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Performs the sorting of the list of links based on the given sorted_particle_idx.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLong_range::pmMesh::sort_mesh(std::vector<int> const& sorted_particle_idx) {
+void pmLong_range::pmPairs::sort_pairs(std::vector<int> const& sorted_particle_idx) {
     sort_lists(sorted_first, first);
     sort_lists(sorted_second, second);
     update_helper_vectors(start_first, end_first, sorted_first, first, sorted_particle_idx.size());
@@ -136,7 +136,7 @@ void pmLong_range::pmMesh::sort_mesh(std::vector<int> const& sorted_particle_idx
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Clears all data.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLong_range::pmMesh::reset() {
+void pmLong_range::pmPairs::reset() {
     first.clear();
     second.clear();
     sorted_first.clear();
@@ -152,14 +152,14 @@ void pmLong_range::pmMesh::reset() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the number of links in the mesh.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmLong_range::pmMesh::size() const {
+int pmLong_range::pmPairs::size() const {
     return first.size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the ith id.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmLong_range::pmMesh::get_link_id(int const& i1, int const& i2) const {
+int pmLong_range::pmPairs::get_link_id(int const& i1, int const& i2) const {
     for(int i=0; i<first.size(); i++) {
         if((first[i]==i1 && second[i]==i2) || (first[i]==i2 && second[i]==i1)) {
             return ID[i];
@@ -169,37 +169,37 @@ int pmLong_range::pmMesh::get_link_id(int const& i1, int const& i2) const {
 }
 
 
-void pmLong_range::pmMesh::print() const {
+void pmLong_range::pmPairs::print() const {
     if(first.size()!=0) {
         ProLog::pLogger::logf<ProLog::LYW>("\n            Particle links: ");
         ProLog::pLogger::logf<NAUTICLE_COLOR>("%i", first.size());
     }
 }
 
-std::vector<int> const& pmLong_range::pmMesh::get_first() const {
+std::vector<int> const& pmLong_range::pmPairs::get_first() const {
     return first;
 }
 
-std::vector<int> const& pmLong_range::pmMesh::get_second() const {
+std::vector<int> const& pmLong_range::pmPairs::get_second() const {
     return second;
 }
 
-pmIdentifier<int> const& pmLong_range::pmMesh::get_id() const {
+pmIdentifier<int> const& pmLong_range::pmPairs::get_id() const {
     return ID;
 }
 
-pmHysteron& pmLong_range::pmMesh::get_hysteron(int const& i) {
+pmHysteron& pmLong_range::pmPairs::get_hysteron(int const& i) {
     return hysteron[i];
 }
 
-pmHysteron const& pmLong_range::pmMesh::get_hysteron(int const& i) const {
+pmHysteron const& pmLong_range::pmPairs::get_hysteron(int const& i) const {
     return hysteron[i];
 }
 
-typename pmLong_range::pmMesh const& pmLong_range::get_mesh() const {
-    return mesh;
+typename pmLong_range::pmPairs const& pmLong_range::get_pairs() const {
+    return pairs;
 }
 
-void pmLong_range::sort_mesh(std::vector<int> const& sorted_idx) {
-    mesh.sort_mesh(sorted_idx);
+void pmLong_range::sort_pairs(std::vector<int> const& sorted_idx) {
+    pairs.sort_pairs(sorted_idx);
 }
