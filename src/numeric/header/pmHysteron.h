@@ -25,19 +25,20 @@
 #include <stdlib.h>
 
 namespace Nauticle {
+	enum Hysteron_event {UP, DOWN, UNCHANGED};
 	class pmHysteron {
 		double alpha;
 	    double beta;
-		mutable bool state;
-		mutable bool upswitch_event;
+		bool state;
+		Hysteron_event event;
 	public:
 		pmHysteron();
 		double const& get_alpha() const;
 		double const& get_beta() const;
 		void set_boundaries(double const& a, double const& b);
-		void update(double const& x) const;
+		void update(double const& x);
 		bool const& get_state() const;
-		bool const& switched_up() const;
+		Hysteron_event const& get_event() const;
 	};
 }
 

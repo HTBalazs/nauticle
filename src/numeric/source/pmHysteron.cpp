@@ -25,9 +25,9 @@ using namespace Nauticle;
 
 pmHysteron::pmHysteron() {
     alpha = 0.0;
-    beta = 0.002;
+    beta = 0.01;
     state = false;
-    upswitch_event = false;
+    event = UNCHANGED;
 }
 
 double const& pmHysteron::get_alpha() const {
@@ -43,20 +43,22 @@ void pmHysteron::set_boundaries(double const& a, double const& b) {
     beta = b;
 }
 
-void pmHysteron::update(double const& x) const {
+void pmHysteron::update(double const& x) {
     if(x<alpha && state) {
         state = false;
+        event = DOWN;
     } else if(x>beta && !state) {
         state = true;
-        upswitch_event = true;
+        event = UP;
+    } else {
+        event = UNCHANGED;
     }
-    upswitch_event = false;
 }
 
 bool const& pmHysteron::get_state() const {
-	return state;
+    return state;
 }
 
-bool const& pmHysteron::switched_up() const {
-    return upswitch_event;
+Hysteron_event const& pmHysteron::get_event() const {
+    return event;
 }

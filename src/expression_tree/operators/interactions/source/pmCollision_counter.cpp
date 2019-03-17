@@ -114,19 +114,20 @@ void pmCollision_counter::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmCollision_counter::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
-	int count_i = (int)this->operand[1]->evaluate(i,level)[0];
+	int id_i = (int)this->operand[1]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-		pmTensor counter{1,1,count_i};
+		int counter = 0;
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS) {
 			int link_idx = this->mesh.get_link_index(i,j);
 			if(link_idx!=-1) {
 				pmHysteron const& hysteron = this->mesh.get_hysteron(link_idx);
-				bool const& event = hysteron.switched_up();
-				counter += pmTensor{1,1,event?1.0:0.0};
+				if(hysteron.get_event()==UP) {
+					counter = 1;
+				}
 			}
 		}
-		return counter;
+		return pmTensor{1,1,(double)counter};
 	};
 	return this->interact(i, contribute);
 }
@@ -134,9 +135,9 @@ pmTensor pmCollision_counter::evaluate(int const& i, size_t const& level/*=0*/) 
 void pmCollision_counter::update_collision_counter(int const& i, size_t const& level/*=0*/) {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 	double Ri = this->operand[0]->evaluate(i,level)[0];
+	int id_i = (int)this->operand[1]->evaluate(i,level)[0];
 	double condition_i = this->operand[2]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-		pmTensor counter{1,1,0};
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS) {
 			double Rj = this->operand[0]->evaluate(j,level)[0];
@@ -144,25 +145,25 @@ void pmCollision_counter::update_collision_counter(int const& i, size_t const& l
 			double min_dist = Ri + Rj;
 			int link_idx = this->mesh.get_link_index(i,j);
 			if(d_ji < min_dist && condition_i<NAUTICLE_EPS && condition_j<NAUTICLE_EPS) {
-				if(link_idx<0 && i<j) {
-					this->mesh.add_link(i,j,d_ji);
-					link_idx = this->mesh.get_link_index(i,j);
+				if(i<j) {
+					if(link_idx<0) {
+						this->mesh.add_link(i,j,d_ji);
+						link_idx = this->mesh.get_link_index(i,j);
+					}
+					pmHysteron& hysteron = this->mesh.get_hysteron(link_idx);
+					hysteron.update(min_dist-d_ji);
 				}
-				pmHysteron const& hs = this->mesh.get_hysteron(link_idx);
-				hs.update(min_dist-d_ji);
-				bool const& event = hs.switched_up();
-				counter += pmTensor{1,1,event?1.0:0.0};
 			} else if(link_idx!=-1) {
 				this->mesh.delete_link(link_idx);
 			}
 		}
-		return counter;
+		return pmTensor{1,1,0};
 	};
-	this->interact(i, contribute);
+	pmTensor tensor = this->interact(i, contribute);
 }
 
 void pmCollision_counter::update(size_t const& level/*=0*/) {
-	pmLong_range::update(level);
+	this->sort_mesh(this->psys.lock()->get_sorted_idx());
 	for(int i=0; i<this->psys.lock()->get_field_size(); i++) {
 		update_collision_counter(i, level);
 	}

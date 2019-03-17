@@ -22,6 +22,7 @@
 #include <numeric>
 #include "pmConstant.h"
 #include "pmVariable.h"
+#include "pmLong_range.h"
 
 using namespace Nauticle;
 

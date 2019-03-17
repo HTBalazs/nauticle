@@ -34,32 +34,32 @@ void pmVTK_writer::fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) 
 /// Push lines to polydata object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_mesh_lines_to_polydata() {
-	// auto interactions = cas->get_workspace()->get_interactions();
-	// for(auto const& it:interactions) {
-	// 	auto long_range = std::dynamic_pointer_cast<std::decltype(*it)>(it);
-	// 	if(long_range) {
-	// 		auto mesh = long_range->get_mesh();
-	// 		std::vector<int> const& first = mesh.get_first();
-	// 		std::vector<int> const& second = mesh.get_second();
-	// 		pmIdentifier<int> const& id = mesh.get_id();
-	// 		if(first.empty()) { continue; }
-	// 		vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
-	// 		vtkSmartPointer<vtkDoubleArray> line_id = vtkSmartPointer<vtkDoubleArray>::New();
-	// 		line_id->SetNumberOfComponents(1);
-	// 		fill_scalar_vertices(line_id);
-	// 		line_id->SetName("line_id");
-	// 		for(int i=0; i<first.size(); i++) {
-	// 			vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
-	// 			line->GetPointIds()->SetId(0, first[i]);
-	// 			line->GetPointIds()->SetId(1, second[i]);
-	// 			lines->InsertNextCell(line);
-	// 			double num = id[i];
-	// 			line_id->InsertNextTupleValue(&num);
-	// 		}
-	// 		polydata->SetLines(lines);
-	// 		polydata->GetCellData()->SetScalars(line_id);
-	// 	}
-	// }
+	auto interactions = cas->get_workspace()->get_interactions();
+	for(auto const& it:interactions) {
+		auto long_range = std::dynamic_pointer_cast<pmLong_range>(it);
+		if(long_range) {
+			auto mesh = long_range->get_mesh();
+			std::vector<int> const& first = mesh.get_first();
+			std::vector<int> const& second = mesh.get_second();
+			pmIdentifier<int> const& id = mesh.get_id();
+			if(first.empty()) { continue; }
+			vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+			vtkSmartPointer<vtkDoubleArray> line_id = vtkSmartPointer<vtkDoubleArray>::New();
+			line_id->SetNumberOfComponents(1);
+			fill_scalar_vertices(line_id);
+			line_id->SetName("line_id");
+			for(int i=0; i<first.size(); i++) {
+				vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
+				line->GetPointIds()->SetId(0, first[i]);
+				line->GetPointIds()->SetId(1, second[i]);
+				lines->InsertNextCell(line);
+				double num = id[i];
+				line_id->InsertNextTupleValue(&num);
+			}
+			polydata->SetLines(lines);
+			polydata->GetCellData()->SetScalars(line_id);
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -86,19 +86,26 @@ void pmVTK_writer::push_nodes_to_polydata() {
 /// Push cell field data to polydata object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_cell_fields_to_polydata() {
-	// auto const& mesh = cas->get_workspace()->get_particle_system().lock()->get_links();
-	// size_t n = mesh.size();
-	// if(n==0) { return; }
-	// vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
-	// field->SetName("initial_length");
-	// field->SetNumberOfComponents(1);
-	// // field->SetNumberOfTuples(n);
-	// fill_scalar_vertices(field);
-	// for(int i=0; i<n; i++) {
-	// 	double length = mesh.get_initial_length(i);
-	// 	field->InsertNextTupleValue(&length);
-	// }
-	// polydata->GetCellData()->AddArray(field);
+	auto interactions = cas->get_workspace()->get_interactions();
+	for(auto const& it:interactions) {
+		auto long_range = std::dynamic_pointer_cast<pmLong_range>(it);
+		if(long_range) {
+			auto mesh = long_range->get_mesh();
+			size_t n = mesh.size();
+			if(n==0) { continue; }
+			vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
+			field->SetName("hysteron_state");
+			field->SetNumberOfComponents(1);
+			fill_scalar_vertices(field);
+			for(int i=0; i<n; i++) {
+				double length = mesh.get_hysteron(i).get_state();
+				field->InsertNextTupleValue(&length);
+			}
+			polydata->GetCellData()->AddArray(field);
+			
+		}
+	}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
