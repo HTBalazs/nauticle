@@ -45,17 +45,17 @@ namespace Nauticle {
             mutable std::vector<int> start_second;
             mutable std::vector<int> end_second;
         private:
-            void sort_lists(std::vector<int>& sorted_link_idx, std::vector<int> const& link_vec) const;
-            void update_helper_vectors(std::vector<int>& start, std::vector<int>& end, std::vector<int> const& sorted_link_idx, std::vector<int> const& link_vec, int const& N) const;
-            void update_links(std::vector<int>& link_vec, std::vector<int> const& sorted_link_idx, std::vector<int> const& start, std::vector<int> const& end, std::vector<int> const& sorted_particle_idx) const;
+            void sort_lists(std::vector<int>& sorted_pair_idx, std::vector<int> const& pair_vec) const;
+            void update_helper_vectors(std::vector<int>& start, std::vector<int>& end, std::vector<int> const& sorted_pair_idx, std::vector<int> const& pair_vec, int const& N) const;
+            void update_pairs(std::vector<int>& pair_vec, std::vector<int> const& sorted_pair_idx, std::vector<int> const& start, std::vector<int> const& end, std::vector<int> const& sorted_particle_idx) const;
         public:
-            pmPairs() {}
+            pmPairs()=default;
             pmPairs(std::vector<int> const& fst, std::vector<int> const& snd);
             void sort_pairs(std::vector<int> const& sorted_particle_idx);
-            void add_link(int const& i1, int const& i2, double const& l0);
-            int get_link_index(int const& i1, int const& i2) const;
-            int get_link_id(int const& i1, int const& i2) const;
-            void delete_link(int const& id);
+            void add_pair(int const& i1, int const& i2, double const& l0);
+            int get_pair_index(int const& i1, int const& i2) const;
+            int get_pair_id(int const& i1, int const& i2) const;
+            void delete_pair(int const& id);
             double get_initial_length(int const& id) const;
             void reset();
             int size() const;

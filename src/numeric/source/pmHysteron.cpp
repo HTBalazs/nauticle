@@ -25,7 +25,7 @@ using namespace Nauticle;
 
 pmHysteron::pmHysteron() {
     alpha = 0.0;
-    beta = 0.002;
+    beta = 0.001;
     state = false;
     event = UNCHANGED;
 }
