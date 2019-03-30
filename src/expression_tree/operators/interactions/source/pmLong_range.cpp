@@ -124,7 +124,7 @@ void pmLong_range::pmPairs::delete_pair(int const& i) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Performs the sorting of the list of pairs based on the given sorted_particle_idx.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmLong_range::pmPairs::sort_pairs(std::vector<int> const& sorted_particle_idx) {
+void pmLong_range::pmPairs::renumber_pairs(std::vector<int> const& sorted_particle_idx) {
     sort_lists(sorted_first, first);
     sort_lists(sorted_second, second);
     update_helper_vectors(start_first, end_first, sorted_first, first, sorted_particle_idx.size());
@@ -204,8 +204,8 @@ typename pmLong_range::pmPairs& pmLong_range::get_pairs() {
     return pairs;
 }
 
-void pmLong_range::sort_pairs(std::vector<int> const& sorted_idx) {
-    pairs.sort_pairs(sorted_idx);
+void pmLong_range::renumber_pairs(std::vector<int> const& sorted_idx) {
+    pairs.renumber_pairs(sorted_idx);
 }
 
 std::vector<pmHysteron> const& pmLong_range::pmPairs::get_hysteron() const {

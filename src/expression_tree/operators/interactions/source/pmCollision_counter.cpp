@@ -162,7 +162,7 @@ void pmCollision_counter::count_collisions() const {
 
 void pmCollision_counter::update(size_t const& level/*=0*/) {
 	auto ps = this->psys.lock();
-	this->sort_pairs(ps->get_sorted_idx());
+	this->renumber_pairs(ps->get_sorted_idx());
 	for(int i=0; i<ps->get_field_size(); i++) {
 		update_collision_counter(i, level);
 	}

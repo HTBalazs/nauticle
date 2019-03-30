@@ -51,7 +51,7 @@ namespace Nauticle {
         public:
             pmPairs()=default;
             pmPairs(std::vector<int> const& fst, std::vector<int> const& snd);
-            void sort_pairs(std::vector<int> const& sorted_particle_idx);
+            void renumber_pairs(std::vector<int> const& sorted_particle_idx);
             void add_pair(int const& i1, int const& i2, double const& l0);
             int get_pair_index(int const& i1, int const& i2) const;
             int get_pair_id(int const& i1, int const& i2) const;
@@ -74,7 +74,7 @@ namespace Nauticle {
         virtual ~pmLong_range() {}
         pmPairs const& get_pairs() const;
         pmPairs& get_pairs();
-        void sort_pairs(std::vector<int> const& sorted_idx);
+        void renumber_pairs(std::vector<int> const& sorted_idx);
     };
 }
 
