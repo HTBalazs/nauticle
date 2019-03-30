@@ -90,10 +90,11 @@ void pmLong_range::pmPairs::update_pairs(std::vector<int>& pair_vec, std::vector
 /// Adds a pair given by two particle indices to the mesh.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmLong_range::pmPairs::add_pair(int const& i1, int const& i2, double const& l0) {
-    first.push_back(i1);
-    second.push_back(i2);
-    initial_length.push_back(l0);
-    hysteron.push_back(pmHysteron{});
+        first.push_back(i1);
+        second.push_back(i2);
+        initial_length.push_back(l0);
+        ID.add_id(ID.size()+1);
+        hysteron.push_back(pmHysteron{});
 }
 
 int pmLong_range::pmPairs::get_pair_index(int const& i1, int const& i2) const {
@@ -145,6 +146,7 @@ void pmLong_range::pmPairs::reset() {
     start_second.clear();
     end_second.clear();
     initial_length.clear();
+    ID.reset();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +200,17 @@ typename pmLong_range::pmPairs const& pmLong_range::get_pairs() const {
     return pairs;
 }
 
+typename pmLong_range::pmPairs& pmLong_range::get_pairs() {
+    return pairs;
+}
+
 void pmLong_range::sort_pairs(std::vector<int> const& sorted_idx) {
     pairs.sort_pairs(sorted_idx);
+}
+
+std::vector<pmHysteron> const& pmLong_range::pmPairs::get_hysteron() const {
+    return hysteron;
+}
+std::vector<double> const& pmLong_range::pmPairs::get_initial_length() const {
+    return initial_length;
 }

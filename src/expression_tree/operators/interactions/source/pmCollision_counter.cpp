@@ -114,20 +114,8 @@ void pmCollision_counter::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmCollision_counter::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
-	int id_i = (int)this->operand[1]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-		int counter = 0;
-		double d_ji = rel_pos.norm();
-		if(d_ji > NAUTICLE_EPS) {
-			int pair_idx = this->pairs.get_pair_index(i,j);
-			if(pair_idx!=-1) {
-				pmHysteron const& hysteron = this->pairs.get_hysteron(pair_idx);
-				if(hysteron.get_event()==UP) {
-					counter = 1;
-				}
-			}
-		}
-		return pmTensor{1,1,(double)counter};
+		return pmTensor{1,1,(double)(i==j ? count[i] : 0)};
 	};
 	return this->interact(i, contribute);
 }
@@ -159,12 +147,26 @@ void pmCollision_counter::update_collision_counter(int const& i, size_t const& l
 	pmTensor tensor = this->interact(i, contribute);
 }
 
+void pmCollision_counter::count_collisions() const {
+	count.resize(this->psys.lock()->get_field_size());
+	std::fill(count.begin(), count.end(), 0);
+	auto first = this->pairs.get_first();
+	auto second = this->pairs.get_second();
+	auto hysteron = this->pairs.get_hysteron();
+	for(int i=0; i<first.size(); i++) {
+		int event = hysteron[i].get_event()==UP?1:0;
+		count[first[i]] += event;
+		count[second[i]] += event;
+	}
+}
+
 void pmCollision_counter::update(size_t const& level/*=0*/) {
 	auto ps = this->psys.lock();
 	this->sort_pairs(ps->get_sorted_idx());
 	for(int i=0; i<ps->get_field_size(); i++) {
 		update_collision_counter(i, level);
 	}
+	count_collisions();
 }
 
 

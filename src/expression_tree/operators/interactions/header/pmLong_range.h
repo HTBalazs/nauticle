@@ -65,12 +65,15 @@ namespace Nauticle {
             pmIdentifier<int> const& get_id() const;
             pmHysteron& get_hysteron(int const& i);
             pmHysteron const& get_hysteron(int const& i) const;
+            std::vector<pmHysteron> const& get_hysteron() const;
+            std::vector<double> const& get_initial_length() const;
         };
         pmPairs pairs;
     public:
         pmLong_range() {}
         virtual ~pmLong_range() {}
         pmPairs const& get_pairs() const;
+        pmPairs& get_pairs();
         void sort_pairs(std::vector<int> const& sorted_idx);
     };
 }

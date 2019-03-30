@@ -25,6 +25,16 @@
 using namespace Nauticle;
 
 int main(int argc, char* argv[]) {
+	// auto long_range = std::make_shared<pmLong_range>();	
+	// clock_t begin = clock();
+	// for(int i=0; i<16135; i++) {
+	// 	long_range->get_pairs().add_pair(i,2*i,3.23*i);
+	// }
+	// clock_t end = clock();
+	// double elapsed = double(end-begin)/CLOCKS_PER_SEC*1000000.0;
+	// std::cout << elapsed << std::endl;
+
+// return 0;
 	std::string default_yaml_name = pmYAML_processor::get_default_file_name();
 	std::string default_working_dir = "";
 	bool command_switch = false;
