@@ -33,6 +33,7 @@ namespace Nauticle {
 		Hysteron_event event;
 	public:
 		pmHysteron();
+		pmHysteron(double const& a, double const& b, bool const& s=false):alpha{a},beta{b},state{s},event{UNCHANGED}{}
 		double const& get_alpha() const;
 		double const& get_beta() const;
 		void set_boundaries(double const& a, double const& b);

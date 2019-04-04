@@ -56,6 +56,7 @@ namespace Nauticle {
 		void set_declaration_type(std::string const& decl_type);
 		std::string const& get_declaration_type() const;
 		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
+		virtual bool is_interaction() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -209,19 +210,36 @@ namespace Nauticle {
 		os << ")";
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Set the declaration type for the interaction.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	void pmInteraction<S>::set_declaration_type(std::string const& decl_type) {
 		declaration_type = decl_type;
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Get the declaration type for the interaction.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	std::string const& pmInteraction<S>::get_declaration_type() const {
 		return declaration_type;
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Generate the c++ code for the evaluation of the interaction.
+	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	std::string pmInteraction<S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
 		return this->name + "->evaluate(" + i + "," + level + ")";
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Check if the current object requires nearest neighbor search.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <size_t S>
+	bool pmInteraction<S>::is_interaction() const {
+		return true;
 	}
 }
 

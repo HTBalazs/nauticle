@@ -46,6 +46,7 @@ namespace Nauticle {
 		std::shared_ptr<pmSymbol> lhs;
 		std::shared_ptr<pmExpression> rhs;
 		std::shared_ptr<pmExpression> condition;
+		bool rhs_interaction;
 	public:
 		pmEquation(std::string n, std::shared_ptr<pmSymbol> ex1, std::shared_ptr<pmExpression> ex2, std::shared_ptr<pmExpression> cond);
 		pmEquation(pmEquation const&);
@@ -70,6 +71,7 @@ namespace Nauticle {
 		void set_rhs(std::shared_ptr<pmExpression> right);
 		void set_condition(std::shared_ptr<pmExpression> cond);
 		std::string generate_evaluator_code() const;
+		bool const& is_interaction() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

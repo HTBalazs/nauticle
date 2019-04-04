@@ -19,6 +19,7 @@
 */
     
 #include "pmVTK_writer.h"
+#include "pmMesh.h"
 
 using namespace Nauticle;
 
@@ -36,12 +37,11 @@ void pmVTK_writer::fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) 
 void pmVTK_writer::push_pairs_to_polydata() {
 	auto interactions = cas->get_workspace()->get_interactions();
 	for(auto const& it:interactions) {
-		auto long_range = std::dynamic_pointer_cast<pmLong_range>(it);
+		auto long_range = std::dynamic_pointer_cast<pmMesh>(it);
 		if(long_range) {
 			auto pairs = long_range->get_pairs();
 			std::vector<int> const& first = pairs.get_first();
 			std::vector<int> const& second = pairs.get_second();
-			pmIdentifier<int> const& id = pairs.get_id();
 			if(first.empty()) { continue; }
 			vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
 			vtkSmartPointer<vtkDoubleArray> line_id = vtkSmartPointer<vtkDoubleArray>::New();
@@ -53,7 +53,7 @@ void pmVTK_writer::push_pairs_to_polydata() {
 				line->GetPointIds()->SetId(0, first[i]);
 				line->GetPointIds()->SetId(1, second[i]);
 				lines->InsertNextCell(line);
-				double num = id[i];
+				double num = 0.0;
 				line_id->InsertNextTupleValue(&num);
 			}
 			polydata->SetLines(lines);
@@ -88,7 +88,7 @@ void pmVTK_writer::push_nodes_to_polydata() {
 void pmVTK_writer::push_cell_fields_to_polydata() {
 	auto interactions = cas->get_workspace()->get_interactions();
 	for(auto const& it:interactions) {
-		auto long_range = std::dynamic_pointer_cast<pmLong_range>(it);
+		auto long_range = std::dynamic_pointer_cast<pmMesh>(it);
 		if(long_range) {
 			auto pairs = long_range->get_pairs();
 			size_t n = pairs.size();
