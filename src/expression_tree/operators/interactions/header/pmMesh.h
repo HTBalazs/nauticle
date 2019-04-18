@@ -28,7 +28,7 @@ namespace Nauticle {
 	/** This abstract class implements a common type for long range interactions so that they 
 	//  can be casted to a non-template parent.
 	*/
-	using pmPair_data = std::pair<std::string,std::vector<pmTensor>>;
+	using pmPair_data = std::pair<std::string,std::vector<double>>;
 	class pmMesh {
 	protected:
 		class pmPairs {
@@ -54,18 +54,18 @@ namespace Nauticle {
 			pmPairs(std::vector<int> const& fst, std::vector<int> const& snd, int const& num_particles);
 			void set_number_of_particles(size_t const& num_particles);
 			void renumber_pairs(std::vector<int> const& sorted_particle_idx);
-			void add_pair(int const& i1, int const& i2, std::vector<pmTensor> const& new_values_ordered);
+			void add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered);
 			void delete_marked_pairs();
 			void reset();
 			int size() const;
 			void print() const;
 			std::vector<int> const& get_first() const;
 			std::vector<int> const& get_second() const;
-			void add_data(std::string const& name, pmTensor const& initial_value=pmTensor{1,1,0.0});
+			void add_data(std::string const& name, double const& initial_value=0.0);
 			std::vector<pmPair_data>& get_data();
 			std::vector<pmPair_data> const& get_data() const;
-			std::vector<pmTensor>& get_data(std::string const& name);
-			std::vector<pmTensor> const& get_data(std::string const& name) const;
+			std::vector<double>& get_data(std::string const& name);
+			std::vector<double> const& get_data(std::string const& name) const;
 			std::vector<size_t> const& get_pair_index(size_t const& i) const;
 			std::vector<std::vector<size_t>> const& get_pair_index() const;
 			void mark_to_delete(size_t const& i);

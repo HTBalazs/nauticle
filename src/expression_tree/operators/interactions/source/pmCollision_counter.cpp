@@ -170,7 +170,7 @@ void pmCollision_counter::create_pairs(int const& i, size_t const& level/*=0*/) 
 			double condition_j = this->operand[2]->evaluate(j,level)[0];
 			double min_dist = Ri + Rj;
 			if(d_ji < min_dist && condition_i && condition_j) {
-				std::vector<pmTensor> data = {pmTensor{1,1,d_ji}, pmTensor{1,1,0.0}, pmTensor{1,1,min_dist/100.0}, pmTensor{1,1,0.0}, pmTensor{1,1,0.0}};
+				std::vector<double> data = {d_ji, 0.0, min_dist/100.0, 0.0, 0.0};
 				this->pairs[level].add_pair(i,j,data);
 			}
 		}
@@ -186,10 +186,10 @@ void pmCollision_counter::evaluate_pairs(size_t const& level/*=0*/) {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
-	std::vector<pmTensor> const alpha = this->pairs[level].get_data("alpha");
-	std::vector<pmTensor> const beta = this->pairs[level].get_data("beta");
-	std::vector<pmTensor> event = this->pairs[level].get_data("event");
-	std::vector<pmTensor> state = this->pairs[level].get_data("state");
+	std::vector<double> const alpha = this->pairs[level].get_data("alpha");
+	std::vector<double> const beta = this->pairs[level].get_data("beta");
+	std::vector<double> event = this->pairs[level].get_data("event");
+	std::vector<double> state = this->pairs[level].get_data("state");
 	for(int pi=0; pi<pairs[level].size(); pi++) {
 		int i = first[pi];
 		int j = second[pi];
@@ -202,14 +202,14 @@ void pmCollision_counter::evaluate_pairs(size_t const& level/*=0*/) {
 		double min_dist = Ri + Rj;
 		{
 			double x = min_dist-d_ji;
-			if(x<alpha[pi][0] && (bool)state[pi][0]) {
-		        state[pi] = pmTensor{1,1,0.0};
-		        event[pi] = pmTensor{1,1,-1.0};
-		    } else if(x>beta[pi][0] && !(bool)state[pi][0]) {
-		        state[pi] = pmTensor{1,1,1.0};
-		        event[pi] = pmTensor{1,1,1.0};
+			if(x<alpha[pi] && (bool)state[pi]) {
+		        state[pi] = 0.0;
+		        event[pi] = -1.0;
+		    } else if(x>beta[pi] && !(bool)state[pi]) {
+		        state[pi] = 1.0;
+		        event[pi] = 1.0;
 		    } else {
-		        event[pi] = pmTensor{1,1,0.0};
+		        event[pi] = 0.0;
 		    }
 		}
 	}
@@ -223,10 +223,10 @@ void pmCollision_counter::count_collisions(size_t const& level/*=0*/) const {
 	std::fill(count[level].begin(), count[level].end(), 0);
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
-	std::vector<pmTensor> const& event = this->pairs[level].get_data("event");
+	std::vector<double> const& event = this->pairs[level].get_data("event");
 	for(int i=0; i<first.size(); i++) {
-		count[level][first[i]] += event[i][0];
-		count[level][second[i]] += event[i][0];
+		count[level][first[i]] += event[i];
+		count[level][second[i]] += event[i];
 	}
 }
 

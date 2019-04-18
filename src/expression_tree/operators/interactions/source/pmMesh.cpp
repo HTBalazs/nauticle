@@ -131,7 +131,7 @@ void pmMesh::pmPairs::renumber_pairs(std::vector<int> const& sorted_particle_idx
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a pair given by two particle indices to the mesh.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmMesh::pmPairs::add_pair(int const& i1, int const& i2, std::vector<pmTensor> const& new_values_ordered) {
+void pmMesh::pmPairs::add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered) {
 	first.push_back(i1);
 	second.push_back(i2);
 	for(int i=0; i<pair_data.size(); i++) {
@@ -206,8 +206,10 @@ std::vector<int> const& pmMesh::pmPairs::get_second() const {
 	return second;
 }
 
-void pmMesh::pmPairs::add_data(std::string const& name, pmTensor const& initial_value/*=pmTensor{1,1,0.0}*/) {
-	std::vector<pmTensor> vec{first.size(),initial_value};
+void pmMesh::pmPairs::add_data(std::string const& name, double const& initial_value/*=0.0*/) {
+	std::vector<double> vec;
+	vec.resize(first.size());
+	std::fill(first.begin(),first.end(),initial_value);
 	pair_data.push_back(pmPair_data{name,vec});
 }
 
@@ -219,7 +221,7 @@ std::vector<pmPair_data> const& pmMesh::pmPairs::get_data() const {
 	return pair_data;
 }
 
-std::vector<pmTensor>& pmMesh::pmPairs::get_data(std::string const& name) {
+std::vector<double>& pmMesh::pmPairs::get_data(std::string const& name) {
 	for(auto& it:pair_data) {
 		if(it.first==name) {
 			return it.second;
@@ -228,7 +230,7 @@ std::vector<pmTensor>& pmMesh::pmPairs::get_data(std::string const& name) {
 	return pair_data.back().second;
 }
 
-std::vector<pmTensor> const& pmMesh::pmPairs::get_data(std::string const& name) const {
+std::vector<double> const& pmMesh::pmPairs::get_data(std::string const& name) const {
 	for(auto const& it:pair_data) {
 		if(it.first==name) {
 			return it.second;

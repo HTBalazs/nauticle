@@ -40,7 +40,7 @@ namespace Nauticle {
         void push_pairs_to_polydata();
         void push_nodes_to_polydata();
         void push_point_fields_to_polydata();
-        void push_cell_fields_to_polydata();
+        void push_pair_fields_to_polydata();
         void push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata, std::string const& name, pmTensor const& field_data);
         void push_variables_to_polydata();
         void push_constants_to_polydata();

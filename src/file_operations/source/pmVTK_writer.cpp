@@ -85,7 +85,7 @@ void pmVTK_writer::push_nodes_to_polydata() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Push cell field data to polydata object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmVTK_writer::push_cell_fields_to_polydata() {
+void pmVTK_writer::push_pair_fields_to_polydata() {
 	auto interactions = cas->get_workspace()->get_interactions();
 	for(auto const& it:interactions) {
 		auto long_range = std::dynamic_pointer_cast<pmMesh>(it);
@@ -99,8 +99,8 @@ void pmVTK_writer::push_cell_fields_to_polydata() {
 				field->SetNumberOfComponents(1);
 				fill_scalar_vertices(field);
 				for(int i=0; i<n; i++) {
-					double length = it.second[i][0];
-					field->InsertNextTupleValue(&length);
+					double data = it.second[i];
+					field->InsertNextTupleValue(&data);
 				}
 				polydata->GetCellData()->AddArray(field);
 			}
@@ -237,7 +237,7 @@ void pmVTK_writer::update() {
 	push_equations_to_polydata();
 	push_nodes_to_polydata();
 	push_pairs_to_polydata();
-	push_cell_fields_to_polydata();
+	push_pair_fields_to_polydata();
 	push_point_fields_to_polydata();
 	push_asymmetric_to_polydata();
 	// Write vtk file.
