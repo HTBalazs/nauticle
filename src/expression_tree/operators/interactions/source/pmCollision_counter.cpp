@@ -186,10 +186,10 @@ void pmCollision_counter::evaluate_pairs(size_t const& level/*=0*/) {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
-	std::vector<pmTensor> const& alpha = this->pairs[level].get_data("alpha");
-	std::vector<pmTensor> const& beta = this->pairs[level].get_data("beta");
-	std::vector<pmTensor>& event = this->pairs[level].get_data("event");
-	std::vector<pmTensor>& state = this->pairs[level].get_data("state");
+	std::vector<pmTensor> const alpha = this->pairs[level].get_data("alpha");
+	std::vector<pmTensor> const beta = this->pairs[level].get_data("beta");
+	std::vector<pmTensor> event = this->pairs[level].get_data("event");
+	std::vector<pmTensor> state = this->pairs[level].get_data("state");
 	for(int pi=0; pi<pairs[level].size(); pi++) {
 		int i = first[pi];
 		int j = second[pi];
