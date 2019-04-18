@@ -37,8 +37,6 @@ pmMesh::pmPairs::pmPairs(int const& num_particles) {
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmMesh::pmPairs::pmPairs(std::vector<int> const& fst, std::vector<int> const& snd, int const& num_particles) : first{fst}, second{snd} {
-	initial_length.resize(first.size());
-	hysteron.resize(first.size());
 	pair_index.resize(num_particles);
 	update_pair_idx();
 }
@@ -133,11 +131,12 @@ void pmMesh::pmPairs::renumber_pairs(std::vector<int> const& sorted_particle_idx
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a pair given by two particle indices to the mesh.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmMesh::pmPairs::add_pair(int const& i1, int const& i2, double const& l0, pmHysteron const& hys/*=pmHysteron{}*/) {
+void pmMesh::pmPairs::add_pair(int const& i1, int const& i2, std::vector<pmTensor> const& new_values_ordered) {
 	first.push_back(i1);
 	second.push_back(i2);
-	initial_length.push_back(l0);
-	hysteron.push_back(hys);
+	for(int i=0; i<pair_data.size(); i++) {
+		pair_data[i].second.push_back(new_values_ordered[i]);
+	}
 	pair_index[i1].push_back(first.size()-1);
 	pair_index[i2].push_back(second.size()-1);
 }
@@ -151,8 +150,9 @@ void pmMesh::pmPairs::delete_marked_pairs() {
 	}
 	Common::delete_indices(first, delete_marker);
 	Common::delete_indices(second, delete_marker);
-	Common::delete_indices(initial_length, delete_marker);
-	Common::delete_indices(hysteron, delete_marker);
+	for(auto& it:pair_data) {
+		Common::delete_indices(it.second, delete_marker);
+	}
 	delete_marker.clear();
 	std::fill(pair_index.begin(), pair_index.end(), std::vector<size_t>{});
 	update_pair_idx();
@@ -170,7 +170,7 @@ void pmMesh::pmPairs::reset() {
 	end_first.clear();
 	start_second.clear();
 	end_second.clear();
-	initial_length.clear();
+	pair_data.clear();
 	pair_index.clear();
 	delete_marker.clear();
 }
@@ -206,39 +206,35 @@ std::vector<int> const& pmMesh::pmPairs::get_second() const {
 	return second;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the ith hysteron.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmHysteron& pmMesh::pmPairs::get_hysteron(int const& i) {
-	return hysteron[i];
+void pmMesh::pmPairs::add_data(std::string const& name, pmTensor const& initial_value/*=pmTensor{1,1,0.0}*/) {
+	std::vector<pmTensor> vec{first.size(),initial_value};
+	pair_data.push_back(pmPair_data{name,vec});
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the ith hysteron.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmHysteron const& pmMesh::pmPairs::get_hysteron(int const& i) const {
-	return hysteron[i];
+std::vector<pmPair_data>& pmMesh::pmPairs::get_data() {
+	return pair_data;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the list hysterons.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::vector<pmHysteron> const& pmMesh::pmPairs::get_hysteron() const {
-	return hysteron;
+std::vector<pmPair_data> const& pmMesh::pmPairs::get_data() const {
+	return pair_data;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the ith initial length.
-/////////////////////////////////////////////////////////////////////////////////////////
-double pmMesh::pmPairs::get_initial_length(int const& i) const {
-	return initial_length[i];
+std::vector<pmTensor>& pmMesh::pmPairs::get_data(std::string const& name) {
+	for(auto& it:pair_data) {
+		if(it.first==name) {
+			return it.second;
+		}
+	}
+	return pair_data.back().second;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the list of initial lengths of the pairs.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::vector<double> const& pmMesh::pmPairs::get_initial_length() const {
-	return initial_length;
+std::vector<pmTensor> const& pmMesh::pmPairs::get_data(std::string const& name) const {
+	for(auto const& it:pair_data) {
+		if(it.first==name) {
+			return it.second;
+		}
+	}
+	return pair_data.back().second;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

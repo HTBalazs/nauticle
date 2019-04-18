@@ -53,7 +53,7 @@ void pmVTK_writer::push_pairs_to_polydata() {
 				line->GetPointIds()->SetId(0, first[i]);
 				line->GetPointIds()->SetId(1, second[i]);
 				lines->InsertNextCell(line);
-				double num = 0.0;
+				double num = (double)i;
 				line_id->InsertNextTupleValue(&num);
 			}
 			polydata->SetLines(lines);
@@ -93,19 +93,19 @@ void pmVTK_writer::push_cell_fields_to_polydata() {
 			auto pairs = long_range->get_pairs();
 			size_t n = pairs.size();
 			if(n==0) { continue; }
-			vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
-			field->SetName("hysteron_state");
-			field->SetNumberOfComponents(1);
-			fill_scalar_vertices(field);
-			for(int i=0; i<n; i++) {
-				double length = pairs.get_hysteron(i).get_state();
-				field->InsertNextTupleValue(&length);
+			for(auto const& it:pairs.get_data()) {
+				vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
+				field->SetName(it.first.c_str());
+				field->SetNumberOfComponents(1);
+				fill_scalar_vertices(field);
+				for(int i=0; i<n; i++) {
+					double length = it.second[i][0];
+					field->InsertNextTupleValue(&length);
+				}
+				polydata->GetCellData()->AddArray(field);
 			}
-			polydata->GetCellData()->AddArray(field);
-			
 		}
 	}
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

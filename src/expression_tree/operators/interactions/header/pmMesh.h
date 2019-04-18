@@ -21,20 +21,20 @@
 #ifndef _MESH_H_
 #define _MESH_H_
 
-#include "pmHysteron.h"
+#include "pmTensor.h"
 #include <vector>
 
 namespace Nauticle {
 	/** This abstract class implements a common type for long range interactions so that they 
 	//  can be casted to a non-template parent.
 	*/
+	using pmPair_data = std::pair<std::string,std::vector<pmTensor>>;
 	class pmMesh {
 	protected:
 		class pmPairs {
+			std::vector<pmPair_data> pair_data;
 			std::vector<std::vector<size_t>> pair_index;
 			std::vector<size_t> delete_marker;
-			std::vector<pmHysteron> hysteron;
-			std::vector<double> initial_length;
 			std::vector<int> first;
 			std::vector<int> second;
 			mutable std::vector<int> sorted_first;
@@ -54,18 +54,18 @@ namespace Nauticle {
 			pmPairs(std::vector<int> const& fst, std::vector<int> const& snd, int const& num_particles);
 			void set_number_of_particles(size_t const& num_particles);
 			void renumber_pairs(std::vector<int> const& sorted_particle_idx);
-			void add_pair(int const& i1, int const& i2, double const& l0, pmHysteron const& hys=pmHysteron{});
+			void add_pair(int const& i1, int const& i2, std::vector<pmTensor> const& new_values_ordered);
 			void delete_marked_pairs();
 			void reset();
 			int size() const;
 			void print() const;
 			std::vector<int> const& get_first() const;
 			std::vector<int> const& get_second() const;
-			pmHysteron& get_hysteron(int const& i);
-			pmHysteron const& get_hysteron(int const& i) const;
-			std::vector<pmHysteron> const& get_hysteron() const;
-			double get_initial_length(int const& idx) const;
-			std::vector<double> const& get_initial_length() const;
+			void add_data(std::string const& name, pmTensor const& initial_value=pmTensor{1,1,0.0});
+			std::vector<pmPair_data>& get_data();
+			std::vector<pmPair_data> const& get_data() const;
+			std::vector<pmTensor>& get_data(std::string const& name);
+			std::vector<pmTensor> const& get_data(std::string const& name) const;
 			std::vector<size_t> const& get_pair_index(size_t const& i) const;
 			std::vector<std::vector<size_t>> const& get_pair_index() const;
 			void mark_to_delete(size_t const& i);
