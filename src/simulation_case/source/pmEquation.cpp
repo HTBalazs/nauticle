@@ -114,7 +114,11 @@ void pmEquation::evaluate(int const& start, int const& end) {
 	for(int i=start; i<p_end; i++) {
 		if(condition->evaluate(i, 0)[0]) {
 			pmTensor tensor = rhs->evaluate(i, 0);
-			lhs->set_value(tensor, i);
+			if(tensor.numel()==0) {
+				lhs->set_value(lhs->get_value(i)*0.0, i);
+			} else {
+				lhs->set_value(tensor, i);
+			}
 		}
 	}
 }
