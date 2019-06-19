@@ -320,6 +320,8 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			ADD_INTERACTION(5, sph_L0, "pmSph_operator<LAPLACE,0,0,5>")
 			using sph_L1 = pmSph_operator<LAPLACE,1,0,6>;
 			ADD_INTERACTION(6, sph_L1, "pmSph_operator<LAPLACE,1,0,6>")
+			using sph_L2 = pmSph_operator<LAPLACE,2,0,5>;
+			ADD_INTERACTION(5, sph_L2, "pmSph_operator<LAPLACE,2,0,5>")
 			using sph_T = pmSph_operator<TENSILE,1,1,6>;
 			ADD_INTERACTION(6, sph_T, "pmSph_operator<TENSILE,1,1,6>")
 			using sph_A = pmSph_operator<AVISC,1,1,5>;
