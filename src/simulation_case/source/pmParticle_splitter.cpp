@@ -100,6 +100,8 @@ void pmParticle_splitter::print() const {
     ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print();
     ProLog::pLogger::line_feed(1);
+    ProLog::pLogger::logf<ProLog::YEL>("        rotation: "); rotation->print();
+    ProLog::pLogger::line_feed(1);
     ProLog::pLogger::footerf<ProLog::LBL>();
 }
 
