@@ -1173,7 +1173,6 @@ namespace Nauticle {
 		}
 		if(numel()==1) { return 1/elements[0]; }
 		if(is_singular()) { 
-			ProLog::pLogger::warning_msgf("Matrix is singular, inverse cannot be calculated with real values. Identity is returned.\n");
 			return make_identity(columns);
 		}
 		pmTensor inv;
