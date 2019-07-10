@@ -44,6 +44,27 @@ void pmParticle_merger::pmNearest_neighbor::set_neighbor_condition(std::shared_p
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Set max distance for neighbor selection.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_merger::pmNearest_neighbor::set_max_neighbor_distance(std::shared_ptr<pmExpression> mnd) {
+    max_neighbor_distance = mnd;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Return neighbor condition.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmExpression> pmParticle_merger::pmNearest_neighbor::get_neighbor_condition() const {
+    return neighbor_condition;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Return maximmum neighbor distance.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmExpression> pmParticle_merger::pmNearest_neighbor::get_max_neighbor_distance() const {
+    return max_neighbor_distance;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Clone implementation.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmExpression> pmParticle_merger::pmNearest_neighbor::clone_impl() const {
@@ -100,8 +121,8 @@ pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t co
     if(!assigned) { ProLog::pLogger::error_msgf("Particle merger is not assigned to any particle system.\n"); }
     pmSmallest<double, 2> nearest;
     auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-        if(i!=j && neighbor_condition->evaluate(j,level)[0]) {
-            double d_ji = rel_pos.norm();
+        double d_ji = rel_pos.norm();
+        if(i!=j && neighbor_condition->evaluate(j,level)[0] && max_neighbor_distance->evaluate(j,level)[0]>d_ji) {
             nearest.push_value(d_ji,j);
         }
         return pmTensor{};
@@ -255,6 +276,10 @@ void pmParticle_merger::set_neighbor_condition(std::shared_ptr<pmExpression> ncd
     nearest->set_neighbor_condition(ncd);
 }
 
+void pmParticle_merger::set_max_neighbor_distance(std::shared_ptr<pmExpression> mnd) {
+    nearest->set_max_neighbor_distance(mnd);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the velocity object.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -280,6 +305,8 @@ void pmParticle_merger::print() const {
     ProLog::pLogger::logf<ProLog::YEL>("        velocity: ");
     ProLog::pLogger::logf<ProLog::NRM>("%s\n", velocity->get_name().c_str());
     ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print(); ProLog::pLogger::line_feed(1);
+    ProLog::pLogger::logf<ProLog::YEL>("        neighbor condition: "); nearest->get_neighbor_condition()->print(); ProLog::pLogger::line_feed(1);
+    ProLog::pLogger::logf<ProLog::YEL>("        max neighbor distance: "); nearest->get_max_neighbor_distance()->print(); ProLog::pLogger::line_feed(1);
     
     ProLog::pLogger::footerf<ProLog::LBL>();
 }

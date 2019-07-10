@@ -419,6 +419,7 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 	std::string mass_field = "m";
 	std::string velocity_field = "v";
 	std::string period = "1";
+	std::string max_neighbor_distance = "1e12";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="merger") {
 			auto merger = std::make_shared<pmParticle_merger>();
@@ -444,6 +445,9 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 				if(splitter_nodes->first.as<std::string>()=="neighbor_condition") {
 					neighbor_condition = splitter_nodes->second.as<std::string>();
 				}
+				if(splitter_nodes->first.as<std::string>()=="max_neighbor_distance") {
+					max_neighbor_distance = splitter_nodes->second.as<std::string>();
+				}
 			}
 			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
 			auto expr_neighbor_condition = expr_parser->analyse_expression<pmExpression>(neighbor_condition,workspace);
@@ -451,12 +455,14 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 			auto expr_mass = expr_parser->analyse_expression<pmField>(mass_field,workspace);
 			auto expr_velocity = expr_parser->analyse_expression<pmField>(velocity_field,workspace);
 			auto expr_period = expr_parser->analyse_expression<pmExpression>(period,workspace);
+			auto expr_max_neighbor_distance = expr_parser->analyse_expression<pmExpression>(max_neighbor_distance,workspace);
 			merger->set_condition(expr_condition);
 			merger->set_neighbor_condition(expr_neighbor_condition);
 			merger->set_radius(expr_radius);
 			merger->set_mass(expr_mass);
 			merger->set_velocity(expr_velocity);
 			merger->set_period(expr_period);
+			merger->set_max_neighbor_distance(expr_max_neighbor_distance);
 			merger_list.push_back(merger);
 		}
 	}
