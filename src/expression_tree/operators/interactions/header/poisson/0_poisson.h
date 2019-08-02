@@ -195,9 +195,9 @@ public:
     (v0->vector())->set_local(_v0);
 
     // Define Dirichlet boundary conditions
-    auto boundary = std::make_shared<Boundary_poisson>();
-    auto zero = std::make_shared<Constant>(0.0);
-    DirichletBC bc(Q, zero, boundary);
+    // auto boundary = std::make_shared<Boundary_poisson>();
+    // auto zero = std::make_shared<Constant>(0.0);
+    // DirichletBC bc(Q, zero, boundary);
 
     // Define Neumann boundary conditions
     Neumann_Boundary_poisson neumann_boundary;
@@ -213,26 +213,23 @@ public:
     L2.v0 = v0;
     L2.rho = rho;
     L2.dt = dt;
-    L2.g = g;
-    solve(a2 == L2, *p, bc);
+    // L2.g = g;
+    // std::cout << 1 << std::endl;
+    solve(a2 == L2, *p);
 
+    // std::cout << 2 << std::endl;
     static int count = 0;
     if(count%100==0) {
       *file_p << *p;
     }
     count++;
-
-    std::vector<std::shared_ptr<Elem_poisson>> elem = transform(p);
-    pressure.reserve(elem.size());
-    for(int i=0; i<elem.size(); i++) {
-      pressure.push_back(elem[i]->p);
-    }
+    // std::cout << 3 << std::endl;
+    tran(p,pressure);
+    // std::cout << 4 << std::endl;
   }
 
-  std::vector<std::shared_ptr<Elem_poisson>> transform(std::shared_ptr<Function> p) const
+  void tran(std::shared_ptr<Function> calcp, std::vector<double>& pressure) 
   {
-    std::vector<std::shared_ptr<Elem_poisson>> cells;
- 
     for (MeshEntityIterator e(*mesh, 0); !e.end(); ++e)
     {
       // get vertex
@@ -241,22 +238,14 @@ public:
 
       // get values at the vertex
       Array<double> coords(2);
+      Array<double> pvals(1);
       coords[0] = po.x();
       coords[1] = po.y();
-      Array<double> pvals(1);
-      p->eval(pvals, coords);
-       
-      // create an Elem
-      std::shared_ptr<Elem_poisson> cll = std::make_shared<Elem_poisson>();
-      cll->index = e->index();
-      cll->x0 = po.x();
-      cll->y0 = po.y();
-      cll->p = pvals[0];
-      cells.push_back(cll);
+      calcp->eval(pvals, coords);
+      pressure.push_back(pvals[0]);
     }
- 
-    return cells;
   }
+
 };
 
 #endif // _POISSON_H_

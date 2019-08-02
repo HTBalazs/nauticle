@@ -14,4 +14,6 @@ rho = Constant(triangle)
 
 # Define bilinear and linear forms
 a = inner(grad(p), grad(q))*dx
-L = -rho/dt*div(v0)*q*dx + g*q*ds(1)
+L = -rho/dt*div(v0)*q*dx
+# L = -rho/dt*div(v0)*q*dx + g*q*ds(1)
+

@@ -120,7 +120,6 @@ pmTensor pmFenics_operator_poisson::evaluate(int const& i, size_t const& level/*
     problem->create_mesh(x, y, alpha);
     std::vector<double> p;
     problem->calculation(vx, p, rho, dt);
-
     int k=0;
     for(int j=0; j<ps->get_field_size(); j++) {
         pmTensor pressure{1,1,0};

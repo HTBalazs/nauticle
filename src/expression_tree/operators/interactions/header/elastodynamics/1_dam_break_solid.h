@@ -45,7 +45,7 @@
 #ifndef _SOLID_H_
 #define _SOLID_H_
 
-/*
+//*
 #define SAINT_VENANT_KIRCHHOFF
 //*/#define MOONEY_RIVLIN
 
