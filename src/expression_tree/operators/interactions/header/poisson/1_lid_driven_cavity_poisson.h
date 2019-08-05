@@ -75,10 +75,11 @@ class Boundary_poisson : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const
   {
-    if(!(-0.5-DOLFIN_EPS > x[0] || 0.5+DOLFIN_EPS < x[0] || -0.5-DOLFIN_EPS > x[1] || 0.5+DOLFIN_EPS < x[1]) && on_boundary)
+    if(!(-0.49+DOLFIN_EPS > x[0] || 0.49-DOLFIN_EPS < x[0] || -0.49+DOLFIN_EPS > x[1]) && on_boundary)
       return true;
     else
       return false;
+ 	// return on_boundary;
   }
 };
 
@@ -86,7 +87,7 @@ class Boundary_poisson : public SubDomain
 class Neumann_Boundary_poisson : public SubDomain
 {
   bool inside(const Array<double>& x, bool on_boundary) const {
-    if((-0.5-DOLFIN_EPS > x[0] || 0.5+DOLFIN_EPS < x[0] || -0.5-DOLFIN_EPS > x[1] || 0.5+DOLFIN_EPS < x[1]) && on_boundary)
+    if((-0.49+DOLFIN_EPS > x[0] || 0.49-DOLFIN_EPS < x[0] || -0.49+DOLFIN_EPS > x[1]) && on_boundary)
       return true;
     else
       return false;
@@ -195,9 +196,9 @@ public:
     (v0->vector())->set_local(_v0);
 
     // Define Dirichlet boundary conditions
-    // auto boundary = std::make_shared<Boundary_poisson>();
-    // auto zero = std::make_shared<Constant>(0.0);
-    // DirichletBC bc(Q, zero, boundary);
+    auto boundary = std::make_shared<Boundary_poisson>();
+    auto zero = std::make_shared<Constant>(0.0);
+    DirichletBC bc(Q, zero, boundary);
 
     // Define Neumann boundary conditions
     Neumann_Boundary_poisson neumann_boundary;
@@ -213,15 +214,15 @@ public:
     L2.v0 = v0;
     L2.rho = rho;
     L2.dt = dt;
-    // L2.g = g;
+    L2.g = g;
     // std::cout << 1 << std::endl;
-    solve(a2 == L2, *p);
+    solve(a2 == L2, *p, bc);
 
     // std::cout << 2 << std::endl;
     static int count = 0;
-    if(count%100==0) {
+    // if(count%100==0) {
       *file_p << *p;
-    }
+    // }
     count++;
     // std::cout << 3 << std::endl;
     tran(p,pressure);
