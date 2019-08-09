@@ -79,7 +79,7 @@ class Boundary_poisson : public SubDomain
       return true;
     else
       return false;
- 	// return on_boundary;
+   	// return on_boundary;
   }
 };
 
@@ -91,6 +91,7 @@ class Neumann_Boundary_poisson : public SubDomain
       return true;
     else
       return false;
+	// return on_boundary;
   }
 };
 
@@ -116,6 +117,7 @@ class Problem_poisson {
   std::shared_ptr<PressureUpdate::CoefficientSpace_v0> V;
   std::shared_ptr<Function> p;
   std::shared_ptr<File> file_p;
+  std::shared_ptr<File> file_v;
   std::shared_ptr<const Constant> dt;
   std::shared_ptr<const Constant> rho;
 
@@ -124,6 +126,7 @@ public:
     set_log_active(false);
     parameters["reorder_dofs_serial"] = false;
     file_p = std::make_shared<File>("p.pvd", "compressed");
+	file_v = std::make_shared<File>("v.pvd", "compressed");
   }
 
   void create_mesh(std::vector<double> const& x, std::vector<double> const& y, double const& alpha) {
@@ -215,18 +218,21 @@ public:
     L2.rho = rho;
     L2.dt = dt;
     L2.g = g;
-    // std::cout << 1 << std::endl;
+	L2.ds = boundary_function;
+	a2.ds = boundary_function;
+	std::cout << "1" << std::endl;
     solve(a2 == L2, *p, bc);
+	std::cout << "2" << std::endl;
 
-    // std::cout << 2 << std::endl;
     static int count = 0;
-    if(count%100==0) {
+    // if(count%10==0) {
       *file_p << *p;
-    }
+      auto bfunction = std::make_shared<MeshFunction<std::size_t>>(mesh, 1);
+	  boundary->mark(*bfunction,10000);
+	  *file_v << *bfunction;
+    // }
     count++;
-    // std::cout << 3 << std::endl;
     tran(p,pressure);
-    // std::cout << 4 << std::endl;
   }
 
   void tran(std::shared_ptr<Function> calcp, std::vector<double>& pressure) 
