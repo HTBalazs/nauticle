@@ -330,7 +330,16 @@ namespace Nauticle {
 	template<>
 	inline pmTensor pmSph_operator<LAPLACE,2,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
 		pmTensor e_ij = -r_ji/d_ji;
-		return -((A_i+A_j).transpose())*(m_j/rho_j*e_ij*W_ij);
+		return e_ij.transpose()*e_ij*(A_i+A_j)*(2.0*m_j/rho_j*W_ij/d_ji);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Evaluates the operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template<>
+	inline pmTensor pmSph_operator<LAPLACE,3,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
+		pmTensor e_ij = -r_ji/d_ji;
+		return e_ij.transpose()*e_ij*(A_j)*(2.0*m_j/rho_j*W_ij/d_ji);
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////
