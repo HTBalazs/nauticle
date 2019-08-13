@@ -27,7 +27,7 @@ void pmVTK_writer::fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) 
 	size_t n = cas->get_workspace()->get_number_of_nodes();
 	for(int i=0;i<n;i++) {
 		double num = 0.0;
-		scalar->InsertNextTypedTuple(&num);
+		scalar->InsertNextTupleValue(&num);
 	}
 }
 
@@ -54,7 +54,7 @@ void pmVTK_writer::push_pairs_to_polydata() {
 				line->GetPointIds()->SetId(1, second[i]);
 				lines->InsertNextCell(line);
 				double num = (double)i;
-				line_id->InsertNextTypedTuple(&num);
+				line_id->InsertNextTupleValue(&num);
 			}
 			polydata->SetLines(lines);
 			polydata->GetCellData()->SetScalars(line_id);
@@ -100,7 +100,7 @@ void pmVTK_writer::push_pair_fields_to_polydata() {
 				fill_scalar_vertices(field);
 				for(int i=0; i<n; i++) {
 					double data = it.second[i];
-					field->InsertNextTypedTuple(&data);
+					field->InsertNextTupleValue(&data);
 				}
 				polydata->GetCellData()->AddArray(field);
 			}

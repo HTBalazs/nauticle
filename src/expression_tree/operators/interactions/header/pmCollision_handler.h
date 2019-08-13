@@ -30,7 +30,7 @@ namespace Nauticle {
 	/** This class implements the conventianal Discrete element method as 
 	//  through interactions between particles. 
 	*/
-	class pmCollision_counter : public pmLong_range<3> {
+	class pmCollision_handler : public pmLong_range<3> {
 		mutable std::vector<std::vector<int>> count;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
@@ -39,14 +39,14 @@ namespace Nauticle {
 		void evaluate_pairs(size_t const& level=0);
 		void count_collisions(size_t const& level=0) const;
 	public:
-		pmCollision_counter(std::array<std::shared_ptr<pmExpression>,3> op);
-		pmCollision_counter(pmCollision_counter const& other);
-		pmCollision_counter(pmCollision_counter&& other);
-		pmCollision_counter& operator=(pmCollision_counter const& other);
-		pmCollision_counter& operator=(pmCollision_counter&& other);
-		virtual ~pmCollision_counter() {}
+		pmCollision_handler(std::array<std::shared_ptr<pmExpression>,3> op);
+		pmCollision_handler(pmCollision_handler const& other);
+		pmCollision_handler(pmCollision_handler&& other);
+		pmCollision_handler& operator=(pmCollision_handler const& other);
+		pmCollision_handler& operator=(pmCollision_handler&& other);
+		virtual ~pmCollision_handler() {}
 		virtual void set_storage_depth(size_t const& d) override;
-		std::shared_ptr<pmCollision_counter> clone() const;
+		std::shared_ptr<pmCollision_handler> clone() const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		virtual void update(size_t const& level=0) override;
 		void print() const override;
