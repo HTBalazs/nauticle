@@ -212,6 +212,13 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 		        event[pi] = 0.0;
 		    }
 		}
+		if(event[pi]>0.0) {
+			double r = 0.2;
+			double Ri_new = Ri-0.001*(std::pow(Ri,1+r)+std::pow(Rj,1-r))/(Ri+Rj);
+			double Rj_new = Rj-0.001*(std::pow(Ri,1-r)+std::pow(Rj,1+r))/(Ri+Rj);
+			std::dynamic_pointer_cast<pmField>(this->operand[0])->set_value(Ri_new,i);
+			std::dynamic_pointer_cast<pmField>(this->operand[0])->set_value(Rj_new,j);
+		}
 	}
 }
 
