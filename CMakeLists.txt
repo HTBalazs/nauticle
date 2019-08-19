@@ -5,7 +5,7 @@ project(nauticle_project)
 
 
 
-
+find_package(CGAL)
 
 
 # Set CMake behavior
@@ -123,3 +123,4 @@ target_link_libraries(${EXEC} ${DOLFIN_LIBRARIES})
 target_link_libraries(${EXEC} /usr/local/lib/prolog/libprolog.a)
 target_link_libraries(${EXEC} /usr/local/lib/commonutils/libcommonutils.a)
 target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)
+target_link_libraries(${EXEC} CGAL::CGAL)

@@ -64,11 +64,48 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkProperty.h>
 #include <vtkVertexGlyphFilter.h>
+#include <vtkGenericDataObjectWriter.h>
+
 #include <dolfin.h>
 #include "PressureUpdate.h"
 #include <iostream>
+#include <fstream>
+
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+
+#include <CGAL/Triangulation_vertex_base_with_info_2.h>
+#include <CGAL/Triangulation_face_base_2.h>
+#include <CGAL/Triangulation_data_structure_2.h>
+
+#include <CGAL/Alpha_shape_2.h>
+#include <CGAL/Alpha_shape_vertex_base_2.h>
+#include <CGAL/Alpha_shape_face_base_2.h>
+#include <CGAL/Delaunay_triangulation_2.h>
 
 using namespace dolfin;
+
+
+// Traits
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+
+// Vertex type
+typedef CGAL::Triangulation_vertex_base_with_info_2<int,K>                      Vbb;
+typedef CGAL::Alpha_shape_vertex_base_2<K,Vbb> Vb;
+
+// Cell type
+typedef CGAL::Triangulation_face_base_2<K>    Fbb;
+typedef CGAL::Alpha_shape_face_base_2<K,Fbb> Fb;
+
+// Triangulation
+typedef CGAL::Triangulation_data_structure_2<Vb,Fb>               TDS;
+typedef CGAL::Delaunay_triangulation_2<K,TDS>         Triangulation;
+typedef CGAL::Alpha_shape_2<Triangulation> Alpha_shape_2;
+
+// Iterators
+typedef Alpha_shape_2::Vertex_circulator Vertex_circulator;
+typedef Alpha_shape_2::Finite_vertices_iterator Finite_vertices_iterator;
+typedef Alpha_shape_2::Finite_faces_iterator Finite_faces_iterator;
+typedef typename Alpha_shape_2::Alpha_shape_edges_iterator Alpha_shape_edges_iterator;
 
 // Define boundary domain
 class Boundary_poisson : public SubDomain
@@ -117,74 +154,99 @@ class Problem_poisson {
   std::shared_ptr<PressureUpdate::CoefficientSpace_v0> V;
   std::shared_ptr<Function> p;
   std::shared_ptr<File> file_p;
-  std::shared_ptr<File> file_v;
+  std::shared_ptr<File> file_p_xml;
+  std::shared_ptr<File> file_v_xml;
+  std::shared_ptr<File> file_v_pvd;
+  std::shared_ptr<File> file_mesh;
+  std::shared_ptr<File> file_mesh_pvd;
   std::shared_ptr<const Constant> dt;
   std::shared_ptr<const Constant> rho;
+  std::vector<int> vindices;
 
 public:
   Problem_poisson() {
     set_log_active(false);
+	// set_log_active(true);
+	// set_log_level(1);
     parameters["reorder_dofs_serial"] = false;
-    file_p = std::make_shared<File>("p.pvd", "compressed");
-	file_v = std::make_shared<File>("v.pvd", "compressed");
+    file_p = std::make_shared<File>("p.pvd", "ascii");
+	file_p_xml = std::make_shared<File>("p.xml");
+	file_v_xml = std::make_shared<File>("v.xml");
+	file_v_pvd = std::make_shared<File>("v.pvd", "ascii");
+	file_mesh = std::make_shared<File>("mesh.xml");
+	file_mesh_pvd = std::make_shared<File>("mesh.pvd", "ascii");
   }
 
   void create_mesh(std::vector<double> const& x, std::vector<double> const& y, double const& alpha) {
-    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-    for(int i=0; i<x.size(); i++) {
-      points->InsertNextPoint(x[i], y[i], 0.0);
+    // Add points, calculate triangulation
+    Triangulation tri;
+    for (int i=0; i<x.size(); i++) {
+        tri.insert(Triangulation::Point(x[i],y[i]));
     }
-    vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
-    polydata->SetPoints(points);
+    Alpha_shape_2 t(tri,alpha,Alpha_shape_2::GENERAL);
+    // Alpha_shape_2 t(tri,alpha,Alpha_shape_2::REGULARIZED);
+	
+    // Add indices to vertices
+    Finite_vertices_iterator vci = t.finite_vertices_begin();
+    Finite_vertices_iterator donei = t.finite_vertices_end();
+    int index = 0;
+    do { 
+			vci->info() = index;
+			index = index+1;	
+    }while(++vci != donei);
+ 
+    // Get faces and cell indices
+    std::vector<int> cells0;
+    std::vector<int> cells1;
+    std::vector<int> cells2;
+		Finite_faces_iterator ffi = t.finite_faces_begin();
+		Finite_faces_iterator donefi = t.finite_faces_end();
+		do {
+			if(t.classify(ffi) == Alpha_shape_2::INTERIOR) {
+			  cells0.push_back(ffi->vertex(0)->info());
+			  cells1.push_back(ffi->vertex(1)->info());
+			  cells2.push_back(ffi->vertex(2)->info());
+			}
+		}while(++ffi != donefi);
 
-    vtkSmartPointer<vtkDelaunay2D> delaunay = vtkSmartPointer<vtkDelaunay2D>::New();
-    delaunay->SetInputData(polydata);
-    delaunay->SetAlpha(alpha);
-    delaunay->Update();
+		dolfin_mesh(cells0,cells1,cells2,x,y);
+  }
 
-    polydata = delaunay->GetOutput();
-    size_t size = polydata->GetNumberOfPoints();
-
-    std::vector<size_t> cells0;
-    std::vector<size_t> cells1;
-    std::vector<size_t> cells2;
-
-    vtkCellArray* cellarray = polydata->GetPolys();
-    vtkIdType numCells = cellarray->GetNumberOfCells();
-    vtkIdType cellLocation = 0; // the index into the cell array  
-    for(vtkIdType i = 0; i < numCells; i++) {
-      vtkIdType numIds; // to hold the size of the cell
-      vtkIdType *pointIds; // to hold the ids in the cell
-      cellarray->GetCell(cellLocation, numIds, pointIds);
-      cellLocation += 1 + numIds;
-      cells0.push_back(pointIds[0]);
-      cells1.push_back(pointIds[1]);
-      cells2.push_back(pointIds[2]);
-    }
-
+	void dolfin_mesh(std::vector<int> cells0, std::vector<int> cells1, std::vector<int> cells2, std::vector<double> const& x, std::vector<double> const& y) {
     // Init mesh and editor
     Mesh msh;
     MeshEditor editor;
     editor.open(msh, "triangle", 2, 2); // 2D mesh
 
-    // Create vertices
-    int n_vertices = x.size();
-    editor.init_vertices(n_vertices);
-    for (int i=0; i<n_vertices; i++) {
-      editor.add_vertex(i,x[i],y[i]);
-    }
-
     // Create cells
+    std::vector<int>::iterator iter;
     int n_cells = cells1.size();
     editor.init_cells(n_cells);
     for (int i=0; i<n_cells; i++) {
-      editor.add_cell(i,cells0[i],cells1[i],cells2[i]);
+      	editor.add_cell(i,cells0[i],cells1[i],cells2[i]);
+ 			 	vindices.push_back(cells0[i]);
+ 			 	vindices.push_back(cells1[i]);
+ 			 	vindices.push_back(cells2[i]);
     }
-
+    std::sort(vindices.begin(), vindices.end());
+    iter = std::unique(vindices.begin(), vindices.end());
+    vindices.resize(std::distance(vindices.begin(),iter));
+    
+		if (vindices.size() != x.size()) {
+			std::cout << "A point is excluded from the mesh." << std::endl;
+		}
+    // Add vertices to the mesh
+    int n_vertices = vindices.size();
+    editor.init_vertices(n_vertices);
+    int counter = 0;
+    for (auto const& iit:vindices) {
+        editor.add_vertex(counter++,x[iit],y[iit]);
+    }	
     editor.close();
-
+    
     mesh = std::make_shared<Mesh>(msh);
-  }
+	}	
+
 
   void calculation(std::vector<double> const& _v0, std::vector<double>& pressure, double const& _rho, double const& _dt) {
     // Create function space
@@ -196,7 +258,14 @@ public:
 
     // Convert values from arguments
     auto v0 = std::make_shared<Function>(V);       // approximate velocity
-    (v0->vector())->set_local(_v0);
+	std::vector<double> v0resized;
+	for (auto it:vindices) {
+		v0resized.push_back(_v0[it]);	
+	}
+	for (auto it:vindices) {
+		v0resized.push_back(_v0[_v0.size()/2+it]);	
+	}
+    (v0->vector())->set_local(v0resized);
 
     // Define Dirichlet boundary conditions
     auto boundary = std::make_shared<Boundary_poisson>();
@@ -220,17 +289,37 @@ public:
     L2.g = g;
 	L2.ds = boundary_function;
 	a2.ds = boundary_function;
-	std::cout << "1" << std::endl;
-    solve(a2 == L2, *p, bc);
-	std::cout << "2" << std::endl;
-
     static int count = 0;
-    // if(count%10==0) {
-      *file_p << *p;
-      auto bfunction = std::make_shared<MeshFunction<std::size_t>>(mesh, 1);
-	  boundary->mark(*bfunction,10000);
-	  *file_v << *bfunction;
-    // }
+ //    if(count%100==0) {
+	// *file_mesh_pvd << *mesh;
+ //    *file_v_pvd << *v0;
+	//  std::cout << "1" << std::endl;
+	//  static int counter = 0;
+	//  counter++;
+	//  if(counter==4) {
+	// 	std::cout << _v0.size() << std::endl;
+	// 	ofstream file;
+	//   	file.open("velocity.txt");
+	// 	for(int ii=0; ii<_v0.size(); ii++) {
+	// 		file << _v0[ii] << std::endl;
+	// 	}
+	// 	file.close();
+	//  }
+	//  *file_v_xml << *v0;
+	//  std::cout << "2" << std::endl;
+   // }
+	// std::cout << "1" << std::endl;
+		// std::cout << "2" << std::endl;
+	// std::cout << "3" << std::endl;
+	// std::cout << "4" << std::endl;
+	// std::cout << "5" << std::endl;
+
+    if(count%1==0) {
+      *file_mesh_pvd << *mesh;
+			*file_mesh << *mesh;
+      // *file_p << *p;
+    }
+    solve(a2 == L2, *p, bc);
     count++;
     tran(p,pressure);
   }
