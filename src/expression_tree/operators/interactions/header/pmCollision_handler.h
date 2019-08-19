@@ -30,7 +30,7 @@ namespace Nauticle {
 	/** This class implements the conventianal Discrete element method as 
 	//  through interactions between particles. 
 	*/
-	class pmCollision_handler : public pmLong_range<3> {
+	class pmCollision_handler : public pmLong_range<5> {
 		mutable std::vector<std::vector<int>> count;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
@@ -39,7 +39,7 @@ namespace Nauticle {
 		void evaluate_pairs(size_t const& level=0);
 		void count_collisions(size_t const& level=0) const;
 	public:
-		pmCollision_handler(std::array<std::shared_ptr<pmExpression>,3> op);
+		pmCollision_handler(std::array<std::shared_ptr<pmExpression>,5> op);
 		pmCollision_handler(pmCollision_handler const& other);
 		pmCollision_handler(pmCollision_handler&& other);
 		pmCollision_handler& operator=(pmCollision_handler const& other);
