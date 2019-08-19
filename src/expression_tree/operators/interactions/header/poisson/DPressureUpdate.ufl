@@ -1,0 +1,15 @@
+# Define function spaces (P2-P1)
+Q = FiniteElement("Lagrange", triangle, 1)
+
+# Define trial and test functions
+p = TrialFunction(Q)
+q = TestFunction(Q)
+
+# Define coefficients
+v0 = Coefficient(Q)
+g = Coefficient(Q)
+#rho = Coefficient(Q)
+
+# Define bilinear and linear forms# 
+a = inner(grad(p), grad(q))*dx
+L = inner(v0,q)*dx + g*q*ds(1)

@@ -114,7 +114,9 @@ pmTensor pmFenics_operator_poisson::evaluate(int const& i, size_t const& level/*
         y.push_back(vec[1]);
         vec = operand[1]->evaluate(j,level);
         vx.push_back(vec[0]);
-        vy.push_back(vec[1]);
+				if(vec.numel()>1) {
+            vy.push_back(vec[1]);
+				}
     }
     vx.insert(vx.end(), vy.begin(), vy.end());
     problem->create_mesh(x, y, alpha);

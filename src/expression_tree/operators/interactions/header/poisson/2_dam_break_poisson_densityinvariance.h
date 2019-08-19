@@ -46,7 +46,6 @@
 #include <vtkGenericDataObjectWriter.h>
 
 #include <dolfin.h>
-#include "PressureUpdate.h"
 #include <iostream>
 #include <fstream>
 
@@ -61,8 +60,9 @@
 #include <CGAL/Alpha_shape_face_base_2.h>
 #include <CGAL/Delaunay_triangulation_2.h>
 
-using namespace dolfin;
+#include "DPressureUpdate.h"
 
+using namespace dolfin;
 
 // Traits
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
@@ -119,13 +119,10 @@ class dUdN : public Expression
 
 class Problem_poisson {
   std::shared_ptr<const dolfin::Mesh> mesh;
-  std::shared_ptr<PressureUpdate::FunctionSpace> Q;
-  std::shared_ptr<PressureUpdate::CoefficientSpace_v0> V;
+  std::shared_ptr<DPressureUpdate::FunctionSpace> DQ;
   std::shared_ptr<Function> p;
   std::shared_ptr<File> file_p;
   std::shared_ptr<File> file_p_xml;
-  std::shared_ptr<File> file_v_xml;
-  std::shared_ptr<File> file_v_pvd;
   std::shared_ptr<File> file_mesh;
   std::shared_ptr<File> file_mesh_pvd;
   std::shared_ptr<const Constant> dt;
@@ -139,8 +136,6 @@ public:
     parameters["reorder_dofs_serial"] = false;
     file_p = std::make_shared<File>("p.pvd", "ascii");
 		file_p_xml = std::make_shared<File>("p.xml");
-		file_v_xml = std::make_shared<File>("v.xml");
-		file_v_pvd = std::make_shared<File>("v.pvd", "ascii");
 		file_mesh = std::make_shared<File>("mesh.xml");
 		file_mesh_pvd = std::make_shared<File>("mesh.pvd", "ascii");
   }
@@ -166,7 +161,6 @@ public:
 		*file_mesh << *mesh;
 		*file_mesh_pvd << *mesh;
 	}
-
 
   // Ez a fuggveny torol minden "indices" elemet a data-bol, de ugy, 
   // hogy tudja, hogy a data sebesseget tartalmazza, igy ket helyen is vegez torlest.
@@ -194,7 +188,7 @@ public:
   int oldtonew(int old) {
     std::vector<int>::iterator it = std::find(vindices.begin(), vindices.end(), old);
     return std::distance(vindices.begin(), it);
-	}
+  }
 
   // Ez a fuggveny visszater egy olyan vektorral, amelyikben azok az indexek vannak, 
   // amelyek a vindicesbol hianyoznak.
@@ -289,10 +283,10 @@ public:
     
     // writefile(vindices,"vindices.txt");
 		if (vindices.size() != x.size()) {
-			std::cout << x.size() - vindices.size() << " points are excluded from the mesh." << std::endl;
+		//	std::cout << x.size() - vindices.size() << " points are excluded from the mesh." << std::endl;
 			// dump(x,y,cells0,cells1,cells2);
-			writefile<int>(vindices,"vindices.txt");
-			writefile<int>(excluded_vindices,"excluded_vindices.txt");
+			// writefile<int>(vindices,"vindices.txt");
+			// writefile<int>(excluded_vindices,"excluded_vindices.txt");
 		}
     // Add vertices to the mesh
     int n_vertices = vindices.size();
@@ -306,23 +300,21 @@ public:
     mesh = std::make_shared<Mesh>(msh);
 	}	
 
-  void calculation(std::vector<double>& _v0, std::vector<double>& pressure, double const& _rho, double const& _dt) {
+  void calculation(std::vector<double>& _rhs, std::vector<double>& pressure, double const& _rho, double const& _dt) {
     // Create function space
-    Q = std::make_shared<PressureUpdate::FunctionSpace>(mesh);
-    V = std::make_shared<PressureUpdate::CoefficientSpace_v0>(mesh);
-    p = std::make_shared<Function>(Q); // pressure
+    DQ = std::make_shared<DPressureUpdate::FunctionSpace>(mesh);
+    p = std::make_shared<Function>(DQ); // pressure
     rho = std::make_shared<const Constant>(_rho);  
-    dt = std::make_shared<const Constant>(_dt);    // time step
 
     // Convert values from arguments
-    auto v0 = std::make_shared<Function>(V);       // approximate velocity
-    delete_indices(_v0, excluded_vindices, true);
-    v0->vector()->set_local(_v0);
+    auto rhs = std::make_shared<Function>(DQ);       // right-handside of density invariance equation
+    delete_indices(_rhs, excluded_vindices,false);
+    rhs->vector()->set_local(_rhs);
 
     // Define Dirichlet boundary conditions
     auto boundary = std::make_shared<Boundary_poisson>();
     auto zero = std::make_shared<Constant>(0.0);
-    DirichletBC bc(Q, zero, boundary);
+    DirichletBC bc(DQ, zero, boundary);
 
     // Define Neumann boundary conditions
     Neumann_Boundary_poisson neumann_boundary;
@@ -331,16 +323,15 @@ public:
     auto g = std::make_shared<dUdN>();
 
     // Create forms
-    PressureUpdate::BilinearForm a2(Q, Q);
-    PressureUpdate::LinearForm L2(Q);
+    DPressureUpdate::BilinearForm a2(DQ,DQ);
+    DPressureUpdate::LinearForm L2(DQ);
 
     // Set coefficients
-    L2.v0 = v0;
-    L2.rho = rho;
-    L2.dt = dt;
+    L2.v0 = rhs;
     L2.g = g;
-		L2.ds = boundary_function;
-		a2.ds = boundary_function;
+    // a2.rho = rho;
+    L2.ds = boundary_function;
+    a2.ds = boundary_function;
     static int count = 0;
 
     solve(a2 == L2, *p, bc);
