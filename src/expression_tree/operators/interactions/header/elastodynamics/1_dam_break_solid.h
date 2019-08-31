@@ -151,8 +151,8 @@ public:
   Problem() {
     set_log_active(false);
     parameters["reorder_dofs_serial"]=false;
-    double _rho = 1100.0;   // mass density
-    double _eta = 250;     // damping coefficient
+    double _rho = 1000.0;   // mass density
+    double _eta = 2500;     // damping coefficient
     double _alpha_m = 0.2;
     double _alpha_f = 0.4;
     double _beta = 0.36;

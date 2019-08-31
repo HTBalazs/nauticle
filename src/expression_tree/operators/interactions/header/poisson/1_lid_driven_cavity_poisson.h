@@ -65,7 +65,7 @@
 #include <vtkProperty.h>
 #include <vtkVertexGlyphFilter.h>
 #include <dolfin.h>
-#include "PressureUpdate.h"
+#include "DPressureUpdate.h"
 #include <iostream>
 
 using namespace dolfin;
