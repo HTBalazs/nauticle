@@ -68,6 +68,9 @@ The most important features and bug-fixes:
 - New SPH operator for artificial viscosity (commit: 8c98566).  
 - SPH operator for the calculation of particle-inertia tensor (commit: dc0c2ae).  
 
+# Reference #
+Please refer to the Nauticle paper available [here](https://www.sciencedirect.com/science/article/pii/S0010465519302322).
+
 # License #
 The Nauticle code is open-source and freely distributable under the terms of GNU Lesser General Public License v3:  
   
