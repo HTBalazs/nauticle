@@ -302,6 +302,7 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 	// default values
 	std::string file_name = "background.vtk";
 	std::string interpolate_to = "";
+	std::string condition = "true";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="background") {
 			auto background = std::make_shared<pmBackground>();
@@ -314,10 +315,15 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 				if(background_nodes->first.as<std::string>()=="file") {
 					file_name = background_nodes->second.as<std::string>();
 				}
+				if(background_nodes->first.as<std::string>()=="condition") {
+					condition = background_nodes->second.as<std::string>();
+				}
 			}
 			auto expr_interpolate_to = expr_parser->analyse_expression<pmField>(interpolate_to,workspace);
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
 			background->set_file_name(file_name);
 			background->set_field(expr_interpolate_to);
+			background->set_condition(expr_condition);
 			background->set_particle_system(workspace->get_particle_system().lock());
 			background_list.push_back(background);
 		}

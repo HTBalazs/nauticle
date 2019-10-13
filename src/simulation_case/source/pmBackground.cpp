@@ -88,6 +88,7 @@ void pmBackground::print() const {
 	pLogger::logf<NRM>("%s\n", file_name.c_str());
 	pLogger::logf<YEL>("        interpolate_to: ");
 	pLogger::logf<NRM>("%s\n", field->get_name().c_str());
+	pLogger::logf<YEL>("        condition: "); condition->print(); pLogger::line_feed(1);
 	pLogger::footerf<LBL>();
 }
 
@@ -113,7 +114,7 @@ void pmBackground::read_file() {
 /// Performs interpolation using the given field and particle system.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmBackground::interpolate() {
-	if(psys.use_count()==0 || field.use_count()==0 || unstructured_grid==NULL) {
+	if(psys.use_count()==0 || field.use_count()==0 || unstructured_grid==NULL || condition->evaluate(0)[0]==0) {
 		return;
 	}
 
@@ -152,6 +153,10 @@ void pmBackground::set_particle_system(std::shared_ptr<pmParticle_system> ps) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmBackground::set_field(std::shared_ptr<pmField> fld) {
 	field = fld;
+}
+
+void pmBackground::set_condition(std::shared_ptr<pmExpression> cond) {
+	condition = cond;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

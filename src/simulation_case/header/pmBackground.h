@@ -38,6 +38,7 @@ namespace Nauticle {
 		std::shared_ptr<pmField> field;
 		std::shared_ptr<pmParticle_system> psys;
 		vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid;
+		std::shared_ptr<pmExpression> condition;
 	public:
 		pmBackground() {}
 		pmBackground(pmBackground const& other);
@@ -51,6 +52,7 @@ namespace Nauticle {
 		void interpolate();
 		void set_particle_system(std::shared_ptr<pmParticle_system> ps);
 		void set_field(std::shared_ptr<pmField> fld);
+		void set_condition(std::shared_ptr<pmExpression> cond);
 		void update();
 		std::shared_ptr<pmBackground> clone() const;
 	};
