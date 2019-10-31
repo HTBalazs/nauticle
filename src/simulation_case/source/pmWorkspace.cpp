@@ -426,6 +426,12 @@ void pmWorkspace::print() const {
 void pmWorkspace::sort_all_by_position() {
 	std::shared_ptr<pmParticle_system> psys = this->get<pmParticle_system>()[0];
 	if(psys->is_sorted()) { return; }
+	std::vector<size_t> del;
+	psys->restrict_particles(del);
+	this->delete_particle_set(del);
+	if(num_nodes==0) {
+		ProLog::pLogger::error_msgf("Workspace size cannot be set to zero.\n");
+	}
 	psys->sort_field();
 	std::vector<int> sorted_idx = psys->get_sorted_idx();
 	for(auto const& it:definitions) {

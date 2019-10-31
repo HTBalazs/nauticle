@@ -59,7 +59,7 @@ namespace Nauticle {
 			bool operator!=(pmParticle_space const& rhs) const;
 			void expire();
 			bool is_up_to_date() const;
-			void restrict_particles(std::vector<std::vector<pmTensor>>& value) const;
+			void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
 			void update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& idx);
 			std::vector<unsigned int> const& get_start() const;
 			std::vector<unsigned int> const& get_end() const;
@@ -100,6 +100,7 @@ namespace Nauticle {
 		virtual void delete_set(std::vector<size_t> const& indices) override;
 		virtual void add_member(pmTensor const& v=pmTensor{}) override;
 		virtual void duplicate_member(size_t const& i) override;
+		void restrict_particles(std::vector<size_t>& del);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

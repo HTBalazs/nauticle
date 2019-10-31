@@ -1218,7 +1218,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::multiply_term_by_term(pmTensor const& rhs) const {
 		if(this->rows!=rhs.rows || this->columns!=rhs.columns) { 
-			ProLog::pLogger::error_msgf("Tensor dimensions do not agree for term by term division.\n");
+			ProLog::pLogger::error_msgf("Tensor dimensions do not agree for term by term multiplication.\n");
 		}
 		pmTensor tensor{*this};
 		for(int i=0; i<numel(); i++) {

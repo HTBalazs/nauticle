@@ -114,8 +114,6 @@ void pmParticle_system::sort_field() {
 	// Check if already sorted
 	if(particle_space->is_up_to_date()) { return; }
 	std::iota(sorted_idx.begin(), sorted_idx.end(), 0);
-	// shift particles due to the periodic domain
-	particle_space->restrict_particles(value);
 	particle_space->update_neighbour_list(value[0], sorted_idx);
 	// reorder particle positions due to sorted_idx
 	pmField::sort_field(sorted_idx);
@@ -267,17 +265,29 @@ bool pmParticle_system::pmParticle_space::operator!=(pmParticle_space const& rhs
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Restrict particles to the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::restrict_particles(std::vector<std::vector<pmTensor>>& value) const {
+void pmParticle_system::pmParticle_space::restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const {
 	if(up_to_date) { return; }
 	pmTensor domain_cell_size = domain.get_cell_size();
 	pmTensor domain_cell_number = domain.get_maximum()-domain.get_minimum();
 	for(int i=0; i<value[0].size(); i++) {
 		pmTensor g = get_grid_position(value[0][i]);
 		pmTensor shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(domain_cell_size);
+		pmTensor bound_type = domain.get_boundary();
 		for(auto& it:value) {
-			it[i] = it[i] - shift;
+			size_t deletable = 0;
+			for(int j=0; j<it[i].numel(); j++) {
+				it[i][j] = it[i][j] - shift[j]*(bound_type[j]!=2);
+				deletable += (shift[j]!=0 && bound_type[j]==2);
+			}
+			if(deletable>0) {
+				del.push_back(i);
+			}
 		}
 	}
+}
+
+void pmParticle_system::restrict_particles(std::vector<size_t>& del) {
+	particle_space->restrict_particles(value, del);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
