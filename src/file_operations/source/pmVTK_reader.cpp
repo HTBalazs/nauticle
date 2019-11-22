@@ -32,6 +32,7 @@ std::vector<pmTensor> pmVTK_reader::pop_array_from_polydata(int const& i, size_t
 	vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::SafeDownCast(polydata->GetPointData()->GetArray(i));
 	int array_size = array->GetSize();
 	int dim = array_size/size;
+	array_size = dim*size;
 	array->SetNumberOfComponents(dim);
 	int num_tuples = array->GetNumberOfTuples();
 	size_t real_dim;
