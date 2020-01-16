@@ -32,7 +32,7 @@ The few examples discussed in the User's guide cover the following simulations:
   9. Molecular dynamics (MC)  
   10. Adaptive dam-break simulation (SPH)
  
-The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). In the same package, undomuented examples are available as well. The results can be visualized in Paraview v5.2.0 or later.
+The simulations above with the results included are available [here](https://bitbucket.org/nauticleproject/examples). In the same package, undocumented examples are available as well. The results can be visualized in Paraview v5.2.0 or later.
 
 Please visit the Nauticle [YouTube-channel](https://www.youtube.com/channel/UCh3Y325U289BiAqJ6K0Lfqw) to see the visualizations of the examples.
 
@@ -74,7 +74,7 @@ Please refer to the Nauticle paper available [here](https://www.sciencedirect.co
 # License #
 The Nauticle code is open-source and freely distributable under the terms of GNU Lesser General Public License v3:  
   
-Copyright 2016-2019 Balazs Toth  
+Copyright 2016-2020 Balazs Toth  
   
 Nauticle is free software: you can redistribute it and/or modify  
 it under the terms of the GNU Lesser General Public License as published by  
