@@ -39,11 +39,11 @@ namespace Nauticle {
 		double elements[9];
 	public:
 		pmTensor();
-		pmTensor(double const& s);
-		pmTensor(int const& r, int const& c, double const& init=0);
-		pmTensor(pmTensor const& other);
-		pmTensor(pmTensor&& other);
-		static pmTensor Tensor(int const& num_components);
+		pmTensor(double s);
+		pmTensor(int r, int c, double init=0);
+		pmTensor(pmTensor const& other)=default;
+		pmTensor(pmTensor&& other)=default;
+		static pmTensor Tensor(int num_components);
 		static pmTensor Tensor11();
 		static pmTensor Tensor12();
 		static pmTensor Tensor21();
@@ -61,13 +61,13 @@ namespace Nauticle {
 		pmTensor& operator--();
 		pmTensor operator++(int);
 		pmTensor operator--(int);
-		double operator()(int const& i, int const& j) const;
-		double operator()(int const& i) const;
-		double& operator[](int const& i);
-		double const& operator[](int const& i) const;
-		~pmTensor();
-		int const& get_numrows() const;
-		int const& get_numcols() const;
+		double* operator*();
+		double operator()(int i, int j) const;
+		double operator()(int i) const;
+		double& operator[](int i);
+		double const& operator[](int i) const;
+		int get_numrows() const;
+		int get_numcols() const;
 		bool is_column() const;
 		bool is_row() const;
 		bool is_vector() const;
@@ -87,12 +87,12 @@ namespace Nauticle {
 		pmTensor multiply_term_by_term(pmTensor const& rhs) const;
 		double norm() const;
 		double tensor_norm() const;
-		void fill(double const& value);
+		void fill(double value);
 		pmTensor to_row() const;
 		pmTensor to_column() const;
-		static pmTensor make_tensor(int const& r, int const& c, double const& value);
-		static pmTensor make_tensor(pmTensor const& base, double const& value);
-		static pmTensor make_identity(int const& size);
+		static pmTensor make_tensor(int r, int c, double value);
+		static pmTensor make_tensor(pmTensor const& base, double value);
+		static pmTensor make_identity(int size);
 		void write_to_string(std::ostream& os) const;
 		pmTensor sub_tensor(int rmin, int rmax, int cmin, int cmax) const;
 		pmTensor sub_tensor(int r, int c) const;
@@ -100,7 +100,7 @@ namespace Nauticle {
 		pmTensor adjugate() const;
 		pmTensor inverse() const;
 		pmTensor reflect_perpendicular(pmTensor const& guide) const;
-		pmTensor append(int const& row, int const& col) const;
+		pmTensor append(int row, int col) const;
 		bool is_integer() const;
 		pmTensor deQ() const;
 		pmTensor deR() const;
@@ -182,7 +182,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementation of * operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor operator*(pmTensor const& lhs, double const& rhs) {
+	inline pmTensor operator*(pmTensor const& lhs, double rhs) {
 		pmTensor tensor{lhs};
 		for(int i=0; i<lhs.numel(); i++) {
 			tensor[i] *= rhs;
@@ -193,14 +193,14 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementation of * operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor operator*(double const& lhs, pmTensor const& rhs) {
+	inline pmTensor operator*(double lhs, pmTensor const& rhs) {
 		return rhs*lhs;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementation of / operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor operator/(pmTensor const& lhs, double const& rhs) {
+	inline pmTensor operator/(pmTensor const& lhs, double rhs) {
 		pmTensor t{lhs};
 		for(int i=0; i<lhs.numel(); i++) {
 			t[i] = lhs[i]/rhs;
@@ -655,7 +655,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implementation of limit operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor limit(double const& value, double const& minimum, double const& maximum) {
+	inline pmTensor limit(double value, double minimum, double maximum) {
 		return pmTensor{1,1,value<minimum ? minimum : (value>maximum ? maximum : value)};
 	}
 
@@ -685,7 +685,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Constructor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor::pmTensor(double const& s) {
+	inline pmTensor::pmTensor(double s) {
 		rows = 1;
 		columns = 1;
 		// elements = new double[1];
@@ -695,7 +695,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Constructor.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor::pmTensor(int const& r, int const& c, double const& init/*=0*/) {
+	inline pmTensor::pmTensor(int r, int c, double init/*=0*/) {
 		if(r<1 || c<1) { return; }
 		rows = r;
 		columns = c;
@@ -703,27 +703,6 @@ namespace Nauticle {
 		for(int i=0; i<r*c; i++) {
 			elements[i] = init;
 		}
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Copy constructor.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor::pmTensor(pmTensor const& other) {
-		this->rows = other.rows;
-		this->columns = other.columns;
-		// elements = new double[rows*columns];
-		memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Move constructor.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor::pmTensor(pmTensor&& other) {
-		this->rows = std::move(other.rows);
-		this->columns = std::move(other.columns);
-		// this->elements = other.elements;
-		// other.elements = nullptr;
-		memcpy(this->elements, other.elements, sizeof(double)*rows*columns);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -736,7 +715,7 @@ namespace Nauticle {
 	///  9: pmTensor is 3 by 3 matrix.
 	/// Otherwise error occurs.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	/*static*/ inline pmTensor pmTensor::Tensor(int const& num_components) {
+	/*static*/ inline pmTensor pmTensor::Tensor(int num_components) {
 		switch(num_components) {
 			case 1: return pmTensor{1,1,0};
 			case 2: return pmTensor{2,1,0};
@@ -827,13 +806,6 @@ namespace Nauticle {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Destructor.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor::~pmTensor() {
-		// delete [] elements;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Plus and equal operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor& pmTensor::operator+=(pmTensor const& other) {
@@ -900,25 +872,32 @@ namespace Nauticle {
 		--(*this);
 		return tensor;
 	}
+	
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns raw pointer of the elements.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline double* pmTensor::operator*() {
+		return elements;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the number of rows.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline int const& pmTensor::get_numrows() const {
+	inline int pmTensor::get_numrows() const {
 		return rows;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the number of columns.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline int const& pmTensor::get_numcols() const {
+	inline int pmTensor::get_numcols() const {
 		return columns;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implements indexing with () brackets.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline double pmTensor::operator()(int const& i, int const& j) const {
+	inline double pmTensor::operator()(int i, int j) const {
 		if(i*columns+j>=numel() || i>=rows || j>=columns) { return double{0}; }
 		return elements[i*columns+j];
 	}
@@ -926,7 +905,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implements continuous indexing with () brackets.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline double pmTensor::operator()(int const& i) const {
+	inline double pmTensor::operator()(int i) const {
 		if(i>=numel()) { return double{0}; }
 		return elements[i];
 	}
@@ -934,7 +913,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implements continuous indexing with [] brackets.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline double& pmTensor::operator[](int const& i) {
+	inline double& pmTensor::operator[](int i) {
 		if(i>=numel()) { ProLog::pLogger::error_msgf("Index is out of bounds.\n"); }
 		return elements[i];
 	}
@@ -942,7 +921,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implements continuous indexing with [] brackets.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline double const& pmTensor::operator[](int const& i) const {
+	inline double const& pmTensor::operator[](int i) const {
 		if(i>=numel()) { ProLog::pLogger::error_msgf("Index is out of bounds.\n"); }
 		return elements[i];
 	}
@@ -1251,7 +1230,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Fills the tensor with the given value. The size remains unchanged.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline void pmTensor::fill(double const& value) {
+	inline void pmTensor::fill(double value) {
 		for(int i=0; i<numel(); i++){
 			elements[i] = value;
 		}
@@ -1260,14 +1239,14 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns a tensor with the given sizes, filled by value.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	/*static*/ inline pmTensor pmTensor::make_tensor(int const& r, int const& c, double const& value) {
+	/*static*/ inline pmTensor pmTensor::make_tensor(int r, int c, double value) {
 		return pmTensor{r,c,value};
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns a tensor with the size of base, filled with value.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	/*static*/ inline pmTensor pmTensor::make_tensor(pmTensor const& base, double const& value) {
+	/*static*/ inline pmTensor pmTensor::make_tensor(pmTensor const& base, double value) {
 		pmTensor tensor{base};
 		tensor.fill(value);
 		return tensor;
@@ -1275,7 +1254,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns an identity tensor of the given size.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	/*static*/ inline pmTensor pmTensor::make_identity(int const& size) {
+	/*static*/ inline pmTensor pmTensor::make_identity(int size) {
 		if(size<1) { ProLog::pLogger::error_msgf("Tensor size must be at least one by one."); }
 		pmTensor tensor{size,size,0};
 		for(int i=0; i<size*size; i+=size+1) {
@@ -1312,7 +1291,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns a tensor appended with zeros to the size row*col.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	inline pmTensor pmTensor::append(int const& row, int const& col) const {
+	inline pmTensor pmTensor::append(int row, int col) const {
 		if(this->rows==row && this->columns==col) {
 			return *this;
 		}

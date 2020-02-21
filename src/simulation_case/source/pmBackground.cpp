@@ -127,18 +127,33 @@ void pmBackground::interpolate() {
 
   	auto probe_unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   	probe_unstructured_grid->SetPoints(points);
-
 	auto probe = vtkSmartPointer<vtkProbeFilter>::New();
 	probe->SetSourceData(unstructured_grid);
 	probe->SetInputData(probe_unstructured_grid);
 	probe->Update();
  
-	vtkDataArray* data = probe->GetOutput()->GetPointData()->GetScalars();
-	vtkDoubleArray* doubleData = vtkDoubleArray::SafeDownCast(data);
-	for(int i=0; i<doubleData->GetNumberOfTuples(); i++) {
-		pmTensor tensor{1,1,doubleData->GetValue(i)};
-		field->set_value(tensor,i);
-    }
+ 	{
+		vtkDataArray* data = probe->GetOutput()->GetPointData()->GetScalars();
+		if(data!=NULL) {
+			vtkDoubleArray* doubleData = vtkDoubleArray::SafeDownCast(data);
+			for(int i=0; i<doubleData->GetNumberOfTuples(); i++) {
+				pmTensor tensor{1,1,doubleData->GetValue(i)};
+				field->set_value(tensor,i);
+		    }
+			return;
+		}
+	}
+	{
+		vtkDataArray* data = probe->GetOutput()->GetPointData()->GetVectors();
+		if(data!=NULL) {
+			vtkDoubleArray* doubleData = vtkDoubleArray::SafeDownCast(data);
+			for(int i=0; i<doubleData->GetNumberOfTuples(); i++) {
+				pmTensor tensor{2,1,0};
+				doubleData->GetTuple(i,*tensor);
+				field->set_value(tensor,i);
+		    }
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
