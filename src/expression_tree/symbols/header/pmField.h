@@ -70,6 +70,8 @@ namespace Nauticle {
 		virtual void add_member(pmTensor const& v=pmTensor{});
 		virtual void duplicate_member(size_t const& i);
 		void deleter(std::vector<pmTensor>& data, std::vector<size_t> const& delete_indices);
+		virtual std::string get_decl_type() const override;
+		virtual std::string get_initialization() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

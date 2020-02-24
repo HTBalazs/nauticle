@@ -46,3 +46,11 @@ bool pmExpression::is_position() const {
 std::string const& pmExpression::get_name() const {
     return name;
 }
+
+std::string pmExpression::get_decl_type() const {
+    return "";
+}
+
+std::string pmExpression::get_initialization() const {
+    return "";
+}

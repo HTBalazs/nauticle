@@ -68,7 +68,7 @@ void pmRuntime_compiler::generate_code(std::shared_ptr<c2CPP_header_file>& heade
     c2CPP_class cl{session_name};
     cl.add_interface("pmInterface");
 
-    std::string init_code = "\t\tws = cas->get_workspace();\n";
+    std::string init_code = "\tws = cas->get_workspace();\n";
     std::vector<c2CPP_declaration> declarations = cas->get_workspace()->generate_declarations(init_code);
     cl.add_member_type("std::shared_ptr<pmWorkspace>", "ws", false, "", "");
     for(auto const& it:declarations) {

@@ -46,6 +46,7 @@ namespace Nauticle {
 		void set_value(pmTensor const& value, int const& i=0) override;
 		std::shared_ptr<pmVariable> clone() const;
 		virtual void write_to_string(std::ostream& os) const override;
+		virtual std::string get_decl_type() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

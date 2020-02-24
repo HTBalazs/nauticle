@@ -94,3 +94,7 @@ std::shared_ptr<pmVariable> pmVariable::clone() const {
 void pmVariable::write_to_string(std::ostream& os) const {
 	os << name;
 }
+
+std::string pmVariable::get_decl_type() const {
+    return "Queue<"+value[0].get_decl_type()+","+std::to_string(depth)+">";
+}

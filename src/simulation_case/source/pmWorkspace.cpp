@@ -1,21 +1,21 @@
 /*
-    Copyright 2016-2019 Balazs Toth
-    This file is part of Nauticle.
+	Copyright 2016-2019 Balazs Toth
+	This file is part of Nauticle.
 
-    Nauticle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Nauticle is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Lesser General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Nauticle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+	Nauticle is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Lesser General Public License
+	along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/nauticleproject/
+	For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 #include "pmWorkspace.h"
@@ -540,30 +540,22 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::string& init_code) const {
 	std::vector<c2c::c2CPP_declaration> declaration;
 	for(auto const& it:this->get<pmConstant>(true)) {
-		declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmConstant>", "ws_" + it->get_name(), false, "", ""});
-        init_code += "\t\tws_" + it->get_name() + " = std::dynamic_pointer_cast<pmConstant>(ws->get_instance(\"" + it->get_name() + "\").lock());\n"; 
-    }
-    for(auto const& it:this->get<pmVariable>()) {
-        declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmVariable>", "ws_" + it->get_name(), false, "", ""});
-        init_code += "\t\tws_" + it->get_name() + " = std::dynamic_pointer_cast<pmVariable>(ws->get_instance(\"" + it->get_name() + "\").lock());\n";
-    }
-    for(auto const& it:this->get<pmField>()) {
-        std::string type;
-        if(it->get_name()=="r") {
-            type = "pmParticle_system";
-        } else {
-            type = "pmField";
-        }
-		declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<" + type + ">", "ws_" + it->get_name(), false, "", ""});
-        init_code += "\t\tws_" + it->get_name() + " = std::dynamic_pointer_cast<" + type + ">(ws->get_instance(\"" + it->get_name() + "\").lock());\n";
-    }
-    size_t i = 0;
-    for(auto const& it:interactions) {
-        declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmExpression>", it->get_name(), false, "", ""});
-        init_code += "\t\t" + it->get_name() + " = ws->get_interactions()[" + std::to_string(i) + "];\n";
-        i++;
-    }
-    return declaration;
+		declaration.push_back(c2c::c2CPP_declaration{it->get_decl_type(), "ws_" + it->get_name(), true, "", it->get_initialization()});
+	}
+	for(auto const& it:this->get<pmVariable>()) {
+		declaration.push_back(c2c::c2CPP_declaration{it->get_decl_type(), "ws_" + it->get_name(), false, "", it->get_initialization()});
+	}
+	for(auto const& it:this->get<pmField>()) {
+		declaration.push_back(c2c::c2CPP_declaration{it->get_decl_type(), "ws_" + it->get_name(), false, "", ""});
+		init_code += it->get_initialization();
+	}
+	size_t i = 0;
+	for(auto const& it:interactions) {
+		declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmExpression>", it->get_name(), false, "", ""});
+		init_code += "\t\t" + it->get_name() + " = ws->get_interactions()[" + std::to_string(i) + "];\n";
+		i++;
+	}
+	return declaration;
 }
 
 

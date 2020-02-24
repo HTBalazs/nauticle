@@ -38,6 +38,8 @@ namespace Nauticle {
     	void printv() const override;
     	std::shared_ptr<pmSingle> clone() const;
     	std::string get_type() const override;
+        virtual std::string get_decl_type() const override;
+        virtual std::string get_initialization() const override;
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////

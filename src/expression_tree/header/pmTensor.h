@@ -111,6 +111,8 @@ namespace Nauticle {
 		double min() const;
 		double max() const;
 		pmTensor elem(size_t const& r, size_t const& c) const;
+		std::string get_decl_type() const;
+		std::string get_initialization() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1493,6 +1495,42 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <typename T> T tensor_cast(pmTensor const& tensor) {
 		return (T)tensor[0];
+	}
+
+	inline std::string pmTensor::get_decl_type() const {
+		if(this->numel()!=1) {
+			if(rows==1 || columns==1) {
+				return "Eigen::Vector"+std::to_string(rows+columns-1)+"d";
+			} else if(rows==columns) {
+				return "Eigen::Matrix"+std::to_string(rows)+"d";
+			} else {
+				return "undefined_type";
+			}
+		}
+		return "double";
+	}
+
+	inline std::string pmTensor::get_initialization() const {
+		if(this->numel()!=1) {
+			std::string code = " = ";
+			if(rows==1 || columns==1) {
+				std::string code = "{";
+				for(int i=0; i<this->numel(); i++) {
+					code += std::to_string(elements[i])+(i==this->numel()-1?"":",");
+				}
+				return code+"}";
+			} else if(rows==columns) {
+				std::string code = " = (Eigen::Matrix2d() << ";
+				for(int i=0; i<this->numel(); i++) {
+					code += std::to_string(elements[i])+(i==this->numel()-1?"":",");
+				}
+				return code+").finished()";
+			} else {
+				return "Unable to generate initializaer list";
+			}
+			return code;
+		}
+		return " = " + std::to_string(elements[0]);
 	}
 }
 

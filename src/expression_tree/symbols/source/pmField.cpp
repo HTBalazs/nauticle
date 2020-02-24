@@ -280,3 +280,25 @@ void pmField::deleter(std::vector<pmTensor>& data, std::vector<size_t> const& de
     }
     data = temp_buffer;
 }
+
+std::string pmField::get_decl_type() const {
+	return "pmQueue<std::vector<"+value[0][0].get_decl_type()+","+std::to_string(depth)+">>";
+}
+
+std::string pmField::get_initialization() const {
+	std::string code = "\t{\n";
+	code += "\t\tstd::vector<"+value[0][0].get_decl_type()+"> tmp;\n";
+	code += "\t\tfor(int i=0; i<ws_"+this->get_name()+"->get_field_size(); i++) {\n";
+	code += "\t\t\tpmTensor tensor = ws_"+this->get_name()+"->evaluate(i,0);\n";
+	code += "\t\t\t"+value[0][0].get_decl_type()+" v{tensor[0],tensor[1]};\n";
+	code += "\t\t\ttmp.push_back(v);\n\t\t}\n";
+	code += "\t\tws_"+this->get_name()+" = tmp;\n";
+	return code+"\t}\n";
+		// std::vector<Eigen::Vector2d,1> tmp;
+		// for(int i=0; i<field->get_field_size(); i++) {
+			// pmTensor tensor = field->evaluate(i,0);
+			// Eigen::Vector2d v{tensor[0],tensor[1]};
+		// 	tmp.push_back(v);
+		// }
+		// ws_vel = tmp;
+}
