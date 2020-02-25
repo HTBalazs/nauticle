@@ -72,6 +72,7 @@ namespace Nauticle {
 		void deleter(std::vector<pmTensor>& data, std::vector<size_t> const& delete_indices);
 		virtual std::string get_decl_type() const override;
 		virtual std::string get_initialization() const override;
+		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

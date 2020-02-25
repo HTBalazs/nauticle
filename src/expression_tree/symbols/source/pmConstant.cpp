@@ -101,14 +101,12 @@ void pmConstant::write_to_string(std::ostream& os) const {
 }
 
 std::string pmConstant::generate_evaluator_code(std::string const& i, std::string const& level) const {
-	// This function assumes that noname constants can only ba scalars.
+	// This function assumes that noname constants can only be scalars.
     if(name!="") {
-    	return pmSymbol::generate_evaluator_code(i,level);
+    	return std::string{"ws_" + name};
     } else {
 		char buffer[100] = {};
 		sprintf(buffer, "(double)%g", value[0][0]);
 		return std::string{buffer};
     }
 }
-
-

@@ -47,6 +47,7 @@ namespace Nauticle {
 		std::shared_ptr<pmVariable> clone() const;
 		virtual void write_to_string(std::ostream& os) const override;
 		virtual std::string get_decl_type() const override;
+		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

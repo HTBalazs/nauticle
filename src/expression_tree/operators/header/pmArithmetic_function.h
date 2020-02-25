@@ -269,25 +269,91 @@ namespace Nauticle {
 	std::string pmArithmetic_function<ARI_TYPE,S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
 		std::string code;
 		switch(ARI_TYPE) {
-			case ABS : code = "abs(" + STR_ARG(0,i,level) + ")"; break;
-			case ACOS : code = "acos(" + STR_ARG(0,i,level) + ")"; break;
-			case ACOT : code = "acoT(" + STR_ARG(0,i,level) + ")"; break;
+			case ABS :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::abs("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").cwiseAbs()";
+				}
+			break;
+			case ACOS : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::acos("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").acos()";
+				}
+			break;
+			case ACOT : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::acot("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").acot()";
+				}
+			break;
 			case AND : code = "(" + STR_ARG(0,i,level) + "&&" + STR_ARG(1,i,level) + ")"; break;
-			case ASIN : code = "asin(" + STR_ARG(0,i,level) + ")"; break;
-			case ATAN : code = "atan(" + STR_ARG(0,i,level) + ")"; break;
-			case ATAN2 : code = "atan2(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case COS : code = "cos(" + STR_ARG(0,i,level) + ")"; break;
-			case COSH : code = "cosh(" + STR_ARG(0,i,level) + ")"; break;
-			case COT : code = "cot(" + STR_ARG(0,i,level) + ")"; break;
-			case COTH : code = "coth(" + STR_ARG(0,i,level) + ")"; break;
-			case CROSS : code = "cross(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
+			case ASIN :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::asin("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").asin()";
+				}
+			break;
+			case ATAN :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::atan("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").atan()";
+				}
+			break;
+			case ATAN2 : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::atan2("+STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) +")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ").acos()";
+				}
+			break;
+			case COS :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::cos("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").cos()";
+				}
+			break;
+			case COSH :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::cosh("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").cosh()";
+				}
+			break;
+			case COT :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::cot("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").cot()";
+				}
+			break;
+			case COTH :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::coth("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").coth()";
+				}
+			break;
+			case CROSS : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "cross(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").cross(" + STR_ARG(1,i,level) + ")";
+				}
+			break;
 			case ELEM : code = "(" + STR_ARG(0,i,level) + ".elem(" + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + "))"; break;
 			case EXP : code = "exp(" + STR_ARG(0,i,level) + ")"; break;
 			case FLOOR : code = "floor(" + STR_ARG(0,i,level) + ")"; break;
-			case GT : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")>tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case GTE : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")>=tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case EQUAL : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")==tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case NOTEQUAL : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")!=tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
+			case GT : code = "(" + STR_ARG(0,i,level) + ")>(" + STR_ARG(1,i,level) + ")"; break;
+			case GTE : code = "(" + STR_ARG(0,i,level) + ")>=(" + STR_ARG(1,i,level) + ")"; break;
+			case EQUAL : code = "(" + STR_ARG(0,i,level) + ")==(" + STR_ARG(1,i,level) + ")"; break;
+			case NOTEQUAL : code = "(" + STR_ARG(0,i,level) + ")!=(" + STR_ARG(1,i,level) + ")"; break;
 			case IF : code = "tensor_if(tensor_cast<bool>(" + STR_ARG(0,i,level) + ")," + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + ")"; break;
 			case LOG : code = "log(" + STR_ARG(0,i,level) + ")"; break;
 			case LOGM : code = "logm(" + STR_ARG(0,i,level) + ")"; break;

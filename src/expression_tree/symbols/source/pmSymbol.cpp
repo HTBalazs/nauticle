@@ -64,7 +64,3 @@ bool pmSymbol::is_assigned() const {
 bool pmSymbol::is_hidden() const {
 	return false;
 }
-
-std::string pmSymbol::generate_evaluator_code(std::string const& i, std::string const& level) const {
-    return std::string{"ws_" + name + "->evaluate(" + i + "," + level + ")"};
-}

@@ -96,5 +96,9 @@ void pmVariable::write_to_string(std::ostream& os) const {
 }
 
 std::string pmVariable::get_decl_type() const {
-    return "Queue<"+value[0].get_decl_type()+","+std::to_string(depth)+">";
+    return "pmQueue<"+value[0].get_decl_type()+","+std::to_string(depth)+">";
+}
+
+std::string pmVariable::generate_evaluator_code(std::string const& i, std::string const& level) const {
+    return std::string{"ws_" + name + "(" + level + ")"};
 }

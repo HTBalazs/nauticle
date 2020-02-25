@@ -1514,13 +1514,18 @@ namespace Nauticle {
 		if(this->numel()!=1) {
 			std::string code = " = ";
 			if(rows==1 || columns==1) {
-				std::string code = "{";
+				// std::string code = "{";
+				// for(int i=0; i<this->numel(); i++) {
+				// 	code += std::to_string(elements[i])+(i==this->numel()-1?"":",");
+				// }
+				// return code+"}";
+				std::string code = " = (Eigen::Vector"+std::to_string(this->numel())+"d() << ";
 				for(int i=0; i<this->numel(); i++) {
 					code += std::to_string(elements[i])+(i==this->numel()-1?"":",");
 				}
-				return code+"}";
+				return code+").finished()";
 			} else if(rows==columns) {
-				std::string code = " = (Eigen::Matrix2d() << ";
+				std::string code = " = (Eigen::Matrix"+std::to_string(rows)+"d() << ";
 				for(int i=0; i<this->numel(); i++) {
 					code += std::to_string(elements[i])+(i==this->numel()-1?"":",");
 				}

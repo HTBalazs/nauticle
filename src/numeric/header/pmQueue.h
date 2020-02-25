@@ -32,6 +32,8 @@ namespace Nauticle {
 	class pmQueue {
 		std::deque<T> value;
 	public:
+		pmQueue()=default;
+		pmQueue(T val);
 		pmQueue& operator=(T const& new_value);
 		T const& operator()(size_t i=0) const;
 		void clear();
@@ -39,7 +41,11 @@ namespace Nauticle {
 		void print() const;
 	};
 
-	template<typename T> pmQueue<T>& pmQueue<T>::operator=(T const& new_value) {
+	template<typename T, size_t L> pmQueue<T,L>::pmQueue(T val) {
+		this->operator=(val);
+	}
+
+	template<typename T, size_t L> pmQueue<T,L>& pmQueue<T,L>::operator=(T const& new_value) {
 		if(value.empty()) {
 			for(int i=0; i<L; i++) {
 				value.push_back(new_value);
@@ -50,51 +56,87 @@ namespace Nauticle {
 		}
 		return *this;
 	}
-	template<> pmQueue<std::vector<double>>& pmQueue<std::vector<double>>::operator=(std::vector<double> const& new_value) {
-		for(auto& it:value) {
-			size_t old_size = it.size();
-			size_t new_size = new_value.size();
-			it.resize(new_value.size());
-			if(old_size<new_size) {
-				std::copy(new_value.begin()+old_size,new_value.end(),it.begin()+old_size);
-			}
-		}
-		value.push_front(new_value);
-		if(value.size()>L) {
-			value.pop_back();
-		}
-		return *this;
+
+	template<typename T, size_t L> T const& pmQueue<T,L>::operator()(size_t i/*=0*/) const {
+		return value[i];
 	}
-	template<typename T> T const& pmQueue<T>::operator()(size_t i/*=0*/) const {
-		if(i<this->size()) {
-			return value[i];
-		} else {
-			return value.back();
-		}
-	}
-	template<typename T> void pmQueue<T>::clear() {
+	template<typename T, size_t L> void pmQueue<T,L>::clear() {
 		value.clear();
 	}
-	template<typename T> size_t pmQueue<T>::size() const {
+	template<typename T, size_t L> size_t pmQueue<T,L>::size() const {
 		return value.size();
 	}
-	template<typename T> void pmQueue<T>::print() const {
+	template<typename T, size_t L> void pmQueue<T,L>::print() const {
 		for(auto const& it:value) {
 			std::cout << it << std::endl;
 		}
 	}
-	template<> void pmQueue<std::vector<double>>::print() const {
+
+	template<typename T, size_t L>
+	std::ostream& operator<<(std::ostream& os, pmQueue<T,L> v) {
+		os << v(0);
+		return os;
+	}
+
+	template<typename T, size_t L>
+	class pmQueue<std::vector<T>,L> {
+		std::deque<std::vector<T>> value;
+	public:
+		pmQueue()=default;
+		pmQueue(std::vector<T> const& val);
+		pmQueue& operator=(std::vector<T> const& new_value);
+		std::vector<T> const& operator()(size_t i=0) const;
+		T& operator[](size_t i);
+		void clear();
+		size_t size() const;
+		void print() const;
+	};
+
+	template<typename T, size_t L> pmQueue<std::vector<T>,L>::pmQueue(std::vector<T> const& val) {
+		this->operator=(val);
+	}
+
+	template<typename T, size_t L> pmQueue<std::vector<T>,L>& pmQueue<std::vector<T>,L>::operator=(std::vector<T> const& new_value) {
+		if(value.empty()) {
+			for(int i=0; i<L; i++) {
+				value.push_back(new_value);
+			}
+		} else {	
+			for(auto& it:value) {
+				size_t old_size = it.size();
+				size_t new_size = new_value.size();
+				it.resize(new_value.size());
+				if(old_size<new_size) {
+					std::copy(new_value.begin()+old_size,new_value.end(),it.begin()+old_size);
+				}
+			}
+			value.push_front(new_value);
+			value.pop_back();
+		}
+		return *this;
+	}
+
+	template<typename T, size_t L> std::vector<T> const& pmQueue<std::vector<T>,L>::operator()(size_t i/*=0*/) const {
+		return value[i];
+	}
+	template<typename T, size_t L> T& pmQueue<std::vector<T>,L>::operator[](size_t i) {
+		for(int j=L-1;j>0; j--) {
+			value[j][i] = value[j-1][i];
+		}
+		return value[0][i];
+	}
+	template<typename T, size_t L> void pmQueue<std::vector<T>,L>::clear() {
+		value.clear();
+	}
+	template<typename T, size_t L> size_t pmQueue<std::vector<T>,L>::size() const {
+		return value.size();
+	}
+	template<typename T, size_t L> void pmQueue<std::vector<T>,L>::print() const {
 		for(auto const& it:value) {
 			for(auto const& jt:it) {
 				std::cout << jt << std::endl;
 			}
 		}
-	}
-
-	template<typename T=double>
-	std::ostream& operator<<(std::ostream& os, pmQueue<T> v) {
-		os << v(0);
-		return os;
 	}
 }
 
