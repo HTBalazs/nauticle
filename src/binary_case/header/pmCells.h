@@ -21,10 +21,11 @@
 #ifndef _CELLS_H_  
 #define _CELLS_H_
 
-#include <vector>
 #include "Eigen/Eigen"
+#include <vector>
 
-namespace nauticle {
+namespace Nauticle {
+	
 	template<typename T>
 	class pmCells {
 	protected:
@@ -32,31 +33,37 @@ namespace nauticle {
 		std::vector<size_t> cell_end;
 		std::vector<T> cell_iterator;
 	public:
-		void update_cells(std::vector<size_t> const& hash_key) {
-			std::fill(cell_start.begin(),cell_start.end(),0xFFFFFFFF);
-			std::fill(cell_end.begin(),cell_end.end(),0xFFFFFFFF);
-			cell_start[hash_key[0]] = 0;
-			cell_end[hash_key[0]] = 0;
-			for(int i=1; i<hash_key.size(); i++){
-				if(hash_key[i] != hash_key[i-1]) {
-					cell_start[hash_key[i]] = i;
-					cell_end[hash_key[i-1]] = i-1;
-				}
-				if(hash_key.size() == i+1) {
-					cell_end[hash_key[i]] = i;
-				}
+		void update_cells(std::vector<size_t> const& hash_key);
+		std::vector<size_t> const& get_start() const;
+		std::vector<size_t> const& get_end() const;
+		std::vector<T> const& get_cell_iterator() const;
+	};
+
+	template<typename T> pmCells<T>::pmCells(std::vector<size_t> const& hash_key) {
+		std::fill(cell_start.begin(),cell_start.end(),0xFFFFFFFF);
+		std::fill(cell_end.begin(),cell_end.end(),0xFFFFFFFF);
+		cell_start[hash_key[0]] = 0;
+		cell_end[hash_key[0]] = 0;
+		for(int i=1; i<hash_key.size(); i++){
+			if(hash_key[i] != hash_key[i-1]) {
+				cell_start[hash_key[i]] = i;
+				cell_end[hash_key[i-1]] = i-1;
+			}
+			if(hash_key.size() == i+1) {
+				cell_end[hash_key[i]] = i;
 			}
 		}
-		std::vector<size_t> const& get_start() const {
-			return cell_start;
-		}
-		std::vector<size_t> const& get_end() const {
-			return cell_end;
-		}
-		std::vector<T> const& get_cell_iterator() const {
-			return cell_iterator;
-		}
-	};
+	}
+	template<typename T> std::vector<size_t> const& pmCells<T>::get_start() const {
+		return cell_start;
+	}
+	template<typename T> std::vector<size_t> const& pmCells<T>::get_end() const {
+		return cell_end;
+	}
+	template<typename T> std::vector<T> const& pmCells<T>::get_cell_iterator() const {
+		return cell_iterator;
+	}
+
 
 	template<size_t S>
 	class pmBinary_domain {};
@@ -84,6 +91,7 @@ namespace nauticle {
 			for(int i=0; i<pos.size(); i++) {
 				hash_key[i] = compute_hash_key(pos[i]);
 			}
+			this->update_cells(hash_key);
 		}
 		size_t get_dimensions() const {
 			return 1;
@@ -133,6 +141,7 @@ namespace nauticle {
 			for(int i=0; i<pos.size(); i++) {
 				hash_key[i] = compute_hash_key(pos[i]);
 			}
+			this->update_cells(hash_key);
 		}
 		size_t get_dimensions() const {
 			return 2;
@@ -184,6 +193,7 @@ namespace nauticle {
 			for(int i=0; i<pos.size(); i++) {
 				hash_key[i] = compute_hash_key(pos[i]);
 			}
+			this->update_cells(hash_key);
 		}
 		size_t get_dimensions() const {
 			return 3;

@@ -51,12 +51,15 @@ void pmRuntime_compiler::add_includes(std::shared_ptr<c2CPP_header_file> header)
     header->add_include("nauticle/pmWorkspace.h", false);
     header->add_include("nauticle/pmRandom.h", false);
     header->add_include("nauticle/pmQueue.h", false);
-    header->add_include("nauticle/pmBinary_domain.h", false);
+    // header->add_include("nauticle/pmBinary_domain.h", false);
+    header->add_include("nauticle/pmSort.h", false);
     header->add_include("Eigen/Eigen", false);
     header->add_include("string", true);
+    header->add_include("iterator", true);
     header->add_include("vector", true);
     header->add_include("algorithm", true);
     header->add_include("memory", true);
+    header->add_include("numeric", true);
     header->add_include("iostream", true);
 }
 
@@ -78,14 +81,23 @@ void pmRuntime_compiler::generate_code(std::shared_ptr<c2CPP_header_file>& heade
         cl.add_member_type(c2CPP_class_member_type{it});
     }
 
-    cl.add_member_function("void", "initialize", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::shared_ptr<pmCase>", "cas", false, "", ""}}, PUBLIC, init_code, false, true);
+    cl.add_member_function("void", "initialize", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::shared_ptr<pmCase>", "cas", false, "", ""}}, PUBLIC, init_code, false, false);
     std::string solver="";
     auto equations = cas->get_equations();
-    solver += "\tws->sort_all_by_position();\n";
+    solver += "\tthis->sort_fields();\n";
     for(auto const& it:equations) {
         solver += it->generate_evaluator_code();
     }
-    cl.add_member_function("void", "solve", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"size_t", "num_threads", true, "&", ""}}, PUBLIC, solver, false, true);
+    cl.add_member_function("void", "solve", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"size_t", "num_threads", true, "&", ""}}, PUBLIC, solver, false, false);
+    std::string sorting = "";
+    // sorting += "\tdomain.compute_hash_key(ws_r(0),hash_key);\n";
+    sorting += "\tsorted_index.resize(hash_key.size());\n";
+    sorting += "\tstd::iota(std::begin(sorted_index),std::end(sorted_index),0);\n";
+    sorting += "\tpmSort::sort_by_vector(sorted_index, hash_key, pmSort::ascending);\n";
+    for(auto const& it:cas->get_workspace()->get<pmField>()) {
+        sorting += "\tws_"+it->get_name()+".reorder(sorted_index);\n";
+    }
+    cl.add_member_function("void", "sort_fields", false, "", std::vector<c2CPP_declaration>{}, PUBLIC, sorting, false, false);
     
     header->get_namespace("Nauticle").add_class(cl);
     source = std::make_shared<c2CPP_source_file>(*header);

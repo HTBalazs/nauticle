@@ -21,31 +21,31 @@
 #ifndef _SORT_H_
 #define _SORT_H_
 
+#include "prolog/pLogger.h"
 #include <vector>
 #include <algorithm>
 #include <utility>
-#include "prolog/pLogger.h"
 
 namespace Nauticle {
 	namespace pmSort {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implements ascending.
 	/////////////////////////////////////////////////////////////////////////////////////////
-		template <typename T> bool ascending(std::pair<T,int> const& a, std::pair<T,int> const& b) {
+		template <typename T, typename U> bool ascending(std::pair<T,U> const& a, std::pair<T,U> const& b) {
 			return a.second < b.second;
 		}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Implements descending.
 	/////////////////////////////////////////////////////////////////////////////////////////
-		template <typename T> bool descending(std::pair<T,int> const& a, std::pair<T,int> const& b) {
+		template <typename T, typename U> bool descending(std::pair<T,U> const& a, std::pair<T,U> const& b) {
 			return a.second > b.second;
 		}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Pairs the givan a and b vectors and stores the result in the packed vector.
 	/////////////////////////////////////////////////////////////////////////////////////////
-		template <typename T> void pack(std::vector<T> const& a, std::vector<int> const& b, std::vector<std::pair<T,int>>& packed) {
+		template <typename T, typename U> void pack(std::vector<T> const& a, std::vector<U> const& b, std::vector<std::pair<T,U>>& packed) {
 			for(size_t i=0; i<a.size(); ++i) {
 		        packed.push_back(std::make_pair(a[i], b[i]));
 		    }
@@ -54,7 +54,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Separates the vectors stored in the given vector of pairs and stores them in the a and b vectors.
 	/////////////////////////////////////////////////////////////////////////////////////////
-		template <typename T> void unpack(std::vector<std::pair<T,int>>& packed, std::vector<T>& a, std::vector<int>& b) {
+		template <typename T, typename U> void unpack(std::vector<std::pair<T,U>>& packed, std::vector<T>& a, std::vector<U>& b) {
 	        for(size_t i=0; i<a.size(); ++i) {
 		        a[i] = packed[i].first;
 		        b[i] = packed[i].second;
@@ -64,8 +64,8 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Sorts a vector based on another. The third parameter governs the order.
 	/////////////////////////////////////////////////////////////////////////////////////////
-		template <typename T> void sort_by_vector(std::vector<T>& to_sort, std::vector<int>& sort_by, bool(*compare)(std::pair<T,int> const&, std::pair<T,int> const&)) {
-			using Pair = std::pair<T,int>;
+		template <typename T, typename U> void sort_by_vector(std::vector<T>& to_sort, std::vector<U>& sort_by, bool(*compare)(std::pair<T,U> const&, std::pair<T,U> const&)) {
+			using Pair = std::pair<T,U>;
 		    std::vector<Pair> packed;
 		    pack<T>(to_sort, sort_by, packed);
 		    std::sort(std::begin(packed), std::end(packed), compare);
@@ -75,7 +75,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Reorders a vector based on another vector. Here no sorting is performed.
 	/////////////////////////////////////////////////////////////////////////////////////////
-		template <typename T> void reorder(std::vector<T>& to_reorder, std::vector<int> const& reorder_by) {
+		template <typename T, typename U> void reorder(std::vector<T>& to_reorder, std::vector<U> const& reorder_by) {
 			if(to_reorder.size() != reorder_by.size()) {
 				ProLog::pLogger::warning_msgf("Reorder requires vectors of identical sizes.\n");
 				return;

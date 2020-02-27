@@ -21,6 +21,7 @@
 #ifndef _QUEUE_H_
 #define _QUEUE_H_
 
+#include "pmSort.h"
 #include <deque>
 #include <vector>
 #include <iostream>
@@ -90,6 +91,7 @@ namespace Nauticle {
 		void clear();
 		size_t size() const;
 		void print() const;
+		void reorder(std::vector<size_t> const& reorder_by);
 	};
 
 	template<typename T, size_t L> pmQueue<std::vector<T>,L>::pmQueue(std::vector<T> const& val) {
@@ -136,6 +138,12 @@ namespace Nauticle {
 			for(auto const& jt:it) {
 				std::cout << jt << std::endl;
 			}
+		}
+	}
+	template<typename T, size_t	L> void pmQueue<std::vector<T>,L>::reorder(std::vector<size_t> const& reorder_by) {
+		for(auto& it:value) {
+			std::cout << it.size() << " " << reorder_by.size() << std::endl;
+			pmSort::reorder(it, reorder_by);
 		}
 	}
 }

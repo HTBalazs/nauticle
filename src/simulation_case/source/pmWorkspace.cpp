@@ -539,8 +539,8 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 
 std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::string& init_code) const {
 	std::vector<c2c::c2CPP_declaration> declaration;
-	pmDomain domain = this->get_particle_system().lock()->get_particle_space()->get_domain();
-	declaration.push_back(c2c::c2CPP_declaration{"pmBinary_domain<"+std::to_string(domain.get_dimensions())+">", "ws_domain", false, "", ""});
+	// pmDomain domain = this->get_particle_system().lock()->get_particle_space()->get_domain();
+	// declaration.push_back(c2c::c2CPP_declaration{"pmBinary_domain<"+std::to_string(domain.get_dimensions())+">", "ws_domain", false, "", ""});
 	for(auto const& it:this->get<pmConstant>(true)) {
 		declaration.push_back(c2c::c2CPP_declaration{it->get_decl_type(), "ws_" + it->get_name(), true, "", it->get_initialization()});
 	}
@@ -551,6 +551,10 @@ std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::stri
 		declaration.push_back(c2c::c2CPP_declaration{it->get_decl_type(), "ws_" + it->get_name(), false, "", ""});
 		init_code += it->get_initialization();
 	}
+	declaration.push_back(c2c::c2CPP_declaration{"std::vector<size_t>", "sorted_index", false, "", ""});
+	declaration.push_back(c2c::c2CPP_declaration{"std::vector<size_t>", "hash_key", false, "", ""});
+	init_code += "\tsorted_index.resize(ws_r.size());\n";
+	init_code += "\thash_key.resize(ws_r.size());\n";
 	size_t i = 0;
 	for(auto const& it:interactions) {
 		declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmExpression>", it->get_name(), false, "", ""});
