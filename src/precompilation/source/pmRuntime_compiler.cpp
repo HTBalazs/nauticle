@@ -51,6 +51,7 @@ void pmRuntime_compiler::add_includes(std::shared_ptr<c2CPP_header_file> header)
     header->add_include("nauticle/pmWorkspace.h", false);
     header->add_include("nauticle/pmRandom.h", false);
     header->add_include("nauticle/pmQueue.h", false);
+    header->add_include("nauticle/pmBinary_domain.h", false);
     header->add_include("Eigen/Eigen", false);
     header->add_include("string", true);
     header->add_include("vector", true);

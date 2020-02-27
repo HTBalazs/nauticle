@@ -290,7 +290,7 @@ namespace Nauticle {
 					code = "(" + STR_ARG(0,i,level) + ").acot()";
 				}
 			break;
-			case AND : code = "(" + STR_ARG(0,i,level) + "&&" + STR_ARG(1,i,level) + ")"; break;
+			case AND : code = "((" + STR_ARG(0,i,level) + ")&&(" + STR_ARG(1,i,level) + "))"; break;
 			case ASIN :
 				if(this->operand[0]->evaluate(0,0).numel()==1) {
 					code = "std::asin("+STR_ARG(0,i,level)+")";
@@ -347,48 +347,134 @@ namespace Nauticle {
 					code = "(" + STR_ARG(0,i,level) + ").cross(" + STR_ARG(1,i,level) + ")";
 				}
 			break;
-			case ELEM : code = "(" + STR_ARG(0,i,level) + ".elem(" + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + "))"; break;
-			case EXP : code = "exp(" + STR_ARG(0,i,level) + ")"; break;
-			case FLOOR : code = "floor(" + STR_ARG(0,i,level) + ")"; break;
-			case GT : code = "(" + STR_ARG(0,i,level) + ")>(" + STR_ARG(1,i,level) + ")"; break;
-			case GTE : code = "(" + STR_ARG(0,i,level) + ")>=(" + STR_ARG(1,i,level) + ")"; break;
-			case EQUAL : code = "(" + STR_ARG(0,i,level) + ")==(" + STR_ARG(1,i,level) + ")"; break;
-			case NOTEQUAL : code = "(" + STR_ARG(0,i,level) + ")!=(" + STR_ARG(1,i,level) + ")"; break;
-			case IF : code = "tensor_if(tensor_cast<bool>(" + STR_ARG(0,i,level) + ")," + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + ")"; break;
-			case LOG : code = "log(" + STR_ARG(0,i,level) + ")"; break;
-			case LOGM : code = "logm(" + STR_ARG(0,i,level) + ")"; break;
-			case LT : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")<tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case LTE : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")<=tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case MAGNITUDE : code = STR_ARG(0,i,level) + ".norm()"; break;
-			case MAX : code = "max(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case MIN : code = "min(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case MOD : code = "mod(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case NOT : code = "!(tensor_cast<bool>(" + STR_ARG(0,i,level) + "))"; break;
-			case OR : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")||tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
+			case ELEM : 
+				if(this->operand[0]->evaluate(0,0).is_vector()) {
+					code = "(double)" + STR_ARG(0,i,level) + "(" + STR_ARG(1,i,level) + ")";
+				} else if(this->operand[0]->evaluate(0,0).is_square() && !this->operand[0]->evaluate(0,0).is_scalar()) {
+					code = "(double)" + STR_ARG(0,i,level) + "(" + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + ")";
+				} else {
+					code = "(double)" + STR_ARG(0,i,level);
+				}
+			break;
+			case EXP : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::exp("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").exp()";
+				}
+			break;
+			case FLOOR : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::floor("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").floor()";
+				}
+			break;
+			case GT : code = "((" + STR_ARG(0,i,level) + ")>(" + STR_ARG(1,i,level) + ")"; break;
+			case GTE : code = "((" + STR_ARG(0,i,level) + ")>=(" + STR_ARG(1,i,level) + ")"; break;
+			case EQUAL : code = "((" + STR_ARG(0,i,level) + ")==(" + STR_ARG(1,i,level) + ")"; break;
+			case NOTEQUAL : code = "((" + STR_ARG(0,i,level) + ")!=(" + STR_ARG(1,i,level) + ")"; break;
+			case IF : code = "((" + STR_ARG(0,i,level) + ")?(" + STR_ARG(1,i,level) + "):(" + STR_ARG(2,i,level) + "))"; break;
+			case LOG : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::log("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").log()";
+				}
+			break;
+			case LOGM : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::log("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").log()";
+				}
+			break;
+			case LT : code = "((" + STR_ARG(0,i,level) + ")<(" + STR_ARG(1,i,level) + "))"; break;
+			case LTE : code = "((" + STR_ARG(0,i,level) + ")<=(" + STR_ARG(1,i,level) + "))"; break;
+			case MAGNITUDE : 
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::abs("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").norm()";
+				}
+			break;
+			case MAX : code = "std::max(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
+			case MIN : code = "std::min(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
+			case MOD : code = "std::mod(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
+			case NOT : code = "!(" + STR_ARG(0,i,level) + ")"; break;
+			case OR : code = "((" + STR_ARG(0,i,level) + ")||(" + STR_ARG(1,i,level) + "))"; break;
 			case RAND : code = "pmRandom::random(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case SGN : code = "sgn(" + STR_ARG(0,i,level) + ")"; break;
-			case SIN : code = "sin(" + STR_ARG(0,i,level) + ")"; break;
-			case SINH : code = "sinh(" + STR_ARG(0,i,level) + ")"; break;
-			case SQRT : code = "sqrt(" + STR_ARG(0,i,level) + ")"; break;
-			case TAN : code = "tan(" + STR_ARG(0,i,level) + ")"; break;
-			case TANH : code = "tanh(" + STR_ARG(0,i,level) + ")"; break;
-			case TRACE : code = STR_ARG(0,i,level) + ".trace()"; break;
-			case EIGSYS : code = STR_ARG(0,i,level) + ".eigensystem()"; break;
-			case EIGVAL : code = STR_ARG(0,i,level) + ".eigenvalues()"; break;
-			case DEQ : code = STR_ARG(0,i,level) + ".deQ()"; break;
-			case DER : code = STR_ARG(0,i,level) + ".deR()"; break;
-			case TRANSPOSE : code = STR_ARG(0,i,level) + ".transpose()"; break;
-			case TRUNC : code = "trunc(" + STR_ARG(0,i,level) + ")"; break;
-			case XOR : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")!=tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
+			case SGN :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::signbit("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").sign()";
+				}
+			break;
+			case SIN :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::sin("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").sin()";
+				}
+			break;
+			case SINH :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::sinh("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").sinh()";
+				}
+			break;
+			case SQRT :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::sqrt("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").sqrt()";
+				}
+			break;
+			case TAN :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::tan("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").tan()";
+				}
+			break;
+			case TANH :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::tanh("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").tanh()";
+				}
+			break;
+			case TRACE : code = "(" + STR_ARG(0,i,level) + ").trace()"; break;
+			case EIGSYS : code = "(" + STR_ARG(0,i,level) + ").eigenvectors()"; break;
+			case EIGVAL : code = "(" + STR_ARG(0,i,level) + ").eigenvalues()"; break;
+		case DEQ : code = STR_ARG(0,i,level) + ".deQ()"; break;
+		case DER : code = STR_ARG(0,i,level) + ".deR()"; break;
+			case TRANSPOSE : code = "("+STR_ARG(0,i,level) + ").transpose()"; break;
+			case TRUNC :
+				if(this->operand[0]->evaluate(0,0).numel()==1) {
+					code = "std::trunc("+STR_ARG(0,i,level)+")";
+				} else {
+					code = "(" + STR_ARG(0,i,level) + ").trunc()";
+				}
+			break;
+			case XOR : code = "((" + STR_ARG(0,i,level) + ")!=(" + STR_ARG(1,i,level) + ")"; break;
 			case DETERMINANT : code = STR_ARG(0,i,level) + ".determinant()"; break;
 			case INVERSE : code = STR_ARG(0,i,level) + ".inverse()"; break;
-			case IDENTITY : code = "pmTensor::make_identity(" + STR_ARG(0,i,level) + ")"; break;
+			case IDENTITY :
+				if((STR_ARG(0,i,level))=="2.000000") {
+					code = "(Eigen::Matrix2d() << 1.000000,0.000000,0.000000,1.000000).finished()"; break;
+				} else if((STR_ARG(0,i,level))=="3.000000") {
+					code = "(Eigen::Matrix3d() << 1.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,1.000000).finished()"; break;
+				}
+			break;
 			case EULER : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case PREDICTOR : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case CORRECTOR : code = "(" + STR_ARG(0,i,"1") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
 			case VERLET_R : code = "(" +  STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(3,i,"0") + "+" + STR_ARG(2,i,"0") + "*" + "std::pow(" + STR_ARG(3,i,"0") + "[0],2) / 2.0)"; break;
 			case VERLET_V : code = "(" + STR_ARG(0,i,"0") + "+(" + STR_ARG(1,i,"0") + "+" + STR_ARG(1,i,"1") + ")*" + STR_ARG(2,i,"0") + "/2.0)"; break;
-			case LIMIT : code = "limit(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "[0]," + STR_ARG(2,i,level) + "[0])"; break;
+		case LIMIT : code = "limit(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "[0]," + STR_ARG(2,i,level) + "[0])"; break;
 		}
 		return code;
 	}
