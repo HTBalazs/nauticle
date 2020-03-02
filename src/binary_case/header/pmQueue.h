@@ -38,6 +38,7 @@ namespace Nauticle {
 		pmQueue& operator=(T const& new_value);
 		T const& operator()(size_t i=0) const;
 		void clear();
+		size_t length() const;
 		size_t size() const;
 		void print() const;
 	};
@@ -64,8 +65,11 @@ namespace Nauticle {
 	template<typename T, size_t L> void pmQueue<T,L>::clear() {
 		value.clear();
 	}
-	template<typename T, size_t L> size_t pmQueue<T,L>::size() const {
+	template<typename T, size_t L> size_t pmQueue<T,L>::length() const {
 		return value.size();
+	}
+	template<typename T, size_t L> size_t pmQueue<T,L>::size() const {
+		return value[0].size();
 	}
 	template<typename T, size_t L> void pmQueue<T,L>::print() const {
 		for(auto const& it:value) {
@@ -90,6 +94,7 @@ namespace Nauticle {
 		T& operator[](size_t i);
 		void clear();
 		size_t size() const;
+		size_t length() const;
 		void print() const;
 		void reorder(std::vector<size_t> const& reorder_by);
 	};
@@ -130,8 +135,11 @@ namespace Nauticle {
 	template<typename T, size_t L> void pmQueue<std::vector<T>,L>::clear() {
 		value.clear();
 	}
-	template<typename T, size_t L> size_t pmQueue<std::vector<T>,L>::size() const {
+	template<typename T, size_t L> size_t pmQueue<std::vector<T>,L>::length() const {
 		return value.size();
+	}
+	template<typename T, size_t L> size_t pmQueue<std::vector<T>,L>::size() const {
+		return value[0].size();
 	}
 	template<typename T, size_t L> void pmQueue<std::vector<T>,L>::print() const {
 		for(auto const& it:value) {
@@ -142,7 +150,6 @@ namespace Nauticle {
 	}
 	template<typename T, size_t	L> void pmQueue<std::vector<T>,L>::reorder(std::vector<size_t> const& reorder_by) {
 		for(auto& it:value) {
-			std::cout << it.size() << " " << reorder_by.size() << std::endl;
 			pmSort::reorder(it, reorder_by);
 		}
 	}

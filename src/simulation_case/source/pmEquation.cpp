@@ -255,7 +255,7 @@ std::string pmEquation::generate_evaluator_code() const {
 		code += "\t\t};\n";
 		code += "\t\tstd::vector<std::thread> th;\n\t\tint number_of_threads = std::min((int)num_threads,p_end);\n\t\tint ppt = p_end/number_of_threads;\t\t// particle per thread\n\t\tfor(int i=0; i<p_end; i+=ppt) {\n\t\t\tth.push_back(std::thread{process, i, i+ppt});\n\t\t}\n\t\tfor(auto& it:th) {\n\t\t\tit.join();\n\t\t}\n";
 		if(lhs->get_name()=="r") {
-			code += "\tws->sort_all_by_position();\n";
+			code += "\t\tthis->sort_fields();\n";
 		}
 		code += "\t}\n";
 	}

@@ -539,8 +539,8 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 
 std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::string& init_code) const {
 	std::vector<c2c::c2CPP_declaration> declaration;
-	// pmDomain domain = this->get_particle_system().lock()->get_particle_space()->get_domain();
-	// declaration.push_back(c2c::c2CPP_declaration{"pmBinary_domain<"+std::to_string(domain.get_dimensions())+">", "ws_domain", false, "", ""});
+	declaration.push_back(c2c::c2CPP_declaration{"pmBinary_domain<"+std::to_string(this->get_particle_system().lock()->get_particle_space()->get_domain().get_dimensions())+">", "ws_domain", false, "", ""});
+	init_code += "\tws_domain = ws->get_particle_system().lock()->get_particle_space()->get_domain();\n";
 	for(auto const& it:this->get<pmConstant>(true)) {
 		declaration.push_back(c2c::c2CPP_declaration{it->get_decl_type(), "ws_" + it->get_name(), true, "", it->get_initialization()});
 	}

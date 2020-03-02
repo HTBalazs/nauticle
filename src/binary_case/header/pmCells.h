@@ -29,17 +29,17 @@ namespace Nauticle {
 	template<typename T>
 	class pmCells {
 	protected:
-		std::vector<size_t> cell_start;
-		std::vector<size_t> cell_end;
+		mutable std::vector<size_t> cell_start;
+		mutable std::vector<size_t> cell_end;
 		std::vector<T> cell_iterator;
 	public:
-		void update_cells(std::vector<size_t> const& hash_key);
+		void update_cells(std::vector<size_t> const& hash_key) const;
 		std::vector<size_t> const& get_start() const;
 		std::vector<size_t> const& get_end() const;
 		std::vector<T> const& get_cell_iterator() const;
 	};
 
-	template<typename T> pmCells<T>::pmCells(std::vector<size_t> const& hash_key) {
+	template<typename T> void pmCells<T>::update_cells(std::vector<size_t> const& hash_key) const {
 		std::fill(cell_start.begin(),cell_start.end(),0xFFFFFFFF);
 		std::fill(cell_end.begin(),cell_end.end(),0xFFFFFFFF);
 		cell_start[hash_key[0]] = 0;
@@ -75,16 +75,28 @@ namespace Nauticle {
 		size_t cell_num;
 		double cell_size;
 		size_t boundary;
-	public:
-		pmBinary_domain()=default;
-		pmBinary_domain(double bmin, double bmax, size_t cn, size_t bnd) : minimum{bmin}, maximum{bmax}, cell_num{cn}, boundary{bnd} {
-			cell_size = (maximum-minimum) / cell_num;
+		void init_cells() {
 			cell_start.resize(cell_num);
 			cell_end.resize(cell_num);
 			cell_iterator = {-1, 0, 1};
 		}
+	public:
+		pmBinary_domain()=default;
+		pmBinary_domain(double bmin, double bmax, size_t cn, size_t bnd) : minimum{bmin}, maximum{bmax}, cell_num{cn}, boundary{bnd} {
+			cell_size = (maximum-minimum) / cell_num;
+			this->init_cells();
+		}
+		pmBinary_domain& operator=(pmDomain const& dm) {
+			minimum = dm.get_physical_minimum()[0];
+			maximum = dm.get_physical_maximum()[0];
+			cell_size = dm.get_cell_size()[0];
+			boundary = dm.get_boundary()[0];
+			cell_num = (dm.get_maximum()-dm.get_minimum())[0];
+			this->init_cells();
+			return *this;
+		}
 		size_t compute_hash_key(double pos) const {
-			return std::round(std::floor(pos/cell_size)-minimum/cell_size);
+			return this->grid_pos(pos);
 		}
 		void compute_hash_key(std::vector<double> const& pos, std::vector<size_t>& hash_key) const {
 			hash_key.resize(pos.size());
@@ -98,6 +110,21 @@ namespace Nauticle {
 		}
 		size_t get_boundary() const {
 			return boundary;
+		}
+		size_t get_number_of_cells() const {
+			return cell_num;
+		}
+		double get_cell_size() const {
+			return cell_size;
+		}
+		size_t grid_pos(double pos) const {
+			return std::round(std::floor(pos/cell_size)-minimum/cell_size);
+		}
+		double get_minimum() const {
+			return minimum;
+		}
+		double get_maximum() const {
+			return maximum;
 		}
 	};
 
@@ -124,16 +151,28 @@ namespace Nauticle {
 		Eigen::Vector2i cell_num;
 		Eigen::Vector2d cell_size;
 		Eigen::Vector2i boundary;
-	public:
-		pmBinary_domain()=default;
-		pmBinary_domain(Eigen::Vector2d const& bmin, Eigen::Vector2d const& bmax, Eigen::Vector2i const cn, Eigen::Vector2i const& bnd) : minimum{bmin}, maximum{bmax}, cell_num{cn}, boundary{bnd} {
-			cell_size = (maximum-minimum).cwiseQuotient(cell_num.cast<double>());
+		void init_cells() {
 			cell_start.resize(cell_num.prod());
 			cell_end.resize(cell_num.prod());
 			cell_iterator = {{-1,-1}, {0,-1}, {1,-1}, {-1,0}, {0,0}, {1,0}, {-1,1}, {0,1}, {1,1}};
 		}
+	public:
+		pmBinary_domain()=default;
+		pmBinary_domain(Eigen::Vector2d const& bmin, Eigen::Vector2d const& bmax, Eigen::Vector2i const cn, Eigen::Vector2i const& bnd) : minimum{bmin}, maximum{bmax}, cell_num{cn}, boundary{bnd} {
+			cell_size = (maximum-minimum).cwiseQuotient(cell_num.cast<double>());
+			this->init_cells();
+		}
+		pmBinary_domain& operator=(pmDomain const& dm) {
+			minimum = {dm.get_physical_minimum()[0],dm.get_physical_minimum()[1]};
+			maximum = {dm.get_physical_maximum()[0],dm.get_physical_maximum()[1]};
+			cell_size = {dm.get_cell_size()[0],dm.get_cell_size()[1]};
+			boundary = {dm.get_boundary()[0],dm.get_cell_size()[1]};
+			cell_num = {(dm.get_maximum()-dm.get_minimum())[0],(dm.get_maximum()-dm.get_minimum())[1]};
+			this->init_cells();
+			return *this;
+		}
 		size_t compute_hash_key(Eigen::Vector2d const& pos) const {
-			Eigen::Vector2i grid_pos = round2(floor2(pos.cwiseQuotient(cell_size))-minimum.cwiseQuotient(cell_size).cast<int>());
+			Eigen::Vector2i grid_pos = this->grid_pos(pos);
 			return std::round(cell_num(0)*grid_pos(1)+grid_pos(0));
 		}
 		void compute_hash_key(std::vector<Eigen::Vector2d> const& pos, std::vector<size_t>& hash_key) const {
@@ -148,6 +187,21 @@ namespace Nauticle {
 		}
 		Eigen::Vector2i get_boundary() const {
 			return boundary;
+		}
+		Eigen::Vector2i get_number_of_cells() const {
+			return cell_num;
+		}
+		Eigen::Vector2d get_cell_size() const {
+			return cell_size;
+		}
+		Eigen::Vector2i grid_pos(Eigen::Vector2d pos) const {
+			return round2(floor2(pos.cwiseQuotient(cell_size))-minimum.cwiseQuotient(cell_size).cast<int>());
+		}
+		Eigen::Vector2d get_minimum() const {
+			return minimum;
+		}
+		Eigen::Vector2d get_maximum() const {
+			return maximum;
 		}
 	};
 
@@ -176,16 +230,28 @@ namespace Nauticle {
 		Eigen::Vector3i cell_num;
 		Eigen::Vector3d cell_size;
 		Eigen::Vector3i boundary;
-	public:
-		pmBinary_domain()=default;
-		pmBinary_domain(Eigen::Vector3d const& bmin, Eigen::Vector3d const& bmax, Eigen::Vector3i const cn, Eigen::Vector3i const& bnd) : minimum{bmin}, maximum{bmax}, cell_num{cn}, boundary{bnd} {
-			cell_size = (maximum-minimum).cwiseQuotient(cell_num.cast<double>());
+		void init_cells() {
 			cell_start.resize(cell_num.prod());
 			cell_end.resize(cell_num.prod());
 			cell_iterator = {{-1,-1,-1},{0,-1,-1},{1,-1,-1},{-1,0,-1},{0,0,-1},{1,0,-1},{-1,1,-1},{0,1,-1},{1,1,-1},{-1,-1,0},{0,-1,0},{1,-1,0},{-1,0,0},{0,0,0},{1,0,0},{-1,1,0},{0,1,0},{1,1,0},{-1,-1,1},{0,-1,1},{1,-1,1},{-1,0,1},{0,0,1},{1,0,1},{-1,1,1},{0,1,1},{1,1,1}};
 		}
+	public:
+		pmBinary_domain()=default;
+		pmBinary_domain(Eigen::Vector3d const& bmin, Eigen::Vector3d const& bmax, Eigen::Vector3i const cn, Eigen::Vector3i const& bnd) : minimum{bmin}, maximum{bmax}, cell_num{cn}, boundary{bnd} {
+			cell_size = (maximum-minimum).cwiseQuotient(cell_num.cast<double>());
+			this->init_cells();
+		}
+		pmBinary_domain& operator=(pmDomain const& dm) {
+			minimum = {dm.get_physical_minimum()[0],dm.get_physical_minimum()[1],dm.get_physical_minimum()[2]};
+			maximum = {dm.get_physical_maximum()[0],dm.get_physical_maximum()[1],dm.get_physical_maximum()[2]};
+			cell_size = {dm.get_cell_size()[0],dm.get_cell_size()[1],dm.get_cell_size()[2]};
+			boundary = {(int)dm.get_boundary()[0],(int)dm.get_cell_size()[1],(int)dm.get_cell_size()[2]};
+			cell_num = {(int)(dm.get_maximum()-dm.get_minimum())[0],(int)(dm.get_maximum()-dm.get_minimum())[1],(int)(dm.get_maximum()-dm.get_minimum())[2]};
+			this->init_cells();
+			return *this;
+		}
 		size_t compute_hash_key(Eigen::Vector3d const& pos) const {
-			Eigen::Vector3i grid_pos = round3(floor3(pos.cwiseQuotient(cell_size))-minimum.cwiseQuotient(cell_size).cast<int>());
+			Eigen::Vector3i grid_pos = this->grid_pos(pos);
 			return std::round(cell_num(0)*(cell_num(1)*grid_pos(2)+grid_pos(1))+grid_pos(0));
 		}
 		void compute_hash_key(std::vector<Eigen::Vector3d> const& pos, std::vector<size_t>& hash_key) const {
@@ -200,6 +266,21 @@ namespace Nauticle {
 		}
 		Eigen::Vector3i get_boundary() const {
 			return boundary;
+		}
+		Eigen::Vector3i get_number_of_cells() const {
+			return cell_num;
+		}
+		Eigen::Vector3d get_cell_size() const {
+			return cell_size;
+		}
+		Eigen::Vector3i grid_pos(Eigen::Vector3d pos) const {
+			return round3(floor3(pos.cwiseQuotient(cell_size))-minimum.cwiseQuotient(cell_size).cast<int>());
+		}
+		Eigen::Vector3d get_minimum() const {
+			return minimum;
+		}
+		Eigen::Vector3d get_maximum() const {
+			return maximum;
 		}
 	};
 }

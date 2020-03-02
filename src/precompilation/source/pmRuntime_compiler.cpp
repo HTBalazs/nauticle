@@ -51,8 +51,9 @@ void pmRuntime_compiler::add_includes(std::shared_ptr<c2CPP_header_file> header)
     header->add_include("nauticle/pmWorkspace.h", false);
     header->add_include("nauticle/pmRandom.h", false);
     header->add_include("nauticle/pmQueue.h", false);
-    // header->add_include("nauticle/pmBinary_domain.h", false);
+    header->add_include("nauticle/pmCells.h", false);
     header->add_include("nauticle/pmSort.h", false);
+    header->add_include("nauticle/nauticle_constants.h", false);
     header->add_include("Eigen/Eigen", false);
     header->add_include("string", true);
     header->add_include("iterator", true);
@@ -61,6 +62,7 @@ void pmRuntime_compiler::add_includes(std::shared_ptr<c2CPP_header_file> header)
     header->add_include("memory", true);
     header->add_include("numeric", true);
     header->add_include("iostream", true);
+    header->add_include("functional", true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -88,9 +90,89 @@ void pmRuntime_compiler::generate_code(std::shared_ptr<c2CPP_header_file>& heade
     for(auto const& it:equations) {
         solver += it->generate_evaluator_code();
     }
+    size_t dimensions = cas->get_workspace()->get_particle_system().lock()->get_particle_space()->get_domain().get_dimensions();
+    // Member function to decide if a cell is to be neglected.
+    {
+        std::string cutoff = "";
+        cutoff += "\tbool cutoff_cell = false;\n";
+        cutoff += "\tfor(int k=0; k<ws_domain.get_dimensions(); k++) {\n";
+        cutoff += "\t\tif(std::abs(beta[k])>=2.0-NAUTICLE_EPS && std::abs(delta[k])>NAUTICLE_EPS) {\n";
+        cutoff += "\t\t\tcutoff_cell = true;\n";
+        cutoff += "\t\t\tbreak;\n";
+        cutoff += "\t\t}\n";
+        cutoff += "\t}\n";
+        cutoff += "\treturn cutoff_cell;";
+        std::vector<c2CPP_declaration> arguments;
+        arguments.push_back(c2CPP_declaration{"Eigen::Vector"+std::to_string(dimensions)+"i", "beta", true, "&", ""});
+        arguments.push_back(c2CPP_declaration{"Eigen::Vector"+std::to_string(dimensions)+"i", "delta", true, "&", ""});
+        cl.add_member_function("bool", "is_cutoff_cell", false, "", arguments, PRIVATE, cutoff, false, false);
+    }
+    // Member function to implement interaction
+    {
+        std::string interact = "";
+        interact += "\tstd::vector<size_t> const& start = ws_domain.get_start();\n";
+        interact += "\tstd::vector<size_t> const& end = ws_domain.get_end();\n";
+        interact += "\tstd::vector<Eigen::Vector"+std::to_string(dimensions)+"i> const& cell_iterator = ws_domain.get_cell_iterator();\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"d cell_size = ws_domain.get_cell_size();\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"i cell_num = ws_domain.get_number_of_cells();\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"d domain_minimum = ws_domain.get_minimum();\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"d domain_maximum = ws_domain.get_maximum();\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"i domain_size = domain_maximum - domain_minimum;\n";
+        interact += "\tsize_t dimensions = ws_domain.get_dimensions();\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"i const beta = ws_domain.get_boundary();\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"i const ones{1,1};\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"d pos_i = ws_r(level)[i];\n";
+        interact += "\tEigen::Vector"+std::to_string(dimensions)+"i grid_pos_i = ws_domain.grid_pos(pos_i);\n";
+        interact += "\tT result;\n";
+        interact += "\tfor(auto const& it:cell_iterator) {\n";
+        interact += "\t\tEigen::Vector"+std::to_string(dimensions)+"i grid_pos_j{grid_pos_i+it};\n";
+        interact += "\t\tEigen::Vector"+std::to_string(dimensions)+"i delta = -((grid_pos_j).cwiseQuotient(cell_num));\n";
+        interact += "\t\t// Ignore cells through cutoff boundary\n";
+        interact += "\t\tif(is_cutoff_cell(beta, delta)) {\n";
+        interact += "\t\t\tcontinue;\n";
+        interact += "\t\t}\n";
+        interact += "\t\tEigen::Vector"+std::to_string(dimensions)+"i guide = delta.cwiseProduct(beta);\n";
+        interact += "\t\t// look for periodic & symmetric neighbour cells (ensemble formula)\n";
+        interact += "\t\tgrid_pos_j += delta.cwiseProduct(cell_num-beta.cwiseProduct(cell_num)+beta);\n";
+        interact += "\t\tint hash_j = ws_domain.compute_hash_key(grid_pos_j);\n";
+        interact += "\t\tif(start[hash_j]!=0xFFFFFFFF) {\n";
+        interact += "\t\t\tfor(int j=start[hash_j]; j<=end[hash_j]; j++) {\n";
+        interact += "\t\t\t\tEigen::Vector2d pos_j = ws_r(level)[j];\n";
+        interact += "\t\t\t\tfor(int k=0; k<2; k++) {\n";
+        interact += "\t\t\t\t\tif(beta(k)==1) {\n";
+        interact += "\t\t\t\t\t\tpos_j(k) += delta(k)*(delta(k)-1)*(domain_maximum(k)-pos_j(k)) + delta(k)*(delta(k)+1)*(domain_minimum(k)-pos_j(k));\n";
+        interact += "\t\t\t\t\t} else {\n";
+        interact += "\t\t\t\t\t\tpos_j(k) -= delta(k)*domain_size(k);\n";
+        interact += "\t\t\t\t\t}\n";
+        interact += "\t\t\t\t}\n";
+        interact += "\t\t\t\tresult += contribute(pos_j-pos_i, i, j, cell_size, guide);\n";
+        interact += "\t\t\t}\n";
+        interact += "\t\t}\n";
+        interact += "\t}\n";
+        interact += "\treturn result;\n";
+        std::vector<c2CPP_declaration> arguments;
+        arguments.push_back(c2CPP_declaration{"std::function<T(Eigen::Vector"+std::to_string(dimensions)+"d const&, size_t, size_t, Eigen::Vector"+std::to_string(dimensions)+"d const&, Eigen::Vector"+std::to_string(dimensions)+"i const&)>", "contribute", false, "", ""});
+        arguments.push_back(c2CPP_declaration{"size_t", "i", false, "", ""});
+        arguments.push_back(c2CPP_declaration{"size_t", "level", false, "", ""});
+        cl.add_member_function("template <typename T> T", "interact", false, "", arguments, PRIVATE, interact, false, false);
+    }
+
+    {
+        std::string contribute = "";
+        contribute += "\treturn {0,0};";
+        std::vector<c2CPP_declaration> arguments;
+        arguments.push_back(c2CPP_declaration{"Eigen::Vector"+std::to_string(dimensions)+"d", "contribute", true, "&", ""});
+        arguments.push_back(c2CPP_declaration{"size_t", "i", false, "", ""});
+        arguments.push_back(c2CPP_declaration{"size_t", "j", false, "", ""});
+        arguments.push_back(c2CPP_declaration{"Eigen::Vector"+std::to_string(dimensions)+"d", "cell_size", true, "&", ""});
+        arguments.push_back(c2CPP_declaration{"Eigen::Vector"+std::to_string(dimensions)+"i", "guide", true, "&", ""});
+        cl.add_member_function("Eigen::Vector"+std::to_string(dimensions)+"d", "contribute", false, "", arguments, PRIVATE, contribute, false, false);
+    }
+
+    // Member function to solve the equations.
     cl.add_member_function("void", "solve", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"size_t", "num_threads", true, "&", ""}}, PUBLIC, solver, false, false);
     std::string sorting = "";
-    // sorting += "\tdomain.compute_hash_key(ws_r(0),hash_key);\n";
+    sorting += "\tws_domain.compute_hash_key(ws_r(0),hash_key);\n";
     sorting += "\tsorted_index.resize(hash_key.size());\n";
     sorting += "\tstd::iota(std::begin(sorted_index),std::end(sorted_index),0);\n";
     sorting += "\tpmSort::sort_by_vector(sorted_index, hash_key, pmSort::ascending);\n";
