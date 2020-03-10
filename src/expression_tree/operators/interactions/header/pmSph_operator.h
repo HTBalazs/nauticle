@@ -52,6 +52,7 @@ namespace Nauticle {
 		pmTensor process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmSph_operator> clone() const;
+		virtual std::string get_arguments(std::vector<c2CPP_declaration>& args) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -404,6 +405,25 @@ namespace Nauticle {
 			return -r_ji*(A_jir_ji*m_j/rho_j/d_ji/d_ji/d_ji*W_ij);
 		}
 		return r_ji*0.0;
+	}
+
+	template<OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
+	inline std::string pmSph_operator<OP_TYPE,VAR,K,NOPS>::get_arguments(std::vector<c2CPP_declaration>& args) const {
+		for(auto const& it:this->operand) {
+			args.push_back(c2CPP_declaration{psys->get_particle_space()->get_domain().get_dimensions(), });
+			c2CPP_declaration{vector_type(dimensions), "rel_pos", true, "&", ""}
+		}
+		contribute += "\treturn pmBinary_interaction_pool::sph_s<Eigen::Vector2d,double,double>(ws_r, i, j, ws_value, ws_mass, ws_rho, W, ws_radius, guide);";
+		std::string call = "\tpmBinary_interaction_pool::sph_S(";
+		size_t idx = 0;
+		for(auto const& it:this->operand) {
+			call += "ws_"+it->get_name();
+			if(idx<this->operand.size()-1) {
+				call += ", ";
+			}
+			idx++;
+		}
+		return this->name;
 	}
 }
 

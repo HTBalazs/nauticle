@@ -50,6 +50,7 @@ namespace Nauticle {
         virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const=0;
         virtual std::string get_decl_type() const;
         virtual std::string get_initialization() const;
+        virtual std::string get_arguments(std::vector<c2CPP_declaration>& args) const;
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////

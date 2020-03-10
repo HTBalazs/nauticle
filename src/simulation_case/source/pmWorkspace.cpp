@@ -564,7 +564,6 @@ std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::stri
 	return declaration;
 }
 
-
 void pmWorkspace::add_interaction(std::shared_ptr<pmExpression> ia) {
 	interactions.push_back(ia);
 }

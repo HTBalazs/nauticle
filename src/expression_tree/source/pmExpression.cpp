@@ -19,6 +19,7 @@
 */
     
 #include "pmExpression.h"
+#include "c2c/c2CPP_declaration.h"
 
 using namespace Nauticle;
 
@@ -52,5 +53,9 @@ std::string pmExpression::get_decl_type() const {
 }
 
 std::string pmExpression::get_initialization() const {
+    return "";
+}
+
+std::string pmExpression::get_arguments(std::vector<c2CPP_declaration>& args) const {
     return "";
 }
