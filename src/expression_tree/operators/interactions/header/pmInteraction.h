@@ -56,6 +56,7 @@ namespace Nauticle {
 		void set_declaration_type(std::string const& decl_type);
 		std::string const& get_declaration_type() const;
 		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
+		virtual std::string generate_caller() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -222,6 +223,11 @@ namespace Nauticle {
 	template <size_t S>
 	std::string pmInteraction<S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
 		return this->name + "->evaluate(" + i + "," + level + ")";
+	}
+
+	template <size_t S>
+	std::string pmInteraction<S>::generate_caller() const {
+		return "";
 	}
 }
 
