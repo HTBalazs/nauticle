@@ -56,6 +56,6 @@ std::string pmExpression::get_initialization() const {
     return "";
 }
 
-std::string pmExpression::get_arguments(std::vector<c2CPP_declaration>& args) const {
+std::string pmExpression::get_arguments(std::vector<c2c::c2CPP_declaration>& args) const {
     return "";
 }

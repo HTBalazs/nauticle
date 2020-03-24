@@ -52,7 +52,7 @@ namespace Nauticle {
 		pmTensor process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmSph_operator> clone() const;
-		virtual std::string get_arguments(std::vector<c2CPP_declaration>& args) const override;
+		// virtual std::string get_arguments(std::vector<c2c::c2CPP_declaration>& args) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -407,24 +407,68 @@ namespace Nauticle {
 		return r_ji*0.0;
 	}
 
-	template<OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
-	inline std::string pmSph_operator<OP_TYPE,VAR,K,NOPS>::get_arguments(std::vector<c2CPP_declaration>& args) const {
-		for(auto const& it:this->operand) {
-			args.push_back(c2CPP_declaration{psys->get_particle_space()->get_domain().get_dimensions(), });
-			c2CPP_declaration{vector_type(dimensions), "rel_pos", true, "&", ""}
+	template <typename T, typename U>
+	U reflect_perpendicular(U const& value, T const& guide) {
+		auto R = (0.0*guide)*guide.transpose();
+		for(int i=0; i<guide.rows(); i++) {
+			R(i,i) = guide(i)!=0 ? -1 : 1;
 		}
-		contribute += "\treturn pmBinary_interaction_pool::sph_s<Eigen::Vector2d,double,double>(ws_r, i, j, ws_value, ws_mass, ws_rho, W, ws_radius, guide);";
-		std::string call = "\tpmBinary_interaction_pool::sph_S(";
-		size_t idx = 0;
-		for(auto const& it:this->operand) {
-			call += "ws_"+it->get_name();
-			if(idx<this->operand.size()-1) {
-				call += ", ";
-			}
-			idx++;
-		}
-		return this->name;
+		return R*value;
 	}
+
+	template <typename T>
+	double reflect_perpendicular<T,double>(double const& value, T const& guide) {
+		return value;
+	}
+
+	template <typename T, typename U, typename V, bool POS, bool SYM>
+	/*static*/ U pmSph_operator::sph_s(T const& rel_pos, size_t const i, size_t const j, U const& value, double const mass, double const rho, size_t const W, double const h, V const guide) {
+		U contribution;
+		double d_ji = rel_pos.norm();
+		if(d_ji > NAUTICLE_EPS) {
+			U A_i = value[i];
+			double h_ij = (h[i]+h[j])/2.0;
+			if(d_ji < h_ij) {
+				U A_j = value[j];
+				if(POS) {
+					A_j = rel_pos+A_i;
+				} else {
+					A_j = reflect_perpendicular(value[j], guide);
+				}
+				if(SYM) {
+					int flip = 1;
+					for(int i=0; i<guide.rows(); i++) {
+						if(guide(i)!=0) {
+							flip *= -1;
+						}
+					}
+					A_j *= (double)flip;
+				}
+				double W_ij = W(d_ji, h_ij);
+				contribution += B_ij*this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
+			}
+		}
+		return contribution;
+	}
+
+	// template<OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
+	// inline std::string pmSph_operator<OP_TYPE,VAR,K,NOPS>::get_arguments(std::vector<c2c::c2CPP_declaration>& args) const {
+	// 	for(auto const& it:this->operand) {
+	// 		args.push_back(c2c::c2CPP_declaration{psys->get_particle_space()->get_domain().get_dimensions(), });
+	// 		c2c::c2CPP_declaration{vector_type(dimensions), "rel_pos", true, "&", ""}
+	// 	}
+	// 	contribute += "\treturn pmBinary_interaction_pool::sph_s<Eigen::Vector2d,double,double>(ws_r, i, j, ws_value, ws_mass, ws_rho, W, ws_radius, guide);";
+	// 	std::string call = "\tpmBinary_interaction_pool::sph_S(";
+	// 	size_t idx = 0;
+	// 	for(auto const& it:this->operand) {
+	// 		call += "ws_"+it->get_name();
+	// 		if(idx<this->operand.size()-1) {
+	// 			call += ", ";
+	// 		}
+	// 		idx++;
+	// 	}
+	// 	return this->name;
+	// }
 }
 
 #include "Color_undefine.h"

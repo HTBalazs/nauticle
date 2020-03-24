@@ -109,7 +109,7 @@ void pmRuntime_compiler::generate_code(std::shared_ptr<c2CPP_header_file>& heade
 		cl.add_member_function("bool", "is_cutoff_cell", false, "", arguments, PRIVATE, cutoff, false, false);
 	}
 	// Member function to implement interaction
-	{
+	if(!cas->get_workspace()->get_interactions().empty()) {
 		std::string interact = "";
 		interact += "\tstd::vector<size_t> const& start = ws_domain.get_start();\n";
 		interact += "\tstd::vector<size_t> const& end = ws_domain.get_end();\n";
@@ -207,7 +207,7 @@ std::shared_ptr<c2Cmake_generator> pmRuntime_compiler::create_cmake_generator() 
 	return cmake_gen;
 }
 
-static std::string pmRuntime_compiler::vector_type(size_t dims, std::string typ/*="d"*/) {
+/*static*/ std::string pmRuntime_compiler::vector_type(size_t dims, std::string typ/*="d"*/) {
 	switch(dims) {
 		default:
 		case 1: return "double";
@@ -216,7 +216,7 @@ static std::string pmRuntime_compiler::vector_type(size_t dims, std::string typ/
 	}
 }
 
-static std::string pmRuntime_compiler::tensor_type(size_t dims, std::string typ/*="d"*/) {
+/*static*/ std::string pmRuntime_compiler::tensor_type(size_t dims, std::string typ/*="d"*/) {
 	switch(dims) {
 		default:
 		case 1: return "double";
