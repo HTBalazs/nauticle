@@ -148,7 +148,7 @@ void pmBackground::interpolate() {
 		if(data!=NULL) {
 			vtkDoubleArray* doubleData = vtkDoubleArray::SafeDownCast(data);
 			for(int i=0; i<doubleData->GetNumberOfTuples(); i++) {
-				pmTensor tensor{2,1,0};
+				pmTensor tensor{field->get_value(0).numel(),1,0};
 				doubleData->GetTuple(i,*tensor);
 				field->set_value(tensor,i);
 		    }
