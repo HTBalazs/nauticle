@@ -30,7 +30,7 @@
 #include <cmath>
 
 namespace Nauticle {
-	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, RAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V, LIMIT};
+	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, URAND, NRAND, LNRAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V, LIMIT};
 	
 	/** This class implements the following operations for the expression tree: summation, subtraction,
 	//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
@@ -89,7 +89,9 @@ namespace Nauticle {
 			case MOD : op_name="mod"; break;
 			case NOT : op_name="not"; break;
 			case OR : op_name="or"; break;
-			case RAND : op_name="rand"; break;
+			case URAND : op_name="urand"; break;
+			case NRAND : op_name="nrand"; break;
+			case LNRAND : op_name="lnrand"; break;
 			case SGN : op_name="sgn"; break;
 			case SIN : op_name="sin"; break;
 			case SINH : op_name="sinh"; break;
@@ -213,7 +215,9 @@ namespace Nauticle {
 			case MOD : return mod(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
 			case NOT : return !tensor_cast<bool>(this->operand[0]->evaluate(i, level));
 			case OR : return (tensor_cast<double>(this->operand[0]->evaluate(i, level)) || tensor_cast<double>(this->operand[1]->evaluate(i, level)));
-			case RAND : return pmRandom::random(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+			case URAND : return pmRandom::random<pmRandom::UNIFORM>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+			case NRAND : return pmRandom::random<pmRandom::NORMAL>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+			case LNRAND : return pmRandom::random<pmRandom::LOGNORMAL>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
 			case SGN : return sgn(this->operand[0]->evaluate(i, level));
 			case SIN : return sin(this->operand[0]->evaluate(i, level));
 			case SINH : return sinh(this->operand[0]->evaluate(i, level));
@@ -299,7 +303,9 @@ namespace Nauticle {
 			case MOD : code = "mod(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
 			case NOT : code = "!(tensor_cast<bool>(" + STR_ARG(0,i,level) + "))"; break;
 			case OR : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")||tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case RAND : code = "pmRandom::random(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
+			case URAND : code = "pmRandom::random<pmRandom::UNIFORM>(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
+			case NRAND : code = "pmRandom::random<pmRandom::NORMAL>(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
+			case LNRAND : code = "pmRandom::random<pmRandom::LOGNORMAL>(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
 			case SGN : code = "sgn(" + STR_ARG(0,i,level) + ")"; break;
 			case SIN : code = "sin(" + STR_ARG(0,i,level) + ")"; break;
 			case SINH : code = "sinh(" + STR_ARG(0,i,level) + ")"; break;

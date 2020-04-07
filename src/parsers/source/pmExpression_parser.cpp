@@ -597,7 +597,22 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			if(it=="rand") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
 				stack_extract(e, operands);
-				e.push(std::make_shared<pmArithmetic_function<RAND,2>>(operands));
+				e.push(std::make_shared<pmArithmetic_function<URAND,2>>(operands));
+			}
+			if(it=="urand") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<URAND,2>>(operands));
+			}
+			if(it=="nrand") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<NRAND,2>>(operands));
+			}
+			if(it=="lnrand") {
+				std::array<std::shared_ptr<pmExpression>,2> operands;
+				stack_extract(e, operands);
+				e.push(std::make_shared<pmArithmetic_function<LNRAND,2>>(operands));
 			}
 			if(it=="and") {
 				std::array<std::shared_ptr<pmExpression>,2> operands;
