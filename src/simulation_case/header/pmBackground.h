@@ -39,6 +39,7 @@ namespace Nauticle {
 		std::shared_ptr<pmParticle_system> psys;
 		vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid;
 		std::shared_ptr<pmExpression> condition;
+		bool import = true;
 	public:
 		pmBackground() {}
 		pmBackground(pmBackground const& other);

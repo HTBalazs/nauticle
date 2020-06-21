@@ -49,7 +49,7 @@ namespace Nauticle {
 		bool operator==(pmCase const& rhs) const;
 		bool operator!=(pmCase const& rhs) const;
 		void print() const;
-		void solve(size_t const& num_threads, std::string const& name="");
+		bool solve(size_t const& num_threads, std::string const& name="");
 		void assign_particle_system_to_equations();
 		std::shared_ptr<pmCase> clone() const;
 		void merge(std::shared_ptr<pmCase> const& other);

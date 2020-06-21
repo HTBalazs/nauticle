@@ -43,6 +43,7 @@ pmBackground::pmBackground(pmBackground const& other) {
 	this->field = other.field;
 	this->psys = other.psys;
 	this->file_name = other.file_name;
+	this->import = other.import;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +54,7 @@ pmBackground& pmBackground::operator=(pmBackground const& rhs) {
 		this->field = rhs.field;
 		this->psys = rhs.psys;
 		this->file_name = rhs.file_name;
+		this->import = rhs.import;
 	}
 	return *this;
 }
@@ -64,6 +66,7 @@ pmBackground::pmBackground(pmBackground&& other) {
 	this->field = std::move(other.field);
 	this->psys = std::move(other.psys);
 	this->file_name = std::move(other.file_name);
+	this->import = std::move(other.import);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -74,6 +77,7 @@ pmBackground& pmBackground::operator=(pmBackground&& rhs) {
 		this->field = std::move(rhs.field);
 		this->psys = std::move(rhs.psys);
 		this->file_name = std::move(rhs.file_name);
+		this->import = std::move(rhs.import);
 	}
 	return *this;
 }
@@ -178,7 +182,6 @@ void pmBackground::set_condition(std::shared_ptr<pmExpression> cond) {
 /// Reads input if not read yet, and performs interpolation.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmBackground::update() {
-	static bool import = true;
 	if(import) {
 		this->read_file();
 		import = false;

@@ -109,7 +109,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	std::shared_ptr<pmVariable> ws_all_steps = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("all_steps").lock());
 	log_stream.print_step_info(dt, (int)ws_substeps->get_value()[0], (int)ws_all_steps->get_value()[0], current_time, simulated_time);
 	ws_substeps->set_value(0.0);
-	write_step();
+	write_step(true);
 	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
 		this->update_particle_modifiers();
 		this->update_background_fields();
@@ -128,20 +128,22 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			ws_write_case->set_value(pmTensor{1,1,1});
 		}
 		// Solve equations
-		(this->*solver)(num_threads); // calls either "binary_solve(numthreads)" or "interpreter_solve(numthreads)"
-
+		bool success = (this->*solver)(num_threads); // calls either "binary_solve(numthreads)" or "interpreter_solve(numthreads)"
 		current_time += next_dt;
 		ws_substeps->set_value(ws_substeps->get_value()+1.0);
 		ws_all_steps->set_value(ws_all_steps->get_value()+1.0);
-		if(printing) {
+		if(printing || !success) {
 			if(cas->get_workspace()->get_value("dt")[0]==next_dt) {
 				cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
 			}
-			write_step();
+			write_step(success);
 			log_stream.print_step_info(dt>print_interval?print_interval:dt, (int)ws_substeps->get_value()[0], (int)ws_all_steps->get_value()[0], current_time, simulated_time);
 			ws_substeps->set_value(pmTensor{1,1,0});
 			previous_printing_time = current_time;
 			ws_write_case->set_value(pmTensor{1,1,0});
+		}
+		if(!success) {
+			ProLog::pLogger::error_msgf("Simulation failed. Please refer to \"error.vtk\"\n");
 		}
 	}
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
@@ -166,13 +168,18 @@ void pmSimulation::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Writes case data to file.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSimulation::write_step() const {
+void pmSimulation::write_step(bool success) const {
 	static int counter = parameter_space->get_parameter_value("file_start")[0];
-    char ch[5];
-    sprintf(&ch[0], "%04i", counter);
-	std::string file_name{"step_"};
-    file_name += ch;
-    file_name += ".vtk";
+	std::string file_name;
+	if(!success) {
+		file_name = "error.vtk";
+	} else {
+	    char ch[5];
+	    sprintf(&ch[0], "%04i", counter);
+		file_name = "step_";
+	    file_name += ch;
+	    file_name += ".vtk";
+	}
     std::unique_ptr<pmVTK_writer> vtk_writer{new pmVTK_writer{}};
     vtk_writer->set_write_mode(vtk_write_mode);
     vtk_writer->set_case(cas);
@@ -231,15 +238,15 @@ void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solve the equations in binary mode.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSimulation::binary_solve(size_t const& num_threads/*=8*/) {
-	binary_case->solve(num_threads);
+bool pmSimulation::binary_solve(size_t const& num_threads/*=8*/) {
+	return binary_case->solve(num_threads);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solve the equations in interpreter mode.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmSimulation::interpreter_solve(size_t const& num_threads/*=8*/) {
-	cas->solve(num_threads);
+bool pmSimulation::interpreter_solve(size_t const& num_threads/*=8*/) {
+	return cas->solve(num_threads);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -110,13 +110,16 @@ void pmParticle_system::set_value(pmTensor const& value, int const& i/*=0*/) {
 /// Sorts the field of the particle system (position) and the given idx object.
 /// Implements a sorting based on the hash key of the particles.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::sort_field() {
+bool pmParticle_system::sort_field() {
 	// Check if already sorted
-	if(particle_space->is_up_to_date()) { return; }
+	if(particle_space->is_up_to_date()) { return true; }
 	std::iota(sorted_idx.begin(), sorted_idx.end(), 0);
-	particle_space->update_neighbour_list(value[0], sorted_idx);
-	// reorder particle positions due to sorted_idx
-	pmField::sort_field(sorted_idx);
+	bool success = particle_space->update_neighbour_list(value[0], sorted_idx);
+	if(success) {
+		// reorder particle positions due to sorted_idx
+		success = pmField::sort_field(sorted_idx);
+	}
+	return success;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -332,17 +335,19 @@ int pmParticle_system::pmParticle_space::calculate_hash_key_from_position(pmTens
 /// Sorts the field of the particle system (position) and the given sorted_idx vector.
 /// Implements a sorting based on the hash key of the particles.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& sorted_idx) {
+bool pmParticle_system::pmParticle_space::update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& sorted_idx) {
 	// perform neighbour search only when particle positions are changed
-	if(up_to_date) { return; }
+	if(up_to_date) { return true; }
 	for(int i=0; i<current_value.size(); ++i) {
 		hash_key[i] = calculate_hash_key_from_position(current_value[i]);
 		if(hash_key[i]<0 || hash_key[i]>=domain.get_num_cells()) { 
-			ProLog::pLogger::error_msgf("Particle is out of domain.\n");
+			ProLog::pLogger::warning_msgf("Particle is out of domain.\n");
+			return false;
 		}
 	}
 	pmSort::sort_by_vector(sorted_idx, hash_key, pmSort::ascending);
 	build_cell_arrays();
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -154,25 +154,31 @@ std::vector<std::shared_ptr<pmEquation>> pmCase::get_equations() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solves the equation with the given name or all equations in order if name is empty.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
-	workspace->sort_all_by_position();
+bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
+	bool success = workspace->sort_all_by_position();
+	if(!success) {
+		return false;
+	}
 	if(name=="") {
 		for(auto const& it:equations) {
 			it->solve(num_threads);
 			// Update neighbors only if particle positions could have been changed.
 			if(it->get_lhs()->get_name()=="r") {
-				workspace->sort_all_by_position();
+				success = workspace->sort_all_by_position();
+				if(!success) {
+					return false;
+				}
 			}
 		}
 	} else {
 		for(auto const& it:equations) {
 			if(it->get_name()==name) {
 				it->solve(num_threads);
-				return;
 			}
 		}
 		pLogger::warning_msg("No equation found with name \"%s\"\n.", name.c_str());
 	}
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

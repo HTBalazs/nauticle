@@ -47,7 +47,7 @@ namespace Nauticle {
 	*/
 	class pmSimulation {
 	protected:
-		void (pmSimulation::*solver)(size_t const&);
+		bool (pmSimulation::*solver)(size_t const&);
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
 		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
@@ -57,7 +57,7 @@ namespace Nauticle {
 		std::shared_ptr<pmInterface> binary_case;
 		void print() const;
 		void simulate(size_t const& num_threads);
-		void write_step() const;
+		void write_step(bool success) const;
 	public:
 		pmSimulation() {}
 		pmSimulation(pmSimulation const& other);
@@ -68,8 +68,8 @@ namespace Nauticle {
 		void set_working_directory(std::string const& working_dir) const;
 		void read_file(std::string const& filename);
 		void execute(size_t const& num_threads=8);
-		void interpreter_solve(size_t const& num_threads=8);
-		void binary_solve(size_t const& num_threads=8);
+		bool interpreter_solve(size_t const& num_threads=8);
+		bool binary_solve(size_t const& num_threads=8);
 		void update_particle_modifiers();
 		void update_background_fields();
 	};
