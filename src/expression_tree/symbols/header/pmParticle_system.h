@@ -25,6 +25,8 @@
 #include "pmDomain.h"
 #include "pmSort.h"
 #include "pmField.h"
+#include "pmHysteron.h"
+#include "pmIdentifier.h"
 
 namespace Nauticle {
 	/** This class manages a cloud of nodes (particles) and forms a spatial domain 
@@ -32,7 +34,7 @@ namespace Nauticle {
 	//  Neighbour search and cloud/grid generation is integrated inside.
 	*/
 	class pmParticle_system final : public pmField {
-		
+
 		class pmParticle_space final {
 			std::vector<int> hash_key;
 			std::vector<unsigned int> cell_start;

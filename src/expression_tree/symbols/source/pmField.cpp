@@ -1,24 +1,25 @@
 /*
-    Copyright 2016-2019 Balazs Toth
-    This file is part of Nauticle.
+	Copyright 2016-2019 Balazs Toth
+	This file is part of Nauticle.
 
-    Nauticle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Nauticle is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Lesser General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Nauticle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+	Nauticle is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Lesser General Public License
+	along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/nauticleproject/
+	For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
+
 #include "pmField.h"
+#include "commonutils/Common.h"
 
 using namespace Nauticle;
 
@@ -99,7 +100,7 @@ bool pmField::operator==(pmField const& rhs) const {
 /// Implements the non-identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmField::operator!=(pmField const& rhs) const {
-    return !this->operator==(rhs);
+	return !this->operator==(rhs);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -160,9 +161,9 @@ pmTensor const& pmField::get_value(int const& i) const {
 /// Returns the field type.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::string pmField::get_type() const {
-    if(value[0][0].is_scalar()) { return "SCALAR"; }
-    if(value[0][0].is_vector()) { return "VECTOR"; }
-    return "TENSOR";
+	if(value[0][0].is_scalar()) { return "SCALAR"; }
+	if(value[0][0].is_vector()) { return "VECTOR"; }
+	return "TENSOR";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +239,7 @@ void pmField::delete_member(size_t const& i) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::delete_set(std::vector<size_t> const& delete_indices) {
 	for(auto& level_it:value) {
-		deleter(level_it, delete_indices);
+		Common::delete_indices(level_it, delete_indices);
 	}
 }
 
@@ -262,22 +263,4 @@ void pmField::duplicate_member(size_t const& i) {
 	for(auto& it:value) {
 		it.push_back(it[i]);
 	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Safely removes the members given in the list without changing the order of the members.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmField::deleter(std::vector<pmTensor>& data, std::vector<size_t> const& delete_indices) {
-    std::vector<bool> marked_elements(data.size(), false);
-    std::vector<pmTensor> temp_buffer;
-    temp_buffer.reserve(data.size()-delete_indices.size());
-    for(auto const& it:delete_indices) {
-        marked_elements[it] = true;
-    }
-    for(size_t i=0; i<data.size(); i++) {
-        if(!marked_elements[i]) {
-            temp_buffer.push_back(data[i]);
-        }
-    }
-    data = temp_buffer;
 }

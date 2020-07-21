@@ -34,6 +34,8 @@
 #include <vtkDoubleArray.h>
 #include <vtkPolyDataReader.h>
 #include <vtkVertex.h>
+#include <vtkLine.h>
+#include <vtkCellData.h>
 #include <vtkPolyDataWriter.h>
 #include "prolog/pLogger.h"
 #include "pmEquation_parser.h"

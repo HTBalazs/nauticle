@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Balazs Toth
+    Copyright 2016-2018 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -17,36 +17,33 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
-#include "pmExpression.h"
+
+#include "pmID_manager.h"
 
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the copy of the object.
+/// Stores the given id in the top of stack.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmExpression::clone() const {
-	return clone_impl();
+void pmID_manager::add_id(int const& id) {
+	deleted_ids.push(id);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns if the object is symmetric.
+/// Returns the top element of the stack. If the stack is empty, it returns i.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmExpression::is_symmetric() const {
-    return true;
+int pmID_manager::get_last_id(int const& i) {
+	int id = i;
+	if(!deleted_ids.empty()) {
+		id = deleted_ids.top();
+		deleted_ids.pop();
+	}
+	return id;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns if the object is the position.
+/// Destroys the content of the stack.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmExpression::is_position() const {
-    return false;
-}
-
-std::string const& pmExpression::get_name() const {
-    return name;
-}
-
-bool pmExpression::is_interaction() const {
-    return false;
+void pmID_manager::reset() {
+	deleted_ids = std::stack<int>{};
 }

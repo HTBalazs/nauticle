@@ -521,3 +521,4 @@ void pmParticle_system::duplicate_member(size_t const& i) {
 	sorted_idx.push_back(0);
 	particle_space->set_number_of_nodes(sorted_idx.size());
 }
+

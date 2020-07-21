@@ -22,6 +22,7 @@
 #include <numeric>
 #include "pmConstant.h"
 #include "pmVariable.h"
+#include "pmLong_range.h"
 
 using namespace Nauticle;
 
@@ -440,6 +441,9 @@ bool pmWorkspace::sort_all_by_position() {
 			if(term.use_count()>0 && term->get_name()!="r") {
 				success &= term->sort_field(sorted_idx);
 			}
+		}
+		for(auto& it:interactions) {
+			it->update();
 		}
 	}
 	return success;

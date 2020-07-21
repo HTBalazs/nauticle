@@ -161,8 +161,11 @@ bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 	}
 	if(name=="") {
 		for(auto const& it:equations) {
+			if(it->is_interaction()) {
+				workspace->sort_all_by_position();
+				// >>>>>>> pair_data_manipulation
+			}
 			it->solve(num_threads);
-			// Update neighbors only if particle positions could have been changed.
 			if(it->get_lhs()->get_name()=="r") {
 				success = workspace->sort_all_by_position();
 				if(!success) {
@@ -173,6 +176,9 @@ bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 	} else {
 		for(auto const& it:equations) {
 			if(it->get_name()==name) {
+				if(it->is_interaction() && it->get_lhs()->get_name()=="r") {
+					workspace->sort_all_by_position();
+				}
 				it->solve(num_threads);
 			}
 		}

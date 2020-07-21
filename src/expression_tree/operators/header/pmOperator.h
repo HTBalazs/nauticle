@@ -52,6 +52,7 @@ namespace Nauticle {
 		bool is_assigned() const override;
 		void print_operands() const;
 		void write_operands_to_string(std::ostream& os) const;
+		virtual bool is_interaction() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -181,6 +182,16 @@ namespace Nauticle {
 			first = false;
 		}
 		os<<")";
+	}
+
+	template <size_t S>
+	bool pmOperator<S>::is_interaction() const {
+		for(auto const& it:operand) {
+			if(it->is_interaction()) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
  

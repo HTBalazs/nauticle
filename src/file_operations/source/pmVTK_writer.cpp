@@ -19,8 +19,48 @@
 */
     
 #include "pmVTK_writer.h"
+#include "pmMesh.h"
 
 using namespace Nauticle;
+
+void pmVTK_writer::fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) const {
+	size_t n = cas->get_workspace()->get_number_of_nodes();
+	for(int i=0;i<n;i++) {
+		double num = 0.0;
+		scalar->InsertNextTuple(&num);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Push lines to polydata object.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmVTK_writer::push_pairs_to_polydata() {
+	auto interactions = cas->get_workspace()->get_interactions();
+	for(auto const& it:interactions) {
+		auto long_range = std::dynamic_pointer_cast<pmMesh>(it);
+		if(long_range) {
+			auto pairs = long_range->get_pairs();
+			std::vector<int> const& first = pairs.get_first();
+			std::vector<int> const& second = pairs.get_second();
+			if(first.empty()) { continue; }
+			vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+			vtkSmartPointer<vtkDoubleArray> line_id = vtkSmartPointer<vtkDoubleArray>::New();
+			line_id->SetNumberOfComponents(1);
+			fill_scalar_vertices(line_id);
+			line_id->SetName("line_id");
+			for(int i=0; i<first.size(); i++) {
+				vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
+				line->GetPointIds()->SetId(0, first[i]);
+				line->GetPointIds()->SetId(1, second[i]);
+				lines->InsertNextCell(line);
+				double num = (double)i;
+				line_id->InsertNextTuple(&num);
+			}
+			polydata->SetLines(lines);
+			polydata->GetCellData()->SetScalars(line_id);
+		}
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Push nodes to polydata object.
@@ -31,7 +71,6 @@ void pmVTK_writer::push_nodes_to_polydata() {
 	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 	points->SetNumberOfPoints(n);
 	vtkSmartPointer<vtkCellArray> vertices =vtkSmartPointer<vtkCellArray>::New();
-	vertices->SetNumberOfCells(n);
 	for(int i=0; i<n; i++) {
 		pmTensor position = workspace->get_value("r", i);
 		points->SetPoint(i, position(0), position(1), position(2));
@@ -44,9 +83,35 @@ void pmVTK_writer::push_nodes_to_polydata() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Push field data to polydata object.
+/// Push cell field data to polydata object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmVTK_writer::push_fields_to_polydata() {
+void pmVTK_writer::push_pair_fields_to_polydata() {
+	auto interactions = cas->get_workspace()->get_interactions();
+	for(auto const& it:interactions) {
+		auto long_range = std::dynamic_pointer_cast<pmMesh>(it);
+		if(long_range) {
+			auto pairs = long_range->get_pairs();
+			size_t n = pairs.size();
+			if(n==0) { continue; }
+			for(auto const& it:pairs.get_data()) {
+				vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
+				field->SetName(it.first.c_str());
+				field->SetNumberOfComponents(1);
+				fill_scalar_vertices(field);
+				for(int i=0; i<n; i++) {
+					double data = it.second[i];
+					field->InsertNextTuple(&data);
+				}
+				polydata->GetCellData()->AddArray(field);
+			}
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Push point field data to polydata object.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmVTK_writer::push_point_fields_to_polydata() {
 	bool scalar_set = false;
 	size_t n = cas->get_workspace()->get_number_of_nodes();
 	for(auto const& it:cas->get_workspace()->get_definitions()) {
@@ -171,7 +236,9 @@ void pmVTK_writer::update() {
 	push_constants_to_polydata();
 	push_equations_to_polydata();
 	push_nodes_to_polydata();
-	push_fields_to_polydata();
+	push_pairs_to_polydata();
+	push_pair_fields_to_polydata();
+	push_point_fields_to_polydata();
 	push_asymmetric_to_polydata();
 	// Write vtk file.
 	vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
@@ -186,14 +253,14 @@ void pmVTK_writer::update() {
 	if(write_domain) {
 		vtkSmartPointer<vtkRectilinearGridWriter> domain_writer = vtkSmartPointer<vtkRectilinearGridWriter>::New();
 		domain_writer->SetFileName("domain.vtk");
-		pmDomain domain = cas->get_workspace()->get_particle_system().lock()->get_particle_space()->get_domain();
+		pmDomain const& domain = cas->get_workspace()->get_particle_system().lock()->get_particle_space()->get_domain();
 		int dimensions = domain.get_dimensions();
 		pmTensor minimum = domain.get_minimum();
 		pmTensor maximum = domain.get_maximum();
 		pmTensor num_cells = maximum-minimum;
 		pmTensor cell_size = domain.get_cell_size();
 
-		rectilinear_grid->SetDimensions(num_cells[0]+1.0+NAUTICLE_EPS, dimensions>1?num_cells[1]+1.0+NAUTICLE_EPS:1.0, dimensions>2?num_cells[2]+1.0+NAUTICLE_EPS:1.0);
+		rectilinear_grid->SetDimensions(num_cells[0]+1, dimensions>1?num_cells[1]+1:1.0, dimensions>2?num_cells[2]+1:1.0);
 		
 		vtkSmartPointer<vtkDoubleArray> xArray = vtkSmartPointer<vtkDoubleArray>::New();
 		vtkSmartPointer<vtkDoubleArray> yArray = vtkSmartPointer<vtkDoubleArray>::New();

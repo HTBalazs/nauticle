@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Balazs Toth
+    Copyright 2016-2018 Balazs Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -33,21 +33,24 @@ namespace Nauticle {
     /** This class writes vtk-data from files of ASCII and BINNARY format.
     */
     class pmVTK_writer : public pmVTK_manager {
-    	write_mode mode=ASCII;
+        write_mode mode=ASCII;
         vtkSmartPointer<vtkRectilinearGrid> rectilinear_grid = vtkSmartPointer<vtkRectilinearGrid>::New();
     private:
-    	void push_nodes_to_polydata();
-    	void push_fields_to_polydata();
-    	void push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata, std::string const& name, pmTensor const& field_data);
-    	void push_variables_to_polydata();
-    	void push_constants_to_polydata();
+        void fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) const;
+        void push_pairs_to_polydata();
+        void push_nodes_to_polydata();
+        void push_point_fields_to_polydata();
+        void push_pair_fields_to_polydata();
+        void push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata, std::string const& name, pmTensor const& field_data);
+        void push_variables_to_polydata();
+        void push_constants_to_polydata();
         void push_asymmetric_to_polydata();
         void push_domain_to_polydata();
         void push_equations_to_polydata();
-    public:	
-    	virtual ~pmVTK_writer() {}
-    	void set_write_mode(write_mode mode);
-    	void update() override;
+    public: 
+        virtual ~pmVTK_writer() {}
+        void set_write_mode(write_mode mode);
+        void update() override;
     };
 }
 

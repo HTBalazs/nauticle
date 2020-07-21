@@ -32,6 +32,7 @@ pmEquation::pmEquation(std::string n, std::shared_ptr<pmSymbol> ex1, std::shared
 	lhs = ex1;
 	rhs = ex2;
 	condition = cond;
+	rhs_interaction = rhs->is_interaction();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +43,7 @@ pmEquation::pmEquation(pmEquation const& other) {
 	lhs = other.lhs->clone();
 	rhs = other.rhs->clone();
 	condition = other.condition->clone();
+	this->rhs_interaction = other.rhs_interaction;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +55,7 @@ pmEquation& pmEquation::operator=(pmEquation const& other) {
 		lhs = other.lhs->clone();
 		rhs = other.rhs->clone();
 		condition = other.condition->clone();
+		this->rhs_interaction = other.rhs_interaction;
 	}
 	return *this;
 }
@@ -65,6 +68,7 @@ pmEquation::pmEquation(pmEquation&& other) {
 	lhs = std::move(other.lhs);
 	rhs = std::move(other.rhs);
 	condition = other.condition->clone();
+	this->rhs_interaction = std::move(other.rhs_interaction);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +80,7 @@ pmEquation& pmEquation::operator=(pmEquation&& other) {
 		lhs = std::move(other.lhs);
 		rhs = std::move(other.rhs);
 		condition = other.condition->clone();
+		this->rhs_interaction = std::move(other.rhs_interaction);
 	}
 	return *this;
 }
@@ -214,6 +219,7 @@ void pmEquation::set_lhs(std::shared_ptr<pmSymbol> left) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmEquation::set_rhs(std::shared_ptr<pmExpression> right) {
 	rhs = right;
+	rhs_interaction = rhs->is_interaction();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -251,7 +257,9 @@ std::string pmEquation::generate_evaluator_code() const {
 	return code;
 }
 
-
+bool const& pmEquation::is_interaction() const {
+	return rhs_interaction;
+}
 
 
 
