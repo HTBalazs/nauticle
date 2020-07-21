@@ -1,5 +1,5 @@
 /*
-	Copyright 2016-2019 Balazs Toth
+	Copyright 2016-2020 Balazs Havasi-Toth
 	This file is part of Nauticle.
 
 	Nauticle is free software: you can redistribute it and/or modify

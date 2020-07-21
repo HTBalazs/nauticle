@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Balazs Toth
+    Copyright 2016-2020 Balazs Havasi-Toth
     This file is part of Nauticle.
 
     Nauticle is free software: you can redistribute it and/or modify
@@ -93,7 +93,7 @@ std::string pmCommand_parser::get_arg(std::string s) {
 	static bool already_written=false;
 	if(already_written) { return; }
 	print_version();
-	ProLog::pLogger::log<ProLog::WHT>("Copyright 2016-2019 Balazs Toth\n\nNauticle is free software: you can redistribute it and/or modify\nit under the terms of the GNU Lesser General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nNauticle is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU Lesser General Public License for more details.\n\nYou should have received a copy of the GNU Lesser General Public License\nalong with Nauticle.  If not, see <http://www.gnu.org/licenses/>.\n\nFor more information please visit: https://bitbucket.org/nauticleproject/\n");
+	ProLog::pLogger::log<ProLog::WHT>("Copyright 2016-2020 Balazs Havasi-Toth\n\nNauticle is free software: you can redistribute it and/or modify\nit under the terms of the GNU Lesser General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nNauticle is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU Lesser General Public License for more details.\n\nYou should have received a copy of the GNU Lesser General Public License\nalong with Nauticle.  If not, see <http://www.gnu.org/licenses/>.\n\nFor more information please visit: https://bitbucket.org/nauticleproject/\n");
 	ProLog::pLogger::line_feed(1);
 	already_written = true;
 }
