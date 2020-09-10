@@ -26,21 +26,23 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/) {
+pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/) {
 	name = n;
 	value.push_back(std::vector<pmTensor>());
 	value[0].resize(size, v);
 	symmetric = sym;
+	printable = pr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool const& sym/*=true*/) {
+pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool const& sym/*=true*/, bool const& pr/*=true*/) {
 	name = n;
 	value.push_back(std::vector<pmTensor>());
 	value[0] = v;
 	symmetric = sym;
+	printable = pr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +52,7 @@ pmField::pmField(pmField const& other) {
 	this->name = other.name;
 	this->value = other.value;
 	this->symmetric = other.symmetric;
+	this->printable = other.printable;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +62,7 @@ pmField::pmField(pmField&& other) {
 	this->name = std::move(other.name);
 	this->value = std::move(other.value);
 	this->symmetric = std::move(other.symmetric);
+	this->printable = std::move(other.printable);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +73,7 @@ pmField& pmField::operator=(pmField const& other) {
 		this->name = other.name;
 		this->value = other.value;
 		this->symmetric = other.symmetric;
+		this->printable = other.printable;
 	}
 	return *this;
 }
@@ -81,6 +86,7 @@ pmField& pmField::operator=(pmField&& other) {
 		this->name = std::move(other.name);
 		this->value = std::move(other.value);
 		this->symmetric = std::move(other.symmetric);
+		this->printable = std::move(other.printable);
 	}
 	return *this;
 }
@@ -89,7 +95,7 @@ pmField& pmField::operator=(pmField&& other) {
 /// Implement identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmField::operator==(pmField const& rhs) const {
-	if(this->name != rhs.name || this->value != rhs.value || this->symmetric != rhs.symmetric || this->depth!=rhs.depth) {
+	if(this->name != rhs.name || this->value != rhs.value || this->symmetric != rhs.symmetric || this->depth!=rhs.depth || this->printable!=rhs.printable) {
 		return false;
 	} else {
 		return true;
@@ -114,7 +120,10 @@ void pmField::printv() const {
 	pmTensor tensor = this->evaluate(0);
 	ProLog::pLogger::logf<ProLog::LMA>("[%i by %i]", tensor.get_numrows(), tensor.get_numcols());
 	if(!this->is_symmetric()) {
-		ProLog::pLogger::logf<ProLog::LMA>(" *");
+		ProLog::pLogger::logf<ProLog::LMA>(" asym");
+	}
+	if(!this->is_printable()) {
+		ProLog::pLogger::logf<ProLog::LMA>(" not printed");
 	}
 }
 
@@ -263,4 +272,18 @@ void pmField::duplicate_member(size_t const& i) {
 	for(auto& it:value) {
 		it.push_back(it[i]);
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the printable variable.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmField::set_printable(bool const& p) {
+	this->printable = p;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the printable variable.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmField::is_printable() const {
+	return this->printable;
 }

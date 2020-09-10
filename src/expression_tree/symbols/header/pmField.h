@@ -33,6 +33,8 @@ namespace Nauticle {
 	//  when the two_step option is on.
 	*/
 	class pmField : public pmSymbol {
+	private:
+		bool printable = true;
 	protected:
 		std::vector<std::vector<pmTensor>> value;
 		bool symmetric = true;
@@ -41,8 +43,8 @@ namespace Nauticle {
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmField()=delete;
-		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0}, bool const& sym=true);
-		pmField(std::string const& n, std::vector<pmTensor> const& value, bool const& sym=true);
+		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& pr=true);
+		pmField(std::string const& n, std::vector<pmTensor> const& value, bool const& sym=true, bool const& pr=true);
 		pmField(pmField const&);
 		pmField(pmField&&);
 		pmField& operator=(pmField const&);
@@ -69,6 +71,8 @@ namespace Nauticle {
 		virtual void delete_set(std::vector<size_t> const& indices);
 		virtual void add_member(pmTensor const& v=pmTensor{});
 		virtual void duplicate_member(size_t const& i);
+		void set_printable(bool const& p);
+		bool is_printable() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

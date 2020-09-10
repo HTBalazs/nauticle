@@ -114,9 +114,9 @@ void pmVTK_writer::push_pair_fields_to_polydata() {
 void pmVTK_writer::push_point_fields_to_polydata() {
 	bool scalar_set = false;
 	size_t n = cas->get_workspace()->get_number_of_nodes();
-	for(auto const& it:cas->get_workspace()->get_definitions()) {
-		if(it->get_field_size()==n && !it->is_hidden()) {
-			vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
+	for(auto const& it:cas->get_workspace()->get<pmField>()) {
+		vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
+		if(it->is_printable()) {
 			field->SetName(it->get_name().c_str());
 			if(it->get_type()=="SCALAR") {
 				field->SetNumberOfComponents(1);
