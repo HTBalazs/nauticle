@@ -115,8 +115,8 @@ void pmSfm_operator::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
-	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
-	double cell_size_min = this->psys.lock()->get_particle_space()->get_domain().get_cell_size().min();
+	size_t dimension = this->psys.lock()->get_domain()->get_dimensions();
+	double cell_size_min = this->psys.lock()->get_domain()->get_cell_size().min();
 	pmTensor posi = this->psys.lock()->get_value(i);
 	pmTensor vi  = this->operand[0]->evaluate(i,level);
 	pmTensor p0  = this->operand[1]->evaluate(i,level);

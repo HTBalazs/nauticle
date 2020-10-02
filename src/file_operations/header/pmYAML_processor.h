@@ -45,7 +45,7 @@ namespace Nauticle {
     public:
         void read_file(std::string const& file_name);
         static std::string get_default_file_name();
-        std::shared_ptr<pmGrid_space> get_grid_space(YAML::Node particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const;
+        std::shared_ptr<pmGrid_space> get_grid_space(YAML::Node particle_system, std::shared_ptr<pmWorkspace> workspace, std::shared_ptr<pmDomain> domain) const;
         std::shared_ptr<pmCase> get_case() const;
         std::shared_ptr<pmParameter_space> get_parameter_space(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmParticle_splitter>> get_particle_splitter(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;

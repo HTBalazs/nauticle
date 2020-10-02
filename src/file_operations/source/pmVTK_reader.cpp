@@ -94,8 +94,8 @@ std::vector<std::shared_ptr<pmEquation>> pmVTK_reader::pop_equations_from_polyda
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the domain stored in the polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const {
-	pmDomain domain;
+std::shared_ptr<pmDomain> pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const {
+	std::shared_ptr<pmDomain> domain = std::make_shared<pmDomain>();
 	vtkSmartPointer<vtkFieldData> field_data = polydata->GetFieldData();
 	for(int i=0; i<field_data->GetNumberOfArrays() ; i++) {
 		std::string name = field_data->GetArrayName(i);
@@ -107,10 +107,10 @@ pmDomain pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> wor
 				std::string inst_name = vtk_inst.substr(0, vtk_inst.find(":"));
 				std::string inst_value = vtk_inst.substr(vtk_inst.find(":")+1);
 				std::unique_ptr<pmTensor_parser> tp{new pmTensor_parser};
-				if(inst_name=="domain_min") { domain.set_minimum(tp->string_to_tensor(inst_value,workspace)); }
-				if(inst_name=="domain_max") { domain.set_maximum(tp->string_to_tensor(inst_value,workspace)); }
-				if(inst_name=="cell_size") { domain.set_cell_size(tp->string_to_tensor(inst_value,workspace)); }
-				if(inst_name=="boundary") { domain.set_boundary(tp->string_to_tensor(inst_value,workspace)); }
+				if(inst_name=="domain_min") { domain->set_minimum(tp->string_to_tensor(inst_value,workspace)); }
+				if(inst_name=="domain_max") { domain->set_maximum(tp->string_to_tensor(inst_value,workspace)); }
+				if(inst_name=="cell_size") { domain->set_cell_size(tp->string_to_tensor(inst_value,workspace)); }
+				if(inst_name=="boundary") { domain->set_boundary(tp->string_to_tensor(inst_value,workspace)); }
 			}
 		}
 	}
@@ -173,14 +173,14 @@ void pmVTK_reader::update() {
 	pop_singles_from_polydata("variables", workspace);
 	std::vector<std::string> asymmetric_fields = pop_asymmetric_field_names_from_polydata();
 	// Read domain data
-	pmDomain domain = pop_domain_from_polydata(workspace);
+	std::shared_ptr<pmDomain> domain = pop_domain_from_polydata(workspace);
 
 	// Read array data
 	std::vector<pmTensor> psys_data;
 	for(int i=0; i<polydata->GetPointData()->GetNumberOfArrays(); i++) {
 		std::string name = polydata->GetPointData()->GetArrayName(i);
 		if(name=="r") {
-	 	 	psys_data = pop_array_from_polydata(i, domain.get_dimensions());
+	 	 	psys_data = pop_array_from_polydata(i, domain->get_dimensions());
 		} else {
 			bool sym = true;
 			for(auto const& it:asymmetric_fields) {
@@ -189,7 +189,7 @@ void pmVTK_reader::update() {
 					break;
 				}
 			}
-			workspace->add_field(name.c_str(), pop_array_from_polydata(i, domain.get_dimensions()), sym);
+			workspace->add_field(name.c_str(), pop_array_from_polydata(i, domain->get_dimensions()), sym);
 		}
 	}
 

@@ -23,7 +23,6 @@
 
 #include <string>
 #include "pmDomain.h"
-#include "pmSort.h"
 #include "pmField.h"
 #include "pmHysteron.h"
 #include "pmIdentifier.h"
@@ -34,53 +33,13 @@ namespace Nauticle {
 	//  Neighbour search and cloud/grid generation is integrated inside.
 	*/
 	class pmParticle_system final : public pmField {
-
-		class pmParticle_space final {
-			std::vector<int> hash_key;
-			std::vector<unsigned int> cell_start;
-			std::vector<unsigned int> cell_end;
-			std::vector<pmTensor> cell_iterator;
-			pmDomain domain;
-			bool up_to_date=false;
-		private:
-			void build_cell_arrays();
-			double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
-			int calculate_hash_key_from_position(pmTensor const& position) const;
-			void combinations_recursive(const std::vector<int> &elems, size_t comb_len, std::vector<size_t> &pos, size_t depth);
-			void combinations(const std::vector<int> &elems, size_t comb_len);
-			void build_cell_iterator();
-		public:
-			int calculate_hash_key_from_grid_position(pmTensor const& grid_position) const;
-			pmParticle_space()=delete;
-			pmParticle_space(size_t const& num_particles, pmDomain const& dom);
-			pmParticle_space(pmParticle_space const& other);
-			pmParticle_space(pmParticle_space&& other);
-			pmParticle_space& operator=(pmParticle_space const& other);
-			pmParticle_space& operator=(pmParticle_space&& other);
-			bool operator==(pmParticle_space const& rhs) const;
-			bool operator!=(pmParticle_space const& rhs) const;
-			void expire();
-			bool is_up_to_date() const;
-			void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
-			bool update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& idx);
-			std::vector<unsigned int> const& get_start() const;
-			std::vector<unsigned int> const& get_end() const;
-			int const& get_hash_key(int const& i) const;
-			pmTensor get_grid_position(pmTensor const& point) const;
-			pmDomain get_domain() const;
-			void print() const;
-			std::vector<pmTensor> const& get_cell_iterator() const;
-			std::shared_ptr<pmParticle_space> clone() const;
-			void set_number_of_nodes(size_t const& N);
-			size_t get_number_of_nodes() const;
-		};
-		std::shared_ptr<pmParticle_space> particle_space;
+		std::shared_ptr<pmDomain> domain;
 		std::vector<int> sorted_idx;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmParticle_system()=delete;
-		pmParticle_system(std::string const& n, std::vector<pmTensor> const& value, pmDomain const& domain);
+		pmParticle_system(std::string const& n, std::vector<pmTensor> const& value, std::shared_ptr<pmDomain> domain);
 		pmParticle_system(pmParticle_system const& other);
 		pmParticle_system(pmParticle_system&& other);
 		pmParticle_system& operator=(pmParticle_system const& other);
@@ -90,7 +49,7 @@ namespace Nauticle {
 		virtual ~pmParticle_system() {}
 		bool sort_field();
 		virtual void set_value(pmTensor const& value, int const& i=0) override;
-		std::shared_ptr<pmParticle_space> get_particle_space();
+		std::shared_ptr<pmDomain> get_domain();
 		void print() const override;
 		void printv() const override;
 		std::shared_ptr<pmParticle_system> clone() const;
@@ -103,6 +62,7 @@ namespace Nauticle {
 		virtual void add_member(pmTensor const& v=pmTensor{}) override;
 		virtual void duplicate_member(size_t const& i) override;
 		void restrict_particles(std::vector<size_t>& del);
+		void get_neighbors(size_t const i, std::vector<int>& neibs) const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

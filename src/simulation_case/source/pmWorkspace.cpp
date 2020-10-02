@@ -35,6 +35,8 @@ pmWorkspace::pmWorkspace() {
 	std::vector<pmTensor> id(1);
 	std::iota(id.begin(), id.end(), pmTensor{1,1,0});
 	this->add_field("id", id);
+	std::vector<pmTensor> bound(1, pmTensor{1,1,0});
+	this->add_field("passive_boundary", bound);
 	this->add_constant("true", pmTensor{1,1,1}, true);
 	this->add_constant("false", pmTensor{1,1,0}, true);
 	this->add_constant("pi", pmTensor{1,1,NAUTICLE_PI}, true);
@@ -319,7 +321,7 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 /// Defines the bases unit vectors for the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::define_bases() {
-	double dims = this->get_particle_system().lock()->get_particle_space()->get_domain().get_dimensions();
+	double dims = this->get_particle_system().lock()->get_domain()->get_dimensions();
 	std::string bases[] = {"e_i", "e_j", "e_k"};
 	for(int i=0; i<dims; i++) {
 		this->add_constant(bases[i], pmTensor::make_identity(dims).sub_tensor(0,dims-1,i,i), true);
@@ -330,7 +332,7 @@ void pmWorkspace::define_bases() {
 /// Adds a new particle system to the workspace with an initialization tensor field. If an 
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, pmDomain const& domain) {
+void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, std::shared_ptr<pmDomain> domain) {
 	if(is_existing("r")) { return; }
 	if(values.size()!=num_nodes) {
 		set_number_of_nodes(values.size());

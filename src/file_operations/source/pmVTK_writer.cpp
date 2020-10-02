@@ -184,15 +184,15 @@ void pmVTK_writer::push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata
 /// Pushes domain into polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_domain_to_polydata() {
-	pmDomain domain = cas->get_workspace()->get_particle_system().lock()->get_particle_space()->get_domain();
+	std::shared_ptr<pmDomain> domain = cas->get_workspace()->get_particle_system().lock()->get_domain();
 	std::stringstream smin;
 	std::stringstream smax;
 	std::stringstream scsize;
 	std::stringstream sbnd;
-	smin << "domain_min:" << domain.get_minimum();
-	smax << "domain_max:" << domain.get_maximum();
-	scsize << "cell_size:" << domain.get_cell_size();
-	sbnd << "boundary:" << domain.get_boundary();
+	smin << "domain_min:" << domain->get_minimum();
+	smax << "domain_max:" << domain->get_maximum();
+	scsize << "cell_size:" << domain->get_cell_size();
+	sbnd << "boundary:" << domain->get_boundary();
 	vtkSmartPointer<vtkStringArray> string_array = vtkSmartPointer<vtkStringArray>::New();
 	string_array->SetName("domain");
 	string_array->SetNumberOfComponents(1);
@@ -253,12 +253,12 @@ void pmVTK_writer::update() {
 	if(write_domain) {
 		vtkSmartPointer<vtkRectilinearGridWriter> domain_writer = vtkSmartPointer<vtkRectilinearGridWriter>::New();
 		domain_writer->SetFileName("domain.vtk");
-		pmDomain const& domain = cas->get_workspace()->get_particle_system().lock()->get_particle_space()->get_domain();
-		int dimensions = domain.get_dimensions();
-		pmTensor minimum = domain.get_minimum();
-		pmTensor maximum = domain.get_maximum();
+		std::shared_ptr<pmDomain> domain = cas->get_workspace()->get_particle_system().lock()->get_domain();
+		int dimensions = domain->get_dimensions();
+		pmTensor minimum = domain->get_minimum();
+		pmTensor maximum = domain->get_maximum();
 		pmTensor num_cells = maximum-minimum;
-		pmTensor cell_size = domain.get_cell_size();
+		pmTensor cell_size = domain->get_cell_size();
 
 		rectilinear_grid->SetDimensions(num_cells[0]+1, dimensions>1?num_cells[1]+1:1.0, dimensions>2?num_cells[2]+1:1.0);
 		

@@ -100,7 +100,11 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	pmTensor minimum = tensor_parser.string_to_tensor(dm["minimum"].as<std::string>(), workspace);
 	pmTensor maximum = tensor_parser.string_to_tensor(dm["maximum"].as<std::string>(), workspace);
 	pmTensor boundary = tensor_parser.string_to_tensor(dm["boundary"].as<std::string>(), workspace);
-	pmDomain domain = pmDomain{minimum, maximum, cell_size, boundary};
+	pmTensor shift = pmTensor{cell_size.numel(),1,0.0};
+	if(dm["shift"]) {
+		pmTensor shift = tensor_parser.string_to_tensor(dm["shift"].as<std::string>(), workspace);
+	}
+	std::shared_ptr<pmDomain> domain = std::make_shared<pmDomain>(minimum, maximum, cell_size, boundary, shift);
 	// Read grids
 	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys, workspace, domain);
 	std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();
@@ -134,7 +138,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid objects wrapped in grid space.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const {
+std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node particle_system, std::shared_ptr<pmWorkspace> workspace, std::shared_ptr<pmDomain> domain) const {
 	if(!particle_system["grid"]) {
 		ProLog::pLogger::error_msgf("Grid must be defined if no initial condition is provided.\n");
 	}
@@ -147,7 +151,7 @@ std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node partic
 	for(YAML::const_iterator ps_nodes=particle_system.begin();ps_nodes!=particle_system.end();ps_nodes++) {
 		if(ps_nodes->first.as<std::string>()=="grid") {
 			std::shared_ptr<pmGrid> grid = std::make_shared<pmGrid>();
-			grid->set_dimensions(domain.get_dimensions());
+			grid->set_dimensions(domain->get_dimensions());
 			for(YAML::const_iterator grid_nodes=ps_nodes->second.begin();grid_nodes!=ps_nodes->second.end();grid_nodes++) {
 				pmTensor_parser tensor_parser{};
 				if(grid_nodes->first.as<std::string>()=="gid") {

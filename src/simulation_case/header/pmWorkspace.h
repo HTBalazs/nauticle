@@ -67,7 +67,7 @@ namespace Nauticle {
 		void add_variable(std::string const& name, pmTensor const& value);
 		void add_field(std::string const& name, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& printable=true);
 		void add_field(std::string const& name, std::vector<pmTensor> const& values, bool const& sym=true, bool const& printable=true);
-		void add_particle_system(std::vector<pmTensor> const& values, pmDomain const& domain);
+		void add_particle_system(std::vector<pmTensor> const& values, std::shared_ptr<pmDomain> domain);
 		void delete_instance(std::string const& name);
 		pmTensor get_value(std::string const& name, int const& i=0) const;
 		std::weak_ptr<pmSymbol> get_instance(std::string const& name, bool const& safe=true) const;

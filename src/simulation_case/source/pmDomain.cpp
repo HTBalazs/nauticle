@@ -26,8 +26,8 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd) {
-	if(dmin.numel()!=dmax.numel() || dmax.numel()!=csize.numel() || csize.numel()!=bnd.numel()) {
+pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft) {
+	if(dmin.numel()!=dmax.numel() || dmax.numel()!=csize.numel() || csize.numel()!=bnd.numel() || csize.numel()!=shft.numel()) {
 		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
 	if(!dmin.is_integer() || !dmax.is_integer()) {
@@ -37,6 +37,11 @@ pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& c
 	maximum = dmax;
 	cell_size = csize;
 	boundary = bnd;
+	shift = shft;
+	size_t num_cells = get_num_cells();
+	cell_start.resize(num_cells,0);
+	cell_end.resize(num_cells,0);
+	build_cell_iterator();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +51,8 @@ bool pmDomain::operator==(pmDomain const& rhs) const {
 	if( 0!=(this->minimum != rhs.minimum).productum() || 
 		0!=(this->maximum != rhs.maximum).productum() || 
 		0!=(this->cell_size != rhs.cell_size).productum() || 
-		0!=(this->boundary != rhs.boundary).productum()) {
+		0!=(this->boundary != rhs.boundary).productum() ||
+		0!=(this->shift != rhs.shift).productum()) {
 		return false;
 	} else {
 		return true;
@@ -58,6 +64,197 @@ bool pmDomain::operator==(pmDomain const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmDomain::operator!=(pmDomain const& rhs) const {
     return !this->operator==(rhs);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Builds the arrays that store the particle position layout.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::build_cell_arrays() {
+	std::fill(cell_start.begin(),cell_start.end(),0xFFFFFFFF);
+	std::fill(cell_end.begin(),cell_end.end(),0xFFFFFFFF);
+    cell_start[hash_key[0]] = 0;
+    cell_end[hash_key[0]] = 0;
+    for(int i=1; i<hash_key.size(); i++){
+        if(hash_key[i] != hash_key[i-1]) {
+            cell_start[hash_key[i]] = i;
+            cell_end[hash_key[i-1]] = i-1;
+        }
+        if(hash_key.size() == i+1) {
+            cell_end[hash_key[i]] = i;
+        }
+    }
+    up_to_date = true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the comb_len length combinations of the numbers stored in elems.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::combinations_recursive(std::vector<int> const& elems, size_t comb_len, std::vector<size_t> &pos, size_t depth) {
+	if(depth>=comb_len) {
+		pmTensor tensor{minimum};
+		for (size_t i = 0; i < pos.size(); ++i) {
+			tensor[i] = elems[pos[i]];
+		}
+		cell_iterator.push_back(tensor);
+		return; 
+	}
+	for(size_t i=0;i<elems.size();i++) {
+		pos[depth] = i;
+		combinations_recursive(elems, comb_len, pos, depth + 1);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the comb_len length combinations of the numbers stored in elems.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::combinations(std::vector<int> const& elems, size_t comb_len) {
+	std::vector<size_t> positions(comb_len, 0);
+	combinations_recursive(elems, comb_len, positions, 0);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Builds the array that iterates over the adjacent cells.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::build_cell_iterator() {
+	if(!cell_iterator.empty()) { return; }
+	std::vector<int> elements = {-1, 0, 1};
+	combinations(elements, get_dimensions());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the grid position of of the given point.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
+	return round(floor(point.divide_term_by_term(cell_size))-minimum);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the flatten index in the domain grid.
+/////////////////////////////////////////////////////////////////////////////////////////
+double pmDomain::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const {
+	if(i>=cells.numel()) { return 0.0; }
+	return std::round((cells[i])*flatten(cells, grid_pos, i+1)+grid_pos[i]);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns hash key for the given grid cell.
+/////////////////////////////////////////////////////////////////////////////////////////
+int pmDomain::calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const {
+	pmTensor cells = maximum - minimum;
+	return flatten(cells, grid_pos, 0);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns hash key for particle i.
+/////////////////////////////////////////////////////////////////////////////////////////
+int pmDomain::calculate_hash_key_from_position(pmTensor const& position) const {
+	pmTensor grid_pos = get_grid_position(position);
+	return calculate_hash_key_from_grid_position(grid_pos);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the neighbour list expired.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::expire() {
+	up_to_date = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the neighbour list validity.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmDomain::is_up_to_date() const {
+	return up_to_date;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Restrict particles to the domain.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const {
+	if(up_to_date) { return; }
+	pmTensor domain_cell_number = maximum-minimum;
+	for(int i=0; i<value[0].size(); i++) {
+		pmTensor g = get_grid_position(value[0][i]);
+		pmTensor shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(cell_size);
+		for(auto& it:value) {
+			size_t deletable = 0;
+			for(int j=0; j<it[i].numel(); j++) {
+				it[i][j] = it[i][j] - shift[j]*(boundary[j]!=2);
+				deletable += (shift[j]!=0 && boundary[j]==2);
+			}
+			if(deletable>0) {
+				del.push_back(i);
+			}
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sorts the field of the particle system (position) and the given sorted_idx vector.
+/// Implements a sorting based on the hash key of the particles.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmDomain::update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& sorted_idx) {
+	// perform neighbour search only when particle positions are changed
+	if(up_to_date) { return true; }
+	for(int i=0; i<current_value.size(); ++i) {
+		hash_key[i] = calculate_hash_key_from_position(current_value[i]);
+		if(hash_key[i]<0 || hash_key[i]>=get_num_cells()) { 
+			ProLog::pLogger::warning_msgf("Particle is out of domain.\n");
+			return false;
+		}
+	}
+	pmSort::sort_by_vector(sorted_idx, hash_key, pmSort::ascending);
+	build_cell_arrays();
+	return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the vector of the first indices for all cells.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<unsigned int> const& pmDomain::get_start() const {
+	return cell_start;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the vector of the last indices for all cells.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<unsigned int> const& pmDomain::get_end() const {
+	return cell_end;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the hash key of particle i.
+/////////////////////////////////////////////////////////////////////////////////////////
+int const& pmDomain::get_hash_key(int const& i) const {
+	return hash_key[i];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the cell iterator.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<pmTensor> const& pmDomain::get_cell_iterator() const {
+	return cell_iterator;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the deep copy of the object.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmDomain> pmDomain::clone() const {
+	return std::make_shared<pmDomain>(*this);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Sets the number of nodes to the given N.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::set_number_of_nodes(size_t const& N) {
+	hash_key.resize(N,0);
+	this->expire();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Return the number of particles managed in the neighbor search.
+/////////////////////////////////////////////////////////////////////////////////////////
+size_t pmDomain::get_number_of_nodes() const {
+	return hash_key.size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +323,13 @@ pmTensor const& pmDomain::get_boundary() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the shift of the periodic condition in each direction.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor const& pmDomain::get_shift() const {
+	return shift;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the domain object content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDomain::print() const {
@@ -138,6 +342,8 @@ void pmDomain::print() const {
 	boundary.print();
 	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               cell size: ");
 	cell_size.print();
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               shift: ");
+	shift.print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -168,3 +374,15 @@ void pmDomain::set_boundary(pmTensor const& bnd) {
 	boundary = bnd;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Setter for shifting.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::set_shift(pmTensor const& shft) {
+	shift = shft;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the list of neighbors.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::get_neighbors(pmTensor const& cell, std::vector<int>& neibs) const {
+}
