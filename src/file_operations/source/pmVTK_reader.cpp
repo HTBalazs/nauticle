@@ -95,8 +95,12 @@ std::vector<std::shared_ptr<pmEquation>> pmVTK_reader::pop_equations_from_polyda
 /// Returns the domain stored in the polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmDomain> pmVTK_reader::pop_domain_from_polydata(std::shared_ptr<pmWorkspace> workspace) const {
-	std::shared_ptr<pmDomain> domain = std::make_shared<pmDomain>();
 	vtkSmartPointer<vtkFieldData> field_data = polydata->GetFieldData();
+	pmTensor dmin;
+	pmTensor dmax;
+	pmTensor csize;
+	pmTensor bnd;
+	pmTensor shft;
 	for(int i=0; i<field_data->GetNumberOfArrays() ; i++) {
 		std::string name = field_data->GetArrayName(i);
 		if(name=="domain") {
@@ -107,14 +111,15 @@ std::shared_ptr<pmDomain> pmVTK_reader::pop_domain_from_polydata(std::shared_ptr
 				std::string inst_name = vtk_inst.substr(0, vtk_inst.find(":"));
 				std::string inst_value = vtk_inst.substr(vtk_inst.find(":")+1);
 				std::unique_ptr<pmTensor_parser> tp{new pmTensor_parser};
-				if(inst_name=="domain_min") { domain->set_minimum(tp->string_to_tensor(inst_value,workspace)); }
-				if(inst_name=="domain_max") { domain->set_maximum(tp->string_to_tensor(inst_value,workspace)); }
-				if(inst_name=="cell_size") { domain->set_cell_size(tp->string_to_tensor(inst_value,workspace)); }
-				if(inst_name=="boundary") { domain->set_boundary(tp->string_to_tensor(inst_value,workspace)); }
+				if(inst_name=="domain_min") { dmin = tp->string_to_tensor(inst_value,workspace); }
+				if(inst_name=="domain_max") { dmax = tp->string_to_tensor(inst_value,workspace); }
+				if(inst_name=="cell_size") { csize = tp->string_to_tensor(inst_value,workspace); }
+				if(inst_name=="boundary") { bnd = tp->string_to_tensor(inst_value,workspace); }
+				if(inst_name=="shift") { shft = tp->string_to_tensor(inst_value,workspace); }
 			}
 		}
 	}
-	return domain;
+	return std::make_shared<pmDomain>(dmin, dmax, csize, bnd, shft);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

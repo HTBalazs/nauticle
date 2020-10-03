@@ -234,13 +234,6 @@ void pmParticle_system::duplicate_member(size_t const& i) {
 	domain->set_number_of_nodes(sorted_idx.size());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the list of neighbors.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::get_neighbors(size_t const i, std::vector<int>& neibs) const {
-	domain->get_neighbors(domain->get_grid_position(value[0][i]), neibs);
-}
-
 
 
 

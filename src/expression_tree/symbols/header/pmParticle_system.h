@@ -62,7 +62,6 @@ namespace Nauticle {
 		virtual void add_member(pmTensor const& v=pmTensor{}) override;
 		virtual void duplicate_member(size_t const& i) override;
 		void restrict_particles(std::vector<size_t>& del);
-		void get_neighbors(size_t const i, std::vector<int>& neibs) const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

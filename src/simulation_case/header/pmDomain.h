@@ -21,6 +21,7 @@
 #ifndef _DOMAIN_H_
 #define _DOMAIN_H_
 
+#include "pmCell_iterator.h"
 #include "pmTensor.h"
 #include "pmSort.h"
 #include <vector>
@@ -36,23 +37,21 @@ namespace Nauticle {
 		pmTensor cell_size;
 		pmTensor boundary;
 		pmTensor shift;
+		pmCell_iterator cell_iterator;
 		std::vector<int> hash_key;
 		std::vector<unsigned int> cell_start;
 		std::vector<unsigned int> cell_end;
-		std::vector<pmTensor> cell_iterator;
-		bool up_to_date=false;
+		bool up_to_date;
+		size_t depth = 1;
 	private:
 		void build_cell_arrays();
-		void combinations_recursive(const std::vector<int> &elems, size_t comb_len, std::vector<size_t> &pos, size_t depth);
-		void combinations(const std::vector<int> &elems, size_t comb_len);
-		void build_cell_iterator();
+		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
 	public:
-		pmDomain() {}
+		pmDomain() = delete;
 		pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft);
 		bool operator==(pmDomain const& rhs) const;
 		bool operator!=(pmDomain const& rhs) const;
 		pmTensor get_grid_position(pmTensor const& point) const;
-		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
 		int calculate_hash_key_from_grid_position(pmTensor const& grid_position) const;
 		int calculate_hash_key_from_position(pmTensor const& position) const;
 		void expire();
@@ -69,20 +68,21 @@ namespace Nauticle {
 		pmTensor const& get_minimum() const;
 		pmTensor const& get_maximum() const;
 		pmTensor const& get_cell_size() const;
+		pmTensor const& get_boundary() const;
+		pmTensor const& get_shift() const;
 		size_t get_num_cells() const;
 		size_t get_dimensions() const;
 		pmTensor get_physical_minimum() const;
 		pmTensor get_physical_maximum() const;
 		pmTensor get_physical_size() const;
-		pmTensor const& get_boundary() const;
-		pmTensor const& get_shift() const;
 		void set_minimum(pmTensor const& mn);
 		void set_maximum(pmTensor const& mx);
 		void set_cell_size(pmTensor const& csize);
 		void set_boundary(pmTensor const& bnd);
 		void set_shift(pmTensor const& shft);
 		void print() const;
-		void get_neighbors(pmTensor const& cell, std::vector<int>& neibs) const;
+		void set_storage_depth(size_t const& d);
+		size_t get_storage_depth() const;
 	};
 }
 

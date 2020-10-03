@@ -39,9 +39,12 @@ pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& c
 	boundary = bnd;
 	shift = shft;
 	size_t num_cells = get_num_cells();
+	// cell_start.resize(depth);
+	// cell_end.resize(depth);
+	// hash_key.resize(depth);
 	cell_start.resize(num_cells,0);
 	cell_end.resize(num_cells,0);
-	build_cell_iterator();
+	cell_iterator.build_cell_iterator(cell_size.numel());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -84,41 +87,6 @@ void pmDomain::build_cell_arrays() {
         }
     }
     up_to_date = true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the comb_len length combinations of the numbers stored in elems.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::combinations_recursive(std::vector<int> const& elems, size_t comb_len, std::vector<size_t> &pos, size_t depth) {
-	if(depth>=comb_len) {
-		pmTensor tensor{minimum};
-		for (size_t i = 0; i < pos.size(); ++i) {
-			tensor[i] = elems[pos[i]];
-		}
-		cell_iterator.push_back(tensor);
-		return; 
-	}
-	for(size_t i=0;i<elems.size();i++) {
-		pos[depth] = i;
-		combinations_recursive(elems, comb_len, pos, depth + 1);
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the comb_len length combinations of the numbers stored in elems.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::combinations(std::vector<int> const& elems, size_t comb_len) {
-	std::vector<size_t> positions(comb_len, 0);
-	combinations_recursive(elems, comb_len, positions, 0);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Builds the array that iterates over the adjacent cells.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::build_cell_iterator() {
-	if(!cell_iterator.empty()) { return; }
-	std::vector<int> elements = {-1, 0, 1};
-	combinations(elements, get_dimensions());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -192,11 +160,11 @@ void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std
 /// Sorts the field of the particle system (position) and the given sorted_idx vector.
 /// Implements a sorting based on the hash key of the particles.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmDomain::update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& sorted_idx) {
+bool pmDomain::update_neighbour_list(std::vector<pmTensor> const& position, std::vector<int>& sorted_idx) {
 	// perform neighbour search only when particle positions are changed
 	if(up_to_date) { return true; }
-	for(int i=0; i<current_value.size(); ++i) {
-		hash_key[i] = calculate_hash_key_from_position(current_value[i]);
+	for(int i=0; i<position.size(); ++i) {
+		hash_key[i] = calculate_hash_key_from_position(position[i]);
 		if(hash_key[i]<0 || hash_key[i]>=get_num_cells()) { 
 			ProLog::pLogger::warning_msgf("Particle is out of domain.\n");
 			return false;
@@ -232,7 +200,7 @@ int const& pmDomain::get_hash_key(int const& i) const {
 /// Returns the cell iterator.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::vector<pmTensor> const& pmDomain::get_cell_iterator() const {
-	return cell_iterator;
+	return cell_iterator.get_list();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -381,8 +349,10 @@ void pmDomain::set_shift(pmTensor const& shft) {
 	shift = shft;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the list of neighbors.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::get_neighbors(pmTensor const& cell, std::vector<int>& neibs) const {
+void pmDomain::set_storage_depth(size_t const& d) {
+	depth = d;
+}
+
+size_t pmDomain::get_storage_depth() const {
+	return depth;
 }
