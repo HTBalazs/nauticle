@@ -76,6 +76,7 @@ pmWorkspace::pmWorkspace(pmWorkspace const& other) {
 	this->num_constants = other.num_constants;
 	this->num_variables = other.num_variables;
 	this->deleted_ids = other.deleted_ids;
+	this->domain = other.domain->clone();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -90,6 +91,7 @@ pmWorkspace& pmWorkspace::operator=(pmWorkspace const& other) {
 		this->num_constants = other.num_constants;
 		this->num_variables = other.num_variables;
 		this->deleted_ids = other.deleted_ids;
+		this->domain = other.domain->clone();
 	}
 	return *this;
 }
@@ -103,6 +105,7 @@ pmWorkspace::pmWorkspace(pmWorkspace&& other) {
 	this->num_constants = other.num_constants;
 	this->num_variables = other.num_variables;
 	this->deleted_ids = std::move(other.deleted_ids);
+	this->domain = other.domain;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +118,7 @@ pmWorkspace& pmWorkspace::operator=(pmWorkspace&& other) {
 		this->num_constants = other.num_constants;
 		this->num_variables = other.num_variables;
 		this->deleted_ids = std::move(other.deleted_ids);
+		this->domain = other.domain;
 	}
 	return *this;
 }
@@ -156,7 +160,7 @@ bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
 			return false;
 		}
 	}
-	if(*this->get_particle_system().lock() != *rhs.get_particle_system().lock()) {
+	if(*this->get_particle_system() != *rhs.get_particle_system()) {
 		return false;
 	}
 	
@@ -192,6 +196,9 @@ bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
 		} else {
 			return false;
 		}
+	}
+	if(this->domain != rhs.domain) {
+		return false;
 	}
 	return true;
 }
@@ -247,6 +254,9 @@ void pmWorkspace::merge(std::shared_ptr<pmWorkspace> other) {
 			}
 		}
 	}
+	if(this->domain != other.domain) {
+		ProLog::pLogger::warning_msgf("Merge is unambiguous because the domains are not compatible. Original domain will be used.\n");
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -271,6 +281,14 @@ bool pmWorkspace::is_existing(std::string const& name) const {
 		}
 	}
 	return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Adds a domain to the workspace. Existing domain is replaced.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmWorkspace::add_domain(std::shared_ptr<pmDomain> const& dm) {
+	domain = dm;
+	domain->add_particle_system(this->get_particle_system());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -321,7 +339,7 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 /// Defines the bases unit vectors for the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::define_bases() {
-	double dims = this->get_particle_system().lock()->get_domain()->get_dimensions();
+	double dims = this->get_particle_system()->get_domain()->get_dimensions();
 	std::string bases[] = {"e_i", "e_j", "e_k"};
 	for(int i=0; i<dims; i++) {
 		this->add_constant(bases[i], pmTensor::make_identity(dims).sub_tensor(0,dims-1,i,i), true);
@@ -332,12 +350,12 @@ void pmWorkspace::define_bases() {
 /// Adds a new particle system to the workspace with an initialization tensor field. If an 
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, std::shared_ptr<pmDomain> domain) {
+void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values) {
 	if(is_existing("r")) { return; }
 	if(values.size()!=num_nodes) {
 		set_number_of_nodes(values.size());
 	}
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>("r", values, domain)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>("r", values)));
 	define_bases();
 }
 
@@ -388,6 +406,13 @@ pmTensor pmWorkspace::get_value(std::string const& name, int const& i/*=0*/) con
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the domain.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmDomain> pmWorkspace::get_domain() const {
+	return domain;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns an instance with the given name. Returns an empty pointer if no such instance
 //  found.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -406,7 +431,7 @@ std::weak_ptr<pmSymbol> pmWorkspace::get_instance(std::string const& name, bool 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the particle system of the workspace object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::weak_ptr<pmParticle_system> pmWorkspace::get_particle_system() const {
+std::shared_ptr<pmParticle_system> pmWorkspace::get_particle_system() const {
 	std::shared_ptr<pmSymbol> psys = get_instance("r").lock();
 	return std::static_pointer_cast<pmParticle_system>(psys);
 }
@@ -420,35 +445,7 @@ void pmWorkspace::print() const {
 	print_content<pmVariable>("Variables");
 	print_content<pmField>("Fields");
 	ProLog::pLogger::footerf<ProLog::LGY>();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sorts all fields and particle systems in the workspace based on the positions of the 
-/// particles.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmWorkspace::sort_all_by_position() {
-	std::shared_ptr<pmParticle_system> psys = this->get<pmParticle_system>()[0];
-	if(psys->is_sorted()) { return true; }
-	std::vector<size_t> del;
-	psys->restrict_particles(del);
-	this->delete_particle_set(del);
-	if(num_nodes==0) {
-		ProLog::pLogger::error_msgf("Workspace size cannot be set to zero.\n");
-	}
-	bool success = psys->sort_field();
-	if(success) {
-		std::vector<int> sorted_idx = psys->get_sorted_idx();
-		for(auto const& it:definitions) {
-			std::shared_ptr<pmField> term = std::dynamic_pointer_cast<pmField>(it);
-			if(term.use_count()>0 && term->get_name()!="r") {
-				success &= term->sort_field(sorted_idx);
-			}
-		}
-		for(auto& it:interactions) {
-			it->update();
-		}
-	}
-	return success;
+	domain->print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -636,4 +633,6 @@ void pmWorkspace::duplicate_particle(size_t const& i) {
 	num_nodes++;
 }
 
-
+bool pmWorkspace::update() {
+	return domain->build_neighbor_list();
+}

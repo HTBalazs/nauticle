@@ -46,6 +46,7 @@ pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& c
 	cell_start.resize(num_cells,0);
 	cell_end.resize(num_cells,0);
 	cell_iterator.build_cell_iterator(cell_size.numel());
+	grid_cells.resize(get_num_cells());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -100,26 +101,6 @@ bool pmDomain::operator!=(pmDomain const& rhs) const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Builds the arrays that store the particle position layout.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::build_cell_arrays() {
-	std::fill(cell_start.begin(),cell_start.end(),0xFFFFFFFF);
-	std::fill(cell_end.begin(),cell_end.end(),0xFFFFFFFF);
-    cell_start[hash_key[0]] = 0;
-    cell_end[hash_key[0]] = 0;
-    for(int i=1; i<hash_key.size(); i++){
-        if(hash_key[i] != hash_key[i-1]) {
-            cell_start[hash_key[i]] = i;
-            cell_end[hash_key[i-1]] = i-1;
-        }
-        if(hash_key.size() == i+1) {
-            cell_end[hash_key[i]] = i;
-        }
-    }
-    up_to_date = true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid position of of the given point.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
@@ -127,34 +108,19 @@ pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the flatten index in the domain grid.
-/////////////////////////////////////////////////////////////////////////////////////////
-double pmDomain::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const {
-	if(i>=cells.numel()) { return 0.0; }
-	return std::round((cells[i])*flatten(cells, grid_pos, i+1)+grid_pos[i]);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns hash key for the given grid cell.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmDomain::calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const {
-	pmTensor cells = maximum - minimum;
-	return flatten(cells, grid_pos, 0);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns hash key for particle i.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmDomain::calculate_hash_key_from_position(pmTensor const& position) const {
-	pmTensor grid_pos = get_grid_position(position);
-	return calculate_hash_key_from_grid_position(grid_pos);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Sets the neighbour list expired.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDomain::expire() {
 	up_to_date = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Add a particle system to the domain.
+/////////////////////////////////////////////////////////////////////////////////////////
+void add_particle_system(std::shared_ptr<pmParticle_system> ps) {
+	if(ps.use_count()>0) {
+		psys = ps;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -186,23 +152,11 @@ void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sorts the field of the particle system (position) and the given sorted_idx vector.
-/// Implements a sorting based on the hash key of the particles.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmDomain::update_neighbour_list(std::vector<pmTensor> const& position, std::vector<int>& sorted_idx) {
-	// perform neighbour search only when particle positions are changed
-	if(up_to_date) { return true; }
-	for(int i=0; i<position.size(); ++i) {
-		hash_key[i] = calculate_hash_key_from_position(position[i]);
-		if(hash_key[i]<0 || hash_key[i]>=get_num_cells()) { 
-			ProLog::pLogger::warning_msgf("Particle is out of domain.\n");
-			return false;
-		}
+void pmDomain::calculate_grid_coords() {
+	grid_coords.resize(psys->get_field_size());
+	for(int i=0; i<psys->get_field_size(); i++) {
+		grid_coords[i] = (psys->get_value(i,0)+get_physical_minimum()).divide_term_by_term(cell_size);
 	}
-	pmSort::sort_by_vector(sorted_idx, hash_key, pmSort::ascending);
-	build_cell_arrays();
-	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -331,16 +285,16 @@ pmTensor const& pmDomain::get_shift() const {
 /// Prints the domain object content.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDomain::print() const {
-	ProLog::pLogger::logf<ProLog::LYW>("            Domain:");
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               min: ");
+	ProLog::pLogger::logf<ProLog::LYW>("      Domain:");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n         min: ");
 	minimum.print();
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               max: ");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n         max: ");
 	maximum.print();
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               boundary: ");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n         boundary: ");
 	boundary.print();
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               cell size: ");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n         cell size: ");
 	cell_size.print();
-	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               shift: ");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n         shift: ");
 	shift.print();
 }
 
@@ -379,10 +333,27 @@ void pmDomain::set_shift(pmTensor const& shft) {
 	shift = shft;
 }
 
-void pmDomain::set_storage_depth(size_t const& d) {
-	depth = d;
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Performs neighbor search and builds the list of neighbors for each particle.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmDomain::build_cell_list() {
+	if(psys.use_count()==0 || up_to_date) {
+		return false;
+	}
+	for(auto& it:grid_cells) {
+		it.clear();
+	}
+	for(int i=0; i<psys->get_field_size(); i++) {
+		pmTensor pi = psys->get_value(i,0);
+		pmTensor gi = get_grid_position(pi);
+		grid_cells[gi].push_back(i);
+	}
+	return true;
 }
 
-size_t pmDomain::get_storage_depth() const {
-	return depth;
-}
+
+
+
+
+
+

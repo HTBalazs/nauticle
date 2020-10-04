@@ -26,7 +26,7 @@
 #include <stack>
 #include <string>
 #include "prolog/pLogger.h"
-// #include "pmField.h"
+#include "pmDomain.h"
 #include "pmParticle_system.h"
 #include "pmMath_test.h"
 #include "c2c/c2CPP_declaration.h"
@@ -39,6 +39,7 @@ namespace Nauticle {
 	*/
 	class pmWorkspace final : public pmMath_test {
 	private:
+		std::shared_ptr<pmDomain> domain;
 		static std::string const reserved_names[];
 		std::vector<std::shared_ptr<pmSymbol>> definitions;
 		size_t num_nodes=1;
@@ -63,18 +64,19 @@ namespace Nauticle {
 		virtual ~pmWorkspace() override {}
 		bool is_existing(std::string const& name) const;
 		void merge(std::shared_ptr<pmWorkspace> other);
+		void add_domain(std::shared_ptr<pmDomain> const& dm);
 		void add_constant(std::string const& name, pmTensor const& value, bool const& hidden=false);
 		void add_variable(std::string const& name, pmTensor const& value);
 		void add_field(std::string const& name, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& printable=true);
 		void add_field(std::string const& name, std::vector<pmTensor> const& values, bool const& sym=true, bool const& printable=true);
-		void add_particle_system(std::vector<pmTensor> const& values, std::shared_ptr<pmDomain> domain);
+		void add_particle_system(std::vector<pmTensor> const& values);
 		void delete_instance(std::string const& name);
 		pmTensor get_value(std::string const& name, int const& i=0) const;
+		std::shared_ptr<pmDomain> get_domain() const;
 		std::weak_ptr<pmSymbol> get_instance(std::string const& name, bool const& safe=true) const;
-		std::weak_ptr<pmParticle_system> get_particle_system() const;
+		std::shared_ptr<pmParticle_system> get_particle_system() const;
 		template <typename T> void print_content(std::string const& title) const;
 		void print() const;
-		bool sort_all_by_position();
 		std::vector<std::shared_ptr<pmSymbol>> get_definitions();
 		std::shared_ptr<pmWorkspace> clone() const;
 		size_t get_number_of_nodes() const;
@@ -90,6 +92,7 @@ namespace Nauticle {
 		void delete_particle(size_t const& i);
 		void delete_particle_set(std::vector<size_t> const& delete_indices);
 		void duplicate_particle(size_t const& i);
+		bool update();
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

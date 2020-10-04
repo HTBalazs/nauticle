@@ -61,7 +61,7 @@ namespace Nauticle {
 		std::string get_name() const;
 		void set_name(std::string const& n);
 		void evaluate(int const& p_begin, int const& p_end);
-		void assign_particle_system(std::weak_ptr<pmParticle_system> psys);
+		void assign_particle_system(std::shared_ptr<pmParticle_system> psys);
 		std::shared_ptr<pmEquation> clone() const;
 		void write_to_string(std::ostream& os) const;
 		std::shared_ptr<pmSymbol> get_lhs() const;

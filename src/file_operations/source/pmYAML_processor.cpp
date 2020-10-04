@@ -331,7 +331,7 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 			background->set_file_name(file_name);
 			background->set_field(expr_interpolate_to);
 			background->set_condition(expr_condition);
-			background->set_particle_system(workspace->get_particle_system().lock());
+			background->set_particle_system(workspace->get_particle_system());
 			background_list.push_back(background);
 		}
 	}

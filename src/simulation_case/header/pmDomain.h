@@ -22,9 +22,11 @@
 #define _DOMAIN_H_
 
 #include "pmCell_iterator.h"
+#include "pmParticle_system.h"
 #include "pmTensor.h"
 #include "pmSort.h"
 #include <vector>
+#include <memory>
 
 namespace Nauticle {
 	/** This class represents the domain in which a particle system can be
@@ -32,37 +34,30 @@ namespace Nauticle {
 	//  in the Cartesian coordinate system. The domain boundaries can be periodic, symmetric or cutoff.
 	*/
 	class pmDomain {
+		std::shared_ptr<pmParticle_system> psys;
+		std::vector<std::vector<pmTensor>> grid_coords;
 		pmTensor minimum;
 		pmTensor maximum;
 		pmTensor cell_size;
 		pmTensor boundary;
 		pmTensor shift;
 		pmCell_iterator cell_iterator;
-		std::vector<int> hash_key;
-		std::vector<unsigned int> cell_start;
-		std::vector<unsigned int> cell_end;
-		bool up_to_date;
-		size_t depth = 1;
+		bool up_to_date = false;
+		std::vector<std::vector<size_t>> grid_cells;
 	private:
 		bool shift_check() const;
-		void build_cell_arrays();
-		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
+		void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
+		void calculate_grid_coords();
 	public:
 		pmDomain() = delete;
 		pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft);
 		bool operator==(pmDomain const& rhs) const;
 		bool operator!=(pmDomain const& rhs) const;
-		pmTensor get_grid_position(pmTensor const& point) const;
-		int calculate_hash_key_from_grid_position(pmTensor const& grid_position) const;
-		int calculate_hash_key_from_position(pmTensor const& position) const;
 		void expire();
+		void add_particle_system(std::shared_ptr<pmParticle_system> ps);
 		bool is_up_to_date() const;
-		void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
-		bool update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& idx);
 		std::vector<unsigned int> const& get_start() const;
 		std::vector<unsigned int> const& get_end() const;
-		int const& get_hash_key(int const& i) const;
-		std::vector<pmTensor> const& get_cell_iterator() const;
 		std::shared_ptr<pmDomain> clone() const;
 		void set_number_of_nodes(size_t const& N);
 		size_t get_number_of_nodes() const;
@@ -82,8 +77,7 @@ namespace Nauticle {
 		void set_boundary(pmTensor const& bnd);
 		void set_shift(pmTensor const& shft);
 		void print() const;
-		void set_storage_depth(size_t const& d);
-		size_t get_storage_depth() const;
+		void build_cell_list();
 	};
 }
 

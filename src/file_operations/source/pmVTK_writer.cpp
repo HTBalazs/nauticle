@@ -184,7 +184,7 @@ void pmVTK_writer::push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata
 /// Pushes domain into polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_domain_to_polydata() {
-	std::shared_ptr<pmDomain> domain = cas->get_workspace()->get_particle_system().lock()->get_domain();
+	std::shared_ptr<pmDomain> domain = cas->get_workspace()->get_particle_system()->get_domain();
 	std::stringstream smin;
 	std::stringstream smax;
 	std::stringstream scsize;
@@ -256,7 +256,7 @@ void pmVTK_writer::update() {
 	if(write_domain) {
 		vtkSmartPointer<vtkRectilinearGridWriter> domain_writer = vtkSmartPointer<vtkRectilinearGridWriter>::New();
 		domain_writer->SetFileName("domain.vtk");
-		std::shared_ptr<pmDomain> domain = cas->get_workspace()->get_particle_system().lock()->get_domain();
+		std::shared_ptr<pmDomain> domain = cas->get_workspace()->get_particle_system()->get_domain();
 		int dimensions = domain->get_dimensions();
 		pmTensor minimum = domain->get_minimum();
 		pmTensor maximum = domain->get_maximum();

@@ -22,10 +22,7 @@
 #define _PARTICLE_SYSTEM_H_
 
 #include <string>
-#include "pmDomain.h"
 #include "pmField.h"
-#include "pmHysteron.h"
-#include "pmIdentifier.h"
 
 namespace Nauticle {
 	/** This class manages a cloud of nodes (particles) and forms a spatial domain 
@@ -33,36 +30,15 @@ namespace Nauticle {
 	//  Neighbour search and cloud/grid generation is integrated inside.
 	*/
 	class pmParticle_system final : public pmField {
-		std::shared_ptr<pmDomain> domain;
-		std::vector<std::vector<pmTensor>> grid_coords;
-		std::vector<int> sorted_idx;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmParticle_system()=delete;
-		pmParticle_system(std::string const& n, std::vector<pmTensor> const& value, std::shared_ptr<pmDomain> domain);
-		pmParticle_system(pmParticle_system const& other);
-		pmParticle_system(pmParticle_system&& other);
-		pmParticle_system& operator=(pmParticle_system const& other);
-		pmParticle_system& operator=(pmParticle_system&& other);
-		bool operator==(pmParticle_system const& rhs) const;
-		bool operator!=(pmParticle_system const& rhs) const;
+		pmParticle_system(std::string const& n, std::vector<pmTensor> const& value) : pmField{"r",value} {}
 		virtual ~pmParticle_system() {}
-		bool sort_field();
-		virtual void set_value(pmTensor const& value, int const& i=0) override;
-		std::shared_ptr<pmDomain> get_domain();
 		void print() const override;
-		void printv() const override;
 		std::shared_ptr<pmParticle_system> clone() const;
-		void set_number_of_nodes(size_t const& N) override;
-		bool is_sorted() const;
-		std::vector<int> get_sorted_idx() const;
 		bool is_position() const override;
-		virtual void delete_member(size_t const& i) override;
-		virtual void delete_set(std::vector<size_t> const& indices) override;
-		virtual void add_member(pmTensor const& v=pmTensor{}) override;
-		virtual void duplicate_member(size_t const& i) override;
-		void restrict_particles(std::vector<size_t>& del);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
