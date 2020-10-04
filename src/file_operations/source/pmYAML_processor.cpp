@@ -102,7 +102,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	pmTensor boundary = tensor_parser.string_to_tensor(dm["boundary"].as<std::string>(), workspace);
 	pmTensor shift = pmTensor{cell_size.numel(),1,0.0};
 	if(dm["shift"]) {
-		pmTensor shift = tensor_parser.string_to_tensor(dm["shift"].as<std::string>(), workspace);
+		shift = tensor_parser.string_to_tensor(dm["shift"].as<std::string>(), workspace);
 	}
 	std::shared_ptr<pmDomain> domain = std::make_shared<pmDomain>(minimum, maximum, cell_size, boundary, shift);
 	// Read grids

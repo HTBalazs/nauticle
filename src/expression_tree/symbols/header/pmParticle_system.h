@@ -34,6 +34,7 @@ namespace Nauticle {
 	*/
 	class pmParticle_system final : public pmField {
 		std::shared_ptr<pmDomain> domain;
+		std::vector<std::vector<pmTensor>> grid_coords;
 		std::vector<int> sorted_idx;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;

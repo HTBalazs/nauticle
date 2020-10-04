@@ -44,6 +44,7 @@ namespace Nauticle {
 		bool up_to_date;
 		size_t depth = 1;
 	private:
+		bool shift_check() const;
 		void build_cell_arrays();
 		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
 	public:

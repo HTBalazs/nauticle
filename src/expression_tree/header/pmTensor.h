@@ -111,6 +111,7 @@ namespace Nauticle {
 		double min() const;
 		double max() const;
 		pmTensor elem(size_t const& r, size_t const& c) const;
+		size_t number_of_nonzero_elements() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1532,6 +1533,16 @@ namespace Nauticle {
 	template <typename T> T tensor_cast(pmTensor const& tensor) {
 		return (T)tensor[0];
 	}
+
+	inline size_t pmTensor::number_of_nonzero_elements() const {
+		size_t num = 0;
+		for(int i=0; i<numel(); i++) {
+			if(std::abs(elements[i])>NAUTICLE_EPS) {
+				num++;
+			}
+		}
+		return num;
+	}	
 }
 
 

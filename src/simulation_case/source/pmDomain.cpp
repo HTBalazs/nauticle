@@ -23,12 +23,13 @@
 
 using namespace Nauticle;
 
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft) {
-	if(dmin.numel()!=dmax.numel() || dmax.numel()!=csize.numel() || csize.numel()!=bnd.numel() || csize.numel()!=shft.numel()) {
-		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
+	if(dmin.numel()!=dmax.numel() || dmax.numel()!=csize.numel() || csize.numel()!=bnd.numel() || csize.numel()<1 || csize.numel()>3) {
+		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes and all of them need to be 1, 2 or 3 dimensional.\n");
 	}
 	if(!dmin.is_integer() || !dmax.is_integer()) {
 		ProLog::pLogger::warning_msgf("At least one of the domain sizes is not integer multiple of the cell size.\n");
@@ -38,13 +39,42 @@ pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& c
 	cell_size = csize;
 	boundary = bnd;
 	shift = shft;
+	if(!shift_check()) {
+		ProLog::pLogger::error_msgf("Shifting is infeasible.\n");
+	}
 	size_t num_cells = get_num_cells();
-	// cell_start.resize(depth);
-	// cell_end.resize(depth);
-	// hash_key.resize(depth);
 	cell_start.resize(num_cells,0);
 	cell_end.resize(num_cells,0);
 	cell_iterator.build_cell_iterator(cell_size.numel());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Checks if the shifting is feasible.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmDomain::shift_check() const {
+	bool valid_size = true;
+	bool valid_content = true;
+	if(cell_size.numel()*cell_size.numel()!=shift.get_numcols()*shift.get_numrows()) {
+		ProLog::pLogger::warning_msgf("Shifting needs to be 1x1 (in 1D), 2x2 (in 2D) or 3x3 (in 3D) matrix.\n");
+		valid_size = false;
+	}
+	switch(shift.numel()) {
+		case 1:
+			if(std::abs(shift[0])>NAUTICLE_EPS) {
+				valid_content = false;
+			}
+			break;
+		case 4:
+			valid_content = (std::abs(shift[0])<NAUTICLE_EPS && std::abs(shift[3])<NAUTICLE_EPS && shift.number_of_nonzero_elements()<2);
+			break;
+		case 9: 
+			valid_content = (std::abs(shift[0])<NAUTICLE_EPS && std::abs(shift[5])<NAUTICLE_EPS && std::abs(shift[9])<NAUTICLE_EPS && shift.number_of_nonzero_elements()<3);
+			break;
+	}
+	if(!valid_content) {
+		ProLog::pLogger::warning_msgf("Shifting can have at most 0 (in 1D), 1 (in 2D) or 2 (in 3D) non-zero elements, and the main diagonal must contain only zeros.\n");
+	}
+	return (valid_size && valid_content);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -142,12 +172,12 @@ void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std
 	pmTensor domain_cell_number = maximum-minimum;
 	for(int i=0; i<value[0].size(); i++) {
 		pmTensor g = get_grid_position(value[0][i]);
-		pmTensor shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(cell_size);
+		pmTensor periodic_shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(cell_size);
 		for(auto& it:value) {
 			size_t deletable = 0;
 			for(int j=0; j<it[i].numel(); j++) {
-				it[i][j] = it[i][j] - shift[j]*(boundary[j]!=2);
-				deletable += (shift[j]!=0 && boundary[j]==2);
+				it[i][j] -= periodic_shift[j]*(boundary[j]!=2);
+				deletable += (periodic_shift[j]!=0 && boundary[j]==2);
 			}
 			if(deletable>0) {
 				del.push_back(i);
