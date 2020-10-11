@@ -35,7 +35,8 @@ namespace Nauticle {
 	*/
 	class pmDomain {
 		std::shared_ptr<pmParticle_system> psys;
-		std::vector<std::vector<pmTensor>> grid_coords;
+		std::vector<Particle*> grid;
+		std::vector<pmTensor> grid_coords;
 		pmTensor minimum;
 		pmTensor maximum;
 		pmTensor cell_size;
@@ -43,7 +44,6 @@ namespace Nauticle {
 		pmTensor shift;
 		pmCell_iterator cell_iterator;
 		bool up_to_date = false;
-		std::vector<std::vector<size_t>> grid_cells;
 	private:
 		bool shift_check() const;
 		void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
@@ -53,6 +53,7 @@ namespace Nauticle {
 		pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft);
 		bool operator==(pmDomain const& rhs) const;
 		bool operator!=(pmDomain const& rhs) const;
+		~pmDomain() {}
 		void expire();
 		void add_particle_system(std::shared_ptr<pmParticle_system> ps);
 		bool is_up_to_date() const;
@@ -78,6 +79,7 @@ namespace Nauticle {
 		void set_shift(pmTensor const& shft);
 		void print() const;
 		void build_cell_list();
+		void update();
 	};
 }
 

@@ -120,7 +120,7 @@ void pmEquation::evaluate(int const& start, int const& end) {
 		if(condition->evaluate(i, 0)[0]) {
 			pmTensor tensor = rhs->evaluate(i, 0);
 			if(tensor.numel()==0) {
-				lhs->set_value(lhs->get_value(i)*0.0, i);
+				lhs->set_value(lhs->evaluate(i)*0.0, i);
 			} else {
 				lhs->set_value(tensor, i);
 			}

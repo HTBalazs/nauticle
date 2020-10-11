@@ -21,8 +21,10 @@
 #ifndef _PARTICLE_SYSTEM_H_
 #define _PARTICLE_SYSTEM_H_
 
-#include <string>
 #include "pmField.h"
+#include "pmParticle.h"
+#include "pmHistory.h"
+#include <string>
 
 namespace Nauticle {
 	/** This class manages a cloud of nodes (particles) and forms a spatial domain 
@@ -30,15 +32,24 @@ namespace Nauticle {
 	//  Neighbour search and cloud/grid generation is integrated inside.
 	*/
 	class pmParticle_system final : public pmField {
+		std::vector<pmParticle> value;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmParticle_system()=delete;
-		pmParticle_system(std::string const& n, std::vector<pmTensor> const& value) : pmField{"r",value} {}
+		pmParticle_system(std::vector<pmTensor> const& val);
 		virtual ~pmParticle_system() {}
 		void print() const override;
 		std::shared_ptr<pmParticle_system> clone() const;
 		bool is_position() const override;
+		bool is_printable() const override;
+		virtual void set_value(pmTensor const& val, int const& i=0) override;
+		pmTensor evaluate(int const& i, size_t const& level=0) const override;
+		bool is_symmetric() const override;
+		bool is_printable() const override;
+		void set_storage_depth(size_t const& d) override;
+		void build_linked_list();
+		int get_field_size() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

@@ -21,8 +21,9 @@
 #ifndef _VARIABLE_H_
 #define _VARIABLE_H_
 
-#include <string>
 #include "pmSingle.h"
+#include "pmHistory.h"
+#include <string>
 
 namespace Nauticle {
 	/** This class represents a single-valued variable.
@@ -30,7 +31,6 @@ namespace Nauticle {
 	class pmVariable final : public pmSingle {
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
-		size_t depth = 1;
 	public:
 		pmVariable()=delete;
 		pmVariable(std::string const& n, pmTensor const& v=pmTensor{0});
@@ -41,7 +41,6 @@ namespace Nauticle {
 		bool operator==(pmVariable const& rhs) const;
 		bool operator!=(pmVariable const& rhs) const;
 		virtual ~pmVariable() override {}
-		void set_storage_depth(size_t const& d) override;
 		pmTensor evaluate(int const&, size_t const& level=0) const override;
 		void set_value(pmTensor const& value, int const& i=0) override;
 		std::shared_ptr<pmVariable> clone() const;

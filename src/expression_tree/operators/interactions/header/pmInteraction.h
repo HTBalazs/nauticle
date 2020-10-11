@@ -138,7 +138,7 @@ namespace Nauticle {
 		pmTensor const beta = domain->get_boundary();
 		pmTensor const ones = pmTensor::make_tensor(beta,1);
 		size_t dimensions = domain->get_dimensions();
-		pmTensor pos_i = psys->get_value(i);
+		pmTensor pos_i = psys->evaluate(i);
 		pmTensor grid_pos_i = psys->get_domain()->get_grid_position(pos_i);
 		for(auto const& it:cell_iterator) {
 			pmTensor grid_pos_j{grid_pos_i+it};
@@ -153,7 +153,7 @@ namespace Nauticle {
 			int hash_j = psys->get_domain()->calculate_hash_key_from_grid_position(grid_pos_j);
 			if(start[hash_j]!=0xFFFFFFFF) {
 				for(int j=start[hash_j]; j<=end[hash_j]; j++) {
-					pmTensor pos_j = psys->get_value(j);
+					pmTensor pos_j = psys->evaluate(j);
 					for(int k=0; k<beta.numel(); k++) {
 						if(beta[k]==1) {
 							pos_j[k] += delta[k]*(delta[k]-1)*(domain_physical_maximum[k]-pos_j[k]) + delta[k]*(delta[k]+1)*(domain_physical_minimum[k]-pos_j[k]);
@@ -172,7 +172,7 @@ namespace Nauticle {
 		// std::vector<int> neib_list;
 		// psys->get_neighbors(neib_list);
 		// for(auto const& j:neib_list) {
-		// 	pmTensor rel_pos = psys->get_value(j)-psys->get_value(i);
+		// 	pmTensor rel_pos = psys->evaluate(j)-psys->evaluate(i);
 		// 	result += contribute(rel, i, j, cell_size);
 		// }
 		// return result;
@@ -194,7 +194,7 @@ namespace Nauticle {
 			int hash_j = psys->get_domain()->calculate_hash_key_from_grid_position(grid_pos_j);
 			if(start[hash_j]!=0xFFFFFFFF) {
 				for(int j=start[hash_j]; j<=end[hash_j]; j++) {
-					pmTensor pos_j = psys->get_value(j);
+					pmTensor pos_j = psys->evaluate(j);
 					result += contribute(pos_j, j, cell_size);
 				}
 			}

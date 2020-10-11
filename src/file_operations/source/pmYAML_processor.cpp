@@ -109,7 +109,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys, workspace, domain);
 	std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();
 	std::vector<pmTensor> particle_grid = tmp->get_grid();
-	workspace->add_particle_system(particle_grid, domain);
+	workspace->add_particle_system(particle_grid);
 	workspace->delete_instance("gid");
 	workspace->add_field("gid", grid_space->get_grid_id_field());
 	// Read fields

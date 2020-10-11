@@ -124,7 +124,7 @@ void pmBackground::interpolate() {
 
 	auto points = vtkSmartPointer<vtkPoints>::New();
 	for(int i=0; i<psys->get_field_size(); i++) {
-		pmTensor tensor = psys->get_value(i);
+		pmTensor tensor = psys->evaluate(i);
 		size_t n = tensor.numel();
 		points->InsertNextPoint(tensor[0], n>1?tensor[1]:0.0, n>2?tensor[2]:0.0);
 	}
@@ -152,7 +152,7 @@ void pmBackground::interpolate() {
 		if(data!=NULL) {
 			vtkDoubleArray* doubleData = vtkDoubleArray::SafeDownCast(data);
 			for(int i=0; i<doubleData->GetNumberOfTuples(); i++) {
-				pmTensor tensor{field->get_value(0).numel(),1,0};
+				pmTensor tensor{field->evaluate(0).numel(),1,0};
 				doubleData->GetTuple(i,*tensor);
 				field->set_value(tensor,i);
 		    }

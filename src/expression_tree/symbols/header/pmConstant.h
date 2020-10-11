@@ -43,6 +43,7 @@ namespace Nauticle {
 		bool operator!=(pmConstant const& rhs) const;
 		virtual ~pmConstant() override {}
 		void print() const override;
+		virtual void set_storage_depth(size_t const& d) override;
 		std::shared_ptr<pmConstant> clone() const;
 		bool is_hidden() const override;
 		virtual void write_to_string(std::ostream& os) const override;

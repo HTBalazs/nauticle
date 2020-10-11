@@ -1,23 +1,23 @@
 /*
-    Copyright 2016-2020 Balazs Havasi-Toth
-    This file is part of Nauticle.
+	Copyright 2016-2020 Balazs Havasi-Toth
+	This file is part of Nauticle.
 
-    Nauticle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Nauticle is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Lesser General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Nauticle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+	Nauticle is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Lesser General Public License
+	along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/nauticleproject/
+	For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
+	
 #include "pmParticle_system.h"
 #include <numeric>
 #include "Color_define.h"
@@ -25,10 +25,14 @@
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-//////////																		/////////
-//////////							pmParticle_system							/////////
-//////////																		/////////
+/// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
+pmParticle_system::pmParticle_system(std::vector<pmTensor> const& val) {
+	value.reserve(val.size());
+	for(auto const& it:val) {
+		value.emplace_back(it);
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints particle system content.
@@ -55,5 +59,89 @@ std::shared_ptr<pmParticle_system> pmParticle_system::clone() const {
 /// Returns if the object is the position.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmParticle_system::is_position() const {
-    return true;
+	return true;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns if the object is printable.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmParticle_system::is_printable() const override {
+	return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the ith particle's position at the given time level.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmParticle_system::evaluate(int const& i, size_t const& level/*=0*/) const {
+	return value[i].get_position(level);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// 
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_system::set_value(pmTensor const& val, int const& i/*=0*/) {
+	value[i].set_position(val);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns true.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmParticle_system::is_symmetric() const {
+	return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set the depth of the particle system.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_system::set_storage_depth(size_t const& d) {
+	for(auto& it:value) {
+		it.set_storage_depth(d);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the size of the field.
+/////////////////////////////////////////////////////////////////////////////////////////
+int pmParticle_system::get_field_size() const {
+	return value.size();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -28,8 +28,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/) {
 	name = n;
-	value.push_back(std::vector<pmTensor>());
-	value[0].resize(size, v);
+	value.resize(size, pmHistory<pmTensor>{v});
 	symmetric = sym;
 	printable = pr;
 }
@@ -37,10 +36,9 @@ pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTe
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool const& sym/*=true*/, bool const& pr/*=true*/) {
+pmField::pmField(std::string const& n, std::vector<pmHistory<pmTensor>> const& v, bool const& sym/*=true*/, bool const& pr/*=true*/) {
 	name = n;
-	value.push_back(std::vector<pmTensor>());
-	value[0] = v;
+	value = v;
 	symmetric = sym;
 	printable = pr;
 }
@@ -95,7 +93,7 @@ pmField& pmField::operator=(pmField&& other) {
 /// Implement identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmField::operator==(pmField const& rhs) const {
-	if(this->name != rhs.name || this->value != rhs.value || this->symmetric != rhs.symmetric || this->depth!=rhs.depth || this->printable!=rhs.printable) {
+	if(this->name != rhs.name || this->value != rhs.value || this->symmetric != rhs.symmetric || this->printable!=rhs.printable) {
 		return false;
 	} else {
 		return true;
@@ -131,39 +129,30 @@ void pmField::printv() const {
 /// Returns the size of the field.
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmField::get_field_size() const {
-	return value[0].size();
+	return value.size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets the depth of data storage.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::set_storage_depth(size_t const& d) {
-	depth = d;
-	value.resize(depth,value.back());
+	for(auto& it:value) {
+		it.set_storage_depth(d);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the field.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmField::evaluate(int const& i, size_t const& level/*=0*/) const {
-	return value[level][i];
+	return value[i][level];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets the value of the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::set_value(pmTensor const& v, int const& i/*=0*/) {
-	for(int level=0; level<depth-1; level++) {
-		value[level+1][i] = value[level][i];
-	}
-	value[0][i] = v;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the value of the ith node.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor const& pmField::get_value(int const& i) const {
-	return value[0][i];
+	value[i] = v;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -190,25 +179,12 @@ std::shared_ptr<pmField> pmField::clone() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Sorts the field based on the given sorted index vector.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmField::sort_field(std::vector<int> const& sorted_idx) {
-	for(auto& it:value) {
-		pmSort::reorder(it, sorted_idx);
-	}
-	return true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Resizes the field. The last element is copied to the empty places if N>current size.
 /// If N<current size, the elements above N are destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::set_number_of_nodes(size_t const& N) {
-	if(N!=value[0].size()) {
-		for(auto& it:value) {
-			pmTensor ctensor = it.back();
-			it.resize(N, ctensor);	
-		}
+	if(N!=value.size()) {
+		value.resize(N, value.back());
 	}
 }
 
@@ -237,19 +213,15 @@ void pmField::set_symmetry(bool const& sym) {
 /// Deletes the member of the field with the given index.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::delete_member(size_t const& i) {
-	for(auto& level_it:value) {
-		level_it[i] = level_it.back();
-		level_it.pop_back();
-	}
+	value[i] = value.back();
+	value.pop_back();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Deletes the set of members of the fiels listed in the given delete_indices vector.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::delete_set(std::vector<size_t> const& delete_indices) {
-	for(auto& level_it:value) {
-		Common::delete_indices(level_it, delete_indices);
-	}
+	Common::delete_indices(value, delete_indices);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -257,21 +229,21 @@ void pmField::delete_set(std::vector<size_t> const& delete_indices) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	pmTensor tensor = v;
+	pmHistory<pmTensor> new_val;
 	if(tensor.numel()==0) {
-		tensor = value[0].back();
+		new_val = value.back();
+	} else {
+		new_val.set_storage_depth(value[0].get_storage_depth());
+		new_val.initialize(tensor);
 	}
-	for(auto& level_it:value) {
-		level_it.push_back(tensor);
-	}
+	value.push_back(new_val);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Duplicates the member with the given index.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::duplicate_member(size_t const& i) {
-	for(auto& it:value) {
-		it.push_back(it[i]);
-	}
+	value.push_back(value[i]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

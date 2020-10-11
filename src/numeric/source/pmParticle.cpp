@@ -18,68 +18,98 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmVariable.h"
+#include "pmParticle.h"
 
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Constructor.
+/// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmVariable::pmVariable(std::string const& n, pmTensor const& v/*=pmTensor{0}*/) {
-	name = n;
-	value.push_back(v);
+pmParticle::pmParticle(Particle const& other) {
+	this->position = other.position;
+	next = null_ptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Implement identity check.
+/// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmVariable::operator==(pmVariable const& rhs) const {
-    if(this->name != rhs.name || this->value != rhs.value) {
-        return false;
-    } else {
-        return true;
-    }
+pmParticle::pmParticle(Particle&& other) {
+	this->position = std::move(other.position);
+	next = null_ptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Implements the non-identity check.
+/// Copy assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmVariable::operator!=(pmVariable const& rhs) const {
-    return !this->operator==(rhs);
+pmParticle& pmParticle::operator=(Particle const& other) {
+	if(this!=&other) {
+		this->position = other.position;
+		next = null_ptr;		
+	}
+	return *this;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the stored data based on the evaluation type given as the optional parameter.
+/// Move assignment operator.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmVariable::evaluate(int const& i, size_t const& level/*=0*/) const {
-    return value[level];
+pmParticle& pmParticle::operator=(Particle&& other) {
+	if(this!=&other) {
+		this->position = std::move(other.position);
+		next = null_ptr;		
+	}
+	return *this;	
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the variable value. If the two_step option is on, the current value is copied
-//  and stored in the previous value.
+/// Overloading the == operator fot tensor values.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmVariable::set_value(pmTensor const& v, int const& i/*=0*/) {
-    value = v;
+pmParticle& pmParticle::operator=(pmTensor const& t) {
+	position = t;
+	return *this;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Clone implementation.
+/// Destroys linked list.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmVariable::clone_impl() const {
-	return std::make_shared<pmVariable>(*this);
+void pmParticle::break_link() {
+	if(next!=null_ptr) {
+		next->break_link();
+	} else {
+		next = null_ptr;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the copy of the object.
+/// Sets the particle position.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmVariable> pmVariable::clone() const {
-	return std::static_pointer_cast<pmVariable, pmExpression>(clone_impl());
+void pmParticle::set_position(pmTensor const& pos) {
+	position = pos;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Writes object to string.
+/// Add the given particle to the linked list.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmVariable::write_to_string(std::ostream& os) const {
-	os << name;
+void pmParticle::set_next(Particle* p) {
+	next = p;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the next particle's address.
+/////////////////////////////////////////////////////////////////////////////////////////
+Particle* pmParticle::get_next() const {
+	return next;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the position of the particle.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor const& pmParticle::get_position(size_t const& level/*=0*/) const {
+	return position[level];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Set the storage depth for the particle system.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle::set_storage_depth(size_t const& d) {
+	position.set_storage_depth(d);
 }

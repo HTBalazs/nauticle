@@ -1,21 +1,21 @@
 /*
-    Copyright 2016-2020 Balazs Havasi-Toth
-    This file is part of Nauticle.
+	Copyright 2016-2020 Balazs Havasi-Toth
+	This file is part of Nauticle.
 
-    Nauticle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Nauticle is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Lesser General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Nauticle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+	Nauticle is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Lesser General Public License
+	along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/nauticleproject/
+	For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 #include "pmDomain.h"
@@ -46,7 +46,6 @@ pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& c
 	cell_start.resize(num_cells,0);
 	cell_end.resize(num_cells,0);
 	cell_iterator.build_cell_iterator(cell_size.numel());
-	grid_cells.resize(get_num_cells());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +96,7 @@ bool pmDomain::operator==(pmDomain const& rhs) const {
 /// Implements the non-identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmDomain::operator!=(pmDomain const& rhs) const {
-    return !this->operator==(rhs);
+	return !this->operator==(rhs);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +119,7 @@ void pmDomain::expire() {
 void add_particle_system(std::shared_ptr<pmParticle_system> ps) {
 	if(ps.use_count()>0) {
 		psys = ps;
+		this->update();
 	}
 }
 
@@ -155,7 +155,7 @@ void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std
 void pmDomain::calculate_grid_coords() {
 	grid_coords.resize(psys->get_field_size());
 	for(int i=0; i<psys->get_field_size(); i++) {
-		grid_coords[i] = (psys->get_value(i,0)+get_physical_minimum()).divide_term_by_term(cell_size);
+		grid_coords[i] = (psys->evaluate(i,0)+get_physical_minimum()).divide_term_by_term(cell_size);
 	}
 }
 
@@ -340,17 +340,32 @@ bool pmDomain::build_cell_list() {
 	if(psys.use_count()==0 || up_to_date) {
 		return false;
 	}
-	for(auto& it:grid_cells) {
-		it.clear();
-	}
-	for(int i=0; i<psys->get_field_size(); i++) {
-		pmTensor pi = psys->get_value(i,0);
-		pmTensor gi = get_grid_position(pi);
-		grid_cells[gi].push_back(i);
+	memset(grid, 0, this->get_num_cells()*sizeof(Particle*));
+ 
+	for(int i=0; i<psys->get_field_size(); ++i) {
+		Particle& pi = psys->evaluate(i,0);
+		pmTensor grid_coords = floor((pi.get_position()-minimum.multiply_term_by_term(cell_size)).divide_term_by_term(cell_size));
+
+		pi.set_next()grid[x+y*kGridWidth];
+		grid[x+y*kGridWidth] = &pi;
+
+		gridCoords[i*2] = x;
+		gridCoords[i*2+1] = y;
 	}
 	return true;
 }
 
+void pmDomain::update() {
+	// size_t depth = psys->get_storage_depth(); 
+	// grid.resize(depth);
+	// grid_coords.resize(depth);
+	// for(int i=0; i<depth; i++) {
+	// 	grid.resize(this->get_num_cells());
+	// 	memset(grid[i], 0, this->get_num_cells()*sizeof(Particle*));
+	// 	grid_coords.resize(psys->get_field_size());
+	// 	memset(grid_coords[i], 0, psys->get_field_size()*sizeof(Particle*));
+	// }
+}
 
 
 

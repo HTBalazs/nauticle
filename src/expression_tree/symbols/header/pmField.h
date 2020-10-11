@@ -21,9 +21,10 @@
 #ifndef _FIELD_H_
 #define _FIELD_H_
 
-#include <string>
 #include "pmSymbol.h"
 #include "pmSort.h"
+#include "pmHistory.h"
+#include <string>
 
 namespace Nauticle {
 	/** An object of this class can hold a field of scalar, vector or tensor above any particle
@@ -34,11 +35,9 @@ namespace Nauticle {
 	*/
 	class pmField : public pmSymbol {
 	private:
-		bool printable = true;
-	protected:
-		std::vector<std::vector<pmTensor>> value;
+		std::vector<pmHistory<pmTensor>> value;
 		bool symmetric = true;
-		size_t depth = 1;
+		bool printable = true;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
@@ -55,24 +54,20 @@ namespace Nauticle {
 		void printv() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		virtual void set_value(pmTensor const& value, int const& i=0) override;
-		pmTensor const& get_value(int const& i) const override;
-		int get_field_size() const override;
+		virtual int get_field_size() const override;
 		std::string get_type() const override;
-		void set_storage_depth(size_t const& d) override;
-		void push_back(pmTensor const& obj);
-		bool is_double_steps() const;
+		virtual void set_storage_depth(size_t const& d) override;
 		std::shared_ptr<pmField> clone() const;
-		bool sort_field(std::vector<int> const& sorted_idx);
 		virtual void set_number_of_nodes(size_t const& N);
 		virtual void write_to_string(std::ostream& os) const override;
-		bool is_symmetric() const override;
+		virtual bool is_symmetric() const override;
 		void set_symmetry(bool const& sym);
 		virtual void delete_member(size_t const& i);
 		virtual void delete_set(std::vector<size_t> const& indices);
 		virtual void add_member(pmTensor const& v=pmTensor{});
 		virtual void duplicate_member(size_t const& i);
 		void set_printable(bool const& p);
-		bool is_printable() const;
+		virtual bool is_printable() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

@@ -21,20 +21,21 @@
 #ifndef _SINGLE_H_
 #define _SINGLE_H_
 
+#include "pmSymbol.h"
+#include "pmHistory.h"
 #include <vector>
 #include <string>
-#include "pmSymbol.h"
 
 namespace Nauticle {
     /** This inteface forms the base for expressions of constant and variables.
     */
     class pmSingle : public pmSymbol {
     protected:
-    	std::vector<pmTensor> value;
+    	pmHistory<pmTensor> value;
     public:
     	virtual ~pmSingle() override {}
-    	pmTensor const& get_value(int const& i=0) const override;
     	virtual pmTensor evaluate(int const&, size_t const& level=0) const override;
+        virtual void set_storage_depth(size_t const& d) override;
     	void printv() const override;
     	std::shared_ptr<pmSingle> clone() const;
     	std::string get_type() const override;

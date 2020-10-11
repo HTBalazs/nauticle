@@ -43,10 +43,6 @@ bool pmExpression::is_position() const {
     return false;
 }
 
-std::string const& pmExpression::get_name() const {
-    return name;
-}
-
 bool pmExpression::is_interaction() const {
     return false;
 }
