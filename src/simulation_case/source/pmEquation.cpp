@@ -136,7 +136,6 @@ void pmEquation::solve(size_t const& num_threads) {
 		ProLog::pLogger::error_msgf("Inconsistent field sizes in equation %s\n", name.c_str());
 	}
 	int p_end = lhs->get_field_size();
-
 	auto process = [&](int const& start, int const& end){
 		this->evaluate(start, end);
 	};
@@ -163,13 +162,6 @@ std::string pmEquation::get_name() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmEquation::set_name(std::string const& n) {
 	name = n;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Assigns the given particle system to the rhs of the function. It is necessary for interactions.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmEquation::assign_particle_system(std::shared_ptr<pmParticle_system> psys) {
-	rhs->assign(psys);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

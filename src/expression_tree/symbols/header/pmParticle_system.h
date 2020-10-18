@@ -23,7 +23,6 @@
 
 #include "pmField.h"
 #include "pmParticle.h"
-#include "pmHistory.h"
 #include <string>
 
 namespace Nauticle {
@@ -46,10 +45,12 @@ namespace Nauticle {
 		virtual void set_value(pmTensor const& val, int const& i=0) override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		bool is_symmetric() const override;
-		bool is_printable() const override;
 		void set_storage_depth(size_t const& d) override;
 		void build_linked_list();
 		int get_field_size() const override;
+		pmParticle& get_particle(size_t const& i);
+		std::string get_name() const override;
+		std::string get_type() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

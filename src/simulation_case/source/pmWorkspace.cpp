@@ -254,7 +254,7 @@ void pmWorkspace::merge(std::shared_ptr<pmWorkspace> other) {
 			}
 		}
 	}
-	if(this->domain != other.domain) {
+	if(this->domain != other->domain) {
 		ProLog::pLogger::warning_msgf("Merge is unambiguous because the domains are not compatible. Original domain will be used.\n");
 	}
 }
@@ -288,7 +288,8 @@ bool pmWorkspace::is_existing(std::string const& name) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_domain(std::shared_ptr<pmDomain> const& dm) {
 	domain = dm;
-	domain->add_particle_system(this->get_particle_system());
+	pmInteraction_root::domain = domain;
+	this->define_bases();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -339,7 +340,7 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 /// Defines the bases unit vectors for the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::define_bases() {
-	double dims = this->get_particle_system()->get_domain()->get_dimensions();
+	double dims = this->domain->get_dimensions();
 	std::string bases[] = {"e_i", "e_j", "e_k"};
 	for(int i=0; i<dims; i++) {
 		this->add_constant(bases[i], pmTensor::make_identity(dims).sub_tensor(0,dims-1,i,i), true);
@@ -351,12 +352,15 @@ void pmWorkspace::define_bases() {
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values) {
+	if(domain.use_count()==0) {
+		ProLog::pLogger::warning_msgf("Domain has to be added to the workspace before the particle system.\n");
+	}
 	if(is_existing("r")) { return; }
 	if(values.size()!=num_nodes) {
 		set_number_of_nodes(values.size());
 	}
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>("r", values)));
-	define_bases();
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>(values)));
+	domain->set_particle_system(this->get_particle_system());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -565,7 +569,7 @@ std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::stri
     }
     size_t i = 0;
     for(auto const& it:interactions) {
-        declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmExpression>", it->get_name(), false, "", ""});
+        declaration.push_back(c2c::c2CPP_declaration{"std::shared_ptr<pmInteraction_root>", it->get_name(), false, "", ""});
         init_code += "\t\t" + it->get_name() + " = ws->get_interactions()[" + std::to_string(i) + "];\n";
         i++;
     }
@@ -573,11 +577,11 @@ std::vector<c2c::c2CPP_declaration> pmWorkspace::generate_declarations(std::stri
 }
 
 
-void pmWorkspace::add_interaction(std::shared_ptr<pmExpression> ia) {
+void pmWorkspace::add_interaction(std::shared_ptr<pmInteraction_root> ia) {
 	interactions.push_back(ia);
 }
 
-std::vector<std::shared_ptr<pmExpression>> const& pmWorkspace::get_interactions() const {
+std::vector<std::shared_ptr<pmInteraction_root>> const& pmWorkspace::get_interactions() const {
 	return interactions;
 }
 
@@ -634,5 +638,5 @@ void pmWorkspace::duplicate_particle(size_t const& i) {
 }
 
 bool pmWorkspace::update() {
-	return domain->build_neighbor_list();
+	return domain->update();
 }

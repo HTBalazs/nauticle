@@ -35,7 +35,6 @@ pmNbody_operator::pmNbody_operator(std::array<std::shared_ptr<pmExpression>,2> o
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNbody_operator::pmNbody_operator(pmNbody_operator const& other) {
-	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
 		this->op_name = other.op_name;
@@ -46,8 +45,6 @@ pmNbody_operator::pmNbody_operator(pmNbody_operator const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNbody_operator::pmNbody_operator(pmNbody_operator&& other) {
-	this->psys = std::move(other.psys);
-	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
 	this->op_name = std::move(other.op_name);
 }
@@ -57,7 +54,6 @@ pmNbody_operator::pmNbody_operator(pmNbody_operator&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNbody_operator& pmNbody_operator::operator=(pmNbody_operator const& other) {
 	if(this!=&other) {
-		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
 			this->op_name = other.op_name;
@@ -71,8 +67,6 @@ pmNbody_operator& pmNbody_operator::operator=(pmNbody_operator const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNbody_operator& pmNbody_operator::operator=(pmNbody_operator&& other) {
 	if(this!=&other) {
-		this->psys = std::move(other.psys);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);
 	}
@@ -105,18 +99,16 @@ void pmNbody_operator::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmNbody_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!assigned) { ProLog::pLogger::error_msgf("N-body model is not assigned to any particle system.\n"); }
-	std::shared_ptr<pmParticle_system> ps = psys.lock();
-
-	pmTensor pos_i = ps->evaluate(i,level);
+	auto psys = this->domain->get_particle_system();
+	pmTensor pos_i = psys->evaluate(i,level);
 	pmTensor mass_i = operand[0]->evaluate(i,level);
 	pmTensor coef = operand[1]->evaluate(0,level);
 
 	pmTensor force;
-	for(int j=0; j<ps->get_field_size(); j++) {
+	for(int j=0; j<psys->get_field_size(); j++) {
 		if(i==j) { continue; }
 		pmTensor mass_j = operand[0]->evaluate(j,level);
-		pmTensor pos_j = ps->evaluate(j,level);
+		pmTensor pos_j = psys->evaluate(j,level);
 		pmTensor rel_pos = pos_j-pos_i;
 		double distance = rel_pos.norm();
 		pmTensor norm = rel_pos / distance;
@@ -129,5 +121,5 @@ pmTensor pmNbody_operator::evaluate(int const& i, size_t const& level/*=0*/) con
 /// Return the maximum size of the fields out of the operands.
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmNbody_operator::get_field_size() const {
-	return psys.lock()->get_field_size();
+	return this->domain->get_particle_system()->get_field_size();
 }

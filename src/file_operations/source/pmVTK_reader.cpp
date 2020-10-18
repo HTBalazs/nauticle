@@ -204,5 +204,4 @@ void pmVTK_reader::update() {
 	cas = std::make_shared<pmCase>();
 	cas->add_workspace(workspace);
 	cas->add_equation(equations);
-	cas->assign_particle_system_to_equations();
 }

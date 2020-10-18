@@ -21,9 +21,9 @@
 #ifndef _EXPRESSION_H_
 #define _EXPRESSION_H_
 
+#include "pmTensor.h"
 #include <memory>
 #include <cmath>
-#include "pmTensor.h"
 
 namespace Nauticle {
     class pmParticle_system;
@@ -38,11 +38,9 @@ namespace Nauticle {
     	virtual pmTensor evaluate(int const&, size_t const& level=0) const=0;
     	virtual void print() const=0;
         virtual int get_field_size() const=0;
-    	virtual std::string const& get_name() const=0;
     	virtual void set_storage_depth(size_t const& d)=0;
     	std::shared_ptr<pmExpression> clone() const;
-    	virtual void assign(std::shared_ptr<pmParticle_system> ps) {}
-    	virtual bool is_assigned() const=0;
+    	virtual bool is_assigned() const;
     	virtual void write_to_string(std::ostream& os) const=0;
         virtual bool is_symmetric() const;
         virtual bool is_position() const;

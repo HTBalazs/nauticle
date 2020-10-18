@@ -47,7 +47,6 @@ pmKuramoto_operator::pmKuramoto_operator(std::array<std::shared_ptr<pmExpression
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmKuramoto_operator::pmKuramoto_operator(pmKuramoto_operator const& other) {
-	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->kernel = std::shared_ptr<pmKernel>(other.kernel);
 		this->operand[i] = other.operand[i]->clone();
@@ -61,8 +60,6 @@ pmKuramoto_operator::pmKuramoto_operator(pmKuramoto_operator const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmKuramoto_operator::pmKuramoto_operator(pmKuramoto_operator&& other) {
-	this->psys = std::move(other.psys);
-	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
 	this->op_name = "kuramoto";
 	if(3>2) {
@@ -75,7 +72,6 @@ pmKuramoto_operator::pmKuramoto_operator(pmKuramoto_operator&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmKuramoto_operator& pmKuramoto_operator::operator=(pmKuramoto_operator const& other) {
 	if(this!=&other) {
-		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
 			this->op_name = "kuramoto";
@@ -92,8 +88,6 @@ pmKuramoto_operator& pmKuramoto_operator::operator=(pmKuramoto_operator const& o
 /////////////////////////////////////////////////////////////////////////////////////////
 pmKuramoto_operator& pmKuramoto_operator::operator=(pmKuramoto_operator&& other) {
 	if(this!=&other) {
-		this->psys = std::move(other.psys);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = "kuramoto";
 		if(3>2) {
@@ -129,11 +123,9 @@ void pmKuramoto_operator::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmKuramoto_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!this->assigned) { ProLog::pLogger::error_msgf("Kuramoto operator is not assigned to any particle system.\n"); }
-
 	double theta_i = this->operand[0]->evaluate(i,level)[0];
 	double rad = this->operand[1]->evaluate(i,level)[0];
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 		pmTensor contribution;
 		double d_ji = rel_pos.norm();
 		if(d_ji < rad + NAUTICLE_EPS) {
@@ -150,5 +142,5 @@ pmTensor pmKuramoto_operator::evaluate(int const& i, size_t const& level/*=0*/) 
 /// Returns the size of the field.
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmKuramoto_operator::get_field_size() const {
-	return this->psys.lock()->get_field_size();
+	return this->domain->get_particle_system()->get_field_size();
 }

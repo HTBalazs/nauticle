@@ -75,7 +75,6 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
 	pmDem_operator<TYPE, NOPS>::pmDem_operator(pmDem_operator<TYPE, NOPS> const& other) {
-		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
 		}
@@ -87,8 +86,6 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
 	pmDem_operator<TYPE, NOPS>::pmDem_operator(pmDem_operator<TYPE, NOPS>&& other) {
-		this->psys = std::move(other.psys);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);
 	}
@@ -99,7 +96,6 @@ namespace Nauticle {
 	template <DEM_TYPE TYPE, size_t NOPS>
 	pmDem_operator<TYPE, NOPS>& pmDem_operator<TYPE, NOPS>::operator=(pmDem_operator<TYPE, NOPS> const& other) {
 		if(this!=&other) {
-			this->assigned = false;
 			for(int i=0; i<this->operand.size(); i++) {
 				this->operand[i] = other.operand[i]->clone();
 			}
@@ -114,8 +110,6 @@ namespace Nauticle {
 	template <DEM_TYPE TYPE, size_t NOPS>
 	pmDem_operator<TYPE, NOPS>& pmDem_operator<TYPE, NOPS>::operator=(pmDem_operator<TYPE, NOPS>&& other) {
 		if(this!=&other) {
-			this->psys = std::move(other.psys);
-			this->assigned = std::move(other.assigned);
 			this->operand = std::move(other.operand);
 			this->op_name = std::move(other.op_name);
 		}
@@ -152,8 +146,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
 	pmTensor pmDem_operator<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
-		if(!this->assigned) { ProLog::pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
-		size_t dimension = this->psys.lock()->get_domain()->get_dimensions();
+		size_t dimension = this->domain->get_dimensions();
 
 		pmTensor vi = this->operand[0]->evaluate(i,level);
 		pmTensor omi = this->operand[1]->evaluate(i,level);
@@ -179,7 +172,7 @@ namespace Nauticle {
 		};
 
 		if(TYPE==LINEAR) {
-			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 				pmTensor force{(int)dimension,1,0.0};
 				double d_ji = rel_pos.norm();
 				if(d_ji > NAUTICLE_EPS) {
@@ -190,18 +183,8 @@ namespace Nauticle {
 						double Ej = this->operand[4]->evaluate(j,level)[0];
 						double nuj = this->operand[5]->evaluate(j,level)[0];
 						pmTensor n_ji = rel_pos / d_ji;
-						pmTensor vj = this->operand[0]->evaluate(j,level).reflect_perpendicular(guide);
-						pmTensor omj = this->operand[1]->evaluate(j,level).reflect_perpendicular(guide);
-						// TODO: optimise
-						if(!this->operand[1]->is_symmetric()) {
-							pmTensor flip = pmTensor::make_tensor(guide, 1);
-							for(int i=0; i<guide.numel(); i++) {
-								if(guide[i]!=0) {
-									flip = -1;
-								}
-							}
-							omj *= flip.productum();
-						}
+						pmTensor vj = this->operand[0]->evaluate(j,level);
+						pmTensor omj = this->operand[1]->evaluate(j,level);
 
 						pmTensor rel_vel = vj-vi;
 						// overlap
@@ -241,7 +224,7 @@ namespace Nauticle {
 			};
 			return this->interact(i, contribute);
 		} else {
-			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+			auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 				pmTensor torque;
 				double d_ji = rel_pos.norm();
 				if(d_ji > NAUTICLE_EPS) {
@@ -253,18 +236,8 @@ namespace Nauticle {
 						double nuj = this->operand[5]->evaluate(j,level)[0];
 						pmTensor n_ji = rel_pos / d_ji;
 						// overlap
-						pmTensor vj = this->operand[0]->evaluate(j,level).reflect_perpendicular(guide);
-						pmTensor omj = this->operand[1]->evaluate(j,level).reflect_perpendicular(guide);
-						// TODO: optimise
-						if(!this->operand[1]->is_symmetric()) {
-							pmTensor flip = pmTensor::make_tensor(guide, 1);
-							for(int i=0; i<guide.numel(); i++) {
-								if(guide[i]!=0) {
-									flip = -1;
-								}
-							}
-							omj *= flip.productum();
-						}
+						pmTensor vj = this->operand[0]->evaluate(j,level);
+						pmTensor omj = this->operand[1]->evaluate(j,level);
 						pmTensor rel_vel = vj-vi;
 
 						double delta = min_dist-d_ji;

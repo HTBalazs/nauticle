@@ -21,10 +21,10 @@
 #ifndef _OPERATOR_H_
 #define _OPERATOR_H_
 
-#include <array>
-#include <memory>
 #include "pmExpression.h"
 #include "prolog/pLogger.h"
+#include <array>
+#include <memory>
 
 namespace Nauticle {
 	/** This interface forms the base for any operator acting on the pmSymbols like 
@@ -48,8 +48,6 @@ namespace Nauticle {
 		virtual ~pmOperator() override {};
 		virtual void set_storage_depth(size_t const& d) override;
 		virtual int get_field_size() const override;
-		void assign(std::shared_ptr<pmParticle_system> ps) override;
-		bool is_assigned() const override;
 		void print_operands() const;
 		void write_operands_to_string(std::ostream& os) const;
 		virtual bool is_interaction() const override;
@@ -129,29 +127,6 @@ namespace Nauticle {
 			}
 		}
 		return size;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Assigns pmParticle_system to the operands.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	void pmOperator<S>::assign(std::shared_ptr<pmParticle_system> ps) {
-		for(auto const& it:operand) {
-			it->assign(ps);
-		}
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Check if all operands are assigned to a pmParticle_system object.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	bool pmOperator<S>::is_assigned() const {
-		for(auto const& it:operand) {
-			if(!it->is_assigned()) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////

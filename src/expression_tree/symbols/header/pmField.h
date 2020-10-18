@@ -35,13 +35,13 @@ namespace Nauticle {
 	*/
 	class pmField : public pmSymbol {
 	private:
-		std::vector<pmHistory<pmTensor>> value;
+		std::vector<pmHTensor> value;
 		bool symmetric = true;
 		bool printable = true;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
-		pmField()=delete;
+		pmField() {}
 		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& pr=true);
 		pmField(std::string const& n, std::vector<pmTensor> const& value, bool const& sym=true, bool const& pr=true);
 		pmField(pmField const&);
@@ -55,7 +55,7 @@ namespace Nauticle {
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		virtual void set_value(pmTensor const& value, int const& i=0) override;
 		virtual int get_field_size() const override;
-		std::string get_type() const override;
+		virtual std::string get_type() const override;
 		virtual void set_storage_depth(size_t const& d) override;
 		std::shared_ptr<pmField> clone() const;
 		virtual void set_number_of_nodes(size_t const& N);

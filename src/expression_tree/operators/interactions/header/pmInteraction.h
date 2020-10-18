@@ -21,42 +21,37 @@
 #ifndef _INTERACTION_H_
 #define _INTERACTION_H_
 
+#include "pmOperator.h"
+#include "pmDomain.h"
+#include "pmInteraction_root.h"
+#include "pmCounter.h"
 #include <memory>
 #include <mutex>
 #include <functional>
-#include "pmOperator.h"
-#include "pmParticle_system.h"
-#include "pmCounter.h"
 
 namespace Nauticle {
-	/** This interface forms the base for the interaction models. Since interactions
-	//  are interpreted between particles it is inevitable to assign a particle system
-	//  to the interaction model. The assignment is stored inside this interface.
-	*/
 	template <size_t S>
-	class pmInteraction : public pmOperator<S>, public pmCounter<uint> {
+	class pmInteraction : public pmOperator<S>, public pmCounter<uint>, public pmInteraction_root {
 		std::string declaration_type;
-		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, pmTensor const&, pmTensor const& guide)>;
+		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, pmTensor const&)>;
 		using Func_pos = std::function<pmTensor(pmTensor const&, int const&, pmTensor const&)>;
 	protected:
 		std::string op_name;
-		std::shared_ptr<pmParticle_system> psys;
-		bool assigned=false;
 	protected:
 		pmInteraction();
 		virtual ~pmInteraction() {}
 		bool is_assigned() const override;
-		int get_field_size() const override;
 		bool cutoff_cell(pmTensor const& beta, pmTensor const& delta, size_t const& dimensions) const;
 		pmTensor interact(int const& i, Func_ith contribute) const;
 		pmTensor interact(pmTensor const& pos_i, Func_pos contribute) const;
 	public:
-		void assign(std::shared_ptr<pmParticle_system> ps) override;
 		virtual void write_to_string(std::ostream& os) const override;
 		void set_declaration_type(std::string const& decl_type);
 		std::string const& get_declaration_type() const;
 		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 		virtual bool is_interaction() const override;
+		void set_domain();
+		std::string const& get_name() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -71,34 +66,11 @@ namespace Nauticle {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Assigns SPH object to the given particle system.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	void pmInteraction<S>::assign(std::shared_ptr<pmParticle_system> ps) {
-		this->psys = ps;
-		if(!this->psys.use_count()) {
-			this->assigned = true;
-		}
-		pmOperator<S>::assign(ps);
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Checks if the SPH object is assigned to a particle system.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	bool pmInteraction<S>::is_assigned() const {
-		return this->assigned;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Returns the size of the particle system assigned to the interaction.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	int pmInteraction<S>::get_field_size() const {
-		if(psys.expired()) {
-			return 1;
-		}
-		return psys.lock()->get_field_size();
+		return domain.use_count();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -122,60 +94,66 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	pmTensor pmInteraction<S>::interact(int const& i, Func_ith contribute) const {
-		std::vector<unsigned int> const& start = psys->get_domain()->get_start();
-		std::vector<unsigned int> const& end = psys->get_domain()->get_end();
-		pmTensor result;
-		std::vector<pmTensor> const& cell_iterator = psys->get_domain()->get_cell_iterator();
-		std::shared_ptr<pmDomain> domain = psys->get_domain();
-		pmTensor cell_size = domain->get_cell_size();
-		pmTensor domain_minimum = domain->get_minimum();
-		pmTensor domain_maximum = domain->get_maximum();
-		pmTensor domain_cells = domain_maximum-domain_minimum;
-		pmTensor domain_physical_minimum = domain->get_physical_minimum();
-		pmTensor domain_physical_maximum = domain->get_physical_maximum();
-		pmTensor domain_physical_size = domain->get_physical_size();
-		pmTensor domain_shift = domain->get_shift();
-		pmTensor const beta = domain->get_boundary();
-		pmTensor const ones = pmTensor::make_tensor(beta,1);
-		size_t dimensions = domain->get_dimensions();
-		pmTensor pos_i = psys->evaluate(i);
-		pmTensor grid_pos_i = psys->get_domain()->get_grid_position(pos_i);
-		for(auto const& it:cell_iterator) {
-			pmTensor grid_pos_j{grid_pos_i+it};
-			pmTensor delta = -floor((grid_pos_j).divide_term_by_term(domain_cells));
-			// Ignore cells through cutoff boundary
-			if(cutoff_cell(beta, delta, dimensions)) {
-				continue;
-			}
-			pmTensor guide = delta.multiply_term_by_term(beta);
-			// look for periodic & symmetric neighbour cells (ensemble formula)
-			grid_pos_j += delta.multiply_term_by_term(domain_cells-beta.multiply_term_by_term(domain_cells)+beta);
-			int hash_j = psys->get_domain()->calculate_hash_key_from_grid_position(grid_pos_j);
-			if(start[hash_j]!=0xFFFFFFFF) {
-				for(int j=start[hash_j]; j<=end[hash_j]; j++) {
-					pmTensor pos_j = psys->evaluate(j);
-					for(int k=0; k<beta.numel(); k++) {
-						if(beta[k]==1) {
-							pos_j[k] += delta[k]*(delta[k]-1)*(domain_physical_maximum[k]-pos_j[k]) + delta[k]*(delta[k]+1)*(domain_physical_minimum[k]-pos_j[k]);
-						} else {
-							pos_j[k] -= delta[k]*domain_physical_size[k];
-						}
-					}
-					pmTensor rel_pos = pos_j-pos_i;
+		// std::vector<unsigned int> const& start = domain->get_particle_system()->get_domain()->get_start();
+		// std::vector<unsigned int> const& end = domain->get_particle_system()->get_domain()->get_end();
+		// pmTensor result;
+		// std::vector<pmTensor> const& cell_iterator = domain->get_particle_system()->get_domain()->get_cell_iterator();
+		// std::shared_ptr<pmDomain> domain = domain->get_particle_system()->get_domain();
+		// pmTensor cell_size = domain->get_cell_size();
+		// pmTensor domain_minimum = domain->get_minimum();
+		// pmTensor domain_maximum = domain->get_maximum();
+		// pmTensor domain_cells = domain_maximum-domain_minimum;
+		// pmTensor domain_physical_minimum = domain->get_physical_minimum();
+		// pmTensor domain_physical_maximum = domain->get_physical_maximum();
+		// pmTensor domain_physical_size = domain->get_physical_size();
+		// pmTensor domain_shift = domain->get_shift();
+		// pmTensor const beta = domain->get_boundary();
+		// pmTensor const ones = pmTensor::make_tensor(beta,1);
+		// size_t dimensions = domain->get_dimensions();
+		// pmTensor pos_i = domain->get_particle_system()->evaluate(i);
+		// pmTensor grid_pos_i = domain->get_particle_system()->get_domain()->get_grid_position(pos_i);
+		// for(auto const& it:cell_iterator) {
+		// 	pmTensor grid_pos_j{grid_pos_i+it};
+		// 	pmTensor delta = -floor((grid_pos_j).divide_term_by_term(domain_cells));
+		// 	// Ignore cells through cutoff boundary
+		// 	if(cutoff_cell(beta, delta, dimensions)) {
+		// 		continue;
+		// 	}
+		// 	pmTensor guide = delta.multiply_term_by_term(beta);
+		// 	// look for periodic & symmetric neighbour cells (ensemble formula)
+		// 	grid_pos_j += delta.multiply_term_by_term(domain_cells-beta.multiply_term_by_term(domain_cells)+beta);
+		// 	int hash_j = domain->get_particle_system()->get_domain()->calculate_hash_key_from_grid_position(grid_pos_j);
+		// 	if(start[hash_j]!=0xFFFFFFFF) {
+		// 		for(int j=start[hash_j]; j<=end[hash_j]; j++) {
+		// 			pmTensor pos_j = domain->get_particle_system()->evaluate(j);
+		// 			for(int k=0; k<beta.numel(); k++) {
+		// 				if(beta[k]==1) {
+		// 					pos_j[k] += delta[k]*(delta[k]-1)*(domain_physical_maximum[k]-pos_j[k]) + delta[k]*(delta[k]+1)*(domain_physical_minimum[k]-pos_j[k]);
+		// 				} else {
+		// 					pos_j[k] -= delta[k]*domain_physical_size[k];
+		// 				}
+		// 			}
+		// 			pmTensor rel_pos = pos_j-pos_i;
 
-					result += contribute(rel_pos, i, j, cell_size, guide);
-				}
+		// 			result += contribute(rel_pos, i, j, cell_size, guide);
+		// 		}
+		// 	}
+		// }
+		// return result;
+
+		pmTensor result;
+		std::shared_ptr<pmParticle_system> psys = domain->get_particle_system();
+		pmParticle* p0 = &(psys->get_particle(0));
+		pmTensor pos_i = psys->evaluate(i);
+		std::vector<pmParticle*> neibs_i = domain->get_neighbors(pos_i);
+		for(auto const& it:neibs_i) {
+			for(pmParticle* pj=it; pj!=nullptr; pj=pj->get_next()) {
+				int j = pj-p0;
+				pmTensor rel_pos = pj->get_position()-pos_i;
+				result += contribute(rel_pos, i, j, domain->get_cell_size());
 			}
 		}
 		return result;
-		// std::shared_ptr<pmParticle_system> ps = psys.lock();
-		// std::vector<int> neib_list;
-		// psys->get_neighbors(neib_list);
-		// for(auto const& j:neib_list) {
-		// 	pmTensor rel_pos = psys->evaluate(j)-psys->evaluate(i);
-		// 	result += contribute(rel, i, j, cell_size);
-		// }
-		// return result;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -183,22 +161,22 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	pmTensor pmInteraction<S>::interact(pmTensor const& pos_i, Func_pos contribute) const {
-		std::vector<unsigned int> const& start = psys->get_domain()->get_start();
-		std::vector<unsigned int> const& end = psys->get_domain()->get_end();
-		pmTensor cell_size = psys->get_domain()->get_cell_size();
-		pmTensor grid_pos_i = psys->get_domain()->get_grid_position(pos_i);
+		// std::vector<unsigned int> const& start = domain->get_particle_system()->get_domain()->get_start();
+		// std::vector<unsigned int> const& end = domain->get_particle_system()->get_domain()->get_end();
+		// pmTensor cell_size = domain->get_particle_system()->get_domain()->get_cell_size();
+		// pmTensor grid_pos_i = domain->get_particle_system()->get_domain()->get_grid_position(pos_i);
 		pmTensor result;
-		std::vector<pmTensor> const& cell_iterator = psys->get_domain()->get_cell_iterator();
-		for(auto const& it:cell_iterator) {
-			pmTensor grid_pos_j{grid_pos_i+it};
-			int hash_j = psys->get_domain()->calculate_hash_key_from_grid_position(grid_pos_j);
-			if(start[hash_j]!=0xFFFFFFFF) {
-				for(int j=start[hash_j]; j<=end[hash_j]; j++) {
-					pmTensor pos_j = psys->evaluate(j);
-					result += contribute(pos_j, j, cell_size);
-				}
-			}
-		}
+		// std::vector<pmTensor> const& cell_iterator = domain->get_particle_system()->get_domain()->get_cell_iterator();
+		// for(auto const& it:cell_iterator) {
+		// 	pmTensor grid_pos_j{grid_pos_i+it};
+		// 	int hash_j = domain->get_particle_system()->get_domain()->calculate_hash_key_from_grid_position(grid_pos_j);
+		// 	if(start[hash_j]!=0xFFFFFFFF) {
+		// 		for(int j=start[hash_j]; j<=end[hash_j]; j++) {
+		// 			pmTensor pos_j = domain->get_particle_system()->evaluate(j);
+		// 			result += contribute(pos_j, j, cell_size);
+		// 		}
+		// 	}
+		// }
 		return result;
 	}
 
@@ -247,6 +225,14 @@ namespace Nauticle {
 	template <size_t S>
 	bool pmInteraction<S>::is_interaction() const {
 		return true;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the interaction name.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <size_t S>
+	std::string const& pmInteraction<S>::get_name() const {
+		return name;
 	}
 }
 

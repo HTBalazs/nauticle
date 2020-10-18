@@ -31,7 +31,7 @@ namespace Nauticle {
     */
     class pmSingle : public pmSymbol {
     protected:
-    	pmHistory<pmTensor> value;
+    	pmHTensor value;
     public:
     	virtual ~pmSingle() override {}
     	virtual pmTensor evaluate(int const&, size_t const& level=0) const override;

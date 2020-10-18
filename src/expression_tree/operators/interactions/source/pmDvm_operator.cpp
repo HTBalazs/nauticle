@@ -44,7 +44,6 @@ pmDvm_operator::pmDvm_operator(std::array<std::shared_ptr<pmExpression>,2> op) {
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmDvm_operator::pmDvm_operator(pmDvm_operator const& other) {
-	this->assigned = false;
 	this->kernel = std::shared_ptr<pmKernel>(other.kernel);
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
@@ -56,9 +55,7 @@ pmDvm_operator::pmDvm_operator(pmDvm_operator const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmDvm_operator::pmDvm_operator(pmDvm_operator&& other) {
-	this->psys = std::move(other.psys);
 	this->kernel = std::move(other.kernel);
-	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
 	this->op_name = std::move(other.op_name);
 }
@@ -68,7 +65,6 @@ pmDvm_operator::pmDvm_operator(pmDvm_operator&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmDvm_operator& pmDvm_operator::operator=(pmDvm_operator const& other) {
 	if(this!=&other) {
-		this->assigned = false;
 		this->kernel = std::shared_ptr<pmKernel>(other.kernel);
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
@@ -83,9 +79,7 @@ pmDvm_operator& pmDvm_operator::operator=(pmDvm_operator const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmDvm_operator& pmDvm_operator::operator=(pmDvm_operator&& other) {
 	if(this!=&other) {
-		this->psys = std::move(other.psys);
 		this->kernel = std::move(other.kernel);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);
 	}
@@ -118,22 +112,11 @@ void pmDvm_operator::print() const {
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
-	size_t dimension = this->psys.lock()->get_domain()->get_dimensions();
-	double cell_size_min = this->psys.lock()->get_domain()->get_cell_size().min();
+	size_t dimension = this->domain->get_dimensions();
+	double cell_size_min = this->domain->get_cell_size().min();
 	double eps = this->operand[1]->evaluate(i,level)[0];
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect_perpendicular(guide);
-		// TODO: optimise
-		if(!this->operand[0]->is_symmetric()) {
-			pmTensor flip = pmTensor::make_tensor(guide, 1);
-			for(int i=0; i<guide.numel(); i++) {
-				if(guide[i]!=0) {
-					flip = -1;
-				}
-			}
-			w_j *= flip.productum();
-		}
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
+		pmTensor w_j = this->operand[0]->evaluate(j,level);
 		pmTensor contribution{(int)dimension,1,0.0};
 		if(w_j.norm() == 0) { return contribution; }
 		double d_ji = rel_pos.norm();

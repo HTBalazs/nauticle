@@ -21,15 +21,16 @@
 #ifndef _WORKSPACE_H_
 #define _WORKSPACE_H_
 
-#include <iomanip>
-#include <memory>
-#include <stack>
-#include <string>
 #include "prolog/pLogger.h"
 #include "pmDomain.h"
 #include "pmParticle_system.h"
 #include "pmMath_test.h"
+#include "pmInteraction_root.h"
 #include "c2c/c2CPP_declaration.h"
+#include <iomanip>
+#include <memory>
+#include <stack>
+#include <string>
 
 namespace Nauticle {
 	/** This class contains all the definitions of variables and constants. It also
@@ -46,7 +47,7 @@ namespace Nauticle {
 		std::stack<int> deleted_ids;
 		size_t num_constants;
 		size_t num_variables;
-		std::vector<std::shared_ptr<pmExpression>> interactions;
+		std::vector<std::shared_ptr<pmInteraction_root>> interactions;
 	private:
 		bool verify_name(std::string const& name) const;
 		bool is_constant(std::shared_ptr<pmSymbol> term) const;
@@ -87,8 +88,8 @@ namespace Nauticle {
 		template <typename T> std::vector<std::shared_ptr<T>> get(bool const& forced=false) const;
 		void set_number_of_nodes(size_t const& N);
 		std::vector<c2c::c2CPP_declaration> generate_declarations(std::string& init_code) const;
-		void add_interaction(std::shared_ptr<pmExpression> ia);
-		std::vector<std::shared_ptr<pmExpression>> const& get_interactions() const;
+		void add_interaction(std::shared_ptr<pmInteraction_root> ia);
+		std::vector<std::shared_ptr<pmInteraction_root>> const& get_interactions() const;
 		void delete_particle(size_t const& i);
 		void delete_particle_set(std::vector<size_t> const& delete_indices);
 		void duplicate_particle(size_t const& i);

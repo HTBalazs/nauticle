@@ -50,7 +50,6 @@ namespace Nauticle {
 		bool operator!=(pmCase const& rhs) const;
 		void print() const;
 		bool solve(size_t const& num_threads, std::string const& name="");
-		void assign_particle_system_to_equations();
 		std::shared_ptr<pmCase> clone() const;
 		void merge(std::shared_ptr<pmCase> const& other);
 		std::shared_ptr<pmWorkspace> get_workspace() const;
@@ -58,7 +57,6 @@ namespace Nauticle {
 		void add_workspace(std::shared_ptr<pmWorkspace> ws);
 		void add_equation(std::shared_ptr<pmEquation> func);
 		void add_equation(std::vector<std::shared_ptr<pmEquation>> func);
-		void initialize();
 	};
 }
 

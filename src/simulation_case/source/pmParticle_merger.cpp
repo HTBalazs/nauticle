@@ -118,20 +118,19 @@ void pmParticle_merger::make_tuples(std::tuple<std::vector<size_t>,std::vector<s
 /// Finds the nearest neighbor of the given particle within range.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t const& level/*=0*/) const {
-    if(!assigned) { ProLog::pLogger::error_msgf("Particle merger is not assigned to any particle system.\n"); }
-    pmSmallest<double, 2> nearest;
-    auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+    pmSmallest<double, 2> nearest2;
+    auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
         double d_ji = rel_pos.norm();
         if(i!=j && neighbor_condition->evaluate(j,level)[0] && max_neighbor_distance->evaluate(j,level)[0]>d_ji) {
-            nearest.push_value(d_ji,j);
+            nearest2.push_value(d_ji,j);
         }
         return pmTensor{};
     };
     pmTensor T = interact(i, contribute);
     pmTensor two_nn{2,1,-1};
-    if(nearest.get_number_of_values()==2) {
-        two_nn[0] = (double)nearest[0].second;
-        two_nn[1] = (double)nearest[1].second;
+    if(nearest2.get_number_of_values()==2) {
+        two_nn[0] = (double)nearest2[0].second;
+        two_nn[1] = (double)nearest2[1].second;
     }
     return two_nn;
 }
@@ -259,7 +258,6 @@ void pmParticle_merger::update() {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_merger::set_workspace(std::shared_ptr<pmWorkspace> ws) {
     pmParticle_modifier::set_workspace(ws);
-    nearest->assign(ws->get_particle_system());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

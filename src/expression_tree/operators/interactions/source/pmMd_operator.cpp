@@ -43,7 +43,6 @@ pmMd_operator::pmMd_operator(std::array<std::shared_ptr<pmExpression>,3> op) {
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmMd_operator::pmMd_operator(pmMd_operator const& other) {
-	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
 	}
@@ -54,8 +53,6 @@ pmMd_operator::pmMd_operator(pmMd_operator const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmMd_operator::pmMd_operator(pmMd_operator&& other) {
-	this->psys = std::move(other.psys);
-	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
 	this->op_name = std::move(other.op_name);
 }
@@ -65,7 +62,6 @@ pmMd_operator::pmMd_operator(pmMd_operator&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmMd_operator& pmMd_operator::operator=(pmMd_operator const& other) {
 	if(this!=&other) {
-		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
 		}
@@ -79,8 +75,6 @@ pmMd_operator& pmMd_operator::operator=(pmMd_operator const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmMd_operator& pmMd_operator::operator=(pmMd_operator&& other) {
 	if(this!=&other) {
-		this->psys = std::move(other.psys);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);
 	}
@@ -113,12 +107,11 @@ void pmMd_operator::print() const {
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmMd_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
-	size_t dimension = this->psys.lock()->get_domain()->get_dimensions();
+	size_t dimension = this->domain->get_dimensions();
 	double eps = this->operand[0]->evaluate(i,level)[0];
 	double sigma = this->operand[1]->evaluate(i,level)[0];
 	double R = this->operand[2]->evaluate(i,level)[0];
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 		pmTensor contribution{(int)dimension,1,0.0};
 		double d_ji = rel_pos.norm();
 		if(d_ji > NAUTICLE_EPS && d_ji < R) {

@@ -32,13 +32,12 @@ namespace Nauticle {
 		std::string name = "";
 	public:
 		virtual ~pmSymbol() {}
-		virtual std::string const& get_name() const override;
+		virtual std::string get_name() const;
 		virtual void print() const override;
 		virtual void printv() const=0;
 		virtual int get_field_size() const override;
 		std::shared_ptr<pmSymbol> clone() const;
 		virtual void set_value(pmTensor const& value, int const& i=0) {}
-		bool is_assigned() const override;
 		virtual bool is_hidden() const;
 		virtual std::string get_type() const=0;
 		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;

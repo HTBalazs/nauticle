@@ -44,7 +44,6 @@ pmSfm_operator::pmSfm_operator(std::array<std::shared_ptr<pmExpression>,10> op) 
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmSfm_operator::pmSfm_operator(pmSfm_operator const& other) {
-	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
 	}
@@ -55,8 +54,6 @@ pmSfm_operator::pmSfm_operator(pmSfm_operator const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmSfm_operator::pmSfm_operator(pmSfm_operator&& other) {
-	this->psys = std::move(other.psys);
-	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
 	this->op_name = std::move(other.op_name);
 }
@@ -66,7 +63,6 @@ pmSfm_operator::pmSfm_operator(pmSfm_operator&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmSfm_operator& pmSfm_operator::operator=(pmSfm_operator const& other) {
 	if(this!=&other) {
-		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
 		}
@@ -80,8 +76,6 @@ pmSfm_operator& pmSfm_operator::operator=(pmSfm_operator const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmSfm_operator& pmSfm_operator::operator=(pmSfm_operator&& other) {
 	if(this!=&other) {
-		this->psys = std::move(other.psys);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);
 	}
@@ -114,10 +108,9 @@ void pmSfm_operator::print() const {
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
-	size_t dimension = this->psys->get_domain()->get_dimensions();
-	double cell_size_min = this->psys->get_domain()->get_cell_size().min();
-	pmTensor posi = this->psys->evaluate(i,level);
+	size_t dimension = this->domain->get_dimensions();
+	double cell_size_min = this->domain->get_cell_size().min();
+	pmTensor posi = this->domain->get_particle_system()->evaluate(i,level);
 	pmTensor vi  = this->operand[0]->evaluate(i,level);
 	pmTensor p0  = this->operand[1]->evaluate(i,level);
 	double v0  = this->operand[2]->evaluate(i,level)[0];
@@ -128,7 +121,7 @@ pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 	double k = this->operand[7]->evaluate(i,level)[0];
 	double ci = this->operand[8]->evaluate(i,level)[0];
 	double taui = this->operand[9]->evaluate(i,level)[0];
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 		double Rj = this->operand[4]->evaluate(j,level)[0];
 		double cj = this->operand[8]->evaluate(j,level)[0];
 		pmTensor contribution{(int)dimension,1,0.0};

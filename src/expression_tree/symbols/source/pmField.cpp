@@ -28,7 +28,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/) {
 	name = n;
-	value.resize(size, pmHistory<pmTensor>{v});
+	value.resize(size, pmHTensor{v});
 	symmetric = sym;
 	printable = pr;
 }
@@ -36,9 +36,12 @@ pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTe
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, std::vector<pmHistory<pmTensor>> const& v, bool const& sym/*=true*/, bool const& pr/*=true*/) {
+pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool const& sym/*=true*/, bool const& pr/*=true*/) {
 	name = n;
-	value = v;
+	value.resize(v.size());
+	for(int i=0; i<v.size(); i++) {
+		value[i] = v[i];
+	}
 	symmetric = sym;
 	printable = pr;
 }
@@ -221,7 +224,10 @@ void pmField::delete_member(size_t const& i) {
 /// Deletes the set of members of the fiels listed in the given delete_indices vector.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::delete_set(std::vector<size_t> const& delete_indices) {
-	Common::delete_indices(value, delete_indices);
+	// Common::delete_indices(value, delete_indices);
+	for(auto const& it:delete_indices) {
+		this->delete_member(it);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +235,7 @@ void pmField::delete_set(std::vector<size_t> const& delete_indices) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	pmTensor tensor = v;
-	pmHistory<pmTensor> new_val;
+	pmHTensor new_val;
 	if(tensor.numel()==0) {
 		new_val = value.back();
 	} else {

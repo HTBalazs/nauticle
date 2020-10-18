@@ -35,8 +35,7 @@ namespace Nauticle {
 	*/
 	class pmDomain {
 		std::shared_ptr<pmParticle_system> psys;
-		std::vector<Particle*> grid;
-		std::vector<pmTensor> grid_coords;
+		std::vector<pmParticle*> grid;
 		pmTensor minimum;
 		pmTensor maximum;
 		pmTensor cell_size;
@@ -48,6 +47,10 @@ namespace Nauticle {
 		bool shift_check() const;
 		void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
 		void calculate_grid_coords();
+		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
+		int calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const;
+		int calculate_hash_key_from_position(pmTensor const& position) const;
+		bool build_cell_list();
 	public:
 		pmDomain() = delete;
 		pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft);
@@ -55,13 +58,10 @@ namespace Nauticle {
 		bool operator!=(pmDomain const& rhs) const;
 		~pmDomain() {}
 		void expire();
-		void add_particle_system(std::shared_ptr<pmParticle_system> ps);
+		void set_particle_system(std::shared_ptr<pmParticle_system> ps);
+		std::shared_ptr<pmParticle_system> get_particle_system() const;
 		bool is_up_to_date() const;
-		std::vector<unsigned int> const& get_start() const;
-		std::vector<unsigned int> const& get_end() const;
 		std::shared_ptr<pmDomain> clone() const;
-		void set_number_of_nodes(size_t const& N);
-		size_t get_number_of_nodes() const;
 		pmTensor const& get_minimum() const;
 		pmTensor const& get_maximum() const;
 		pmTensor const& get_cell_size() const;
@@ -78,8 +78,11 @@ namespace Nauticle {
 		void set_boundary(pmTensor const& bnd);
 		void set_shift(pmTensor const& shft);
 		void print() const;
-		void build_cell_list();
-		void update();
+		pmParticle* get_linked_list(pmTensor const& pos);
+		std::vector<pmParticle*> get_neighbors(pmTensor const& pos);
+		pmTensor get_grid_position(pmTensor const& point) const;
+		bool update();
+		std::vector<pmTensor> const& get_cell_iterator() const;
 	};
 }
 

@@ -105,6 +105,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 		shift = tensor_parser.string_to_tensor(dm["shift"].as<std::string>(), workspace);
 	}
 	std::shared_ptr<pmDomain> domain = std::make_shared<pmDomain>(minimum, maximum, cell_size, boundary, shift);
+	workspace->add_domain(domain);
 	// Read grids
 	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys, workspace, domain);
 	std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();
@@ -229,7 +230,6 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
 	cas->add_workspace(workspace);
 	cas->add_equation(equations);
-	cas->initialize();
 	ProLog::pLogger::logf<NAUTICLE_COLOR>("    Initial conditions: from YAML file.\n");
 	return cas;
 }

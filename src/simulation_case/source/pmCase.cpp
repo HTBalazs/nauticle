@@ -31,7 +31,6 @@ pmCase::pmCase(pmCase const& other) {
 	for(auto const& it:other.equations) {
 		this->equations.push_back(it->clone());
 	}
-	assign_particle_system_to_equations();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +42,6 @@ pmCase& pmCase::operator=(pmCase const& rhs) {
 		for(auto const& it:rhs.equations) {
 			this->equations.push_back(it->clone());
 		}
-		assign_particle_system_to_equations();
 	}
 	return *this;
 }
@@ -54,7 +52,6 @@ pmCase& pmCase::operator=(pmCase const& rhs) {
 pmCase::pmCase(pmCase&& other) {
 	this->workspace = std::move(other.workspace);
 	this->equations = std::move(other.equations);
-	assign_particle_system_to_equations();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +61,6 @@ pmCase& pmCase::operator=(pmCase&& rhs) {
 	if(this!=&rhs) {
 		this->workspace = std::move(rhs.workspace);
 		this->equations = std::move(rhs.equations);
-		assign_particle_system_to_equations();
 	}
 	return *this;
 }
@@ -187,16 +183,6 @@ bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Assigns the particle system of the workspace to all equations.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::assign_particle_system_to_equations() {
-	std::shared_ptr<pmParticle_system> psys = std::dynamic_pointer_cast<pmParticle_system>(workspace->get_instance("r"));
-	for(auto const& it:equations) {
-		it->assign_particle_system(psys);
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the deep copy tof the object. 
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmCase> pmCase::clone() const {
@@ -212,11 +198,4 @@ void pmCase::merge(std::shared_ptr<pmCase> const& other) {
 	for(auto const& it:other->equations) {
 		this->add_equation(it);
 	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Assigns pmParticle_system object in the pmWorkspace to all equations.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::initialize() {
-	this->assign_particle_system_to_equations();
 }

@@ -34,7 +34,6 @@ namespace Nauticle {
 	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, INERTIA, GRADIENT, DIVERGENCE, LAPLACE, TENSILE, AVISC };
 
 	/** This class implements the SPH meshless interpolant operators.
-	//  It requires a pmParticle_system assigned to it.
 	*/
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	class pmSph_operator : public pmFilter<NOPS> {
@@ -93,7 +92,6 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	pmSph_operator<OP_TYPE,VAR,K,NOPS>::pmSph_operator(pmSph_operator const& other) {
-		this->assigned = false;
 		this->kernel = std::shared_ptr<pmKernel>(other.kernel);
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
@@ -106,9 +104,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	pmSph_operator<OP_TYPE,VAR,K,NOPS>::pmSph_operator(pmSph_operator&& other) {
-		this->psys = std::move(other.psys);
 		this->kernel = std::move(other.kernel);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);
 	}
@@ -119,7 +115,6 @@ namespace Nauticle {
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	pmSph_operator<OP_TYPE,VAR,K,NOPS>& pmSph_operator<OP_TYPE,VAR,K,NOPS>::operator=(pmSph_operator const& other) {
 		if(this!=&other) {
-			this->assigned = false;
 			this->kernel = std::shared_ptr<pmKernel>(other.kernel);
 			for(int i=0; i<this->operand.size(); i++) {
 				this->operand[i] = other.operand[i]->clone();
@@ -135,9 +130,7 @@ namespace Nauticle {
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	pmSph_operator<OP_TYPE,VAR,K,NOPS>& pmSph_operator<OP_TYPE,VAR,K,NOPS>::operator=(pmSph_operator&& other) {
 		if(this!=&other) {
-			this->psys = std::move(other.psys);
 			this->kernel = std::move(other.kernel);
-			this->assigned = std::move(other.assigned);
 			this->operand = std::move(other.operand);
 			this->op_name = std::move(other.op_name);
 		}
@@ -174,7 +167,6 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	pmTensor pmSph_operator<OP_TYPE,VAR,K,NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
-		if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", this->op_name.c_str()); }
 		size_t sh = 0;
 		pmTensor B_i{1,1,1};
 		if(NOPS==6) {
@@ -185,7 +177,7 @@ namespace Nauticle {
 		double m_i = this->operand[1+sh]->evaluate(i,level)[0];
 		double rho_i = this->operand[2+sh]->evaluate(i,level)[0];
 		double h_i = this->operand[4+sh]->evaluate(i,level)[0];
-		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+		auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 			pmTensor contribution;
 			double d_ji = rel_pos.norm();
 			if(d_ji > NAUTICLE_EPS || OP_TYPE==SAMPLE) {
@@ -197,22 +189,7 @@ namespace Nauticle {
 						pmTensor B_j = this->operand[0]->evaluate(j, level);
 						B_ij = (B_i+B_j)/2.0f;
 					}
-					pmTensor A_j;
-					if(this->operand[0+sh]->is_position()) {
-						A_j = rel_pos+A_i;
-					} else {
-						A_j = this->operand[0+sh]->evaluate(j,level).reflect_perpendicular(guide);
-					}
-					// TODO: optimise
-					if(!this->operand[0+sh]->is_symmetric()) {
-						int flip = 1;
-						for(int i=0; i<guide.numel(); i++) {
-							if(guide[i]!=0) {
-								flip *= -1;
-							}
-						}
-						A_j *= (double)flip;
-					}
+					pmTensor A_j = this->operand[0+sh]->evaluate(j,level);
 					double m_j = this->operand[1+sh]->evaluate(j,level)[0];
 					double rho_j = this->operand[2+sh]->evaluate(j,level)[0];
 					double W_ij = this->kernel->evaluate(d_ji, h_ij);

@@ -17,33 +17,22 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
-#ifndef _PARTICLE_H_
-#define _PARTICLE_H_
 
-#include "pmHistory.h"
+#ifndef _INTERACTION_ROOT_H_
+#define _INTERACTION_ROOT_H_
+
 #include <string>
+#include <memory>
+#include "pmDomain.h"
 
 namespace Nauticle {
-	class pmParticle {
-		pmHTensor position;
-		pmParticle* next = nullptr;
+	class pmInteraction_root {
+	protected:
+		std::string name = "";
 	public:
-		pmParticle() = delete;
-		pmParticle(pmTensor const& pos);
-		pmParticle(pmParticle const& other);
-		pmParticle(pmParticle&& other)=delete;
-		pmParticle& operator=(pmParticle const& other);
-		pmParticle& operator=(pmParticle&& other)=delete;
-		pmParticle& operator=(pmTensor const& t);
-		~pmParticle() {}
-		void set_position(pmTensor const& pos);
-		void set_next(pmParticle* p);
-		pmTensor const& get_position(size_t const& level=0) const;
-		pmParticle* get_next() const;
-		void set_storage_depth(size_t const& d);
-		void reset_next();
+		static std::shared_ptr<pmDomain> domain;
+		virtual std::string const& get_name() const;
 	};
 }
 
-#endif //_PARTICLE_H_
+#endif // _INTERACTION_ROOT_H_

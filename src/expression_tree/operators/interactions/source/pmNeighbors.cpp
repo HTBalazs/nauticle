@@ -36,7 +36,6 @@ pmNeighbors::pmNeighbors(std::array<std::shared_ptr<pmExpression>,1> op) {
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNeighbors::pmNeighbors(pmNeighbors const& other) {
-	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
 		this->op_name = "neighbors";
@@ -47,8 +46,6 @@ pmNeighbors::pmNeighbors(pmNeighbors const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNeighbors::pmNeighbors(pmNeighbors&& other) {
-	this->psys = std::move(other.psys);
-	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
 	this->op_name = "neighbors";
 }
@@ -58,7 +55,6 @@ pmNeighbors::pmNeighbors(pmNeighbors&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNeighbors& pmNeighbors::operator=(pmNeighbors const& other) {
 	if(this!=&other) {
-		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
 			this->op_name = "neighbors";
@@ -72,8 +68,6 @@ pmNeighbors& pmNeighbors::operator=(pmNeighbors const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmNeighbors& pmNeighbors::operator=(pmNeighbors&& other) {
 	if(this!=&other) {
-		this->psys = std::move(other.psys);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = "neighbors";
 	}
@@ -106,10 +100,8 @@ void pmNeighbors::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!assigned) { ProLog::pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
-
 	double rad = this->operand[0]->evaluate(i,level)[0];
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 		pmTensor num_neighbors{1,1,0};
 		double distance = rel_pos.norm();
 		if(distance < rad + NAUTICLE_EPS) {
@@ -124,7 +116,7 @@ pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 /// Returns the size of the field.
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmNeighbors::get_field_size() const {
-	return psys.lock()->get_field_size();
+	return this->domain->get_particle_system()->get_field_size();
 }
 
 

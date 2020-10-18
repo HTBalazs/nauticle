@@ -52,7 +52,6 @@ pmCollision_handler::pmCollision_handler(std::array<std::shared_ptr<pmExpression
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCollision_handler::pmCollision_handler(pmCollision_handler const& other) {
-	this->assigned = false;
 	for(int i=0; i<this->operand.size(); i++) {
 		this->operand[i] = other.operand[i]->clone();
 		this->count = other.count;
@@ -64,8 +63,6 @@ pmCollision_handler::pmCollision_handler(pmCollision_handler const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCollision_handler::pmCollision_handler(pmCollision_handler&& other) {
-	this->psys = std::move(other.psys);
-	this->assigned = std::move(other.assigned);
 	this->operand = std::move(other.operand);
 	this->op_name = std::move(other.op_name);
 	this->count = std::move(other.count);
@@ -76,7 +73,6 @@ pmCollision_handler::pmCollision_handler(pmCollision_handler&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCollision_handler& pmCollision_handler::operator=(pmCollision_handler const& other) {
 	if(this!=&other) {
-		this->assigned = false;
 		for(int i=0; i<this->operand.size(); i++) {
 			this->operand[i] = other.operand[i]->clone();
 			this->count = other.count;
@@ -91,8 +87,6 @@ pmCollision_handler& pmCollision_handler::operator=(pmCollision_handler const& o
 /////////////////////////////////////////////////////////////////////////////////////////
 pmCollision_handler& pmCollision_handler::operator=(pmCollision_handler&& other) {
 	if(this!=&other) {
-		this->psys = std::move(other.psys);
-		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);
 		this->count = std::move(other.count);
@@ -126,8 +120,7 @@ void pmCollision_handler::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmCollision_handler::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 		return pmTensor{1,1,(double)(i==j ? count[level][i] : 0)};
 	};
 	return this->interact(i, contribute);
@@ -137,7 +130,6 @@ pmTensor pmCollision_handler::evaluate(int const& i, size_t const& level/*=0*/) 
 /// Delete pairs based on the deletion condition.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::remove_unnecessary_pairs(size_t const& level/*=0*/) {
-	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 	auto condition = [&](pmTensor const& rel_pos, int const& i, int const& j)->bool{
 		double Ri = this->operand[0]->evaluate(i,level)[0];
 		double condition_i = this->operand[2]->evaluate(i,level)[0];
@@ -154,11 +146,10 @@ void pmCollision_handler::remove_unnecessary_pairs(size_t const& level/*=0*/) {
 /// Generate pairs if the pairing condition is met.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::create_pairs(int const& i, size_t const& level/*=0*/) {
-	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 	double Ri = this->operand[0]->evaluate(i,level)[0];
 	double condition_i = this->operand[2]->evaluate(i,level)[0];
 	std::vector<size_t> const& pair_index_i = this->pairs[level].get_pair_index(i);
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 		for(auto const& it:pair_index_i) {
 			if(this->pairs[level].get_first()[it]==j || this->pairs[level].get_second()[it]==j) {
 				return pmTensor{1,1,0};
@@ -183,7 +174,6 @@ void pmCollision_handler::create_pairs(int const& i, size_t const& level/*=0*/) 
 /// Evaluate the pairs.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
-	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
 	std::vector<double> const& alpha = this->pairs[level].get_data("alpha");
@@ -195,8 +185,8 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 		int j = second[pi];
 		double Ri = this->operand[0]->evaluate(i,level)[0];
 		double Rj = this->operand[0]->evaluate(j,level)[0];
-		pmTensor pos_i = this->psys->evaluate(i,level);
-		pmTensor pos_j = this->psys->evaluate(j,level);
+		pmTensor pos_i = this->domain->get_particle_system()->evaluate(i,level);
+		pmTensor pos_j = this->domain->get_particle_system()->evaluate(j,level);
 		pmTensor rel_pos = pos_j-pos_i;
 		double d_ji = rel_pos.norm();
 		double min_dist = Ri + Rj;
@@ -227,7 +217,7 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 /// Count the collisions per particles.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
-	count[level].resize(this->psys.lock()->get_field_size());
+	count[level].resize(domain->get_particle_system()->get_field_size());
 	std::fill(count[level].begin(), count[level].end(), 0);
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
@@ -242,9 +232,8 @@ void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
 /// Update the long range interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::update(size_t const& level/*=0*/) {
-	pmLong_range::update(psys.lock()->get_sorted_idx());
 	remove_unnecessary_pairs(level);
-	for(int i=0; i<psys.lock()->get_field_size(); i++) {
+	for(int i=0; i<domain->get_particle_system()->get_field_size(); i++) {
 		create_pairs(i, level);
 	}
 	evaluate_pairs(level);
