@@ -46,7 +46,6 @@ namespace Nauticle {
 	private:
 		bool shift_check() const;
 		void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
-		void calculate_grid_coords();
 		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
 		int calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const;
 		int calculate_hash_key_from_position(pmTensor const& position) const;

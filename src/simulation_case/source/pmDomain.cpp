@@ -102,7 +102,7 @@ bool pmDomain::operator!=(pmDomain const& rhs) const {
 /// Returns the grid position of of the given point.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
-	return round(floor(point.divide_term_by_term(cell_size))-minimum);
+	return round(floor(point.divide_term_by_term(cell_size))-minimum)+1.0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -356,7 +356,7 @@ double pmDomain::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t
 /// Returns hash key for the given grid cell.
 /////////////////////////////////////////////////////////////////////////////////////////
 int pmDomain::calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const {
-	pmTensor cells = maximum-minimum;
+	pmTensor cells = maximum-minimum+2.0;
 	return flatten(cells, grid_pos, 0);
 }
 
