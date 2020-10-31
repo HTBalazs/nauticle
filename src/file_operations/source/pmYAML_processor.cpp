@@ -95,19 +95,18 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	YAML::Node psys = data["simulation"]["case"]["workspace"]["particle_system"];
 	// Read domain
 	YAML::Node dm = psys["domain"];
-	pmTensor_parser tensor_parser{};
-	pmTensor cell_size = tensor_parser.string_to_tensor(dm["cell_size"].as<std::string>(), workspace);
-	pmTensor minimum = tensor_parser.string_to_tensor(dm["minimum"].as<std::string>(), workspace);
-	pmTensor maximum = tensor_parser.string_to_tensor(dm["maximum"].as<std::string>(), workspace);
-	pmTensor boundary = tensor_parser.string_to_tensor(dm["boundary"].as<std::string>(), workspace);
+	pmTensor_parser tp;
+	pmTensor cell_size = tp.string_to_tensor(dm["cell_size"].as<std::string>(), workspace);
+	pmTensor minimum = tp.string_to_tensor(dm["minimum"].as<std::string>(), workspace);
+	pmTensor maximum = tp.string_to_tensor(dm["maximum"].as<std::string>(), workspace);
+	pmTensor boundary = tp.string_to_tensor(dm["boundary"].as<std::string>(), workspace);
 	pmTensor shift = pmTensor{cell_size.numel(),1,0.0};
 	if(dm["shift"]) {
-		shift = tensor_parser.string_to_tensor(dm["shift"].as<std::string>(), workspace);
+		shift = tp.string_to_tensor(dm["shift"].as<std::string>(), workspace);
 	}
-	std::shared_ptr<pmDomain> domain = std::make_shared<pmDomain>(minimum, maximum, cell_size, boundary, shift);
-	workspace->add_domain(domain);
+	workspace->set_domain_parameters(minimum, maximum, cell_size, boundary, shift);
 	// Read grids
-	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys, workspace, domain);
+	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys, workspace);
 	std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();
 	std::vector<pmTensor> particle_grid = tmp->get_grid();
 	workspace->add_particle_system(particle_grid);
@@ -139,7 +138,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid objects wrapped in grid space.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node particle_system, std::shared_ptr<pmWorkspace> workspace, std::shared_ptr<pmDomain> domain) const {
+std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node particle_system, std::shared_ptr<pmWorkspace> workspace) const {
 	if(!particle_system["grid"]) {
 		ProLog::pLogger::error_msgf("Grid must be defined if no initial condition is provided.\n");
 	}
@@ -152,7 +151,7 @@ std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node partic
 	for(YAML::const_iterator ps_nodes=particle_system.begin();ps_nodes!=particle_system.end();ps_nodes++) {
 		if(ps_nodes->first.as<std::string>()=="grid") {
 			std::shared_ptr<pmGrid> grid = std::make_shared<pmGrid>();
-			grid->set_dimensions(domain->get_dimensions());
+			grid->set_dimensions(workspace->get_dimensions());
 			for(YAML::const_iterator grid_nodes=ps_nodes->second.begin();grid_nodes!=ps_nodes->second.end();grid_nodes++) {
 				pmTensor_parser tensor_parser{};
 				if(grid_nodes->first.as<std::string>()=="gid") {

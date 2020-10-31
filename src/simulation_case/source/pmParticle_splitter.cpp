@@ -62,7 +62,7 @@ void pmParticle_splitter::update() {
         for(int i=0; i<num_daughters; i++) {
             workspace->duplicate_particle(it);
             size_t num_nodes = workspace->get_number_of_nodes();
-            std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
+            std::shared_ptr<pmParticle_system> ps = workspace->get_particle_system();
             pmTensor new_pos = ps->evaluate(num_nodes-1,0);
             new_pos[0] += R_original*epsilon*std::cos(i*step+angle);
             new_pos[1] += R_original*epsilon*std::sin(i*step+angle);

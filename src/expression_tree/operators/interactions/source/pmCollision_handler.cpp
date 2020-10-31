@@ -185,8 +185,8 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 		int j = second[pi];
 		double Ri = this->operand[0]->evaluate(i,level)[0];
 		double Rj = this->operand[0]->evaluate(j,level)[0];
-		pmTensor pos_i = this->domain->get_particle_system()->evaluate(i,level);
-		pmTensor pos_j = this->domain->get_particle_system()->evaluate(j,level);
+		pmTensor pos_i = this->workspace->get_particle_system()->evaluate(i,level);
+		pmTensor pos_j = this->workspace->get_particle_system()->evaluate(j,level);
 		pmTensor rel_pos = pos_j-pos_i;
 		double d_ji = rel_pos.norm();
 		double min_dist = Ri + Rj;
@@ -217,7 +217,7 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 /// Count the collisions per particles.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
-	count[level].resize(domain->get_particle_system()->get_field_size());
+	count[level].resize(this->get_field_size());
 	std::fill(count[level].begin(), count[level].end(), 0);
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
@@ -233,7 +233,7 @@ void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::update(size_t const& level/*=0*/) {
 	remove_unnecessary_pairs(level);
-	for(int i=0; i<domain->get_particle_system()->get_field_size(); i++) {
+	for(int i=0; i<this->get_field_size(); i++) {
 		create_pairs(i, level);
 	}
 	evaluate_pairs(level);

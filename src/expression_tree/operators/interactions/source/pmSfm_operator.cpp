@@ -108,9 +108,9 @@ void pmSfm_operator::print() const {
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	size_t dimension = this->domain->get_dimensions();
-	double cell_size_min = this->domain->get_cell_size().min();
-	pmTensor posi = this->domain->get_particle_system()->evaluate(i,level);
+	size_t dimension = this->workspace->get_dimensions();
+	double cell_size_min = this->workspace->get_cell_size().min();
+	pmTensor posi = this->workspace->get_particle_system()->evaluate(i,level);
 	pmTensor vi  = this->operand[0]->evaluate(i,level);
 	pmTensor p0  = this->operand[1]->evaluate(i,level);
 	double v0  = this->operand[2]->evaluate(i,level)[0];

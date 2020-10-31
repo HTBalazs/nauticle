@@ -99,13 +99,13 @@ void pmNbody_operator::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmNbody_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	auto psys = this->domain->get_particle_system();
+	auto psys = this->workspace->get_particle_system();
 	pmTensor pos_i = psys->evaluate(i,level);
 	pmTensor mass_i = operand[0]->evaluate(i,level);
 	pmTensor coef = operand[1]->evaluate(0,level);
 
 	pmTensor force;
-	for(int j=0; j<psys->get_field_size(); j++) {
+	for(int j=0; j<this->get_field_size(); j++) {
 		if(i==j) { continue; }
 		pmTensor mass_j = operand[0]->evaluate(j,level);
 		pmTensor pos_j = psys->evaluate(j,level);
@@ -117,9 +117,3 @@ pmTensor pmNbody_operator::evaluate(int const& i, size_t const& level/*=0*/) con
 	return force;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the maximum size of the fields out of the operands.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmNbody_operator::get_field_size() const {
-	return this->domain->get_particle_system()->get_field_size();
-}

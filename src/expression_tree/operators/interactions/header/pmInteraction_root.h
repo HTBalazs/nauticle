@@ -23,16 +23,16 @@
 
 #include <string>
 #include <memory>
-#include "pmDomain.h"
 
 namespace Nauticle {
+    class pmWorkspace;
 	class pmInteraction_root {
 	protected:
 		std::string name = "";
 	public:
-		static std::shared_ptr<pmDomain> domain;
+		static std::shared_ptr<pmWorkspace> workspace;
 		virtual std::string const& get_name() const;
-	};
+    };
 }
 
 #endif // _INTERACTION_ROOT_H_

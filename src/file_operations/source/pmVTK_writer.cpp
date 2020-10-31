@@ -184,17 +184,17 @@ void pmVTK_writer::push_single_to_polydata(vtkSmartPointer<vtkPolyData> polydata
 /// Pushes domain into polydata.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmVTK_writer::push_domain_to_polydata() {
-	std::shared_ptr<pmDomain> domain = cas->get_workspace()->get_domain();
+	std::shared_ptr<pmWorkspace> workspace = cas->get_workspace();
 	std::stringstream smin;
 	std::stringstream smax;
 	std::stringstream scsize;
 	std::stringstream sbnd;
 	std::stringstream sshft;
-	smin << "domain_min:" << domain->get_minimum();
-	smax << "domain_max:" << domain->get_maximum();
-	scsize << "cell_size:" << domain->get_cell_size();
-	sbnd << "boundary:" << domain->get_boundary();
-	sshft << "shift:" << domain->get_shift();
+	smin << "minimum:" << workspace->get_minimum();
+	smax << "maximum:" << workspace->get_maximum();
+	scsize << "cell_size:" << workspace->get_cell_size();
+	sbnd << "boundary:" << workspace->get_boundary();
+	sshft << "shift:" << workspace->get_shift();
 	vtkSmartPointer<vtkStringArray> string_array = vtkSmartPointer<vtkStringArray>::New();
 	string_array->SetName("domain");
 	string_array->SetNumberOfComponents(1);
@@ -245,7 +245,7 @@ void pmVTK_writer::update() {
 	push_asymmetric_to_polydata();
 	// Write vtk file.
 	vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-	writer->SetFileName(file_name.c_str());
+	writer->SetFileName(("step"+file_name).c_str());
 	writer->SetInputData(polydata);
 	switch(mode) {
 		case ASCII : writer->SetFileTypeToASCII(); break;
@@ -255,13 +255,13 @@ void pmVTK_writer::update() {
 	static bool write_domain = true;
 	if(write_domain) {
 		vtkSmartPointer<vtkRectilinearGridWriter> domain_writer = vtkSmartPointer<vtkRectilinearGridWriter>::New();
-		domain_writer->SetFileName("domain.vtk");
-		std::shared_ptr<pmDomain> domain = cas->get_workspace()->get_domain();
-		int dimensions = domain->get_dimensions();
-		pmTensor minimum = domain->get_minimum();
-		pmTensor maximum = domain->get_maximum();
+		domain_writer->SetFileName(("domain"+file_name).c_str());
+		std::shared_ptr<pmWorkspace> workspace = cas->get_workspace();
+		int dimensions = workspace->get_dimensions();
+		pmTensor minimum = workspace->get_minimum();
+		pmTensor maximum = workspace->get_maximum();
 		pmTensor num_cells = maximum-minimum;
-		pmTensor cell_size = domain->get_cell_size();
+		pmTensor cell_size = workspace->get_cell_size();
 
 		rectilinear_grid->SetDimensions(num_cells[0]+1, dimensions>1?num_cells[1]+1:1.0, dimensions>2?num_cells[2]+1:1.0);
 		
@@ -282,7 +282,7 @@ void pmVTK_writer::update() {
 		rectilinear_grid->SetZCoordinates(zArray);
 		domain_writer->SetInputData(rectilinear_grid);
 		domain_writer->Write();
-		write_domain = false;
+		write_domain = !workspace->is_stationary_domain();
 	}
 }
 

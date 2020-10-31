@@ -22,11 +22,13 @@
 #define _INTERACTION_H_
 
 #include "pmOperator.h"
-#include "pmDomain.h"
 #include "pmInteraction_root.h"
+#include "pmWorkspace.h"
 #include "pmCounter.h"
+#include "pmParticle.h"
 #include <memory>
 #include <mutex>
+#include <vector>
 #include <functional>
 
 namespace Nauticle {
@@ -50,8 +52,8 @@ namespace Nauticle {
 		std::string const& get_declaration_type() const;
 		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 		virtual bool is_interaction() const override;
-		void set_domain();
 		std::string const& get_name() const override;
+		int get_field_size() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +72,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	bool pmInteraction<S>::is_assigned() const {
-		return domain.use_count();
+		return workspace.use_count();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -142,15 +144,17 @@ namespace Nauticle {
 		// return result;
 
 		pmTensor result;
-		std::shared_ptr<pmParticle_system> psys = domain->get_particle_system();
+		std::vector<pmParticle*> neibs_i;
+		std::shared_ptr<pmParticle_system> psys = this->workspace->get_particle_system();
 		pmParticle* p0 = &(psys->get_particle(0));
 		pmTensor pos_i = psys->evaluate(i);
-		std::vector<pmParticle*> neibs_i = domain->get_neighbors(pos_i);
+		workspace->get_neighbors(pos_i, neibs_i);
 		for(auto const& it:neibs_i) {
 			for(pmParticle* pj=it; pj!=nullptr; pj=pj->get_next()) {
 				int j = pj-p0;
-				pmTensor rel_pos = pj->get_position()-pos_i;
-				result += contribute(rel_pos, i, j, domain->get_cell_size());
+				pmTensor pos_j = psys->evaluate(j);
+				pmTensor rel_pos = pos_j-pos_i;
+				result += contribute(rel_pos, i, j, workspace->get_cell_size());
 			}
 		}
 		return result;
@@ -233,6 +237,14 @@ namespace Nauticle {
 	template <size_t S>
 	std::string const& pmInteraction<S>::get_name() const {
 		return name;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the number of particles.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <size_t S>
+	int pmInteraction<S>::get_field_size() const {
+	    return this->workspace->get_particle_system()->get_field_size();
 	}
 }
 

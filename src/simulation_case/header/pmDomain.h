@@ -34,32 +34,33 @@ namespace Nauticle {
 	//  in the Cartesian coordinate system. The domain boundaries can be periodic, symmetric or cutoff.
 	*/
 	class pmDomain {
+	protected:
 		std::shared_ptr<pmParticle_system> psys;
-		std::vector<pmParticle*> grid;
+	private:
 		pmTensor minimum;
 		pmTensor maximum;
 		pmTensor cell_size;
 		pmTensor boundary;
 		pmTensor shift;
+		std::vector<pmParticle*> grid;
 		pmCell_iterator cell_iterator;
-		bool up_to_date = false;
+	protected:
+		virtual std::shared_ptr<pmDomain> clone_impl() const=0;
 	private:
 		bool shift_check() const;
-		void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
+		virtual void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
 		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
 		int calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const;
 		int calculate_hash_key_from_position(pmTensor const& position) const;
 		bool build_cell_list();
+		pmTensor get_grid_position(pmTensor const& point) const;
 	public:
-		pmDomain() = delete;
-		pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft);
-		bool operator==(pmDomain const& rhs) const;
-		bool operator!=(pmDomain const& rhs) const;
-		~pmDomain() {}
-		void expire();
-		void set_particle_system(std::shared_ptr<pmParticle_system> ps);
+		pmDomain()=default;
+		virtual ~pmDomain()=0;
+		virtual void set_domain_parameters(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft);
+		size_t get_number_of_nodes() const;
+		virtual void add_particle_system(std::vector<pmTensor> const& values);
 		std::shared_ptr<pmParticle_system> get_particle_system() const;
-		bool is_up_to_date() const;
 		std::shared_ptr<pmDomain> clone() const;
 		pmTensor const& get_minimum() const;
 		pmTensor const& get_maximum() const;
@@ -68,20 +69,11 @@ namespace Nauticle {
 		pmTensor const& get_shift() const;
 		size_t get_num_cells() const;
 		size_t get_dimensions() const;
-		pmTensor get_physical_minimum() const;
-		pmTensor get_physical_maximum() const;
-		pmTensor get_physical_size() const;
-		void set_minimum(pmTensor const& mn);
-		void set_maximum(pmTensor const& mx);
-		void set_cell_size(pmTensor const& csize);
-		void set_boundary(pmTensor const& bnd);
-		void set_shift(pmTensor const& shft);
-		void print() const;
+		virtual void print() const;
 		pmParticle* get_linked_list(pmTensor const& pos);
-		std::vector<pmParticle*> get_neighbors(pmTensor const& pos);
-		pmTensor get_grid_position(pmTensor const& point) const;
+		void get_neighbors(pmTensor const& pos, std::vector<pmParticle*>& nb);
+		bool is_stationary_domain() const;
 		bool update();
-		std::vector<pmTensor> const& get_cell_iterator() const;
 	};
 }
 

@@ -22,7 +22,7 @@
 
 using namespace Nauticle;
 
-std::shared_ptr<pmDomain> pmInteraction_root::domain;
+std::shared_ptr<pmWorkspace> pmInteraction_root::workspace;
 
 std::string const& pmInteraction_root::get_name() const {
 	return name;

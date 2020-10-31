@@ -112,6 +112,7 @@ namespace Nauticle {
 		double max() const;
 		pmTensor elem(size_t const& r, size_t const& c) const;
 		size_t number_of_nonzero_elements() const;
+		bool is_identity() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1294,7 +1295,7 @@ namespace Nauticle {
 	/// Returns an identity tensor of the given size.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/*static*/ inline pmTensor pmTensor::make_identity(int size) {
-		if(size<1) { ProLog::pLogger::error_msgf("Tensor size must be at least one by one."); }
+		if(size<1) { return pmTensor{}; }
 		pmTensor tensor{size,size,0};
 		for(int i=0; i<size*size; i+=size+1) {
 			tensor[i] = 1.0;
@@ -1513,6 +1514,13 @@ namespace Nauticle {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns true if the tensor is identity.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	inline bool pmTensor::is_identity() const {
+		return make_identity(columns) == *this;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the tensor element in the given row and column.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::elem(size_t const& r, size_t const& c) const {
@@ -1542,7 +1550,7 @@ namespace Nauticle {
 			}
 		}
 		return num;
-	}	
+	}
 }
 
 

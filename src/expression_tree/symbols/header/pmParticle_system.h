@@ -32,6 +32,7 @@ namespace Nauticle {
 	*/
 	class pmParticle_system final : public pmField {
 		std::vector<pmParticle> value;
+		bool up_to_date = false;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
@@ -46,11 +47,13 @@ namespace Nauticle {
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		bool is_symmetric() const override;
 		void set_storage_depth(size_t const& d) override;
-		void build_linked_list();
 		int get_field_size() const override;
 		pmParticle& get_particle(size_t const& i);
 		std::string get_name() const override;
 		std::string get_type() const override;
+		bool is_up_to_date() const;
+		void expire();
+		void set_up_to_date();
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

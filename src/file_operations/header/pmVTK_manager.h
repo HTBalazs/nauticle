@@ -21,6 +21,10 @@
 #ifndef _VTK_PARSER_H_
 #define _VTK_PARSER_H_
 
+#include "prolog/pLogger.h"
+#include "pmEquation_parser.h"
+#include "pmCase.h"
+#include "pmNoncopyable.h"
 #include <memory>
 #include <string>
 #include <vtkGenericDataObjectReader.h>
@@ -37,10 +41,6 @@
 #include <vtkLine.h>
 #include <vtkCellData.h>
 #include <vtkPolyDataWriter.h>
-#include "prolog/pLogger.h"
-#include "pmEquation_parser.h"
-#include "pmCase.h"
-#include "pmNoncopyable.h"
 
 namespace Nauticle {
     /** This abstract class stores vtk-formatted data of pmCase.

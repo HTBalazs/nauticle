@@ -60,7 +60,7 @@ namespace Nauticle {
 		std::shared_ptr<pmField> clone() const;
 		virtual void set_number_of_nodes(size_t const& N);
 		virtual void write_to_string(std::ostream& os) const override;
-		virtual bool is_symmetric() const override;
+		virtual bool is_symmetric() const;
 		void set_symmetry(bool const& sym);
 		virtual void delete_member(size_t const& i);
 		virtual void delete_set(std::vector<size_t> const& indices);

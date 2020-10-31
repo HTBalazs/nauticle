@@ -112,8 +112,8 @@ void pmDvm_operator::print() const {
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	size_t dimension = this->domain->get_dimensions();
-	double cell_size_min = this->domain->get_cell_size().min();
+	size_t dimension = this->workspace->get_dimensions();
+	double cell_size_min = this->workspace->get_cell_size().min();
 	double eps = this->operand[1]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size)->pmTensor{
 		pmTensor w_j = this->operand[0]->evaluate(j,level);

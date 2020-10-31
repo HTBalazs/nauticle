@@ -112,11 +112,4 @@ pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 	return interact(i, contribute);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the size of the field.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmNeighbors::get_field_size() const {
-	return this->domain->get_particle_system()->get_field_size();
-}
-
 

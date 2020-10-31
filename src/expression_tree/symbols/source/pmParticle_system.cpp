@@ -33,6 +33,7 @@ pmParticle_system::pmParticle_system(std::vector<pmTensor> const& val) {
 		value.emplace_back(it);
 	}
 	size_t dimensions = val[0].numel();
+	up_to_date = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +83,7 @@ pmTensor pmParticle_system::evaluate(int const& i, size_t const& level/*=0*/) co
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::set_value(pmTensor const& val, int const& i/*=0*/) {
 	value[i].set_position(val);
+	this->expire();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -130,9 +132,17 @@ std::string pmParticle_system::get_type() const {
 	return "TENSOR";
 }
 
+bool pmParticle_system::is_up_to_date() const {
+	return up_to_date;
+}
 
+void pmParticle_system::expire() {
+	up_to_date = false;
+}
 
-
+void pmParticle_system::set_up_to_date() {
+	up_to_date = true;
+}
 
 
 

@@ -146,7 +146,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <DEM_TYPE TYPE, size_t NOPS>
 	pmTensor pmDem_operator<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
-		size_t dimension = this->domain->get_dimensions();
+		size_t dimension = this->workspace->get_dimensions();
 
 		pmTensor vi = this->operand[0]->evaluate(i,level);
 		pmTensor omi = this->operand[1]->evaluate(i,level);

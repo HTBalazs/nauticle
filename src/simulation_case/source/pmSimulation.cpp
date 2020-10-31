@@ -176,7 +176,7 @@ void pmSimulation::write_step(bool success) const {
 	} else {
 	    char ch[5];
 	    sprintf(&ch[0], "%04i", counter);
-		file_name = "step_";
+		file_name = "_";
 	    file_name += ch;
 	    file_name += ".vtk";
 	}

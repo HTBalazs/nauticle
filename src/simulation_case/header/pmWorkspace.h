@@ -38,49 +38,45 @@ namespace Nauticle {
 	//	or constant can exist without a proprietary workspace, the destructor destroys
 	//  all definitions.
 	*/
-	class pmWorkspace final : public pmMath_test {
-	private:
-		std::shared_ptr<pmDomain> domain;
+	class pmWorkspace final : public pmMath_test, public pmDomain {
+	protected:
 		static std::string const reserved_names[];
 		std::vector<std::shared_ptr<pmSymbol>> definitions;
-		size_t num_nodes=1;
 		std::stack<int> deleted_ids;
 		size_t num_constants;
 		size_t num_variables;
 		std::vector<std::shared_ptr<pmInteraction_root>> interactions;
+	protected:
+		virtual std::shared_ptr<pmDomain> clone_impl() const override;
 	private:
 		bool verify_name(std::string const& name) const;
 		bool is_constant(std::shared_ptr<pmSymbol> term) const;
 		bool is_variable(std::shared_ptr<pmSymbol> term) const;
 		bool is_constant_or_variable(std::shared_ptr<pmSymbol> term) const;
 		void define_bases();
+		void generate_boundary_particles();
 	public:
 		pmWorkspace();
 		pmWorkspace(pmWorkspace const& other);
 		pmWorkspace(pmWorkspace&& other);
 		pmWorkspace& operator=(pmWorkspace const& other);
 		pmWorkspace& operator=(pmWorkspace&& other);
-		bool operator==(pmWorkspace const& rhs) const;
-		bool operator!=(pmWorkspace const& rhs) const;
 		virtual ~pmWorkspace() override {}
+		virtual void set_domain_parameters(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft) override;
 		bool is_existing(std::string const& name) const;
 		void merge(std::shared_ptr<pmWorkspace> other);
-		void add_domain(std::shared_ptr<pmDomain> const& dm);
 		void add_constant(std::string const& name, pmTensor const& value, bool const& hidden=false);
 		void add_variable(std::string const& name, pmTensor const& value);
 		void add_field(std::string const& name, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& printable=true);
 		void add_field(std::string const& name, std::vector<pmTensor> const& values, bool const& sym=true, bool const& printable=true);
-		void add_particle_system(std::vector<pmTensor> const& values);
+		virtual void add_particle_system(std::vector<pmTensor> const& values) override;
 		void delete_instance(std::string const& name);
 		pmTensor get_value(std::string const& name, int const& i=0) const;
-		std::shared_ptr<pmDomain> get_domain() const;
 		std::weak_ptr<pmSymbol> get_instance(std::string const& name, bool const& safe=true) const;
-		std::shared_ptr<pmParticle_system> get_particle_system() const;
 		template <typename T> void print_content(std::string const& title) const;
-		void print() const;
+		void print() const override;
 		std::vector<std::shared_ptr<pmSymbol>> get_definitions();
 		std::shared_ptr<pmWorkspace> clone() const;
-		size_t get_number_of_nodes() const;
 		size_t get_number_of_variables() const;
 		size_t get_number_of_constants() const;
 		static void print_reserved_names();
@@ -93,7 +89,8 @@ namespace Nauticle {
 		void delete_particle(size_t const& i);
 		void delete_particle_set(std::vector<size_t> const& delete_indices);
 		void duplicate_particle(size_t const& i);
-		bool update();
+		bool operator==(pmWorkspace const& rhs) const;
+		bool operator!=(pmWorkspace const& rhs) const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +114,8 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the instances of type T (stored in pmWorkspace) in an std::vector<T>.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	template <typename T> std::vector<std::shared_ptr<T>> pmWorkspace::get(bool const& forced/*=false*/) const {
+	template <typename T>
+	std::vector<std::shared_ptr<T>> pmWorkspace::get(bool const& forced/*=false*/) const {
 		std::vector<std::shared_ptr<T>> vecT;
 		for(auto const& it:definitions) {
 			if(it->is_hidden() && !forced) { continue; }

@@ -21,9 +21,9 @@
 #ifndef _GRID_SPACE_H
 #define _GRID_SPACE_H
 
+#include "pmGrid.h"
 #include <vector>
 #include <memory>
-#include "pmGrid.h"
 
 namespace Nauticle {
     /** This class forms a group of grids used by pmParticle_system.

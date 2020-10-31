@@ -107,7 +107,7 @@ void pmMd_operator::print() const {
 /// Evaluates the operator for the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmMd_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
-	size_t dimension = this->domain->get_dimensions();
+	size_t dimension = this->workspace->get_dimensions();
 	double eps = this->operand[0]->evaluate(i,level)[0];
 	double sigma = this->operand[1]->evaluate(i,level)[0];
 	double R = this->operand[2]->evaluate(i,level)[0];

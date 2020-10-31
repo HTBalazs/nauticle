@@ -26,7 +26,7 @@
 
 using namespace Nauticle;
 
-std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp01110", "Wp01120", "Wp01130", "Wp11110", "Wp11120", "Wp11130", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "We21010", "We21020", "We21030", "domain_min", "domain_max", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k", "simulation", "workspace", "case", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "grid", "equations", "condition", "write_step", "substeps", "all_steps"};
+std::string const pmWorkspace::reserved_names[] = {"id", "true", "false", "pi", "Wp01110", "Wp01120", "Wp01130", "Wp11110", "Wp11120", "Wp11130", "Wp22210", "Wp22220", "Wp22230", "Wp32210", "Wp32220", "Wp32230", "Wp52210", "Wp52220", "Wp52230", "We21010", "We21020", "We21030", "minimum", "maximum", "cell_size", "ASCII", "BINARY", "periodic", "symmetric", "cutoff", "e_i", "e_j", "e_k", "simulation", "workspace", "case", "variables", "constants", "fields", "particle_system", "parameter_space", "domain", "grid", "equations", "condition", "write_step", "substeps", "all_steps"};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
@@ -36,7 +36,6 @@ pmWorkspace::pmWorkspace() {
 	std::iota(id.begin(), id.end(), pmTensor{1,1,0});
 	this->add_field("id", id);
 	std::vector<pmTensor> bound(1, pmTensor{1,1,0});
-	this->add_field("passive_boundary", bound);
 	this->add_constant("true", pmTensor{1,1,1}, true);
 	this->add_constant("false", pmTensor{1,1,0}, true);
 	this->add_constant("pi", pmTensor{1,1,NAUTICLE_PI}, true);
@@ -63,20 +62,19 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("periodic", pmTensor{1,1,0}, true);
 	this->add_constant("symmetric", pmTensor{1,1,1}, true);
 	this->add_constant("cutoff", pmTensor{1,1,2}, true);
+	pmInteraction_root::workspace = std::shared_ptr<pmWorkspace>(this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmWorkspace::pmWorkspace(pmWorkspace const& other) {
-	this->num_nodes = other.num_nodes;
 	for(auto const& it:other.definitions) {
 		this->definitions.push_back(it->clone());
 	}
 	this->num_constants = other.num_constants;
 	this->num_variables = other.num_variables;
 	this->deleted_ids = other.deleted_ids;
-	this->domain = other.domain->clone();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -84,14 +82,12 @@ pmWorkspace::pmWorkspace(pmWorkspace const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmWorkspace& pmWorkspace::operator=(pmWorkspace const& other) {
 	if(this!=&other) {
-		this->num_nodes = other.num_nodes;
 		for(auto const& it:other.definitions) {
 			this->definitions.push_back(it->clone());
 		}
 		this->num_constants = other.num_constants;
 		this->num_variables = other.num_variables;
 		this->deleted_ids = other.deleted_ids;
-		this->domain = other.domain->clone();
 	}
 	return *this;
 }
@@ -100,12 +96,10 @@ pmWorkspace& pmWorkspace::operator=(pmWorkspace const& other) {
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmWorkspace::pmWorkspace(pmWorkspace&& other) {
-	this->num_nodes = other.num_nodes;
 	this->definitions = std::move(other.definitions);
 	this->num_constants = other.num_constants;
 	this->num_variables = other.num_variables;
 	this->deleted_ids = std::move(other.deleted_ids);
-	this->domain = other.domain;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -113,20 +107,34 @@ pmWorkspace::pmWorkspace(pmWorkspace&& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmWorkspace& pmWorkspace::operator=(pmWorkspace&& other) {
 	if(this!=&other) {
-		this->num_nodes = other.num_nodes;
 		this->definitions = std::move(other.definitions);
 		this->num_constants = other.num_constants;
 		this->num_variables = other.num_variables;
 		this->deleted_ids = std::move(other.deleted_ids);
-		this->domain = other.domain;
 	}
 	return *this;
 }
 
+void pmWorkspace::set_domain_parameters(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft) {
+	pmDomain::set_domain_parameters(dmin,dmax,csize,bnd,shft);
+	this->define_bases();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Clone implementation.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmDomain> pmWorkspace::clone_impl() const {
+	return std::make_shared<pmWorkspace>(*this);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the copy of the object.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmWorkspace> pmWorkspace::clone() const {
+	return std::static_pointer_cast<pmWorkspace, pmDomain>(clone_impl());
+}
+
 bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
-	if(this->num_nodes != rhs.num_nodes) {
-		return false;
-	}
 	for(auto const& it:this->get<pmConstant>()) {
 		std::string name = it->get_name();
 		auto rhs_instance = std::dynamic_pointer_cast<pmConstant>(rhs.get_instance(name,false).lock());
@@ -197,9 +205,6 @@ bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
 			return false;
 		}
 	}
-	if(this->domain != rhs.domain) {
-		return false;
-	}
 	return true;
 }
 
@@ -207,7 +212,7 @@ bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
 /// Implements the non-identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmWorkspace::operator!=(pmWorkspace const& rhs) const {
-	return !this->operator==(rhs);
+	return !operator==(rhs);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +241,7 @@ bool pmWorkspace::is_constant_or_variable(std::shared_ptr<pmSymbol> term) const 
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::merge(std::shared_ptr<pmWorkspace> other) {
 	if(other.use_count()==0) { return; }
-	if(this->num_nodes!=other->num_nodes) {
+	if(this->get_number_of_nodes()!=other->get_number_of_nodes()) {
 		this->set_number_of_nodes(other->get_number_of_nodes());
 	}
 	for(auto const& it:other->definitions) {
@@ -253,9 +258,6 @@ void pmWorkspace::merge(std::shared_ptr<pmWorkspace> other) {
 				this->definitions.push_back(it->clone());
 			}
 		}
-	}
-	if(this->domain != other->domain) {
-		ProLog::pLogger::warning_msgf("Merge is unambiguous because the domains are not compatible. Original domain will be used.\n");
 	}
 }
 
@@ -281,15 +283,6 @@ bool pmWorkspace::is_existing(std::string const& name) const {
 		}
 	}
 	return false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Adds a domain to the workspace. Existing domain is replaced.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmWorkspace::add_domain(std::shared_ptr<pmDomain> const& dm) {
-	domain = dm;
-	pmInteraction_root::domain = domain;
-	this->define_bases();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -321,7 +314,7 @@ void pmWorkspace::add_variable(std::string const& name, pmTensor const& value/*=
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& printable/*=true*/) {
 	if(!verify_name(name)) return;
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, num_nodes, value, sym, printable)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, this->get_number_of_nodes(), value, sym, printable)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -330,7 +323,7 @@ void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmT
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const& values, bool const& sym/*=true*/, bool const& printable/*=true*/) {
 	if(!verify_name(name) && name!="id") return;
-	if(values.size()!=num_nodes) {
+	if(values.size()!=this->get_number_of_nodes()) {
 		ProLog::pLogger::error_msgf("Inconsistent size of field \"%s\".\n",name.c_str());
 	}
 	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, values, sym, printable)));
@@ -340,27 +333,26 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 /// Defines the bases unit vectors for the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::define_bases() {
-	double dims = this->domain->get_dimensions();
+	double dims = this->get_dimensions();
 	std::string bases[] = {"e_i", "e_j", "e_k"};
 	for(int i=0; i<dims; i++) {
 		this->add_constant(bases[i], pmTensor::make_identity(dims).sub_tensor(0,dims-1,i,i), true);
 	}
 }
 
+void pmWorkspace::generate_boundary_particles() {
+	
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Adds a new particle system to the workspace with an initialization tensor field. If an 
-/// instance is already existing with the same name it does nothing.
+/// Adds a new particle system to the workspace with an initialization tensor field. If a 
+/// particle system is already defined, it will be replaced with the new one.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values) {
-	if(domain.use_count()==0) {
-		ProLog::pLogger::warning_msgf("Domain has to be added to the workspace before the particle system.\n");
-	}
-	if(is_existing("r")) { return; }
-	if(values.size()!=num_nodes) {
+	if(values.size()!=this->get_number_of_nodes()) {
 		set_number_of_nodes(values.size());
 	}
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>(values)));
-	domain->set_particle_system(this->get_particle_system());
+	pmDomain::add_particle_system(values);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -387,19 +379,14 @@ void pmWorkspace::delete_instance(std::string const& name) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the number of nodes registered in the workspace. For more information see e.g.
-/// pmField and pmVariable classes.
-/////////////////////////////////////////////////////////////////////////////////////////
-size_t pmWorkspace::get_number_of_nodes() const {
-	return num_nodes;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the value of an instance with the given name. The optional index argument 
 /// helps to refer to the desired element of a field. Returns an empty tensor if no 
 /// instance found with the given name.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmWorkspace::get_value(std::string const& name, int const& i/*=0*/) const {
+	if(name=="r") {
+		return this->psys->evaluate(i);
+	}
 	for(auto const& it:definitions) {
 		if(it->get_name()==name) {
 			return it->evaluate(i);
@@ -410,17 +397,13 @@ pmTensor pmWorkspace::get_value(std::string const& name, int const& i/*=0*/) con
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the domain.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmDomain> pmWorkspace::get_domain() const {
-	return domain;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns an instance with the given name. Returns an empty pointer if no such instance
 //  found.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::weak_ptr<pmSymbol> pmWorkspace::get_instance(std::string const& name, bool const& safe/*=true*/) const {
+	if(name=="r") {
+		return std::dynamic_pointer_cast<pmSymbol>(this->psys);
+	}
 	for(auto const& it:definitions) {
 		if(it->get_name()==name) {
 			return std::weak_ptr<pmSymbol>{it};
@@ -433,23 +416,15 @@ std::weak_ptr<pmSymbol> pmWorkspace::get_instance(std::string const& name, bool 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the particle system of the workspace object.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmParticle_system> pmWorkspace::get_particle_system() const {
-	std::shared_ptr<pmSymbol> psys = get_instance("r").lock();
-	return std::static_pointer_cast<pmParticle_system>(psys);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Prints the content of the workspace.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::print() const {
-	ProLog::pLogger::headerf<ProLog::LGY>(" Workspace (number of nodes: %i)", num_nodes);
+	ProLog::pLogger::headerf<ProLog::LGY>(" Workspace (number of nodes: %i)", this->get_number_of_nodes());
 	print_content<pmConstant>("Constants");
 	print_content<pmVariable>("Variables");
 	print_content<pmField>("Fields");
 	ProLog::pLogger::footerf<ProLog::LGY>();
-	domain->print();
+	pmDomain::print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -473,13 +448,6 @@ std::vector<std::shared_ptr<pmSymbol>> pmWorkspace::get_definitions() {
 		ProLog::pLogger::log<ProLog::WHT>("%i) %s\n", i, it.c_str());
 		i++;
 	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns deep copy of the object.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmWorkspace> pmWorkspace::clone() const {
-	return std::make_shared<pmWorkspace>(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -518,6 +486,7 @@ size_t pmWorkspace::get_number_of_constants() const {
 /// If new size is larger, the formerly deleted id-s are re-used first.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::set_number_of_nodes(size_t const& N) {
+	size_t num_nodes = this->get_number_of_nodes();
 	if(N==num_nodes) { return; }
 	if(N==0) { ProLog::pLogger::error_msgf("Workspace size cannot be set to zero.\n"); }
 	for(auto const& it:definitions) {
@@ -589,6 +558,7 @@ std::vector<std::shared_ptr<pmInteraction_root>> const& pmWorkspace::get_interac
 /// Removes the ith particle together with its field values from the workspace. 
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::delete_particle(size_t const& i) {
+	size_t num_nodes = this->get_number_of_nodes();
 	if(num_nodes==1) {
 		ProLog::pLogger::warning_msgf("Cannot delete the last particle.");
 	}
@@ -598,7 +568,6 @@ void pmWorkspace::delete_particle(size_t const& i) {
 		}
 		it->delete_member(i);
 	}
-	num_nodes--;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -616,13 +585,13 @@ void pmWorkspace::delete_particle_set(std::vector<size_t> const& delete_indices)
 		}
 		it->delete_set(delete_indices);
 	}
-	num_nodes -= delete_indices.size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Duplicates particle with the given index. Field values are also duplicated.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::duplicate_particle(size_t const& i) {
+	size_t num_nodes = this->get_number_of_nodes();
 	for(auto& it:this->get<pmField>()) {
 		it->duplicate_member(i);
 		if(it->get_name()=="id") {
@@ -634,9 +603,4 @@ void pmWorkspace::duplicate_particle(size_t const& i) {
 			}
 		}
 	}
-	num_nodes++;
-}
-
-bool pmWorkspace::update() {
-	return domain->update();
 }

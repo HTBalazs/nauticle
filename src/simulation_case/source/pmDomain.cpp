@@ -19,19 +19,27 @@
 */
 
 #include "pmDomain.h"
+#include "pmConstant.h"
 #include "Color_define.h"
 
 using namespace Nauticle;
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Constructor.
+/// Definition of a pure virtual destructor. It is used to make pmDomain abstract.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft) {
+pmDomain::~pmDomain() {}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Setter for the domain.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::set_domain_parameters(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft) {
 	if(dmin.numel()!=dmax.numel() || dmax.numel()!=csize.numel() || csize.numel()!=bnd.numel() || csize.numel()<1 || csize.numel()>3) {
 		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes and all of them need to be 1, 2 or 3 dimensional.\n");
 	}
 	if(!dmin.is_integer() || !dmax.is_integer()) {
+		dmin.print();
+		dmax.print();
 		ProLog::pLogger::warning_msgf("At least one of the domain sizes is not integer multiple of the cell size.\n");
 	}
 	minimum = dmin;
@@ -42,9 +50,36 @@ pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& c
 	if(!shift_check()) {
 		ProLog::pLogger::error_msgf("Shifting is infeasible.\n");
 	}
-	size_t num_cells = get_num_cells();
 	cell_iterator.build_cell_iterator(cell_size.numel());
 	grid.resize(this->get_num_cells());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the number of nodes registered in the workspace. For more information see e.g.
+/// pmField and pmVariable classes.
+/////////////////////////////////////////////////////////////////////////////////////////
+size_t pmDomain::get_number_of_nodes() const {
+	if(psys.use_count()==0) {
+		return 1;
+	}
+	return psys->get_field_size();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Adds a new particle system to the workspace with an initialization tensor field. If a 
+/// particle system is already defined, it will be replaced with the new one.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::add_particle_system(std::vector<pmTensor> const& values) {
+	psys = std::make_shared<pmParticle_system>(values);
+	psys->expire();
+	this->update();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the particle system of the domain object.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmParticle_system> pmDomain::get_particle_system() const {
+	return psys;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -77,28 +112,6 @@ bool pmDomain::shift_check() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Implement identity check.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmDomain::operator==(pmDomain const& rhs) const {
-	if( 0!=(this->minimum != rhs.minimum).productum() || 
-		0!=(this->maximum != rhs.maximum).productum() || 
-		0!=(this->cell_size != rhs.cell_size).productum() || 
-		0!=(this->boundary != rhs.boundary).productum() ||
-		0!=(this->shift != rhs.shift).productum()) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Implements the non-identity check.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmDomain::operator!=(pmDomain const& rhs) const {
-	return !this->operator==(rhs);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid position of of the given point.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
@@ -106,44 +119,13 @@ pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the neighbour list expired.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::expire() {
-	up_to_date = false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Add a particle system to the domain.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_particle_system(std::shared_ptr<pmParticle_system> ps) {
-	if(ps.use_count()>0) {
-		psys = ps;
-		this->update();
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the particle system.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmParticle_system> pmDomain::get_particle_system() const {
-	return psys;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the neighbour list validity.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmDomain::is_up_to_date() const {
-	return up_to_date;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Restrict particles to the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const {
-	if(up_to_date) { return; }
+	if(psys->is_up_to_date()) { return; }
 	pmTensor domain_cell_number = maximum-minimum;
 	for(int i=0; i<value[0].size(); i++) {
-		pmTensor g = get_grid_position(value[0][i]);
+		pmTensor g = get_grid_position(value[0][i])-1.0;
 		pmTensor periodic_shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(cell_size);
 		for(auto& it:value) {
 			size_t deletable = 0;
@@ -159,17 +141,10 @@ void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the cell iterator.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::vector<pmTensor> const& pmDomain::get_cell_iterator() const {
-	return cell_iterator.get_list();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the deep copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmDomain> pmDomain::clone() const {
-	return std::make_shared<pmDomain>(*this);
+	return clone_impl();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -208,29 +183,6 @@ size_t pmDomain::get_dimensions() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns minimum*cellsize. Minimum stores the number of cells from the origin to the 
-/// minimum corner of the domain.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmDomain::get_physical_minimum() const {
-	return minimum.multiply_term_by_term(cell_size);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns maximum*cellsize. Maximum stores the number of cells from the origin to the 
-/// maximum corner of the domain.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmDomain::get_physical_maximum() const {
-	return maximum.multiply_term_by_term(cell_size);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the physical size of the domain.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmDomain::get_physical_size() const {
-	return (maximum-minimum).multiply_term_by_term(cell_size);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the boundary type of the domain (periodic, symmetric or cutoff).
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor const& pmDomain::get_boundary() const {
@@ -259,41 +211,7 @@ void pmDomain::print() const {
 	cell_size.print();
 	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n            shift: ");
 	shift.print();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Setter for domain_min.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_minimum(pmTensor const& mn) {
-	minimum = mn;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Setter for domain_max.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_maximum(pmTensor const& mx) {
-	maximum = mx;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Setter for cell_size.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_cell_size(pmTensor const& csize) {
-	cell_size = csize;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Setter for boundary.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_boundary(pmTensor const& bnd) {
-	boundary = bnd;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Setter for shifting.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::set_shift(pmTensor const& shft) {
-	shift = shft;
+	ProLog::pLogger::line_feed(1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -316,24 +234,33 @@ bool pmDomain::build_cell_list() {
 /// Update the domain (reinitialization of the grid and linked list and rebuild)
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmDomain::update() {
-	if(psys.use_count()==0 || up_to_date) {
+	if(psys.use_count()==0) {
 		return false;
 	}
+	if(psys->is_up_to_date()) {
+		return true;
+	}
 	memset(&grid[0], 0, this->get_num_cells()*sizeof(pmParticle*));
-	return this->build_cell_list();
+	if(this->build_cell_list()) {
+		psys->set_up_to_date();
+		return true;
+	}
+	return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the linket list of the cell with the given position.
+/// Returns the linked list of the cell with the given position.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle* pmDomain::get_linked_list(pmTensor const& pos) {
 	int hash_key = calculate_hash_key_from_position(pos);
 	return grid[hash_key];
 }
 
-std::vector<pmParticle*> pmDomain::get_neighbors(pmTensor const& pos) {
-	std::vector<pmParticle*> nb;
-	std::vector<pmTensor> cell_list = cell_iterator.get_list();
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the vector of linked list for all neighboring cells.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::get_neighbors(pmTensor const& pos, std::vector<pmParticle*>& nb) {
+	std::vector<pmTensor> const& cell_list = cell_iterator.get_list();
 	nb.reserve(cell_list.size());
 	for(auto const& it:cell_list) {
 		pmParticle* llist = get_linked_list(pos+cell_size.multiply_term_by_term(it));
@@ -341,7 +268,6 @@ std::vector<pmParticle*> pmDomain::get_neighbors(pmTensor const& pos) {
 			nb.push_back(llist);
 		}
 	}
-	return nb;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -368,5 +294,8 @@ int pmDomain::calculate_hash_key_from_position(pmTensor const& position) const {
 	return calculate_hash_key_from_grid_position(grid_pos);
 }
 
+bool pmDomain::is_stationary_domain() const {
+	return true;
+}
 
 

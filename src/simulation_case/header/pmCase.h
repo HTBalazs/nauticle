@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _SOLVER_H_
-#define _SOLVER_H_
+#ifndef _CASE_H_
+#define _CASE_H_
 
 #include <iostream>
 #include <string>
@@ -60,4 +60,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_SOLVER_H_
+#endif //_CASE_H_
