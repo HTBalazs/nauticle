@@ -54,6 +54,7 @@ namespace Nauticle {
 		bool is_up_to_date() const;
 		void expire();
 		void set_up_to_date();
+		void add_particle(Particle const& ptc);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

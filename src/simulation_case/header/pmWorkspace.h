@@ -54,7 +54,7 @@ namespace Nauticle {
 		bool is_variable(std::shared_ptr<pmSymbol> term) const;
 		bool is_constant_or_variable(std::shared_ptr<pmSymbol> term) const;
 		void define_bases();
-		void generate_boundary_particles();
+		void generate_boundary_particles() override;
 	public:
 		pmWorkspace();
 		pmWorkspace(pmWorkspace const& other);

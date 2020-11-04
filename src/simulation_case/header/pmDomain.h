@@ -36,6 +36,7 @@ namespace Nauticle {
 	class pmDomain {
 	protected:
 		std::shared_ptr<pmParticle_system> psys;
+		std::vector<pmParticle> boundary_particles;
 	private:
 		pmTensor minimum;
 		pmTensor maximum;
@@ -49,11 +50,13 @@ namespace Nauticle {
 	private:
 		bool shift_check() const;
 		virtual void restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const;
+		pmParticle* get_linked_list(pmTensor const& pos);
 		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
-		int calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const;
-		int calculate_hash_key_from_position(pmTensor const& position) const;
+		template <int OFFSET=1> int calculate_hash_key_from_grid_coordinates(pmTensor const& grid_pos) const;
+		template <int OFFSET=1> int calculate_hash_key_from_position(pmTensor const& position) const;
 		bool build_cell_list();
-		pmTensor get_grid_position(pmTensor const& point) const;
+		template <int OFFSET=1> pmTensor get_grid_position(pmTensor const& point) const;
+		virtual void generate_boundary_particles();
 	public:
 		pmDomain()=default;
 		virtual ~pmDomain()=0;
@@ -70,9 +73,7 @@ namespace Nauticle {
 		size_t get_num_cells() const;
 		size_t get_dimensions() const;
 		virtual void print() const;
-		pmParticle* get_linked_list(pmTensor const& pos);
 		void get_neighbors(pmTensor const& pos, std::vector<pmParticle*>& nb);
-		bool is_stationary_domain() const;
 		bool update();
 	};
 }

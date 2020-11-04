@@ -144,7 +144,10 @@ void pmParticle_system::set_up_to_date() {
 	up_to_date = true;
 }
 
-
+void pmParticle_system::add_particle(Particle const& ptc) {
+	value.push_back(ptc);
+	this->expire();
+}
 
 
 

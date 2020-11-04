@@ -114,8 +114,9 @@ bool pmDomain::shift_check() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid position of of the given point.
 /////////////////////////////////////////////////////////////////////////////////////////
+template <int OFFSET/*=1*/>
 pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
-	return round(floor(point.divide_term_by_term(cell_size))-minimum)+1.0;
+	return round(floor(point.divide_term_by_term(cell_size))-minimum)+(double)OFFSET;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +126,7 @@ void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std
 	if(psys->is_up_to_date()) { return; }
 	pmTensor domain_cell_number = maximum-minimum;
 	for(int i=0; i<value[0].size(); i++) {
-		pmTensor g = get_grid_position(value[0][i])-1.0;
+		pmTensor g = get_grid_position<0>(value[0][i]);
 		pmTensor periodic_shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(cell_size);
 		for(auto& it:value) {
 			size_t deletable = 0;
@@ -218,13 +219,14 @@ void pmDomain::print() const {
 /// Builds the linked list of particles for each cell.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmDomain::build_cell_list() {
+	this->generate_boundary_particles();
 	for(int i=0; i<psys->get_field_size(); ++i) {
 		pmParticle& pi = psys->get_particle(i);
-		int hash_key = calculate_hash_key_from_position(pi.get_position());
+		int hash_key = calculate_hash_key_from_position<>(pi.get_position());
 		if(hash_key<0) {
 			return false;
 		}
-		pi.set_next(grid[hash_key]);
+		pi.next = grid[hash_key];
 		grid[hash_key] = &pi;
 	}
 	return true;
@@ -252,7 +254,7 @@ bool pmDomain::update() {
 /// Returns the linked list of the cell with the given position.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle* pmDomain::get_linked_list(pmTensor const& pos) {
-	int hash_key = calculate_hash_key_from_position(pos);
+	int hash_key = calculate_hash_key_from_position<>(pos);
 	return grid[hash_key];
 }
 
@@ -281,21 +283,63 @@ double pmDomain::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns hash key for the given grid cell.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmDomain::calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const {
-	pmTensor cells = maximum-minimum+2.0;
+template <int OFFSET/*=1*/>
+int pmDomain::calculate_hash_key_from_grid_coordinates(pmTensor const& grid_pos) const {
+	pmTensor cells = maximum-minimum+(double)OFFSET*2.0;
 	return flatten(cells, grid_pos, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns hash key for particle i.
 /////////////////////////////////////////////////////////////////////////////////////////
+template <int OFFSET/*=1*/>
 int pmDomain::calculate_hash_key_from_position(pmTensor const& position) const {
-	pmTensor grid_pos = get_grid_position(position);
-	return calculate_hash_key_from_grid_position(grid_pos);
+	pmTensor grid_pos = get_grid_position<OFFSET>(position);
+	return calculate_hash_key_from_grid_coordinates<OFFSET>(grid_pos);
 }
 
-bool pmDomain::is_stationary_domain() const {
-	return true;
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Generates all the required passive particles for periodic and symmetric boundary conditions.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmDomain::generate_boundary_particles() {
+	for(int i=0; i<psys->get_field_size(); ++i) {
+		pmTensor gi = this->get_grid_position<-1>(pi.get_position());
+		pi.delta = -floor(gi.divide_term_by_term(maximum-minimum));
+	}
+	size_t const num_particles = psys->get_field_size();
+	for(int i=0; i<num_particles; i++) {
+		for(auto const& it:boundaries) {
+			Particle const& pi = psys->get_particle(i);
+			Particle pv = it->get_virtual_particle(pi);
+			boundary_particles.push_back(pv);
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

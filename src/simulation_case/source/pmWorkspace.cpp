@@ -341,7 +341,8 @@ void pmWorkspace::define_bases() {
 }
 
 void pmWorkspace::generate_boundary_particles() {
-	
+	for(int i=0; i<psys->get_field_size(); i++) {}
+	pmDomain::generate_boundary_particles();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

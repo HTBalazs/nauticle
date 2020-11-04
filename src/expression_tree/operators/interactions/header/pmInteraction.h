@@ -150,7 +150,7 @@ namespace Nauticle {
 		pmTensor pos_i = psys->evaluate(i);
 		workspace->get_neighbors(pos_i, neibs_i);
 		for(auto const& it:neibs_i) {
-			for(pmParticle* pj=it; pj!=nullptr; pj=pj->get_next()) {
+			for(pmParticle* pj=it; pj!=nullptr; pj=pj->next) {
 				int j = pj-p0;
 				pmTensor pos_j = psys->evaluate(j);
 				pmTensor rel_pos = pos_j-pos_i;

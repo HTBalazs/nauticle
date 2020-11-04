@@ -25,9 +25,12 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmParticle::pmParticle(pmTensor const& pos) {
+pmParticle::pmParticle(pmTensor const& pos, bool const virt/*=false*/) {
 	this->position = pos;
+	this->_virtual = virt;
+	this->delta = position[0]*0.0;
 	this->next = nullptr;
+	this->parent = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +38,10 @@ pmParticle::pmParticle(pmTensor const& pos) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle::pmParticle(pmParticle const& other) {
 	this->position = other.position;
+	this->delta = other.delta;
+	this->_virtual = other._virtual;
 	this->next = nullptr;
+	this->parent = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +50,10 @@ pmParticle::pmParticle(pmParticle const& other) {
 pmParticle& pmParticle::operator=(pmParticle const& other) {
 	if(this!=&other) {
 		this->position = other.position;
-		this->reset_next();
+		this->_virtual = other._virtual;
+		this->delta = other.delta;
+		this->next = nullptr;
+		this->parent = nullptr;
 	}
 	return *this;
 }
@@ -54,7 +63,9 @@ pmParticle& pmParticle::operator=(pmParticle const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle& pmParticle::operator=(pmTensor const& pos) {
 	position = pos;
-	this->reset_next();
+	delta = position[0]*0.0;
+	next = nullptr;
+	parent = nullptr;
 	return *this;
 }
 
@@ -63,21 +74,8 @@ pmParticle& pmParticle::operator=(pmTensor const& pos) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle::set_position(pmTensor const& pos) {
 	position = pos;
-	this->reset_next();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Add the given particle to the linked list.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle::set_next(pmParticle* p) {
-	next = p;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the next particle's address.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle* pmParticle::get_next() const {
-	return next;
+	delta = position[0]*0.0;
+	next = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -94,9 +92,10 @@ void pmParticle::set_storage_depth(size_t const& d) {
 	position.set_storage_depth(d);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Resets the next pointer to nullptr.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle::reset_next() {
-	next = nullptr;
+bool pmParticle_set_virtual::is_virtual() const {
+	return _virtual;
+}
+
+void pmParticle_set_virtual::set_virtual(bool const& virt) const {
+	_virtual = virt;
 }

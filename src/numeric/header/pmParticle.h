@@ -27,10 +27,14 @@
 namespace Nauticle {
 	class pmParticle {
 		pmHTensor position;
+		bool _virtual = false;
+	public:
 		pmParticle* next = nullptr;
+		mutable pmParticle* parent = nullptr;
+		mutable pmTensor delta;
 	public:
 		pmParticle() = delete;
-		pmParticle(pmTensor const& pos);
+		pmParticle(pmTensor const& pos, bool virt=false);
 		pmParticle(pmParticle const& other);
 		pmParticle(pmParticle&& other)=delete;
 		pmParticle& operator=(pmParticle const& other);
@@ -38,11 +42,10 @@ namespace Nauticle {
 		pmParticle& operator=(pmTensor const& t);
 		~pmParticle() {}
 		void set_position(pmTensor const& pos);
-		void set_next(pmParticle* p);
 		pmTensor const& get_position(size_t const& level=0) const;
-		pmParticle* get_next() const;
 		void set_storage_depth(size_t const& d);
-		void reset_next();
+		bool is_virtual() const;
+		void set_virtual(bool const& state) const;
 	};
 }
 

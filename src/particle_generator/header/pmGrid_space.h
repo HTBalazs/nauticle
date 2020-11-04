@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _GRID_SPACE_H
-#define _GRID_SPACE_H
+#ifndef _GRID_SPACE_H_
+#define _GRID_SPACE_H_
 
 #include "pmGrid.h"
 #include <vector>
@@ -44,4 +44,4 @@ namespace Nauticle {
     };
 }
 
-#endif // _GRID_SPACE_H
+#endif // _GRID_SPACE_H_
