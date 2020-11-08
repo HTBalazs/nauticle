@@ -34,6 +34,8 @@ pmParticle_system::pmParticle_system(std::vector<pmTensor> const& val) {
 	}
 	size_t dimensions = val[0].numel();
 	up_to_date = false;
+	virtual_particle_begin = value.end();
+	virtual_particle_end = value.end();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -144,15 +146,52 @@ void pmParticle_system::set_up_to_date() {
 	up_to_date = true;
 }
 
-void pmParticle_system::add_particle(Particle const& ptc) {
+void pmParticle_system::add_real_particle(pmParticle const& ptc) {
+	ptc.set_virtual(false);
+	if(!value.back().is_virtual()) {
+		return;
+	}
 	value.push_back(ptc);
 	this->expire();
+	virtual_particle_begin = value.end();
+	virtual_particle_end = value.end();
 }
 
+void pmParticle_system::add_virtual_particle(pmParticle const& ptc) {
+	ptc.set_virtual(true);
+	if(!value.back().is_virtual()) {
+		virtual_particle_begin = value.end();
+	}
+	value.push_back(ptc);
+	this->expire();
+	virtual_particle_end = value.end();
+}
 
+std::vector<pmParticle>::iterator pmParticle_system::real_begin() {
+	return value.begin();
+}
 
+std::vector<pmParticle>::iterator pmParticle_system::real_end() {
+	return virtual_particle_begin;
+}
 
+std::vector<pmParticle>::iterator pmParticle_system::virtual_begin() {
+	return virtual_particle_begin;
+}
 
+std::vector<pmParticle>::iterator pmParticle_system::virtual_end() {
+	return virtual_particle_end;
+}
+
+void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
+	value.push_back(pmParticle{v});
+}
+
+void pmParticle_system::destroy_virtual_particles() {
+	value.erase(virtual_particle_begin, virtual_particle_end);
+	virtual_particle_begin = value.end();
+	virtual_particle_end = value.end();
+}
 
 
 

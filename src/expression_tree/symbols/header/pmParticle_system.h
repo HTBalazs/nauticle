@@ -24,6 +24,7 @@
 #include "pmField.h"
 #include "pmParticle.h"
 #include <string>
+#include <algorithm>
 
 namespace Nauticle {
 	/** This class manages a cloud of nodes (particles) and forms a spatial domain 
@@ -33,6 +34,8 @@ namespace Nauticle {
 	class pmParticle_system final : public pmField {
 		std::vector<pmParticle> value;
 		bool up_to_date = false;
+		std::vector<pmParticle>::iterator virtual_particle_begin;
+		std::vector<pmParticle>::iterator virtual_particle_end;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
@@ -54,7 +57,14 @@ namespace Nauticle {
 		bool is_up_to_date() const;
 		void expire();
 		void set_up_to_date();
-		void add_particle(Particle const& ptc);
+		void add_real_particle(pmParticle const& ptc);
+		void add_virtual_particle(pmParticle const& ptc);
+		std::vector<pmParticle>::iterator real_begin();
+		std::vector<pmParticle>::iterator real_end();
+		std::vector<pmParticle>::iterator virtual_begin();
+		std::vector<pmParticle>::iterator virtual_end();
+		void add_member(pmTensor const& v=pmTensor{}) override;
+		void destroy_virtual_particles();
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

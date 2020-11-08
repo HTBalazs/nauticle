@@ -122,22 +122,28 @@ pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Restrict particles to the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const {
+void pmDomain::restrict_particles(std::vector<size_t>& del) {
 	if(psys->is_up_to_date()) { return; }
-	pmTensor domain_cell_number = maximum-minimum;
-	for(int i=0; i<value[0].size(); i++) {
-		pmTensor g = get_grid_position<0>(value[0][i]);
-		pmTensor periodic_shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(cell_size);
-		for(auto& it:value) {
-			size_t deletable = 0;
-			for(int j=0; j<it[i].numel(); j++) {
-				it[i][j] -= periodic_shift[j]*(boundary[j]!=2);
-				deletable += (periodic_shift[j]!=0 && boundary[j]==2);
-			}
-			if(deletable>0) {
-				del.push_back(i);
-			}
+	pmTensor num_cells = maximum-minimum;
+	for(int i=0; i<psys->get_field_size(); i++) {
+		pmParticle& pi = psys->get_particle(i);
+		pmTensor pos_i = pi.get_position();
+		pmTensor grid_coords = get_grid_position<0>(pos_i);
+		pmTensor periodic_shift = -(grid_coords-mod(grid_coords,num_cells)).multiply_term_by_term(cell_size);
+		size_t deletable = 0;
+		for(int j=0; j<periodic_shift.numel(); j++) {
+			periodic_shift[j] *= boundary[j]==2 ? 0.0 : 1.0;
+			deletable -= (periodic_shift[j]!=0 && boundary[j]==2);
 		}
+		if(deletable>0) {
+			del.push_back(i);
+		}
+		// if(!periodic_shift.is_zero()) {
+		// 	pi.get_position().print();
+		// 	pi.shift(periodic_shift);
+		// 	std::cout << std::endl;
+		// 	pi.get_position().print();
+		// }
 	}
 }
 
@@ -219,7 +225,6 @@ void pmDomain::print() const {
 /// Builds the linked list of particles for each cell.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmDomain::build_cell_list() {
-	this->generate_boundary_particles();
 	for(int i=0; i<psys->get_field_size(); ++i) {
 		pmParticle& pi = psys->get_particle(i);
 		int hash_key = calculate_hash_key_from_position<>(pi.get_position());
@@ -242,12 +247,40 @@ bool pmDomain::update() {
 	if(psys->is_up_to_date()) {
 		return true;
 	}
+	// Update linked list of grid cells
 	memset(&grid[0], 0, this->get_num_cells()*sizeof(pmParticle*));
-	if(this->build_cell_list()) {
-		psys->set_up_to_date();
-		return true;
+	if(!this->build_cell_list()) {
+		return false;
 	}
-	return false;
+	// Iterate through outer cells to generate boundary particles.
+	pmTensor domain_cells = maximum-minimum+2.0;
+	for(auto& it:grid) {
+		if(it!=nullptr) {
+			for(auto const& cit:cell_iterator.get_list()) {
+				pmTensor pos = it->get_position()+cit.multiply_term_by_term(cell_size);
+				pmTensor grid_coords = get_grid_position<1>(pos);
+				pmTensor delta = -floor((grid_coords).divide_term_by_term(domain_cells));
+				if(delta.is_zero()) {
+					continue;
+				}
+				grid_coords += delta.multiply_term_by_term(domain_cells-boundary.multiply_term_by_term(domain_cells)+boundary);
+				int hash_key = this->calculate_hash_key_from_grid_coordinates<1>(grid_coords);
+				for(pmParticle* pb = grid[hash_key]; pb!=nullptr; pb=pb->next) {
+					pmParticle vp = *pb;
+					vp.set_virtual(true);
+					vp.parent = pb;
+					psys->add_virtual_particle(vp);
+				}
+			}
+		}
+	}
+	// TODO: optimize grid update. The second build is unnecessary, only passive particles should be checked.
+	memset(&grid[0], 0, this->get_num_cells()*sizeof(pmParticle*));
+	if(!this->build_cell_list()) {
+		return false;
+	}
+	psys->set_up_to_date();
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -298,23 +331,6 @@ int pmDomain::calculate_hash_key_from_position(pmTensor const& position) const {
 	return calculate_hash_key_from_grid_coordinates<OFFSET>(grid_pos);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Generates all the required passive particles for periodic and symmetric boundary conditions.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmDomain::generate_boundary_particles() {
-	for(int i=0; i<psys->get_field_size(); ++i) {
-		pmTensor gi = this->get_grid_position<-1>(pi.get_position());
-		pi.delta = -floor(gi.divide_term_by_term(maximum-minimum));
-	}
-	size_t const num_particles = psys->get_field_size();
-	for(int i=0; i<num_particles; i++) {
-		for(auto const& it:boundaries) {
-			Particle const& pi = psys->get_particle(i);
-			Particle pv = it->get_virtual_particle(pi);
-			boundary_particles.push_back(pv);
-		}
-	}
-}
 
 
 

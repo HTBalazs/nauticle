@@ -143,7 +143,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			ws_write_case->set_value(pmTensor{1,1,0});
 		}
 		if(!success) {
-			ProLog::pLogger::error_msgf("Simulation failed. Please refer to \"error.vtk\"\n");
+			ProLog::pLogger::error_msgf("Simulation failed. Please refer to \"step_error.vtk\"\n");
 		}
 	}
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
@@ -176,7 +176,6 @@ void pmSimulation::write_step(bool success) const {
 	} else {
 	    char ch[5];
 	    sprintf(&ch[0], "%04i", counter);
-		file_name = "_";
 	    file_name += ch;
 	    file_name += ".vtk";
 	}

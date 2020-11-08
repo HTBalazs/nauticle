@@ -28,7 +28,6 @@ using namespace Nauticle;
 pmParticle::pmParticle(pmTensor const& pos, bool const virt/*=false*/) {
 	this->position = pos;
 	this->_virtual = virt;
-	this->delta = position[0]*0.0;
 	this->next = nullptr;
 	this->parent = nullptr;
 }
@@ -38,7 +37,6 @@ pmParticle::pmParticle(pmTensor const& pos, bool const virt/*=false*/) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle::pmParticle(pmParticle const& other) {
 	this->position = other.position;
-	this->delta = other.delta;
 	this->_virtual = other._virtual;
 	this->next = nullptr;
 	this->parent = nullptr;
@@ -51,7 +49,6 @@ pmParticle& pmParticle::operator=(pmParticle const& other) {
 	if(this!=&other) {
 		this->position = other.position;
 		this->_virtual = other._virtual;
-		this->delta = other.delta;
 		this->next = nullptr;
 		this->parent = nullptr;
 	}
@@ -63,7 +60,6 @@ pmParticle& pmParticle::operator=(pmParticle const& other) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle& pmParticle::operator=(pmTensor const& pos) {
 	position = pos;
-	delta = position[0]*0.0;
 	next = nullptr;
 	parent = nullptr;
 	return *this;
@@ -74,7 +70,6 @@ pmParticle& pmParticle::operator=(pmTensor const& pos) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle::set_position(pmTensor const& pos) {
 	position = pos;
-	delta = position[0]*0.0;
 	next = nullptr;
 }
 
@@ -92,10 +87,16 @@ void pmParticle::set_storage_depth(size_t const& d) {
 	position.set_storage_depth(d);
 }
 
-bool pmParticle_set_virtual::is_virtual() const {
+bool pmParticle::is_virtual() const {
 	return _virtual;
 }
 
-void pmParticle_set_virtual::set_virtual(bool const& virt) const {
+void pmParticle::set_virtual(bool const& virt) {
 	_virtual = virt;
+}
+
+void pmParticle::shift(pmTensor const& distance) {
+	for(int i=0; i<position.get_storage_depth(); i++) {
+		position[i] += distance;
+	}
 }

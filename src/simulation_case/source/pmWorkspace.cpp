@@ -340,11 +340,6 @@ void pmWorkspace::define_bases() {
 	}
 }
 
-void pmWorkspace::generate_boundary_particles() {
-	for(int i=0; i<psys->get_field_size(); i++) {}
-	pmDomain::generate_boundary_particles();
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new particle system to the workspace with an initialization tensor field. If a 
 /// particle system is already defined, it will be replaced with the new one.
@@ -605,3 +600,31 @@ void pmWorkspace::duplicate_particle(size_t const& i) {
 		}
 	}
 }
+
+bool pmWorkspace::update() {
+	std::vector<size_t> del;
+	restrict_particles(del);
+	bool success = pmDomain::update();
+	if(!success) {
+		return false;
+	}
+	for(std::vector<pmParticle> it=psys->virtual_begin(); it!=psys->virtual_end(); it++) {
+		size_t idx = it.parent-&psys->get_particle(0);
+		
+	}
+	return success;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -245,7 +245,7 @@ void pmVTK_writer::update() {
 	push_asymmetric_to_polydata();
 	// Write vtk file.
 	vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-	writer->SetFileName(("step"+file_name).c_str());
+	writer->SetFileName(("step_"+file_name).c_str());
 	writer->SetInputData(polydata);
 	switch(mode) {
 		case ASCII : writer->SetFileTypeToASCII(); break;
@@ -255,7 +255,7 @@ void pmVTK_writer::update() {
 	static bool write_domain = true;
 	if(write_domain) {
 		vtkSmartPointer<vtkRectilinearGridWriter> domain_writer = vtkSmartPointer<vtkRectilinearGridWriter>::New();
-		domain_writer->SetFileName(("domain"+file_name).c_str());
+		domain_writer->SetFileName("domain.vtk");
 		std::shared_ptr<pmWorkspace> workspace = cas->get_workspace();
 		int dimensions = workspace->get_dimensions();
 		pmTensor minimum = workspace->get_minimum();
@@ -282,7 +282,7 @@ void pmVTK_writer::update() {
 		rectilinear_grid->SetZCoordinates(zArray);
 		domain_writer->SetInputData(rectilinear_grid);
 		domain_writer->Write();
-		write_domain = !workspace->is_stationary_domain();
+		write_domain = false;
 	}
 }
 

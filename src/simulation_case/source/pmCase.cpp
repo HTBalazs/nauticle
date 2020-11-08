@@ -158,7 +158,10 @@ bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 	if(name=="") {
 		for(auto const& it:equations) {
 			if(it->is_interaction()) {
-				workspace->update();
+				success = workspace->update();
+				if(!success) {
+					return false;
+				}
 			}
 			it->solve(num_threads);
 			if(it->get_lhs()->get_name()=="r") {
