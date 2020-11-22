@@ -52,7 +52,7 @@ bool pmVariable::operator!=(pmVariable const& rhs) const {
 /// Returns the stored data based on the evaluation type given as the optional parameter.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmVariable::evaluate(int const& i, size_t const& level/*=0*/) const {
-    return value[level];
+    return value(level);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

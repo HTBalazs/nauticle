@@ -21,7 +21,7 @@
 #ifndef _FIELD_H_
 #define _FIELD_H_
 
-#include "pmSymbol.h"
+#include "pmCollection.h"
 #include "pmSort.h"
 #include "pmHistory.h"
 #include <string>
@@ -33,41 +33,31 @@ namespace Nauticle {
 	//  a copy of the field data in the previous step. Current and previous data is managed automatically
 	//  when the two_step option is on.
 	*/
-	class pmField : public pmSymbol {
+	class pmField final : public pmCollection<pmHTensor> {
 	private:
-		std::vector<pmHTensor> value;
-		bool symmetric = true;
+		int reflect_parallel = 1;
+		int reflect_perpendicular = 1;
 		bool printable = true;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
-		pmField() {}
-		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& pr=true);
-		pmField(std::string const& n, std::vector<pmTensor> const& value, bool const& sym=true, bool const& pr=true);
-		pmField(pmField const&);
-		pmField(pmField&&);
-		pmField& operator=(pmField const&);
-		pmField& operator=(pmField&&);
+		pmField()=delete;
+		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0}, int const& prl=1, int const& ppd=-1, bool const& pr=true);
+		pmField(std::string const& n, std::vector<pmTensor> const& value, int const& prl=1, int const& ppd=-1, bool const& pr=true);
+		virtual ~pmField() override = default;
+		void printv() const override;
+		std::shared_ptr<pmField> clone() const;
+		virtual void write_to_string(std::ostream& os) const override;
+		void duplicate_member(size_t const& i, pmTensor const& guide=pmTensor{}) override;
+		void set_printable(bool const& p);
+		virtual bool is_printable() const override;
+		void set_parallel_reflection(int const& rfl);
+		void set_perpendicular_reflection(int const& rfl);
+		int get_parallel_reflection() const;
+		int get_perpendicular_reflection() const;
 		bool operator==(pmField const& rhs) const;
 		bool operator!=(pmField const& rhs) const;
-		virtual ~pmField() override {}
-		void printv() const override;
-		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		virtual void set_value(pmTensor const& value, int const& i=0) override;
-		virtual int get_field_size() const override;
-		virtual std::string get_type() const override;
-		virtual void set_storage_depth(size_t const& d) override;
-		std::shared_ptr<pmField> clone() const;
-		virtual void set_number_of_nodes(size_t const& N);
-		virtual void write_to_string(std::ostream& os) const override;
-		virtual bool is_symmetric() const;
-		void set_symmetry(bool const& sym);
-		virtual void delete_member(size_t const& i);
-		virtual void delete_set(std::vector<size_t> const& indices);
-		virtual void add_member(pmTensor const& v=pmTensor{});
-		virtual void duplicate_member(size_t const& i);
-		void set_printable(bool const& p);
-		virtual bool is_printable() const;
+		void initialize(pmTensor const& v);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

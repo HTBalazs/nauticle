@@ -113,6 +113,7 @@ namespace Nauticle {
 		pmTensor elem(size_t const& r, size_t const& c) const;
 		size_t number_of_nonzero_elements() const;
 		bool is_identity() const;
+		pmTensor nonzero() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

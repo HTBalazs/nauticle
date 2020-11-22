@@ -17,25 +17,9 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
-#include "pmExpression.h"
+
+#include "pmFirst_virtual_index.h"
 
 using namespace Nauticle;
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the copy of the object.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmExpression::clone() const {
-	return clone_impl();
-}
-
-bool pmExpression::is_interaction() const {
-    return false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Checks if the expression is assigned. It returns true.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmExpression::is_assigned() const {
-    return true;
-}
+size_t pmFirst_virtual_index::first_virtual_index = 0;

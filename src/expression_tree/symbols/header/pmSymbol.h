@@ -21,8 +21,8 @@
 #ifndef _TERM_H_
 #define _TERM_H_
 
-#include <string>
 #include "pmExpression.h"
+#include <string>
 
 namespace Nauticle {
 	/** This interface forms the base for single and field expressions. It holds a name.
@@ -31,7 +31,7 @@ namespace Nauticle {
 	protected:
 		std::string name = "";
 	public:
-		virtual ~pmSymbol() {}
+		virtual ~pmSymbol() override = default;
 		virtual std::string get_name() const;
 		virtual void print() const override;
 		virtual void printv() const=0;
@@ -41,6 +41,7 @@ namespace Nauticle {
 		virtual bool is_hidden() const;
 		virtual std::string get_type() const=0;
 		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
+		virtual bool is_printable() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

@@ -26,81 +26,33 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/) {
+pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, int const& prl/*=1*/, int const& ppd/*=-1*/, bool const& pr/*=true*/) {
 	name = n;
 	value.resize(size, pmHTensor{v});
-	symmetric = sym;
+	reflect_parallel = prl;
+	reflect_perpendicular = ppd;
 	printable = pr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool const& sym/*=true*/, bool const& pr/*=true*/) {
+pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, int const& prl/*=1*/, int const& ppd/*=-1*/, bool const& pr/*=true*/) {
 	name = n;
 	value.resize(v.size());
 	for(int i=0; i<v.size(); i++) {
 		value[i] = v[i];
 	}
-	symmetric = sym;
+	reflect_parallel = prl;
+	reflect_perpendicular = ppd;
 	printable = pr;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(pmField const& other) {
-	this->name = other.name;
-	this->value = other.value;
-	this->symmetric = other.symmetric;
-	this->printable = other.printable;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(pmField&& other) {
-	this->name = std::move(other.name);
-	this->value = std::move(other.value);
-	this->symmetric = std::move(other.symmetric);
-	this->printable = std::move(other.printable);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmField& pmField::operator=(pmField const& other) {
-	if(this!=&other) {
-		this->name = other.name;
-		this->value = other.value;
-		this->symmetric = other.symmetric;
-		this->printable = other.printable;
-	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmField& pmField::operator=(pmField&& other) {
-	if(this!=&other) {
-		this->name = std::move(other.name);
-		this->value = std::move(other.value);
-		this->symmetric = std::move(other.symmetric);
-		this->printable = std::move(other.printable);
-	}
-	return *this;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implement identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmField::operator==(pmField const& rhs) const {
-	if(this->name != rhs.name || this->value != rhs.value || this->symmetric != rhs.symmetric || this->printable!=rhs.printable) {
-		return false;
-	} else {
-		return true;
-	}
+	return !(this->name != rhs.name || this->value != rhs.value || this->reflect_parallel != rhs.reflect_parallel || this->reflect_perpendicular != rhs.reflect_perpendicular || this->printable!=rhs.printable);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -119,52 +71,11 @@ void pmField::printv() const {
 		ProLog::pLogger::logf<ProLog::LMA>(" ");
 	}
 	pmTensor tensor = this->evaluate(0);
-	ProLog::pLogger::logf<ProLog::LMA>("[%i by %i]", tensor.get_numrows(), tensor.get_numcols());
-	if(!this->is_symmetric()) {
-		ProLog::pLogger::logf<ProLog::LMA>(" asym");
-	}
+	ProLog::pLogger::logf<ProLog::LMA>("[%i by %i] ", tensor.get_numrows(), tensor.get_numcols());
+	ProLog::pLogger::logf<ProLog::LMA>("[prl: %i, ppd: %i]", reflect_parallel, reflect_perpendicular);
 	if(!this->is_printable()) {
 		ProLog::pLogger::logf<ProLog::LMA>(" not printed");
 	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the size of the field.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmField::get_field_size() const {
-	return value.size();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the depth of data storage.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmField::set_storage_depth(size_t const& d) {
-	for(auto& it:value) {
-		it.set_storage_depth(d);
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Evaluates the field.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmField::evaluate(int const& i, size_t const& level/*=0*/) const {
-	return value[i][level];
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the value of the ith node.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmField::set_value(pmTensor const& v, int const& i/*=0*/) {
-	value[i] = v;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the field type.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::string pmField::get_type() const {
-	if(value[0][0].is_scalar()) { return "SCALAR"; }
-	if(value[0][0].is_vector()) { return "VECTOR"; }
-	return "TENSOR";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -182,16 +93,6 @@ std::shared_ptr<pmField> pmField::clone() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Resizes the field. The last element is copied to the empty places if N>current size.
-/// If N<current size, the elements above N are destroyed.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmField::set_number_of_nodes(size_t const& N) {
-	if(N!=value.size()) {
-		value.resize(N, value.back());
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Writes object to string.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::write_to_string(std::ostream& os) const {
@@ -199,57 +100,21 @@ void pmField::write_to_string(std::ostream& os) const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Return symmetric property of the field. 
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmField::is_symmetric() const {
-	return symmetric;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sets symmetric property of the field. 
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmField::set_symmetry(bool const& sym) {
-	symmetric = sym;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Deletes the member of the field with the given index.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmField::delete_member(size_t const& i) {
-	value[i] = value.back();
-	value.pop_back();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Deletes the set of members of the fiels listed in the given delete_indices vector.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmField::delete_set(std::vector<size_t> const& delete_indices) {
-	// Common::delete_indices(value, delete_indices);
-	for(auto const& it:delete_indices) {
-		this->delete_member(it);
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Adds a member to the field initialized with the last member in the container.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmField::add_member(pmTensor const& v/*=pmTensor{}*/) {
-	pmTensor tensor = v;
-	pmHTensor new_val;
-	if(tensor.numel()==0) {
-		new_val = value.back();
-	} else {
-		new_val.set_storage_depth(value[0].get_storage_depth());
-		new_val.initialize(tensor);
-	}
-	value.push_back(new_val);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Duplicates the member with the given index.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmField::duplicate_member(size_t const& i) {
+void pmField::duplicate_member(size_t const& i, pmTensor const& guide/*=pmTensor{}*/) {
+	if(pmFirst_virtual_index::first_virtual_index <= i) {
+		ProLog::pLogger::error_msgf("Duplication of virtual particles is not allowed.\n");
+	}
 	value.push_back(value[i]);
+	pmHTensor& tmp = value.back();
+	if(!guide.is_empty() && !guide.is_zero()) {
+		for(auto& it:tmp) {
+			pmTensor perpendicular = (guide.transpose()*it)*guide/guide.norm();
+			pmTensor parallel = it-perpendicular;
+			it = parallel*reflect_parallel+perpendicular*reflect_perpendicular;
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -264,4 +129,10 @@ void pmField::set_printable(bool const& p) {
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmField::is_printable() const {
 	return this->printable;
+}
+
+void pmField::initialize(pmTensor const& v) {
+	for(auto& it:value) {
+		it.initialize(v);
+	}
 }

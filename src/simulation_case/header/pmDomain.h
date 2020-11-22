@@ -44,6 +44,7 @@ namespace Nauticle {
 		pmTensor shift;
 		std::vector<pmParticle*> grid;
 		pmCell_iterator cell_iterator;
+		std::vector<pmParticle> virtual_particles;
 	protected:
 		virtual std::shared_ptr<pmDomain> clone_impl() const=0;
 		void restrict_particles(std::vector<size_t>& del);
@@ -54,10 +55,10 @@ namespace Nauticle {
 		template <int OFFSET=1> int calculate_hash_key_from_grid_coordinates(pmTensor const& grid_pos) const;
 		template <int OFFSET=1> int calculate_hash_key_from_position(pmTensor const& position) const;
 		bool build_cell_list();
-		template <int OFFSET=1> pmTensor get_grid_position(pmTensor const& point) const;
+		template <int OFFSET=1> pmTensor get_grid_coordinates(pmTensor const& point) const;
 	public:
 		pmDomain()=default;
-		virtual ~pmDomain()=0;
+		virtual ~pmDomain();
 		virtual void set_domain_parameters(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd, pmTensor const& shft);
 		size_t get_number_of_nodes() const;
 		virtual void add_particle_system(std::vector<pmTensor> const& values);
@@ -68,12 +69,59 @@ namespace Nauticle {
 		pmTensor const& get_cell_size() const;
 		pmTensor const& get_boundary() const;
 		pmTensor const& get_shift() const;
-		size_t get_num_cells() const;
+		template <int OFFSET/*=1*/> size_t get_num_cells() const;
 		size_t get_dimensions() const;
 		virtual void print() const;
 		void get_neighbors(pmTensor const& pos, std::vector<pmParticle*>& nb);
 		virtual bool update();
+		template <int OFFSET=1> bool is_inside(pmTensor const& pos) const;
 	};
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the grid position of of the given point.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <int OFFSET/*=1*/>
+	pmTensor pmDomain::get_grid_coordinates(pmTensor const& point) const {
+		return round(floor(point.divide_term_by_term(cell_size))-minimum)+(double)OFFSET;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns hash key for the given grid cell.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <int OFFSET/*=1*/>
+	int pmDomain::calculate_hash_key_from_grid_coordinates(pmTensor const& grid_pos) const {
+		pmTensor cells = maximum-minimum+(double)OFFSET*2.0;
+		return flatten(cells, grid_pos, 0);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns hash key for particle i.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <int OFFSET/*=1*/>
+	int pmDomain::calculate_hash_key_from_position(pmTensor const& position) const {
+		pmTensor grid_pos = get_grid_coordinates<OFFSET>(position);
+		return calculate_hash_key_from_grid_coordinates<OFFSET>(grid_pos);
+	}
+
+	template <int OFFSET/*=1*/>
+	bool pmDomain::is_inside(pmTensor const& pos) const {
+		pmTensor physical_min = (minimum-(double)OFFSET).multiply_term_by_term(cell_size);
+		pmTensor physical_max = (maximum+(double)OFFSET).multiply_term_by_term(cell_size);
+		for(int k=0; k<pos.numel(); k++) {
+			if(pos[k] < physical_min[k] || pos[k] > physical_max[k]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Returns the number of cells.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <int OFFSET/*=1*/>
+	size_t pmDomain::get_num_cells() const {
+		return std::round((maximum-minimum+(double)OFFSET*2.0).productum());
+	}
 }
 
 #endif //_DOMAIN_H_

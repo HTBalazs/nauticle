@@ -36,6 +36,7 @@ pmWorkspace::pmWorkspace() {
 	std::iota(id.begin(), id.end(), pmTensor{1,1,0});
 	this->add_field("id", id);
 	std::vector<pmTensor> bound(1, pmTensor{1,1,0});
+	this->add_field("boundary", bound);
 	this->add_constant("true", pmTensor{1,1,1}, true);
 	this->add_constant("false", pmTensor{1,1,0}, true);
 	this->add_constant("pi", pmTensor{1,1,NAUTICLE_PI}, true);
@@ -168,7 +169,7 @@ bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
 			return false;
 		}
 	}
-	if(*this->get_particle_system() != *rhs.get_particle_system()) {
+	if(*(this->psys) != *(rhs.psys)) {
 		return false;
 	}
 	
@@ -312,21 +313,21 @@ void pmWorkspace::add_variable(std::string const& name, pmTensor const& value/*=
 /// Adds a new field to the workspace with an optional initialization value. If an 
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& printable/*=true*/) {
+void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmTensor{0}*/, int const& prl/*=true*/, int const& ppd/*=true*/, bool const& printable/*=true*/) {
 	if(!verify_name(name)) return;
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, this->get_number_of_nodes(), value, sym, printable)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, this->get_number_of_nodes(), value, prl, ppd, printable)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Adds a new field to the workspace with an initialization tensor field. If an 
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const& values, bool const& sym/*=true*/, bool const& printable/*=true*/) {
+void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const& values, int const& prl/*=true*/, int const& ppd/*=true*/, bool const& printable/*=true*/) {
 	if(!verify_name(name) && name!="id") return;
 	if(values.size()!=this->get_number_of_nodes()) {
 		ProLog::pLogger::error_msgf("Inconsistent size of field \"%s\".\n",name.c_str());
 	}
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, values, sym, printable)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, values, prl, ppd, printable)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -584,10 +585,44 @@ void pmWorkspace::delete_particle_set(std::vector<size_t> const& delete_indices)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Updates the workspace. It destroys the existing boundary (virtual) particles, generates new ones.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmWorkspace::update() {
+	if(psys.use_count()==0) {
+		return false;
+	}
+	psys->destroy_virtual_members();
+	std::vector<size_t> del;
+	restrict_particles(del);
+	delete_particle_set(del);
+	// Neighbor search and generation of virtual particles
+	bool success = pmDomain::update();
+	if(!success) {
+		return false;
+	}
+	// Update fields of the virtual particles
+	for(auto& field_it:this->get<pmField>()) {
+		field_it->destroy_virtual_members();
+		if(field_it->get_name()=="boundary") {
+			field_it->initialize(pmTensor{0});
+		}
+		for(int idx=psys->get_field_size(); idx<psys->get_field_total_size(); idx++) {
+			pmParticle& pi = psys->get_particle(idx);
+			field_it->duplicate_member(pi.parent_index, pi.guide);
+			if(field_it->get_name()=="boundary") {
+				field_it->set_value(1,idx);
+			}
+		}
+	}
+	return success;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Duplicates particle with the given index. Field values are also duplicated.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::duplicate_particle(size_t const& i) {
 	size_t num_nodes = this->get_number_of_nodes();
+	psys->duplicate_member(i);
 	for(auto& it:this->get<pmField>()) {
 		it->duplicate_member(i);
 		if(it->get_name()=="id") {
@@ -600,22 +635,6 @@ void pmWorkspace::duplicate_particle(size_t const& i) {
 		}
 	}
 }
-
-bool pmWorkspace::update() {
-	std::vector<size_t> del;
-	restrict_particles(del);
-	bool success = pmDomain::update();
-	if(!success) {
-		return false;
-	}
-	for(std::vector<pmParticle> it=psys->virtual_begin(); it!=psys->virtual_end(); it++) {
-		size_t idx = it.parent-&psys->get_particle(0);
-		
-	}
-	return success;
-}
-
-
 
 
 

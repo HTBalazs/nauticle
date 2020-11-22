@@ -18,24 +18,16 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#include "pmExpression.h"
+#ifndef _FIRST_VIRTUAL_INDEX_H_
+#define _FIRST_VIRTUAL_INDEX_H_
 
-using namespace Nauticle;
+#include <vector>
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the copy of the object.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> pmExpression::clone() const {
-	return clone_impl();
+namespace Nauticle {
+	class pmFirst_virtual_index {
+	protected:
+		static size_t first_virtual_index;
+	};
 }
 
-bool pmExpression::is_interaction() const {
-    return false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Checks if the expression is assigned. It returns true.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmExpression::is_assigned() const {
-    return true;
-}
+#endif //_FIRST_VIRTUAL_INDEX_H_

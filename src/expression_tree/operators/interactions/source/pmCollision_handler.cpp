@@ -20,6 +20,7 @@
 
 #include "pmCollision_handler.h"
 #include "Color_define.h"
+#include "pmField.h"
 
 using namespace Nauticle;
 

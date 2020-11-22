@@ -23,24 +23,36 @@
 
 #include "pmTensor.h"
 #include <deque>
+#include <functional>
 
 namespace Nauticle {
 	template <class T>
 	class pmHistory {
 		std::deque<T> value;
-		size_t depth = 0;
+		size_t depth = 1;
 	public:
 		pmHistory();
 		pmHistory(T const& val);
+		pmHistory(pmHistory const& val);
+		pmHistory(pmHistory&& val);
+		pmHistory& operator=(pmHistory const& val);
+		pmHistory& operator=(pmHistory&& val);
 		void set_storage_depth(size_t const& d);
 		size_t get_storage_depth() const;
 		pmHistory& operator=(T const& val);
-		T const& operator[](size_t const& level) const;
-		T& operator[](size_t const& level);
-		operator T() const;
+		T const& operator()(size_t const& level) const;
+		T& operator()(size_t const& level);
 		void initialize(T const& val);
 		bool operator==(pmHistory<T> const& rhs) const;
 		bool operator!=(pmHistory<T> const& rhs) const;
+		typename std::deque<T>::iterator begin();
+		typename std::deque<T>::iterator end();
+		typename std::deque<T>::iterator cbegin() const;
+		typename std::deque<T>::iterator cend() const;
+		typename std::deque<T>::iterator rbegin();
+		typename std::deque<T>::iterator rend();
+		typename std::deque<T>::iterator crbegin() const;
+		typename std::deque<T>::iterator crend() const;
 	};
 
 	using pmHTensor = pmHistory<pmTensor>;
@@ -63,14 +75,38 @@ namespace Nauticle {
 		value.push_front(val);
 	}
 
+	template <class T>
+	pmHistory<T>::pmHistory(pmHistory<T> const& other) {
+		this->value = other.value;
+		this->depth = other.depth;
+	}
+	template <class T>
+	pmHistory<T>::pmHistory(pmHistory<T>&& other) {
+		this->value = other.value;
+		this->depth = other.depth;
+	}
+	template <class T>
+	pmHistory<T>& pmHistory<T>::operator=(pmHistory const& rhs) {
+		if(this!=&rhs) {
+			this->value = rhs.value;
+			this->depth = rhs.depth;
+		}
+		return *this;
+	}
+	template <class T>
+	pmHistory<T>& pmHistory<T>::operator=(pmHistory&& rhs) {
+		if(this!=&rhs) {
+			this->value = rhs.value;
+			this->depth = rhs.depth;
+		}
+		return *this;
+	}
+
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Sets the depth of the history.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <class T>
 	void pmHistory<T>::set_storage_depth(size_t const& d) {
-		if(d<1) {
-			return;
-		}
 		depth = d;
 		value.resize(depth, value.back());
 	}
@@ -95,7 +131,7 @@ namespace Nauticle {
 	/// Overloads the [] operator to access the elements of the queue.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <class T>
-	T const& pmHistory<T>::operator[](size_t const& level) const {
+	T const& pmHistory<T>::operator()(size_t const& level) const {
 		return value[level];
 	}
 
@@ -103,16 +139,8 @@ namespace Nauticle {
 	/// Overloads the [] operator to access the elements of the queue.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <class T>
-	T& pmHistory<T>::operator[](size_t const& level) {
+	T& pmHistory<T>::operator()(size_t const& level) {
 		return value[level];
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// User-defined conversion.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <class T>
-	inline pmHistory<T>::operator T() const {
-		return value[0];
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +160,7 @@ namespace Nauticle {
 	bool pmHistory<T>::operator==(pmHistory<T> const& rhs) const {
 		if(this->depth==rhs.depth) {
 			for(int i=0; i<this->value.size(); i++) {
-				if(!((*this)[i]==rhs[i])) {
+				if(!((*this)(i)==rhs(i))) {
 					return false;
 				}
 			}
@@ -149,6 +177,47 @@ namespace Nauticle {
 	bool pmHistory<T>::operator!=(pmHistory<T> const& rhs) const {
 		return !(*this==rhs);
 	}
+
+	template <class T>
+	typename std::deque<T>::iterator pmHistory<T>::begin() {
+		return value.begin();
+	}
+
+	template <class T>
+	typename std::deque<T>::iterator pmHistory<T>::end() {
+		return value.end();
+	}
+
+	template <class T>
+	typename std::deque<T>::iterator pmHistory<T>::cbegin() const {
+		return value.cbegin();
+	}
+
+	template <class T>
+	typename std::deque<T>::iterator pmHistory<T>::cend() const {
+		return value.cend();
+	}
+
+	template <class T>
+	typename std::deque<T>::iterator pmHistory<T>::rbegin() {
+		return value.rbegin();
+	}
+
+	template <class T>
+	typename std::deque<T>::iterator pmHistory<T>::rend() {
+		return value.rend();
+	}
+
+	template <class T>
+	typename std::deque<T>::iterator pmHistory<T>::crbegin() const {
+		return value.crbegin();
+	}
+
+	template <class T>
+	typename std::deque<T>::iterator pmHistory<T>::crend() const {
+		return value.crend();
+	}
+
 }
 
 #endif //_HISTORY_H_

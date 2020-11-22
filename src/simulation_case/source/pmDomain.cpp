@@ -28,7 +28,9 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Definition of a pure virtual destructor. It is used to make pmDomain abstract.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmDomain::~pmDomain() {}
+pmDomain::~pmDomain() {
+	grid.clear();
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Setter for the domain.
@@ -51,7 +53,7 @@ void pmDomain::set_domain_parameters(pmTensor const& dmin, pmTensor const& dmax,
 		ProLog::pLogger::error_msgf("Shifting is infeasible.\n");
 	}
 	cell_iterator.build_cell_iterator(cell_size.numel());
-	grid.resize(this->get_num_cells());
+	grid.resize(this->get_num_cells<1>());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +64,7 @@ size_t pmDomain::get_number_of_nodes() const {
 	if(psys.use_count()==0) {
 		return 1;
 	}
-	return psys->get_field_size();
+	return psys->get_field_total_size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +74,6 @@ size_t pmDomain::get_number_of_nodes() const {
 void pmDomain::add_particle_system(std::vector<pmTensor> const& values) {
 	psys = std::make_shared<pmParticle_system>(values);
 	psys->expire();
-	this->update();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -112,14 +113,6 @@ bool pmDomain::shift_check() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the grid position of of the given point.
-/////////////////////////////////////////////////////////////////////////////////////////
-template <int OFFSET/*=1*/>
-pmTensor pmDomain::get_grid_position(pmTensor const& point) const {
-	return round(floor(point.divide_term_by_term(cell_size))-minimum)+(double)OFFSET;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Restrict particles to the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmDomain::restrict_particles(std::vector<size_t>& del) {
@@ -128,7 +121,7 @@ void pmDomain::restrict_particles(std::vector<size_t>& del) {
 	for(int i=0; i<psys->get_field_size(); i++) {
 		pmParticle& pi = psys->get_particle(i);
 		pmTensor pos_i = pi.get_position();
-		pmTensor grid_coords = get_grid_position<0>(pos_i);
+		pmTensor grid_coords = get_grid_coordinates<0>(pos_i);
 		pmTensor periodic_shift = -(grid_coords-mod(grid_coords,num_cells)).multiply_term_by_term(cell_size);
 		size_t deletable = 0;
 		for(int j=0; j<periodic_shift.numel(); j++) {
@@ -137,13 +130,11 @@ void pmDomain::restrict_particles(std::vector<size_t>& del) {
 		}
 		if(deletable>0) {
 			del.push_back(i);
+			continue;
 		}
-		// if(!periodic_shift.is_zero()) {
-		// 	pi.get_position().print();
-		// 	pi.shift(periodic_shift);
-		// 	std::cout << std::endl;
-		// 	pi.get_position().print();
-		// }
+		if(!periodic_shift.is_zero()) {
+			pi.shift(periodic_shift);
+		}
 	}
 }
 
@@ -173,13 +164,6 @@ pmTensor const& pmDomain::get_maximum() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor const& pmDomain::get_cell_size() const {
 	return cell_size;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the number of cells.
-/////////////////////////////////////////////////////////////////////////////////////////
-size_t pmDomain::get_num_cells() const {
-	return std::round((maximum-minimum).productum());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -225,10 +209,10 @@ void pmDomain::print() const {
 /// Builds the linked list of particles for each cell.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmDomain::build_cell_list() {
-	for(int i=0; i<psys->get_field_size(); ++i) {
+	for(int i=0; i<psys->get_field_total_size(); ++i) {
 		pmParticle& pi = psys->get_particle(i);
-		int hash_key = calculate_hash_key_from_position<>(pi.get_position());
-		if(hash_key<0) {
+		int hash_key = calculate_hash_key_from_position<1>(pi.get_position());
+		if(!this->is_inside<1>(pi.get_position())) {
 			return false;
 		}
 		pi.next = grid[hash_key];
@@ -241,6 +225,8 @@ bool pmDomain::build_cell_list() {
 /// Update the domain (reinitialization of the grid and linked list and rebuild)
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmDomain::update() {
+	static pmTensor domain_physical_maximum = maximum.multiply_term_by_term(cell_size);
+	static pmTensor domain_physical_minimum = minimum.multiply_term_by_term(cell_size);
 	if(psys.use_count()==0) {
 		return false;
 	}
@@ -248,34 +234,67 @@ bool pmDomain::update() {
 		return true;
 	}
 	// Update linked list of grid cells
-	memset(&grid[0], 0, this->get_num_cells()*sizeof(pmParticle*));
+	std::fill(grid.begin(),grid.end(),nullptr);
 	if(!this->build_cell_list()) {
 		return false;
 	}
 	// Iterate through outer cells to generate boundary particles.
-	pmTensor domain_cells = maximum-minimum+2.0;
-	for(auto& it:grid) {
+	pmTensor domain_cells = maximum-minimum;
+	// cellak
+	virtual_particles.resize(0);
+	for(auto const& it:grid) {
+		// amelyikben van reszecske
 		if(it!=nullptr) {
+			// akorul vegigiteralunk
 			for(auto const& cit:cell_iterator.get_list()) {
+				// szomszedos cellaban egy pont
 				pmTensor pos = it->get_position()+cit.multiply_term_by_term(cell_size);
-				pmTensor grid_coords = get_grid_position<1>(pos);
-				pmTensor delta = -floor((grid_coords).divide_term_by_term(domain_cells));
+				// annak a cellakoordinataja
+				pmTensor grid_coords1 = get_grid_coordinates<1>(pos);
+				int hash_key_outside = this->calculate_hash_key_from_grid_coordinates<1>(grid_coords1);
+				if(grid[hash_key_outside]!=nullptr) {
+					continue;
+				}
+				pmTensor grid_coords0 = get_grid_coordinates<0>(pos);
+				// ahhoz pedig a delta
+				pmTensor delta = -floor((grid_coords0).divide_term_by_term(domain_cells));
+				// ha nem nulla (azaz a domainen kivul esik)
 				if(delta.is_zero()) {
 					continue;
 				}
-				grid_coords += delta.multiply_term_by_term(domain_cells-boundary.multiply_term_by_term(domain_cells)+boundary);
-				int hash_key = this->calculate_hash_key_from_grid_coordinates<1>(grid_coords);
+				// akkor kiszamoljuk, hogy melyik cellanak kene ott lennie (periodikus vagy szimmetrikus feltetel eseten)
+				grid_coords1 += delta.multiply_term_by_term(domain_cells-boundary.multiply_term_by_term(domain_cells)+boundary);
+				// annak a hash kulcsa
+				int hash_key = this->calculate_hash_key_from_grid_coordinates<1>(grid_coords1);
+				// abban a cellaban levo reszecskekbol kell virtualisakat generalnunk
 				for(pmParticle* pb = grid[hash_key]; pb!=nullptr; pb=pb->next) {
+					// reszecske a meglevo reszecskebol
 					pmParticle vp = *pb;
-					vp.set_virtual(true);
-					vp.parent = pb;
-					psys->add_virtual_particle(vp);
+					// legyen az apja az eredeti
+					vp.parent_index = pb-&psys->get_particle(0);
+					// kell hozza guide ami megmondja, hogy majd a mezoket hogyan kell modositani
+					vp.guide = delta.multiply_term_by_term(boundary);
+					// aktualis pozicio
+					pmTensor vpos = vp.get_position();
+					// amit el kell tolni a peremfeltetelnek megfeleloen
+					for(int k=0; k<boundary.numel(); k++) {
+						if(boundary[k]==1) {
+							vpos[k] += delta[k]*(delta[k]-1)*(domain_physical_maximum[k]-vpos[k]) + delta[k]*(delta[k]+1)*(domain_physical_minimum[k]-vpos[k]);
+						} else {
+							vpos[k] -= delta[k]*(domain_physical_maximum[k]-domain_physical_minimum[k]);
+						}
+					}
+					vp.set_position(vpos);
+					// hozzaadhatjuk a reszecskerendszerhez
+					virtual_particles.push_back(vp);
 				}
+				grid[hash_key_outside] = grid[hash_key];
 			}
 		}
 	}
+	psys->insert_virtual_particles(virtual_particles);
 	// TODO: optimize grid update. The second build is unnecessary, only passive particles should be checked.
-	memset(&grid[0], 0, this->get_num_cells()*sizeof(pmParticle*));
+	std::fill(grid.begin(),grid.end(),nullptr);
 	if(!this->build_cell_list()) {
 		return false;
 	}
@@ -287,7 +306,10 @@ bool pmDomain::update() {
 /// Returns the linked list of the cell with the given position.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle* pmDomain::get_linked_list(pmTensor const& pos) {
-	int hash_key = calculate_hash_key_from_position<>(pos);
+	if(!is_inside<1>(pos)) {
+ 		return nullptr;
+	}
+	int hash_key = calculate_hash_key_from_position<1>(pos);
 	return grid[hash_key];
 }
 
@@ -312,28 +334,6 @@ double pmDomain::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t
 	if(i>=cells.numel()) { return 0.0; }
 	return std::round((cells[i])*flatten(cells, grid_pos, i+1)+grid_pos[i]);
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns hash key for the given grid cell.
-/////////////////////////////////////////////////////////////////////////////////////////
-template <int OFFSET/*=1*/>
-int pmDomain::calculate_hash_key_from_grid_coordinates(pmTensor const& grid_pos) const {
-	pmTensor cells = maximum-minimum+(double)OFFSET*2.0;
-	return flatten(cells, grid_pos, 0);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns hash key for particle i.
-/////////////////////////////////////////////////////////////////////////////////////////
-template <int OFFSET/*=1*/>
-int pmDomain::calculate_hash_key_from_position(pmTensor const& position) const {
-	pmTensor grid_pos = get_grid_position<OFFSET>(position);
-	return calculate_hash_key_from_grid_coordinates<OFFSET>(grid_pos);
-}
-
-
-
-
 
 
 

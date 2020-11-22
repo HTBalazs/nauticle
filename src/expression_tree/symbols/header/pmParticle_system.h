@@ -21,50 +21,42 @@
 #ifndef _PARTICLE_SYSTEM_H_
 #define _PARTICLE_SYSTEM_H_
 
-#include "pmField.h"
+#include "pmSymbol.h"
 #include "pmParticle.h"
+#include "pmCollection.h"
 #include <string>
 #include <algorithm>
+#include <vector>
 
 namespace Nauticle {
 	/** This class manages a cloud of nodes (particles) and forms a spatial domain 
 	//  for the governing equations.
 	//  Neighbour search and cloud/grid generation is integrated inside.
 	*/
-	class pmParticle_system final : public pmField {
-		std::vector<pmParticle> value;
+	class pmParticle_system final : public pmCollection<pmParticle> {
+	private:
 		bool up_to_date = false;
-		std::vector<pmParticle>::iterator virtual_particle_begin;
-		std::vector<pmParticle>::iterator virtual_particle_end;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmParticle_system()=delete;
 		pmParticle_system(std::vector<pmTensor> const& val);
-		virtual ~pmParticle_system() {}
+		virtual ~pmParticle_system() override = default;
 		void print() const override;
 		std::shared_ptr<pmParticle_system> clone() const;
-		bool is_position() const override;
-		bool is_printable() const override;
 		virtual void set_value(pmTensor const& val, int const& i=0) override;
-		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		bool is_symmetric() const override;
-		void set_storage_depth(size_t const& d) override;
-		int get_field_size() const override;
 		pmParticle& get_particle(size_t const& i);
 		std::string get_name() const override;
-		std::string get_type() const override;
 		bool is_up_to_date() const;
 		void expire();
 		void set_up_to_date();
-		void add_real_particle(pmParticle const& ptc);
-		void add_virtual_particle(pmParticle const& ptc);
-		std::vector<pmParticle>::iterator real_begin();
-		std::vector<pmParticle>::iterator real_end();
-		std::vector<pmParticle>::iterator virtual_begin();
-		std::vector<pmParticle>::iterator virtual_end();
-		void add_member(pmTensor const& v=pmTensor{}) override;
-		void destroy_virtual_particles();
+		void destroy_virtual_members() override;
+		void write_to_string(std::ostream& os) const override;
+		void printv() const override;
+		void duplicate_member(size_t const& i, pmTensor const& guide=pmTensor{}) override;
+		void insert_virtual_particles(std::vector<pmParticle> const& particles);
+		bool operator==(pmParticle_system const& rhs) const;
+		bool operator!=(pmParticle_system const& rhs) const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

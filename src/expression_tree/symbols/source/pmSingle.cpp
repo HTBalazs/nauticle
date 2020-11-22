@@ -29,14 +29,14 @@ using namespace Nauticle;
 void pmSingle::printv() const {
 	this->print();
 	ProLog::pLogger::logf<NAUTICLE_COLOR>(" = ");
-	value[0].print();
+	value(0).print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Evaluates the single-valued constant or variable.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmSingle::evaluate(int const& i, size_t const& level/*=0*/) const {
-	return value[level];
+	return value(level);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -57,8 +57,8 @@ std::shared_ptr<pmSingle> pmSingle::clone() const {
 /// Returns the type in pmSingle format. It returns on of the followings: SCALAR, VECTOR, TENSOR. 
 /////////////////////////////////////////////////////////////////////////////////////////
 std::string pmSingle::get_type() const {
-    if(value[0].is_scalar()) { return "SCALAR"; }
-    if(value[0].is_vector()) { return "VECTOR"; }
+    if(value(0).is_scalar()) { return "SCALAR"; }
+    if(value(0).is_vector()) { return "VECTOR"; }
     return "TENSOR";
 }
 

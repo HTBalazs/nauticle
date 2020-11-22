@@ -69,7 +69,7 @@ void pmConstant::set_storage_depth(size_t const& d) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmConstant::print() const {
 	if(name=="") {
-		value[0].print();
+		value(0).print();
 	} else {
 		ProLog::pLogger::logf<NAUTICLE_COLOR>("%s", name.c_str());
 	}
@@ -101,7 +101,7 @@ bool pmConstant::is_hidden() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmConstant::write_to_string(std::ostream& os) const {
 	if(name=="") {
-		os << value[0];
+		os << value(0);
 	} else {
 		os << name;
 	}
@@ -113,7 +113,7 @@ std::string pmConstant::generate_evaluator_code(std::string const& i, std::strin
     	return pmSymbol::generate_evaluator_code(i,level);
     } else {
 		char buffer[100] = {};
-		sprintf(buffer, "(double)%g", value[0][0]);
+		sprintf(buffer, "(double)%g", value(0)[0]);
 		return std::string{buffer};
     }
 }

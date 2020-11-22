@@ -26,6 +26,7 @@
 #include <memory>
 #include "prolog/pLogger.h"
 #include "pmParticle_system.h"
+#include "pmField.h"
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 

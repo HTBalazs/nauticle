@@ -34,8 +34,7 @@ pmParticle_system::pmParticle_system(std::vector<pmTensor> const& val) {
 	}
 	size_t dimensions = val[0].numel();
 	up_to_date = false;
-	virtual_particle_begin = value.end();
-	virtual_particle_end = value.end();
+	pmFirst_virtual_index::first_virtual_index = value.size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -60,55 +59,11 @@ std::shared_ptr<pmParticle_system> pmParticle_system::clone() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns if the object is the position.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::is_position() const {
-	return true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns if the object is printable.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::is_printable() const {
-	return true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the ith particle's position at the given time level.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmParticle_system::evaluate(int const& i, size_t const& level/*=0*/) const {
-	return value[i].get_position(level);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::set_value(pmTensor const& val, int const& i/*=0*/) {
-	value[i].set_position(val);
+	pmCollection<pmParticle>::set_value(val,i);
 	this->expire();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns true.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::is_symmetric() const {
-	return true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Set the depth of the particle system.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::set_storage_depth(size_t const& d) {
-	for(auto& it:value) {
-		it.set_storage_depth(d);
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the size of the field.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmParticle_system::get_field_size() const {
-	return value.size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -125,15 +80,6 @@ std::string pmParticle_system::get_name() const {
 	return "r";
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the field type.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::string pmParticle_system::get_type() const {
-	if(value[0].get_position().is_scalar()) { return "SCALAR"; }
-	if(value[0].get_position().is_vector()) { return "VECTOR"; }
-	return "TENSOR";
-}
-
 bool pmParticle_system::is_up_to_date() const {
 	return up_to_date;
 }
@@ -146,63 +92,55 @@ void pmParticle_system::set_up_to_date() {
 	up_to_date = true;
 }
 
-void pmParticle_system::add_real_particle(pmParticle const& ptc) {
-	ptc.set_virtual(false);
-	if(!value.back().is_virtual()) {
-		return;
-	}
-	value.push_back(ptc);
+void pmParticle_system::destroy_virtual_members() {
+	pmCollection<pmParticle>::destroy_virtual_members();
 	this->expire();
-	virtual_particle_begin = value.end();
-	virtual_particle_end = value.end();
 }
 
-void pmParticle_system::add_virtual_particle(pmParticle const& ptc) {
-	ptc.set_virtual(true);
-	if(!value.back().is_virtual()) {
-		virtual_particle_begin = value.end();
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Writes object to string.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_system::write_to_string(std::ostream& os) const {
+	os << name;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Duplicates the member with the given index.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_system::duplicate_member(size_t const& i, pmTensor const& guide/*=pmTensor{}*/) {
+	if(pmFirst_virtual_index::first_virtual_index <= i) {
+		ProLog::pLogger::error_msgf("Duplication of virtual particles is not allowed.\n");
 	}
-	value.push_back(ptc);
+	if(pmFirst_virtual_index::first_virtual_index<value.size()) {
+		value.push_back(value[i]);
+		pmFirst_virtual_index::first_virtual_index = value.size();
+	}
 	this->expire();
-	virtual_particle_end = value.end();
 }
 
-std::vector<pmParticle>::iterator pmParticle_system::real_begin() {
-	return value.begin();
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Prints the whole content of the field.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmParticle_system::printv() const {
+	this->print();
+	for(int i=0; i<20-name.size(); i++) {
+		ProLog::pLogger::logf<ProLog::LMA>(" ");
+	}
+	pmTensor tensor = this->evaluate(0);
+	ProLog::pLogger::logf<ProLog::LMA>("[%i by %i]", tensor.get_numrows(), tensor.get_numcols());
 }
 
-std::vector<pmParticle>::iterator pmParticle_system::real_end() {
-	return virtual_particle_begin;
+bool pmParticle_system::operator==(pmParticle_system const& rhs) const {
+	return this->value == rhs.value;
 }
 
-std::vector<pmParticle>::iterator pmParticle_system::virtual_begin() {
-	return virtual_particle_begin;
+bool pmParticle_system::operator!=(pmParticle_system const& rhs) const {
+	return !this->operator==(rhs);
 }
 
-std::vector<pmParticle>::iterator pmParticle_system::virtual_end() {
-	return virtual_particle_end;
+void pmParticle_system::insert_virtual_particles(std::vector<pmParticle> const& particles) {
+	value.insert(value.end(),particles.begin(),particles.end());
 }
-
-void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
-	value.push_back(pmParticle{v});
-}
-
-void pmParticle_system::destroy_virtual_particles() {
-	value.erase(virtual_particle_begin, virtual_particle_end);
-	virtual_particle_begin = value.end();
-	virtual_particle_end = value.end();
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 

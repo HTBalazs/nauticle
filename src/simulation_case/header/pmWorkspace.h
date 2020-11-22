@@ -23,6 +23,7 @@
 
 #include "prolog/pLogger.h"
 #include "pmDomain.h"
+#include "pmField.h"
 #include "pmParticle_system.h"
 #include "pmMath_test.h"
 #include "pmInteraction_root.h"
@@ -66,9 +67,10 @@ namespace Nauticle {
 		void merge(std::shared_ptr<pmWorkspace> other);
 		void add_constant(std::string const& name, pmTensor const& value, bool const& hidden=false);
 		void add_variable(std::string const& name, pmTensor const& value);
-		void add_field(std::string const& name, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& printable=true);
-		void add_field(std::string const& name, std::vector<pmTensor> const& values, bool const& sym=true, bool const& printable=true);
+		void add_field(std::string const& name, pmTensor const& value=pmTensor{0}, int const& prl=true, int const& ppd=true, bool const& printable=true);
+		void add_field(std::string const& name, std::vector<pmTensor> const& values, int const& prl=true, int const& ppd=true, bool const& printable=true);
 		virtual void add_particle_system(std::vector<pmTensor> const& values) override;
+		void duplicate_particle(size_t const& i);
 		void delete_instance(std::string const& name);
 		pmTensor get_value(std::string const& name, int const& i=0) const;
 		std::weak_ptr<pmSymbol> get_instance(std::string const& name, bool const& safe=true) const;
@@ -87,7 +89,6 @@ namespace Nauticle {
 		std::vector<std::shared_ptr<pmInteraction_root>> const& get_interactions() const;
 		void delete_particle(size_t const& i);
 		void delete_particle_set(std::vector<size_t> const& delete_indices);
-		void duplicate_particle(size_t const& i);
 		bool operator==(pmWorkspace const& rhs) const;
 		bool operator!=(pmWorkspace const& rhs) const;
 		bool update() override;

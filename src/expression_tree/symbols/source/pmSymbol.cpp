@@ -23,6 +23,12 @@
 
 using namespace Nauticle;
 
+
+bool pmSymbol::is_printable() const {
+    return true;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the number of nodes in the field.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -61,4 +67,3 @@ bool pmSymbol::is_hidden() const {
 std::string pmSymbol::generate_evaluator_code(std::string const& i, std::string const& level) const {
     return std::string{"ws_" + name + "->evaluate(" + i + "," + level + ")"};
 }
-

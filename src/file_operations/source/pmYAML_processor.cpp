@@ -117,11 +117,14 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
     for(int i=0; i<fld_node.size(); i++) {
     	std::string name;
     	std::string value;
-    	std::string symmetric = "true";
+    	std::string flip_parallel = "false";
+    	std::string flip_perpendicular = "false";
     	std::string printable = "true";
         for(YAML::const_iterator it = fld_node[i].begin();it!=fld_node[i].end();it++) {
-        	if(it->first.as<std::string>()=="symmetric") {
-        		symmetric = it->second.as<std::string>();
+        	if(it->first.as<std::string>()=="flip_parallel") {
+        		flip_parallel = it->second.as<std::string>();
+        	} else if(it->first.as<std::string>()=="flip_perpendicular") {
+        		flip_perpendicular = it->second.as<std::string>();
         	} else if(it->first.as<std::string>()=="print") {
         		printable = it->second.as<std::string>();
         	} else {
@@ -130,7 +133,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
         	}
         }
 		pmTensor_parser tensor_parser{};
-        workspace->add_field(name, tensor_parser.string_to_tensor_field(value, workspace), (bool)tensor_parser.string_to_tensor(symmetric, workspace)[0], (bool)tensor_parser.string_to_tensor(printable, workspace)[0]);
+        workspace->add_field(name, tensor_parser.string_to_tensor_field(value, workspace), -tensor_parser.string_to_tensor(flip_parallel, workspace)[0]*2+1, -tensor_parser.string_to_tensor(flip_perpendicular, workspace)[0]*2+1, (bool)tensor_parser.string_to_tensor(printable, workspace)[0]);
     }
 	return workspace;
 }

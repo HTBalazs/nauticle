@@ -22,6 +22,7 @@
 #include "pmParticle_merger.h"
 #include "pmKernel.h"
 #include "pmSmallest.h"
+#include "pmParticle.h"
 #include <utility>
 
 using namespace Nauticle;

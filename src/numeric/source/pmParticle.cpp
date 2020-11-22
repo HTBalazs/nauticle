@@ -25,11 +25,11 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmParticle::pmParticle(pmTensor const& pos, bool const virt/*=false*/) {
+pmParticle::pmParticle(pmHTensor const& pos) {
 	this->position = pos;
-	this->_virtual = virt;
 	this->next = nullptr;
-	this->parent = nullptr;
+	this->parent_index = -1;
+	this->guide = position(0)*0.0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -37,9 +37,9 @@ pmParticle::pmParticle(pmTensor const& pos, bool const virt/*=false*/) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle::pmParticle(pmParticle const& other) {
 	this->position = other.position;
-	this->_virtual = other._virtual;
 	this->next = nullptr;
-	this->parent = nullptr;
+	this->parent_index = other.parent_index;
+	this->guide = other.guide;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -48,20 +48,53 @@ pmParticle::pmParticle(pmParticle const& other) {
 pmParticle& pmParticle::operator=(pmParticle const& other) {
 	if(this!=&other) {
 		this->position = other.position;
-		this->_virtual = other._virtual;
 		this->next = nullptr;
-		this->parent = nullptr;
+		this->parent_index = other.parent_index;
+		this->guide = other.guide;
 	}
 	return *this;
+}
+
+pmParticle::pmParticle(pmParticle&& other) {
+	this->position = other.position;
+	this->next = other.next;
+	this->parent_index = other.parent_index;
+	this->guide = other.guide;
+	other.next = nullptr;
+}
+
+pmParticle& pmParticle::operator=(pmParticle&& other) {
+	if(this!=&other) {
+		this->position = other.position;
+		this->next = other.next;
+		this->parent_index = other.parent_index;
+		this->guide = other.guide;
+		other.next = nullptr;
+	}
+	return *this;
+}
+
+pmTensor const& pmParticle::operator()(size_t const& level) const {
+	return position(level);
+}
+
+pmTensor& pmParticle::operator()(size_t const& level){
+	return position(level);
+}
+
+bool pmParticle::operator==(pmParticle const& other) const {
+	return this->position==other.position;
+}
+
+bool pmParticle::operator!=(pmParticle const& other) const {
+	return !this->operator==(other);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Overloading the = operator for tensor values.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle& pmParticle::operator=(pmTensor const& pos) {
-	position = pos;
 	next = nullptr;
-	parent = nullptr;
 	return *this;
 }
 
@@ -77,7 +110,7 @@ void pmParticle::set_position(pmTensor const& pos) {
 /// Returns the position of the particle.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor const& pmParticle::get_position(size_t const& level/*=0*/) const {
-	return position[level];
+	return position(level);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -87,16 +120,20 @@ void pmParticle::set_storage_depth(size_t const& d) {
 	position.set_storage_depth(d);
 }
 
-bool pmParticle::is_virtual() const {
-	return _virtual;
-}
-
-void pmParticle::set_virtual(bool const& virt) {
-	_virtual = virt;
+size_t pmParticle::get_storage_depth() const {
+	return position.get_storage_depth();
 }
 
 void pmParticle::shift(pmTensor const& distance) {
-	for(int i=0; i<position.get_storage_depth(); i++) {
-		position[i] += distance;
+	for(auto& it:position) {
+		it += distance;
 	}
+}
+
+void pmParticle::initialize(pmTensor const& val) {
+	position.initialize(val);
+}
+
+void pmParticle::print() const {
+	position(0).print();
 }

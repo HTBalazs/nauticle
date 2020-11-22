@@ -20,6 +20,7 @@
 
 #include "pmRandom.h"
 #include "pmParticle_splitter.h"
+#include "pmParticle.h"
 
 using namespace Nauticle;
 
