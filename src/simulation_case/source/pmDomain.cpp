@@ -267,21 +267,24 @@ bool pmDomain::update() {
 				// annak a hash kulcsa
 				int hash_key = this->calculate_hash_key_from_grid_coordinates<1>(grid_coords1);
 				// abban a cellaban levo reszecskekbol kell virtualisakat generalnunk
+				pmTensor guide = delta.multiply_term_by_term(boundary);
 				for(pmParticle* pb = grid[hash_key]; pb!=nullptr; pb=pb->next) {
 					// reszecske a meglevo reszecskebol
 					pmParticle vp = *pb;
 					// legyen az apja az eredeti
 					vp.parent_index = pb-&psys->get_particle(0);
 					// kell hozza guide ami megmondja, hogy majd a mezoket hogyan kell modositani
-					vp.guide = delta.multiply_term_by_term(boundary);
+					vp.guide = guide;
 					// aktualis pozicio
 					pmTensor vpos = vp.get_position();
 					// amit el kell tolni a peremfeltetelnek megfeleloen
 					for(int k=0; k<boundary.numel(); k++) {
-						if(boundary[k]==1) {
-							vpos[k] += delta[k]*(delta[k]-1)*(domain_physical_maximum[k]-vpos[k]) + delta[k]*(delta[k]+1)*(domain_physical_minimum[k]-vpos[k]);
-						} else {
-							vpos[k] -= delta[k]*(domain_physical_maximum[k]-domain_physical_minimum[k]);
+						if(delta[k]!=0) {
+							if(boundary[k]==1) {
+								vpos[k] += delta[k]*(delta[k]-1)*(domain_physical_maximum[k]-vpos[k]) + delta[k]*(delta[k]+1)*(domain_physical_minimum[k]-vpos[k]);
+							} else {
+								vpos[k] -= delta[k]*(domain_physical_maximum[k]-domain_physical_minimum[k]);
+							}
 						}
 					}
 					vp.set_position(vpos);
