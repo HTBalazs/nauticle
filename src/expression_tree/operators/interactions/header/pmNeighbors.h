@@ -28,11 +28,11 @@ namespace Nauticle {
 	/** This class calculates the number of neighbouring particles within the given range.
 	//  It requires a pmParticle_system assigned to it.
 	*/
-	class pmNeighbors : public pmInteraction<1> {
+	class pmNeighbors : public pmInteraction<3> {
 		std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmNeighbors() {}
-		pmNeighbors(std::array<std::shared_ptr<pmExpression>,1> op);
+		pmNeighbors(std::array<std::shared_ptr<pmExpression>,3> op);
 		pmNeighbors(pmNeighbors const& other);
 		pmNeighbors(pmNeighbors&& other);
 		pmNeighbors& operator=(pmNeighbors const& other);

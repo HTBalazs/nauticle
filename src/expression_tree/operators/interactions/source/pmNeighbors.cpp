@@ -27,7 +27,7 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmNeighbors::pmNeighbors(std::array<std::shared_ptr<pmExpression>,1> op) {
+pmNeighbors::pmNeighbors(std::array<std::shared_ptr<pmExpression>,3> op) {
 	this->operand = std::move(op);
 	this->op_name = "neighbors";
 }
@@ -106,14 +106,23 @@ void pmNeighbors::print() const {
 /// Evaluates the interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
-	if(!assigned) { ProLog::pLogger::error_msgf("Neighbour counter is not assigned to any particle system.\n"); }
+	if(!assigned) { ProLog::pLogger::error_msgf("Neighbor counter is not assigned to any particle system.\n"); }
 
-	double rad = this->operand[0]->evaluate(i,level)[0];
+	auto ps = this->psys.lock();
+	pmTensor ri = ps->evaluate(i,level);
+	pmTensor dir = this->operand[0]->evaluate(i,level);
+	double ang = this->operand[1]->evaluate(i,level)[0];
+	double rad = this->operand[2]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor num_neighbors{1,1,0};
+		pmTensor rj = ps->evaluate(j,level);
 		double distance = rel_pos.norm();
-		if(distance < rad + NAUTICLE_EPS) {
-			num_neighbors[0]++;
+		if(distance < rad + NAUTICLE_EPS && i!=j) {
+			pmTensor vr = rj-ri;
+			double phi = acos(dir.transpose()*vr.norm);
+			if(std::abs(phi)<ang) {
+				num_neighbors[0]++;
+			}
 		}
 		return num_neighbors;
 	};
