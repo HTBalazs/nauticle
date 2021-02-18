@@ -34,6 +34,7 @@
 #include "pmParticle_splitter.h"
 #include "pmParticle_merger.h"
 #include "pmBackground.h"
+#include "pmTime_series.h"
 
 namespace Nauticle {
 	/** This class represents the problem to solve. The contructor recieves the file
@@ -52,6 +53,7 @@ namespace Nauticle {
 		std::shared_ptr<pmParameter_space> parameter_space;
 		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
 		std::vector<std::shared_ptr<pmBackground>> background;
+		std::vector<std::shared_ptr<pmTime_series>> time_series;
 		write_mode vtk_write_mode = ASCII;
 		std::shared_ptr<pmRuntime_compiler> runtime_compiler;
 		std::shared_ptr<pmInterface> binary_case;
@@ -72,6 +74,7 @@ namespace Nauticle {
 		bool binary_solve(size_t const& num_threads=8);
 		void update_particle_modifiers();
 		void update_background_fields();
+		void update_time_series_variables(double const& t);
 	};
 }
 

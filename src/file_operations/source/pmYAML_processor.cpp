@@ -294,7 +294,7 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns thecollection of background functions if specified in the configuration file.
+/// Returns the collection of background functions if specified in the configuration file.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];
@@ -332,6 +332,47 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 		}
 	}
 	return background_list;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the collection of time series functions if specified in the configuration file.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<std::shared_ptr<pmTime_series>> pmYAML_processor::get_time_series(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
+	YAML::Node sim = data["simulation"];
+	std::vector<std::shared_ptr<pmTime_series>> time_series_list;
+	if(!sim["time_series"]) {
+		return time_series_list;
+	}
+	// default values
+	std::string file_name = "time_series.txt";
+	std::string interpolate_to = "";
+	std::string condition = "true";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="time_series") {
+			auto time_series = std::make_shared<pmTime_series>();
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator time_series_nodes=sim_nodes->second.begin();time_series_nodes!=sim_nodes->second.end();time_series_nodes++) {
+				// read from configuration file
+				if(time_series_nodes->first.as<std::string>()=="interpolate_to") {
+					interpolate_to = time_series_nodes->second.as<std::string>();
+				}
+				if(time_series_nodes->first.as<std::string>()=="file") {
+					file_name = time_series_nodes->second.as<std::string>();
+				}
+				if(time_series_nodes->first.as<std::string>()=="condition") {
+					condition = time_series_nodes->second.as<std::string>();
+				}
+			}
+			auto expr_interpolate_to = expr_parser->analyse_expression<pmVariable>(interpolate_to,workspace);
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			time_series->set_file_name(file_name);
+			time_series->set_variable(expr_interpolate_to);
+			time_series->set_condition(expr_condition);
+			time_series->set_particle_system(workspace->get_particle_system().lock());
+			time_series_list.push_back(time_series);
+		}
+	}
+	return time_series_list;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

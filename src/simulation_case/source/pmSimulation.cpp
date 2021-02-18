@@ -45,6 +45,9 @@ pmSimulation::pmSimulation(pmSimulation const& other) {
 	for(auto const& it:other.background) {
 		this->background.push_back(it->clone());
 	}
+	for(auto const& it:other.time_series) {
+		this->time_series.push_back(it->clone());
+	}
 	this->vtk_write_mode = other.vtk_write_mode;
 }
 
@@ -56,6 +59,7 @@ pmSimulation::pmSimulation(pmSimulation&& other) {
 	this->parameter_space = std::move(other.parameter_space);
 	this->particle_modifier = std::move(other.particle_modifier);
 	this->background = std::move(other.background);
+	this->time_series = std::move(other.time_series);
 	this->vtk_write_mode = std::move(other.vtk_write_mode);
 }
 
@@ -72,6 +76,9 @@ pmSimulation& pmSimulation::operator=(pmSimulation const& other) {
 		for(auto const& it:other.background) {
 			this->background.push_back(it->clone());
 		}
+		for(auto const& it:other.time_series) {
+			this->time_series.push_back(it->clone());
+		}
 		this->vtk_write_mode = other.vtk_write_mode;
 	}
 	return *this;
@@ -86,6 +93,7 @@ pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
 		this->parameter_space = std::move(other.parameter_space);
 		this->particle_modifier = std::move(other.particle_modifier);
 		this->background = std::move(other.background);
+		this->time_series = std::move(other.time_series);
 		this->vtk_write_mode = std::move(other.vtk_write_mode);
 	}
 	return *this;
@@ -113,6 +121,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
 		this->update_particle_modifiers();
 		this->update_background_fields();
+		this->update_time_series_variables(current_time);
 		dt = cas->get_workspace()->get_value("dt")[0];
 		double next_dt = dt;
 		// get printing interval
@@ -160,6 +169,9 @@ void pmSimulation::print() const {
 		it->print();
 	}
 	for(auto const& it:background) {
+		it->print();
+	}
+	for(auto const& it:time_series) {
 		it->print();
 	}
 	ProLog::pLogger::footerf<ProLog::LGN>();
@@ -210,6 +222,7 @@ void pmSimulation::read_file(std::string const& filename) {
 	particle_modifier.insert(particle_modifier.end(), particle_splitter.begin(), particle_splitter.end());
 	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
 	background = yaml_loader->get_background(cas->get_workspace());
+	time_series = yaml_loader->get_time_series(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
@@ -265,5 +278,15 @@ void pmSimulation::update_particle_modifiers() {
 void pmSimulation::update_background_fields() {
 	for(auto& it:background) {
 		it->update();
+	}
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Updates time sereies interpolations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::update_time_series_variables(double const& t) {
+	for(auto& it:time_series) {
+		it->update(t);
 	}
 }
