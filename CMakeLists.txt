@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(nauticle_project)
-
-
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-E -pthread -O3 -fPIC")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-pthread -O3 -fPIC")
 set(CMAKE_BUILD_TYPE Release)
 
 set(VTK_DIR ~/local/VTK-7.0.0)
@@ -15,10 +13,8 @@ link_directories(~/local/lib/c2c)
 link_directories(~/local/lib)
 
 include_directories(~/local/include)
-include_directories(/usr/local/include)
 
 find_package(VTK REQUIRED)
-set(CMAKE_MACOSX_RPATH OFF)
 
 IF(VTK_FOUND)
   message("found VTK. Version:" ${VTK_VERSION}. VTK_DIR: ${VTK_LIBRARIES})
