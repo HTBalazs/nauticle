@@ -21,6 +21,7 @@
 #include "pmNeighbors.h"
 #include "nauticle_constants.h"
 #include "Color_define.h"
+#include <cmath>
 
 using namespace Nauticle;
 
@@ -119,7 +120,8 @@ pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 		double distance = rel_pos.norm();
 		if(distance < rad + NAUTICLE_EPS && i!=j) {
 			pmTensor vr = rj-ri;
-			double phi = acos(dir.transpose()*vr.norm);
+			vr /= vr.norm();
+			double phi = std::acos((dir.transpose()*vr)[0]);
 			if(std::abs(phi)<ang) {
 				num_neighbors[0]++;
 			}
