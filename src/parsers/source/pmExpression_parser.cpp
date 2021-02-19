@@ -334,6 +334,8 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			ADD_INTERACTION(3, md, "pmMd_operator")
 			using neighbors = pmNeighbors;
 			ADD_INTERACTION(3, neighbors, "pmNeighbors")
+			using occlusion = pmOcclusion;
+			ADD_INTERACTION(3, occlusion, "pmOcclusion")
 			using kuramoto = pmKuramoto_operator;
 			ADD_INTERACTION(3, kuramoto, "pmKuramoto_operator")
 			using collision_handler = pmCollision_handler;
