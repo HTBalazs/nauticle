@@ -13,6 +13,7 @@ link_directories(~/local/lib/c2c)
 link_directories(~/local/lib)
 
 include_directories(~/local/include)
+include_directories(/usr/local/include)
 
 find_package(VTK REQUIRED)
 
