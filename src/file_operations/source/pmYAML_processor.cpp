@@ -518,3 +518,33 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 	}
 	return merger_list;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the collection of particle sinks if specified in the configuration file.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<std::shared_ptr<pmParticle_sink>> pmYAML_processor::get_particle_sink(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
+	YAML::Node sim = data["simulation"];
+	std::vector<std::shared_ptr<pmParticle_sink>> particle_sink_list;
+	if(!sim["particle_sink"]) {
+		return particle_sink_list;
+	}
+	// default values
+	std::string condition = "false";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="particle_sink") {
+			auto particle_sink = std::make_shared<pmParticle_sink>();
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator particle_sink_nodes=sim_nodes->second.begin();particle_sink_nodes!=sim_nodes->second.end();particle_sink_nodes++) {
+				// read from configuration file
+				if(particle_sink_nodes->first.as<std::string>()=="condition") {
+					condition = particle_sink_nodes->second.as<std::string>();
+				}
+			}
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			particle_sink->set_condition(expr_condition);
+			particle_sink->set_workspace(workspace);
+			particle_sink_list.push_back(particle_sink);
+		}
+	}
+	return particle_sink_list;
+}

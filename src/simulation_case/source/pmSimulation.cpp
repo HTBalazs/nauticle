@@ -119,6 +119,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	ws_substeps->set_value(0.0);
 	write_step(true);
 	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
+		this->update_particle_sink(num_threads);
 		this->update_particle_modifiers();
 		this->update_background_fields();
 		this->update_time_series_variables(current_time);
@@ -174,6 +175,9 @@ void pmSimulation::print() const {
 	for(auto const& it:time_series) {
 		it->print();
 	}
+	for(auto const& it:particle_sink) {
+		it->print();
+	}
 	ProLog::pLogger::footerf<ProLog::LGN>();
 }
 
@@ -223,6 +227,7 @@ void pmSimulation::read_file(std::string const& filename) {
 	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
 	background = yaml_loader->get_background(cas->get_workspace());
 	time_series = yaml_loader->get_time_series(cas->get_workspace());
+	particle_sink = yaml_loader->get_particle_sink(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
@@ -288,5 +293,14 @@ void pmSimulation::update_background_fields() {
 void pmSimulation::update_time_series_variables(double const& t) {
 	for(auto& it:time_series) {
 		it->update(t);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Updates particle sinks.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::update_particle_sink(size_t const& num_threads/*=8*/) {
+	for(auto const& it:particle_sink) {
+		it->update(num_threads);
 	}
 }
