@@ -20,6 +20,7 @@
 
 #include "pmParticle_sink.h"
 #include <thread>
+#include <mutex>
 
 using namespace Nauticle;
 using namespace ProLog;
