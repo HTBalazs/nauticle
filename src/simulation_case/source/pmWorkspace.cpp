@@ -298,9 +298,9 @@ void pmWorkspace::add_variable(std::string const& name, pmTensor const& value/*=
 /// Adds a new field to the workspace with an optional initialization value. If an 
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& printable/*=true*/) {
+void pmWorkspace::add_field(std::string const& name, pmTensor const& value/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& printable/*=true*/, std::string const& fname/*=""*/) {
 	if(!verify_name(name)) return;
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, num_nodes, value, sym, printable)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmField>(name, num_nodes, value, sym, printable, fname)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

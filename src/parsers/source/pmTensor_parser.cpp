@@ -116,6 +116,7 @@ std::vector<pmTensor> pmTensor_parser::string_to_tensor_field(std::string const&
 	}
 	std::vector<pmTensor> values;
 	std::vector<std::string> table = build_table(data);
+	values.reserve(workspace->get_number_of_nodes());
 	for(int i=0; i<workspace->get_number_of_nodes(); i++) {
 		values.push_back(build_tensor(table, workspace, i));
 	}

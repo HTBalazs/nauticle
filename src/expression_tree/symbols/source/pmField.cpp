@@ -20,18 +20,47 @@
 
 #include "pmField.h"
 #include "commonutils/Common.h"
+#include <vtkSmartPointer.h>
+#include <vtkSimplePointsReader.h>
+#include <vtkPolyData.h>
+#include <vtkDoubleArray.h>
+#include <vtkPointData.h>
 
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/) {
+pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/, std::string const& fname/*=""*/) {
 	name = n;
 	value.push_back(std::vector<pmTensor>());
 	value[0].resize(size, v);
 	symmetric = sym;
 	printable = pr;
+	if(fname!="") {
+		// Read the file
+		vtkSmartPointer<vtkSimplePointsReader> reader = vtkSmartPointer<vtkSimplePointsReader>::New();
+		reader->SetFileName(fname.c_str());
+		reader->Update();
+		vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
+		poly_data = reader->GetOutput();
+		size_t data_length = poly_data->GetNumberOfPoints();
+		if(data_length!=size) {
+			ProLog::pLogger::warning_msg("%d %d\n", data_length, size);
+			// ProLog::pLogger::warning_msg("Initializer file \"%s\" cannot be found for field \"%s\"\n", fname.c_str(), name.c_str());
+			return;
+		}
+		vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+		points = poly_data->GetPoints();
+		for(int i=0; i<data_length; i++) {
+			double* p = points->GetPoint(i);
+			pmTensor tensor{(int)v.numel(),1,0.0};
+			for(int j=0; j<v.numel(); j++) {
+				tensor[j] = p[j];
+			}
+			value[0][i] = tensor;
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -120,10 +149,10 @@ void pmField::printv() const {
 	pmTensor tensor = this->evaluate(0);
 	ProLog::pLogger::logf<ProLog::LMA>("[%i by %i]", tensor.get_numrows(), tensor.get_numcols());
 	if(!this->is_symmetric()) {
-		ProLog::pLogger::logf<ProLog::LMA>(" asym");
+		ProLog::pLogger::logf<ProLog::LMA>(" asym,");
 	}
 	if(!this->is_printable()) {
-		ProLog::pLogger::logf<ProLog::LMA>(" not printed");
+		ProLog::pLogger::logf<ProLog::LMA>(" not printed,");
 	}
 }
 

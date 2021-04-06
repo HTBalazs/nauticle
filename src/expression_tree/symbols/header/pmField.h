@@ -43,7 +43,7 @@ namespace Nauticle {
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
 		pmField()=delete;
-		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& pr=true);
+		pmField(std::string const& n, int const& size, pmTensor const& value=pmTensor{0}, bool const& sym=true, bool const& pr=true, std::string const& fname="");
 		pmField(std::string const& n, std::vector<pmTensor> const& value, bool const& sym=true, bool const& pr=true);
 		pmField(pmField const&);
 		pmField(pmField&&);
