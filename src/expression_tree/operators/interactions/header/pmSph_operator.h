@@ -193,7 +193,7 @@ namespace Nauticle {
 				double h_ij = (h_i+h_j)/2.0;
 				if(d_ji < h_ij) {
 					pmTensor B_ij{1,1,1};
-					if(NOPS==6) {
+					if(NOPS==6 && OP_TYPE==LAPLACE) {
 						pmTensor B_j = this->operand[0]->evaluate(j, level);
 						B_ij = (B_i+B_j)/2.0f;
 					}
@@ -222,6 +222,11 @@ namespace Nauticle {
 						double f = W.evaluate(d_ji, h_ij)/W.evaluate(B_ij[0], h_ij);
 						f*=f; f*=f;
 						contribution += f*this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
+					} else if(OP_TYPE==AVISC && NOPS==6) {
+						double B_hat_i = std::max(0.0,std::min(1.0,(A_j[0]-A_i[0])/rel_pos[0]/B_i[0]))*B_i[0];
+						pmTensor A_R = A_j-B_hat_i*rel_pos/2;
+						pmTensor A_L = A_i+B_hat_i*rel_pos/2;
+						contribution += this->process(A_L, A_R, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
 					} else {
 						contribution += B_ij*this->process(A_i, A_j, rho_i, rho_j, m_i, m_j, rel_pos, d_ji, W_ij);
 					}
@@ -397,7 +402,20 @@ namespace Nauticle {
 	/// Evaluates the operator.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template<>
-	inline pmTensor pmSph_operator<AVISC,1,1,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
+	inline pmTensor pmSph_operator<AVISC,0,0,5>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
+		pmTensor A_ji = A_j-A_i;
+		pmTensor A_jir_ji = A_ji.transpose()*r_ji;
+		if(A_jir_ji[0]<0) {
+			return -r_ji*(A_jir_ji*m_j/rho_j/d_ji/d_ji/d_ji*W_ij);
+		}
+		return r_ji*0.0;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Evaluates the operator.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template<>
+	inline pmTensor pmSph_operator<AVISC,1,0,6>::process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const {
 		pmTensor A_ji = A_j-A_i;
 		pmTensor A_jir_ji = A_ji.transpose()*r_ji;
 		if(A_jir_ji[0]<0) {
