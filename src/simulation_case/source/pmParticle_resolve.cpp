@@ -18,45 +18,54 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmParticle_modifier.h"
+#include "pmParticle_resolve.h"
 
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the condition object.
+/// Generates and returns the listof potential candidates based on the condition expresion.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_modifier::set_condition(std::shared_ptr<pmExpression> cdn) {
-    condition = cdn;
+std::vector<size_t> pmParticle_resolve::get_candidates() const {
+	std::vector<size_t> indices;
+    for(int i=0; i<workspace->get_number_of_nodes(); i++) {
+        if(condition->evaluate(i,0)[0]) {
+            indices.push_back(i);
+        }
+    }
+    return indices;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the condition object.
+/// Sets the radius object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmExpression> const& pmParticle_modifier::get_condition() const {
-    return condition;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the workspace object.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_modifier::set_workspace(std::shared_ptr<pmWorkspace> ws) {
-	workspace = ws;
+void pmParticle_resolve::set_radius(std::shared_ptr<pmField> rad) {
+    radius = rad;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets the mass object.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_modifier::print() const {
-    static bool print_header = true;
-    if(print_header) {
-        ProLog::pLogger::headerf<ProLog::LBL>("Particle modifiers:");
-        print_header = false;
-    }
+void pmParticle_resolve::set_mass(std::shared_ptr<pmField> ms) {
+    mass = ms;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the radius object.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmField> const& pmParticle_resolve::get_radius() const {
+    return radius;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the mass object.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<pmField> const& pmParticle_resolve::get_mass() const {
+    return mass;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns a copy of the objecct.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmParticle_modifier> pmParticle_modifier::clone() const {
-    return clone_impl();
+std::shared_ptr<pmParticle_resolve> pmParticle_resolve::clone() const {
+    return std::static_pointer_cast<pmParticle_resolve, pmParticle_modifier>(clone_impl());
 }

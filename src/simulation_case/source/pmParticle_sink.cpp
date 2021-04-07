@@ -19,69 +19,26 @@
 */
 
 #include "pmParticle_sink.h"
+#include <vtkSmartPointer.h>
+#include <vtkUnstructuredGrid.h>
 #include <thread>
 #include <mutex>
 
 using namespace Nauticle;
 using namespace ProLog;
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_sink::pmParticle_sink(pmParticle_sink const& other) {
-	this->workspace = other.workspace;
-	this->condition = other.condition;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_sink& pmParticle_sink::operator=(pmParticle_sink const& rhs) {
-	if(this!=&rhs) {
-		this->workspace = rhs.workspace;
-		this->condition = rhs.condition;
-	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_sink::pmParticle_sink(pmParticle_sink&& other) {
-	this->workspace = std::move(other.workspace);
-	this->condition = std::move(other.condition);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_sink& pmParticle_sink::operator=(pmParticle_sink&& rhs) {
-	if(this!=&rhs) {
-		this->workspace = std::move(rhs.workspace);
-		this->condition = std::move(rhs.condition);
-	}
-	return *this;
+std::shared_ptr<pmParticle_modifier> pmParticle_sink::clone_impl() const {
+	return std::make_shared<pmParticle_sink>(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints out the content of the pmParticle_sink object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_sink::print() const {
-	pLogger::headerf<LBL>("Particle sink");
+	pmParticle_modifier::print();
 	pLogger::titlef<LMA>("Particle sink");
 	pLogger::logf<YEL>("        condition: "); condition->print(); pLogger::line_feed(1);
 	pLogger::footerf<LBL>();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sets particle system for interpolation.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_sink::set_workspace(std::shared_ptr<pmWorkspace> ws) {
-	workspace = ws;
-}
-
-void pmParticle_sink::set_condition(std::shared_ptr<pmExpression> cond) {
-	condition = cond;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +73,6 @@ void pmParticle_sink::update(size_t const& num_threads) {
 /// Returns the deep copy of the current object.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmParticle_sink> pmParticle_sink::clone() const {
-    return std::make_shared<pmParticle_sink>(*this);
+    return std::static_pointer_cast<pmParticle_sink, pmParticle_modifier>(clone_impl());
 }
 

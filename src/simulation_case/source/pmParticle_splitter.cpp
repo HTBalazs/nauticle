@@ -23,25 +23,10 @@
 
 using namespace Nauticle;
 
-size_t pmParticle_splitter::counter = 0;
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_splitter::pmParticle_splitter() {
-    counter++;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Splits particles if conditions meet by generating new particles in the same system.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_splitter::update() {
-    static int update_count = -1;
-    update_count++;
-    // check if splitting can be performed
-    if(update_count%(int)(period->evaluate(0)[0]) != 0) {
-        return;
-    }
+void pmParticle_splitter::update(size_t const& num_threads) {
     std::vector<size_t> candidates = this->get_candidates();
     std::vector<size_t> delete_indices;
     for(auto const& it:candidates) {
@@ -51,11 +36,20 @@ void pmParticle_splitter::update() {
         size_t num_daughters = (size_t)daughters->evaluate(it,0)[0]-(generate_at_parent?1:0);
         double R_original = radius->evaluate(it,0)[0];
         double m_original = mass->evaluate(it,0)[0];
-        if(generate_at_parent) {
-            radius->set_value(alpha*R_original,it);
-            mass->set_value(m_original/(num_daughters+1),it);
+        if(passive.use_count()!=0) {
+            if(generate_at_parent) {
+                workspace->duplicate_particle(it);
+                size_t num_nodes = workspace->get_number_of_nodes();
+                radius->set_value(alpha*R_original,num_nodes-1);
+                mass->set_value(m_original/(num_daughters+1),num_nodes-1);
+            }
         } else {
-            delete_indices.push_back(it);
+            if(generate_at_parent) {
+                radius->set_value(alpha*R_original,it);
+                mass->set_value(m_original/(num_daughters+1),it);
+            } else {
+                delete_indices.push_back(it);
+            }
         }
         double step = 2.0*NAUTICLE_PI/num_daughters;
         double angle = rotation->evaluate(it,0)[0];
@@ -69,6 +63,12 @@ void pmParticle_splitter::update() {
             ps->set_value(new_pos,num_nodes-1);
             radius->set_value(alpha*R_original,num_nodes-1);
             mass->set_value(m_original/(num_daughters+(generate_at_parent?1:0)),num_nodes-1);
+            if(active.use_count()!=0) {
+                active->set_value(1,num_nodes-1);
+            }
+        }
+        if(passive.use_count()!=0) {
+            passive->set_value(1.0,it);
         }
     }
     workspace->delete_particle_set(delete_indices);
@@ -78,11 +78,7 @@ void pmParticle_splitter::update() {
 /// Prints the splitter properties.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_splitter::print() const {
-    static bool print_header = true;
-    if(print_header) {
-        ProLog::pLogger::headerf<ProLog::LBL>("Particle splitter:");
-        print_header = false;
-    }
+    pmParticle_modifier::print();
     ProLog::pLogger::titlef<ProLog::LMA>("Splitter");
     ProLog::pLogger::logf<ProLog::YEL>("        condition: "); condition->print();
     ProLog::pLogger::line_feed(1);
@@ -97,8 +93,6 @@ void pmParticle_splitter::print() const {
     ProLog::pLogger::logf<ProLog::YEL>("        separation parameter: "); separation_parameter->print();
     ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        generate at parent: "); parent->print();
-    ProLog::pLogger::line_feed(1);
-    ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print();
     ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        rotation: "); rotation->print();
     ProLog::pLogger::line_feed(1);
@@ -155,9 +149,13 @@ void pmParticle_splitter::set_rotation(std::shared_ptr<pmExpression> rot) {
     rotation = rot;
 }
 
+void pmParticle_splitter::set_passive(std::shared_ptr<pmField> psv) {
+    passive = psv;
+}
 
-
-
+void pmParticle_splitter::set_active(std::shared_ptr<pmField> atv) {
+    active = atv;
+}
 
 
 

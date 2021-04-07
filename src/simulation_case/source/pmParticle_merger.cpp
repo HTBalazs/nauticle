@@ -26,14 +26,11 @@
 
 using namespace Nauticle;
 
-size_t pmParticle_merger::counter = 0;
-
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_merger::pmParticle_merger() {
     nearest = std::make_shared<pmNearest_neighbor>();
-    counter++;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -139,12 +136,7 @@ pmTensor pmParticle_merger::pmNearest_neighbor::evaluate(int const& i, size_t co
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Performs the particle merging.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_merger::update() {
-    static int count = -1;
-    count++;
-    if(count%(int)(period->evaluate(0)[0]) != 0) {
-        return;
-    }
+void pmParticle_merger::update(size_t const& num_threads) {
     std::tuple<std::vector<size_t>,std::vector<size_t>,std::vector<size_t>> tuples;
     this->make_tuples(tuples, this->get_candidates());
     std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
@@ -291,11 +283,7 @@ std::shared_ptr<pmField> const& pmParticle_merger::get_velocity() const {
 /// Prints the merger properties.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_merger::print() const {
-    static bool print_header = true;
-    if(print_header) {
-        ProLog::pLogger::headerf<ProLog::LBL>("Particle merger:");
-        print_header = false;
-    }
+    pmParticle_modifier::print();
     ProLog::pLogger::titlef<ProLog::LMA>("Merger");
     ProLog::pLogger::logf<ProLog::YEL>("        condition: "); condition->print(); ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        radius: ");
@@ -304,7 +292,6 @@ void pmParticle_merger::print() const {
     ProLog::pLogger::logf<ProLog::NRM>("%s\n", mass->get_name().c_str());
     ProLog::pLogger::logf<ProLog::YEL>("        velocity: ");
     ProLog::pLogger::logf<ProLog::NRM>("%s\n", velocity->get_name().c_str());
-    ProLog::pLogger::logf<ProLog::YEL>("        period: "); period->print(); ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        neighbor condition: "); nearest->get_neighbor_condition()->print(); ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        max neighbor distance: "); nearest->get_max_neighbor_distance()->print(); ProLog::pLogger::line_feed(1);
     

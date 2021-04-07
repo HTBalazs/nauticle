@@ -46,8 +46,7 @@ pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTe
 		poly_data = reader->GetOutput();
 		size_t data_length = poly_data->GetNumberOfPoints();
 		if(data_length!=size) {
-			ProLog::pLogger::warning_msg("%d %d\n", data_length, size);
-			// ProLog::pLogger::warning_msg("Initializer file \"%s\" cannot be found for field \"%s\"\n", fname.c_str(), name.c_str());
+			ProLog::pLogger::warning_msg("Size of the initializer file \"%s\" does not match with the particle number \n", fname.c_str());
 			return;
 		}
 		vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();

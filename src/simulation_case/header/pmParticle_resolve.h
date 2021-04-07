@@ -17,27 +17,31 @@
 
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
-    
-#ifndef _PARTICLE_SINK_H_
-#define _PARTICLE_SINK_H_
 
-#include "prolog/pLogger.h"
+#ifndef _PARTICLE_RESOLVE_H_
+#define _PARTICLE_RESOLVE_H_
+
 #include "pmParticle_modifier.h"
 #include <memory>
 #include <vector>
 
 namespace Nauticle {
-	/** This class represents the background function, which can be used to 
-	//  interpolate data to the particle system.
-	*/
-	class pmParticle_sink : public pmParticle_modifier {
+    /** This class implements the base of the particle modifier classes for condition 
+    // driven particle generation and deletion.
+    */
+	class pmParticle_resolve : public pmParticle_modifier {
 	protected:
-		virtual std::shared_ptr<pmParticle_modifier> clone_impl() const override;
+        std::shared_ptr<pmField> radius;
+        std::shared_ptr<pmField> mass;
+	protected:
+		std::vector<size_t> get_candidates() const;
 	public:
-		void print() const override;
-		void update(size_t const& num_threads) override;
-		std::shared_ptr<pmParticle_sink> clone() const;
+        void set_radius(std::shared_ptr<pmField> rad);
+        void set_mass(std::shared_ptr<pmField> ms);
+        std::shared_ptr<pmField> const& get_radius() const;
+        std::shared_ptr<pmField> const& get_mass() const;
+        std::shared_ptr<pmParticle_resolve> clone() const;
 	};
 }
 
-#endif //_PARTICLE_SINK_H_
+#endif // _PARTICLE_RESOLVE_H_

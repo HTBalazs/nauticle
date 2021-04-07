@@ -129,7 +129,11 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
         	}
         }
 		pmTensor_parser tensor_parser{};
-        workspace->add_field(name, tensor_parser.string_to_tensor(value, workspace), (bool)tensor_parser.string_to_tensor(symmetric, workspace)[0], (bool)tensor_parser.string_to_tensor(printable, workspace)[0], file_name);
+		if(file_name=="") {
+        	workspace->add_field(name, tensor_parser.string_to_tensor_field(value, workspace), (bool)tensor_parser.string_to_tensor(symmetric, workspace)[0], (bool)tensor_parser.string_to_tensor(printable, workspace)[0]);
+		} else {
+        	workspace->add_field(name, tensor_parser.string_to_tensor(value, workspace), (bool)tensor_parser.string_to_tensor(symmetric, workspace)[0], (bool)tensor_parser.string_to_tensor(printable, workspace)[0], file_name);
+		}
     }
 	return workspace;
 }
@@ -391,12 +395,13 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 	std::string condition = "false";
 	std::string radius_field = "h";
 	std::string mass_field = "m";
-	std::string period = "1";
 	std::string smoothing_ratio = "0.9";
 	std::string separation_parameter = "0.4";
 	std::string daughters = "6";
 	std::string parent = "1";
-	std::string rotation = "0";
+	std::string rotation = "rand(-pi,pi)";
+	std::string passive = "";
+	std::string active = "";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="splitter") {
 			auto splitter = std::make_shared<pmParticle_splitter>();
@@ -413,9 +418,6 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 				if(splitter_nodes->first.as<std::string>()=="mass_field") {
 					mass_field = splitter_nodes->second.as<std::string>();
 				}
-				if(splitter_nodes->first.as<std::string>()=="period") {
-					period = splitter_nodes->second.as<std::string>();
-				}
 				if(splitter_nodes->first.as<std::string>()=="smoothing_ratio") {
 					smoothing_ratio = splitter_nodes->second.as<std::string>();
 				}
@@ -431,11 +433,16 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 				if(splitter_nodes->first.as<std::string>()=="rotation") {
 					rotation = splitter_nodes->second.as<std::string>();
 				}
+				if(splitter_nodes->first.as<std::string>()=="passive") {
+					passive = splitter_nodes->second.as<std::string>();
+				}
+				if(splitter_nodes->first.as<std::string>()=="active") {
+					active = splitter_nodes->second.as<std::string>();
+				}
 			}
 			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
 			auto expr_radius = expr_parser->analyse_expression<pmField>(radius_field,workspace);
 			auto expr_mass = expr_parser->analyse_expression<pmField>(mass_field,workspace);
-			auto expr_period = expr_parser->analyse_expression<pmExpression>(period,workspace);
 			auto expr_smoothing_ratio = expr_parser->analyse_expression<pmExpression>(smoothing_ratio,workspace);
 			auto expr_separation_parameter = expr_parser->analyse_expression<pmExpression>(separation_parameter,workspace);
 			auto expr_daughter = expr_parser->analyse_expression<pmExpression>(daughters,workspace);
@@ -444,12 +451,19 @@ std::vector<std::shared_ptr<pmParticle_splitter>> pmYAML_processor::get_particle
 			splitter->set_condition(expr_condition);
 			splitter->set_radius(expr_radius);
 			splitter->set_mass(expr_mass);
-			splitter->set_period(expr_period);
 			splitter->set_smoothing_ratio(expr_smoothing_ratio);
 			splitter->set_separation_parameter(expr_separation_parameter);
 			splitter->set_daughters(expr_daughter);
 			splitter->set_parent(expr_parent);
 			splitter->set_rotation(expr_rotation);
+			if(passive!="") {
+				auto expr_passive = expr_parser->analyse_expression<pmField>(passive,workspace);
+				splitter->set_passive(expr_passive);
+			}
+			if(active!="") {
+				auto expr_active = expr_parser->analyse_expression<pmField>(active,workspace);
+				splitter->set_active(expr_active);
+			}
 			splitter_list.push_back(splitter);
 		}
 	}
@@ -471,7 +485,6 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 	std::string radius_field = "h";
 	std::string mass_field = "m";
 	std::string velocity_field = "v";
-	std::string period = "1";
 	std::string max_neighbor_distance = "1e12";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="merger") {
@@ -492,9 +505,6 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 				if(splitter_nodes->first.as<std::string>()=="velocity_field") {
 					velocity_field = splitter_nodes->second.as<std::string>();
 				}
-				if(splitter_nodes->first.as<std::string>()=="period") {
-					period = splitter_nodes->second.as<std::string>();
-				}
 				if(splitter_nodes->first.as<std::string>()=="neighbor_condition") {
 					neighbor_condition = splitter_nodes->second.as<std::string>();
 				}
@@ -507,14 +517,12 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 			auto expr_radius = expr_parser->analyse_expression<pmField>(radius_field,workspace);
 			auto expr_mass = expr_parser->analyse_expression<pmField>(mass_field,workspace);
 			auto expr_velocity = expr_parser->analyse_expression<pmField>(velocity_field,workspace);
-			auto expr_period = expr_parser->analyse_expression<pmExpression>(period,workspace);
 			auto expr_max_neighbor_distance = expr_parser->analyse_expression<pmExpression>(max_neighbor_distance,workspace);
 			merger->set_condition(expr_condition);
 			merger->set_neighbor_condition(expr_neighbor_condition);
 			merger->set_radius(expr_radius);
 			merger->set_mass(expr_mass);
 			merger->set_velocity(expr_velocity);
-			merger->set_period(expr_period);
 			merger->set_max_neighbor_distance(expr_max_neighbor_distance);
 			merger_list.push_back(merger);
 		}
@@ -528,13 +536,13 @@ std::vector<std::shared_ptr<pmParticle_merger>> pmYAML_processor::get_particle_m
 std::vector<std::shared_ptr<pmParticle_sink>> pmYAML_processor::get_particle_sink(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];
 	std::vector<std::shared_ptr<pmParticle_sink>> particle_sink_list;
-	if(!sim["particle_sink"]) {
+	if(!sim["sink"]) {
 		return particle_sink_list;
 	}
 	// default values
 	std::string condition = "false";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
-		if(sim_nodes->first.as<std::string>()=="particle_sink") {
+		if(sim_nodes->first.as<std::string>()=="sink") {
 			auto particle_sink = std::make_shared<pmParticle_sink>();
 			auto expr_parser = std::make_shared<pmExpression_parser>();
 			for(YAML::const_iterator particle_sink_nodes=sim_nodes->second.begin();particle_sink_nodes!=sim_nodes->second.end();particle_sink_nodes++) {

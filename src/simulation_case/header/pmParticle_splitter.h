@@ -21,32 +21,33 @@
 #ifndef _PARTICLE_SPLITTER_H_
 #define _PARTICLE_SPLITTER_H_
 
-#include "pmWorkspace.h"
-#include "pmParticle_modifier.h"
+#include "pmParticle_resolve.h"
 #include <memory>
 #include <vector>
 
 namespace Nauticle {
     /** This class implements the particle splitting.
     */
-	class pmParticle_splitter : public pmParticle_modifier {
+	class pmParticle_splitter : public pmParticle_resolve {
         std::shared_ptr<pmExpression> separation_parameter;
         std::shared_ptr<pmExpression> smoothing_ratio;
         std::shared_ptr<pmExpression> daughters;
         std::shared_ptr<pmExpression> parent;
         std::shared_ptr<pmExpression> rotation;
-        static size_t counter;
+        std::shared_ptr<pmField> active;
+        std::shared_ptr<pmField> passive;
     protected:
         virtual std::shared_ptr<pmParticle_modifier> clone_impl() const override;
     public:
-        pmParticle_splitter();
-		void update() override;
+		void update(size_t const& num_threads) override;
         void print() const override;
         void set_smoothing_ratio(std::shared_ptr<pmExpression> sr);
         void set_separation_parameter(std::shared_ptr<pmExpression> sp);
         void set_daughters(std::shared_ptr<pmExpression> dr);
         void set_parent(std::shared_ptr<pmExpression> pr);
         void set_rotation(std::shared_ptr<pmExpression> rot);
+        void set_passive(std::shared_ptr<pmField> psv);
+        void set_active(std::shared_ptr<pmField> atv);
         std::shared_ptr<pmParticle_splitter> clone() const;
 	};
 }

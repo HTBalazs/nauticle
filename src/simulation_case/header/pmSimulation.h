@@ -54,7 +54,6 @@ namespace Nauticle {
 		std::shared_ptr<pmParameter_space> parameter_space;
 		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
 		std::vector<std::shared_ptr<pmBackground>> background;
-		std::vector<std::shared_ptr<pmParticle_sink>> particle_sink;
 		std::vector<std::shared_ptr<pmTime_series>> time_series;
 		write_mode vtk_write_mode = ASCII;
 		std::shared_ptr<pmRuntime_compiler> runtime_compiler;
@@ -74,10 +73,9 @@ namespace Nauticle {
 		void execute(size_t const& num_threads=8);
 		bool interpreter_solve(size_t const& num_threads=8);
 		bool binary_solve(size_t const& num_threads=8);
-		void update_particle_modifiers();
+		void update_particle_modifiers(size_t const& num_threads);
 		void update_background_fields();
 		void update_time_series_variables(double const& t);
-		void update_particle_sink(size_t const& num_threads=8);
 	};
 }
 
