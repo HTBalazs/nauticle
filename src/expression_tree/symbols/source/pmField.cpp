@@ -20,6 +20,7 @@
 
 #include "pmField.h"
 #include "commonutils/Common.h"
+#include "pmData_reader.h"
 #include <vtkSmartPointer.h>
 #include <vtkSimplePointsReader.h>
 #include <vtkPolyData.h>
@@ -33,32 +34,16 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/, std::string const& fname/*=""*/) {
 	name = n;
-	value.push_back(std::vector<pmTensor>());
-	value[0].resize(size, v);
 	symmetric = sym;
 	printable = pr;
 	if(fname!="") {
-		// Read the file
-		vtkSmartPointer<vtkSimplePointsReader> reader = vtkSmartPointer<vtkSimplePointsReader>::New();
-		reader->SetFileName(fname.c_str());
-		reader->Update();
-		vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
-		poly_data = reader->GetOutput();
-		size_t data_length = poly_data->GetNumberOfPoints();
-		if(data_length!=size) {
-			ProLog::pLogger::warning_msg("Size of the initializer file \"%s\" does not match with the particle number \n", fname.c_str());
-			return;
-		}
-		vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-		points = poly_data->GetPoints();
-		for(int i=0; i<data_length; i++) {
-			double* p = points->GetPoint(i);
-			pmTensor tensor{(int)v.numel(),1,0.0};
-			for(int j=0; j<v.numel(); j++) {
-				tensor[j] = p[j];
-			}
-			value[0][i] = tensor;
-		}
+		pmData_reader data_reader;
+		data_reader.set_file_name(fname);
+		data_reader.read_file(v.numel());
+		value.push_back(data_reader.get_data());
+	} else {
+		value.push_back(std::vector<pmTensor>());
+		value[0].resize(size, v);
 	}
 }
 

@@ -18,41 +18,32 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _TIME_SERIES_H_
-#define _TIME_SERIES_H_
+#ifndef _DATA_READER_H_
+#define _DATA_READER_H_
 
+#include "prolog/pLogger.h"
+#include "pmTensor.h"
+#include <vtkSmartPointer.h>
+#include <vtkUnstructuredGrid.h>
 #include <iostream>
 #include <string>
 #include <memory>
-#include "prolog/pLogger.h"
-#include "pmVariable.h"
-#include "pmParticle_system.h"
-#include "pmData_reader.h"
-#include <vtkSmartPointer.h>
-#include <vtkUnstructuredGrid.h>
 
 namespace Nauticle {
 	/** This class represents the background function, which can be used to 
 	//  interpolate data to the particle system.
 	*/
-	class pmTime_series : public pmData_reader {
+	class pmData_reader {
 	protected:
-		std::shared_ptr<pmVariable> variable;
-		std::shared_ptr<pmParticle_system> psys;
-		std::shared_ptr<pmExpression> condition;
-		std::vector<double> time;
-		bool import = true;
-		std::shared_ptr<pmData_reader> clone_impl() const override;
+		std::string file_name;
+		std::vector<pmTensor> data;
+		virtual std::shared_ptr<pmData_reader> clone_impl() const;
 	public:
-		void print() const;
-		void read_file(size_t const& dims) override;
-		void interpolate(double const& t);
-		void set_particle_system(std::shared_ptr<pmParticle_system> ps);
-		void set_variable(std::shared_ptr<pmVariable> var);
-		void set_condition(std::shared_ptr<pmExpression> cond);
-		void update(double const& t);
-		std::shared_ptr<pmTime_series> clone() const;
+		void set_file_name(std::string const& fn);
+		virtual void read_file(size_t const& dims);
+		std::vector<pmTensor> get_data() const;
+		std::shared_ptr<pmData_reader> clone() const;
 	};
 }
 
-#endif //_TIME_SERIES_H_
+#endif //_DATA_READER_H_

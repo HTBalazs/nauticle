@@ -40,45 +40,10 @@ using namespace Nauticle;
 using namespace ProLog;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor
+/// Sets the file name of the input file.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmTime_series::pmTime_series(pmTime_series const& other) {
-	this->variable = other.variable;
-	this->file_name = other.file_name;
-	this->import = other.import;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTime_series& pmTime_series::operator=(pmTime_series const& rhs) {
-	if(this!=&rhs) {
-		this->variable = rhs.variable;
-		this->file_name = rhs.file_name;
-		this->import = rhs.import;
-	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTime_series::pmTime_series(pmTime_series&& other) {
-	this->variable = std::move(other.variable);
-	this->file_name = std::move(other.file_name);
-	this->import = std::move(other.import);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTime_series& pmTime_series::operator=(pmTime_series&& rhs) {
-	if(this!=&rhs) {
-		this->variable = std::move(rhs.variable);
-		this->file_name = std::move(rhs.file_name);
-		this->import = std::move(rhs.import);
-	}
-	return *this;
+std::shared_ptr<pmData_reader> pmTime_series::clone_impl() const {
+	return std::make_shared<pmTime_series>(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -96,16 +61,9 @@ void pmTime_series::print() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the file name of the input file.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmTime_series::set_file_name(std::string const& fn) {
-	file_name = fn;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Reads the input file.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmTime_series::read_file() {
+void pmTime_series::read_file(size_t const& dims) {
 	// Read the file
 	vtkSmartPointer<vtkSimplePointsReader> reader = vtkSmartPointer<vtkSimplePointsReader>::New();
 	reader->SetFileName(file_name.c_str());
@@ -119,10 +77,9 @@ void pmTime_series::read_file() {
 	time.resize(num_points);
 	for(int i=0; i<num_points; i++) {
 		double* p = points->GetPoint(i);
-		int dimensions = psys->evaluate(0).numel();
-		pmTensor tensor{dimensions,1,0.0};
+		pmTensor tensor{(int)dims,1,0.0};
 		time[i] = p[0];
-		for(int j=1; j<dimensions+1; j++) {
+		for(int j=1; j<dims+1; j++) {
 			tensor[j-1] = p[j];
 		}
 		data[i] = tensor;
@@ -155,7 +112,6 @@ void pmTime_series::set_particle_system(std::shared_ptr<pmParticle_system> ps) {
 	psys = ps;
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets variable for the interpolation results to be stored in.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -172,7 +128,7 @@ void pmTime_series::set_condition(std::shared_ptr<pmExpression> cond) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmTime_series::update(double const& t) {
 	if(import) {
-		this->read_file();
+		this->read_file(variable->evaluate(0).numel());
 		import = false;
 	}
 	interpolate(t);
@@ -182,6 +138,6 @@ void pmTime_series::update(double const& t) {
 /// Returns the deep copy of the current object.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmTime_series> pmTime_series::clone() const {
-    return std::make_shared<pmTime_series>(*this);
+    return std::static_pointer_cast<pmTime_series, pmData_reader>(clone_impl());
 }
 

@@ -19,6 +19,7 @@
 */
     
 #include "pmGrid.h"
+#include "pmData_reader.h"
 #include <vtkSmartPointer.h>
 #include <vtkSimplePointsReader.h>
 #include <vtkPolyData.h>
@@ -198,25 +199,10 @@ void pmGrid::generate() {
 		};
 		n_level_loop(indexes,end_per_index,0, process);
 	} else {
-		// Read the file
-		vtkSmartPointer<vtkSimplePointsReader> reader = vtkSmartPointer<vtkSimplePointsReader>::New();
-		reader->SetFileName(file_name.c_str());
-		reader->Update();
-		vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
-		poly_data = reader->GetOutput();
-		size_t size = poly_data->GetNumberOfPoints();
-		grid.reserve(size);
-		vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-		points = poly_data->GetPoints();
-		int num_points = (int)poly_data->GetNumberOfPoints();
-		for(int i=0; i<num_points; i++) {
-			double* p = points->GetPoint(i);
-			pmTensor tensor{(int)dimensions,1,0.0};
-			for(int j=0; j<dimensions; j++) {
-				tensor[j] = p[j];
-			}
-			grid.push_back(tensor);
-		}
+		pmData_reader data_reader;
+		data_reader.set_file_name(file_name);
+		data_reader.read_file(dimensions);
+		grid = data_reader.get_data();
 	}
 }
 
