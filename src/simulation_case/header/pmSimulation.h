@@ -36,6 +36,7 @@
 #include "pmBackground.h"
 #include "pmTime_series.h"
 #include "pmParticle_sink.h"
+#include "pmScript.h"
 
 namespace Nauticle {
 	/** This class represents the problem to solve. The contructor recieves the file
@@ -55,6 +56,7 @@ namespace Nauticle {
 		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
 		std::vector<std::shared_ptr<pmBackground>> background;
 		std::vector<std::shared_ptr<pmTime_series>> time_series;
+		std::vector<std::shared_ptr<pmScript>> script;
 		write_mode vtk_write_mode = ASCII;
 		std::shared_ptr<pmRuntime_compiler> runtime_compiler;
 		std::shared_ptr<pmInterface> binary_case;
@@ -76,6 +78,7 @@ namespace Nauticle {
 		void update_particle_modifiers(size_t const& num_threads);
 		void update_background_fields();
 		void update_time_series_variables(double const& t);
+		void update_script();
 	};
 }
 

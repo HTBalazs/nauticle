@@ -228,6 +228,7 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 	workspace->add_variable("write_case", pmTensor{1,1,0});
 	workspace->add_variable("substeps", pmTensor{1,1,0});
 	workspace->add_variable("all_steps", pmTensor{1,1,0});
+	workspace->add_variable("finished", pmTensor{1,1,0});
 	std::vector<std::shared_ptr<pmEquation>> equations = this->get_equations(workspace);
 	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
 	cas->add_workspace(workspace);
@@ -380,6 +381,40 @@ std::vector<std::shared_ptr<pmTime_series>> pmYAML_processor::get_time_series(st
 		}
 	}
 	return time_series_list;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the collection of background functions if specified in the configuration file.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<std::shared_ptr<pmScript>> pmYAML_processor::get_script(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
+	YAML::Node sim = data["simulation"];
+	std::vector<std::shared_ptr<pmScript>> script_list;
+	if(!sim["script"]) {
+		return script_list;
+	}
+	// default values
+	std::string file_name = "script.sh";
+	std::string condition = "true";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="script") {
+			auto script = std::make_shared<pmScript>();
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator script_nodes=sim_nodes->second.begin();script_nodes!=sim_nodes->second.end();script_nodes++) {
+				// read from configuration file
+				if(script_nodes->first.as<std::string>()=="file") {
+					file_name = script_nodes->second.as<std::string>();
+				}
+				if(script_nodes->first.as<std::string>()=="condition") {
+					condition = script_nodes->second.as<std::string>();
+				}
+			}
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			script->set_file_name(file_name);
+			script->set_condition(expr_condition);
+			script_list.push_back(script);
+		}
+	}
+	return script_list;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

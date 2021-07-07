@@ -48,6 +48,9 @@ pmSimulation::pmSimulation(pmSimulation const& other) {
 	for(auto const& it:other.time_series) {
 		this->time_series.push_back(it->clone());
 	}
+	for(auto const& it:other.script) {
+		this->script.push_back(it->clone());
+	}
 	this->vtk_write_mode = other.vtk_write_mode;
 }
 
@@ -60,6 +63,7 @@ pmSimulation::pmSimulation(pmSimulation&& other) {
 	this->particle_modifier = std::move(other.particle_modifier);
 	this->background = std::move(other.background);
 	this->time_series = std::move(other.time_series);
+	this->script = std::move(other.script);
 	this->vtk_write_mode = std::move(other.vtk_write_mode);
 }
 
@@ -79,6 +83,9 @@ pmSimulation& pmSimulation::operator=(pmSimulation const& other) {
 		for(auto const& it:other.time_series) {
 			this->time_series.push_back(it->clone());
 		}
+		for(auto const& it:other.script) {
+			this->script.push_back(it->clone());
+		}
 		this->vtk_write_mode = other.vtk_write_mode;
 	}
 	return *this;
@@ -94,6 +101,7 @@ pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
 		this->particle_modifier = std::move(other.particle_modifier);
 		this->background = std::move(other.background);
 		this->time_series = std::move(other.time_series);
+		this->script = std::move(other.script);
 		this->vtk_write_mode = std::move(other.vtk_write_mode);
 	}
 	return *this;
@@ -154,8 +162,11 @@ void pmSimulation::simulate(size_t const& num_threads) {
 		if(!success) {
 			ProLog::pLogger::error_msgf("Simulation failed. Please refer to \"error.vtk\"\n");
 		}
+		this->update_script();
 	}
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
+	cas->get_workspace()->get_instance("finished").lock()->set_value(pmTensor{1,1,1});
+	this->update_script();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +183,9 @@ void pmSimulation::print() const {
 		it->print();
 	}
 	for(auto const& it:time_series) {
+		it->print();
+	}
+	for(auto const& it:script) {
 		it->print();
 	}
 	ProLog::pLogger::footerf<ProLog::LGN>();
@@ -211,7 +225,7 @@ void pmSimulation::set_working_directory(std::string const& working_dir) const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Reads the configureation file.
+/// Reads the configuration file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSimulation::read_file(std::string const& filename) {
 	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
@@ -225,6 +239,7 @@ void pmSimulation::read_file(std::string const& filename) {
 	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
 	background = yaml_loader->get_background(cas->get_workspace());
 	time_series = yaml_loader->get_time_series(cas->get_workspace());
+	script = yaml_loader->get_script(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
@@ -290,5 +305,11 @@ void pmSimulation::update_background_fields() {
 void pmSimulation::update_time_series_variables(double const& t) {
 	for(auto& it:time_series) {
 		it->update(t);
+	}
+}
+
+void pmSimulation::update_script() {
+	for(auto& it:script) {
+		it->update();
 	}
 }

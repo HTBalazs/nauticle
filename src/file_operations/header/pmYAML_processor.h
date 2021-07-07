@@ -35,6 +35,7 @@
 #include "pmBackground.h"
 #include "pmTime_series.h"
 #include "pmParticle_sink.h"
+#include "pmScript.h"
 
 namespace Nauticle {
     /**	This class extracts data from YAML configuration file.
@@ -55,6 +56,7 @@ namespace Nauticle {
         std::vector<std::shared_ptr<pmBackground>> get_background(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmTime_series>> get_time_series(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmParticle_sink>> get_particle_sink(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
+        std::vector<std::shared_ptr<pmScript>> get_script(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
     };
 }
 
