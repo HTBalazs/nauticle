@@ -35,6 +35,7 @@
 #include "pmBackground.h"
 #include "pmTime_series.h"
 #include "pmParticle_sink.h"
+#include "pmParticle_emitter.h"
 #include "pmScript.h"
 
 namespace Nauticle {
@@ -48,7 +49,7 @@ namespace Nauticle {
     public:
         void read_file(std::string const& file_name);
         static std::string get_default_file_name();
-        std::shared_ptr<pmGrid_space> get_grid_space(YAML::Node particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const;
+        std::shared_ptr<pmGrid_space> get_grid_space(YAML::iterator ps_nodes, YAML::const_iterator ps_nodes_end, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const;
         std::shared_ptr<pmCase> get_case() const;
         std::shared_ptr<pmParameter_space> get_parameter_space(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmParticle_splitter>> get_particle_splitter(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
@@ -56,7 +57,9 @@ namespace Nauticle {
         std::vector<std::shared_ptr<pmBackground>> get_background(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmTime_series>> get_time_series(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmParticle_sink>> get_particle_sink(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
+        std::vector<std::shared_ptr<pmParticle_emitter>> get_particle_emitter(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmScript>> get_script(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
+        std::vector<pmInitializer> get_initializers(YAML::iterator it, YAML::const_iterator it_end, std::shared_ptr<pmWorkspace> workspace) const;
     };
 }
 

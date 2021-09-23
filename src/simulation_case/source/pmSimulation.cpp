@@ -234,7 +234,9 @@ void pmSimulation::read_file(std::string const& filename) {
 	auto particle_splitter = yaml_loader->get_particle_splitter(cas->get_workspace());
 	auto particle_merger = yaml_loader->get_particle_merger(cas->get_workspace());
 	auto particle_sink = yaml_loader->get_particle_sink(cas->get_workspace());
+	auto particle_emitter = yaml_loader->get_particle_emitter(cas->get_workspace());
 	particle_modifier.insert(particle_modifier.end(), particle_sink.begin(), particle_sink.end());
+	particle_modifier.insert(particle_modifier.end(), particle_emitter.begin(), particle_emitter.end());
 	particle_modifier.insert(particle_modifier.end(), particle_splitter.begin(), particle_splitter.end());
 	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
 	background = yaml_loader->get_background(cas->get_workspace());

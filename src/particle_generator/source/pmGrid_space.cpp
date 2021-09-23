@@ -106,3 +106,7 @@ size_t pmGrid_space::get_grid_space_size() const {
 	}
 	return size;
 }
+
+bool pmGrid_space::is_empty() const {
+	return grid.empty();
+}

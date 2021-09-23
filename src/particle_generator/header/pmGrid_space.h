@@ -41,6 +41,7 @@ namespace Nauticle {
     	std::vector<pmTensor> get_grid_id_field() const;
     	std::shared_ptr<pmGrid> get_merged_grid() const;
     	size_t get_grid_space_size() const;
+        bool is_empty() const;
     };
 }
 

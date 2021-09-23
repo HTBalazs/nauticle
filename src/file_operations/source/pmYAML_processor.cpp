@@ -102,7 +102,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	pmTensor boundary = tensor_parser.string_to_tensor(dm["boundary"].as<std::string>(), workspace);
 	pmDomain domain = pmDomain{minimum, maximum, cell_size, boundary};
 	// Read grids
-	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys, workspace, domain);
+	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys.begin(), psys.end(), workspace, domain);
 	std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();
 	std::vector<pmTensor> particle_grid = tmp->get_grid();
 	workspace->add_particle_system(particle_grid, domain);
@@ -141,21 +141,18 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid objects wrapped in grid space.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node particle_system, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const {
-	if(!particle_system["grid"]) {
-		ProLog::pLogger::error_msgf("Grid must be defined if no initial condition is provided.\n");
-	}
+std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::iterator it, YAML::const_iterator it_end, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const {
 	std::shared_ptr<pmGrid_space> grid_space = std::make_shared<pmGrid_space>();
 	pmTensor gid{1,1,0};
 	pmTensor gpos{3,1,0};
 	pmTensor gsize{3,1,1};
 	pmTensor goffset{3,1,0};
 	pmTensor gip_dist{3,1,0.1};
-	for(YAML::const_iterator ps_nodes=particle_system.begin();ps_nodes!=particle_system.end();ps_nodes++) {
-		if(ps_nodes->first.as<std::string>()=="grid") {
+	for(;it!=it_end;it++) {
+		if(it->first.as<std::string>()=="grid") {
 			std::shared_ptr<pmGrid> grid = std::make_shared<pmGrid>();
 			grid->set_dimensions(domain.get_dimensions());
-			for(YAML::const_iterator grid_nodes=ps_nodes->second.begin();grid_nodes!=ps_nodes->second.end();grid_nodes++) {
+			for(YAML::const_iterator grid_nodes=it->second.begin();grid_nodes!=it->second.end();grid_nodes++) {
 				pmTensor_parser tensor_parser{};
 				if(grid_nodes->first.as<std::string>()=="gid") {
 					gid = tensor_parser.string_to_tensor(grid_nodes->second.as<std::string>(),workspace);
@@ -184,6 +181,9 @@ std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::Node partic
 			grid->generate();
 			grid_space->add_grid(grid);
 		}
+	}
+	if(grid_space->is_empty()) {
+		ProLog::pLogger::error_msgf("Grid must be defined if no initial condition is provided.\n");
 	}
 	return grid_space;
 }
@@ -594,3 +594,91 @@ std::vector<std::shared_ptr<pmParticle_sink>> pmYAML_processor::get_particle_sin
 	}
 	return particle_sink_list;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the collection of particle emitters if specified in the configuration file.
+/////////////////////////////////////////////////////////////////////////////////////////
+std::vector<std::shared_ptr<pmParticle_emitter>> pmYAML_processor::get_particle_emitter(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
+	YAML::Node sim = data["simulation"];
+	std::vector<std::shared_ptr<pmParticle_emitter>> particle_emitter_list;
+	if(!sim["emitter"]) {
+		return particle_emitter_list;
+	}
+	// default values
+	std::string condition = "false";
+	for(YAML::iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="emitter") {
+			auto particle_emitter = std::make_shared<pmParticle_emitter>();
+			std::shared_ptr<pmGrid_space> grid_space = get_grid_space(sim_nodes->second.begin(), sim_nodes->second.end(), workspace, workspace->get_particle_system().lock()->get_particle_space()->get_domain());
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator particle_emitter_nodes=sim_nodes->second.begin();particle_emitter_nodes!=sim_nodes->second.end();particle_emitter_nodes++) {
+				// read from configuration file
+				if(particle_emitter_nodes->first.as<std::string>()=="condition") {
+					condition = particle_emitter_nodes->second.as<std::string>();
+				}
+			}
+			auto initializers = get_initializers(sim_nodes->second.begin(), sim_nodes->second.end(), workspace);
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			particle_emitter->set_condition(expr_condition);
+			particle_emitter->set_workspace(workspace);
+			particle_emitter->add_grid(grid_space);
+			for(auto const& it:initializers) {
+				particle_emitter->add_initializer(it);
+			}
+			particle_emitter_list.push_back(particle_emitter);
+		}
+	}
+	return particle_emitter_list;
+}
+
+std::vector<pmInitializer> pmYAML_processor::get_initializers(YAML::iterator it, YAML::const_iterator it_end, std::shared_ptr<pmWorkspace> workspace) const {
+	std::vector<pmInitializer> initializers;
+	for(;it!=it_end;it++) {
+		if(it->first.as<std::string>()=="initializer") {
+				std::cout << "ok" << std::endl;
+	        for(YAML::const_iterator in = it->second.begin();in!=it->second.end();in++) {
+				auto expr_parser = std::make_shared<pmExpression_parser>();
+				pmInitializer init;
+				std::string name;
+		    	std::string expression;
+				name = in->first.as<std::string>();
+				expression = in->second.as<std::string>();
+		        init.field = std::dynamic_pointer_cast<pmField>(workspace->get_instance(name).lock());
+		        init.expression = expr_parser->analyse_expression<pmExpression>(expression,workspace);
+				initializers.push_back(init);
+	        }
+		}
+	}
+	return initializers;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
