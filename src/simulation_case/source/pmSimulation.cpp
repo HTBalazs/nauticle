@@ -155,6 +155,9 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			}
 			write_step(success);
 			log_stream.print_step_info(dt>print_interval?print_interval:dt, (int)ws_substeps->get_value()[0], (int)ws_all_steps->get_value()[0], current_time, simulated_time);
+			if(!particle_modifier.empty()) {
+				ProLog::pLogger::logf<ProLog::WHT>("Number of particles: %d\n", cas->get_workspace()->get_number_of_nodes());
+			}
 			ws_substeps->set_value(pmTensor{1,1,0});
 			previous_printing_time = current_time;
 			ws_write_case->set_value(pmTensor{1,1,0});

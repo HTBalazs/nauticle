@@ -40,9 +40,11 @@ void pmParticle_emitter::print() const {
 	pLogger::logf<YEL>("        condition: "); condition->print(); pLogger::line_feed(1);
 	pLogger::logf<YEL>("        initializers: ");
 	pLogger::line_feed(1);
+	int i=1;
 	for(auto const& it:initializer) {
-		pLogger::logf<YEL>("          name: %s", it.field->get_name().c_str());
-		pLogger::logf<YEL>(" | value: "); it.expression->print();
+		pLogger::logf<YEL>("          %i) ",i++);
+		pLogger::logf<WHT>(it.field->get_name().c_str());
+		pLogger::logf<WHT>(" = "); it.expression->print();
 		pLogger::line_feed(1);
 	}
 	pLogger::footerf<LBL>();
