@@ -43,7 +43,7 @@ namespace Nauticle {
 		pmLong_range();
 		virtual ~pmLong_range() {}
 		void set_storage_depth(size_t const& d) override;
-		virtual void update(std::vector<int> const& sorted_particle_idx);
+		void update_numbering(std::vector<int> const& sorted_particle_idx);
 		virtual pmPairs const& get_pairs(size_t const& level=0) const override;
 		virtual pmPairs& get_pairs(size_t const& level=0) override;
 	};
@@ -84,7 +84,7 @@ namespace Nauticle {
 	/// Update the mesh according to the sorted particle list.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
-	void pmLong_range<S>::update(std::vector<int> const& sorted_particle_idx) {
+	void pmLong_range<S>::update_numbering(std::vector<int> const& sorted_particle_idx) {
 		for(auto& it:pairs) {
 			it.renumber_pairs(sorted_particle_idx);
 		}

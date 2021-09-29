@@ -242,7 +242,7 @@ void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
 /// Update the long range interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::update(size_t const& level/*=0*/) {
-	pmLong_range::update(psys.lock()->get_sorted_idx());
+	pmLong_range::update_numbering(psys.lock()->get_sorted_idx());
 	remove_unnecessary_pairs(level);
 	for(int i=0; i<psys.lock()->get_field_size(); i++) {
 		create_pairs(i, level);
