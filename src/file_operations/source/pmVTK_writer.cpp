@@ -143,7 +143,11 @@ void pmVTK_writer::push_point_fields_to_polydata() {
 					pmTensor t = it->evaluate(i);
 					double data[3] = {0,0,0};
 					for(int j=0; j<t.numel(); j++) {
-						data[j] = t[j];
+						if(std::abs(t[j])<NAUTICLE_EPS) {
+							data[j] = 0.0;
+						} else {
+							data[j] = t[j];
+						}
 					}
 					field->SetTuple(i, data);
 				}
@@ -236,8 +240,8 @@ void pmVTK_writer::update() {
 	push_constants_to_polydata();
 	push_equations_to_polydata();
 	push_nodes_to_polydata();
-	push_pairs_to_polydata();
-	push_pair_fields_to_polydata();
+	// push_pairs_to_polydata();
+	// push_pair_fields_to_polydata();
 	push_point_fields_to_polydata();
 	push_asymmetric_to_polydata();
 	// Write vtk file.

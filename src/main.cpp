@@ -26,7 +26,7 @@ using namespace Nauticle;
 
 int main(int argc, char* argv[]) {
 	std::string default_yaml_name = pmYAML_processor::get_default_file_name();
-	std::string default_working_dir = "";
+	std::string default_working_dir = "./";
 	bool command_switch = false;
 
 // /// Do not modify anything below this line. /// //
@@ -66,6 +66,8 @@ int main(int argc, char* argv[]) {
 					working_dir = cp.get_arg(++i);
 					exec = true;
 				}
+			} else if(cp.get_arg(i)=="-purge") {
+				system(("rm -rf "+working_dir+"/step_* "+working_dir+"/domain.vtk "+working_dir+"/sim.log "+working_dir+"/binary_case").c_str());
 			} else if(cp.get_arg(i)=="-yamlname") {
 				if(argc>i+1) {
 					yaml_name = cp.get_arg(++i);
