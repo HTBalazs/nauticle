@@ -102,8 +102,12 @@ std::string pmCommand_parser::get_arg(std::string s) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints version of Nauticle.
 /////////////////////////////////////////////////////////////////////////////////////////
-/*static*/ void pmCommand_parser::print_version() {
-	ProLog::pLogger::log<ProLog::WHT>("Nauticle version %i.%i.%s\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
+/*static*/ void pmCommand_parser::print_version(bool to_file/*=false*/) {
+	if(to_file) {
+		ProLog::pLogger::logf<ProLog::WHT>("Nauticle version %i.%i.%s\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
+	} else {
+		ProLog::pLogger::log<ProLog::WHT>("Nauticle version %i.%i.%s\n", MAJOR_VERSION, MINOR_VERSION, RELEASE_DATE);
+	}
 }
 
 

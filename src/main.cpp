@@ -25,6 +25,7 @@
 using namespace Nauticle;
 
 int main(int argc, char* argv[]) {
+	pmCommand_parser::print_version(true);
 	std::string default_yaml_name = pmYAML_processor::get_default_file_name();
 	std::string default_working_dir = "./";
 	bool command_switch = false;

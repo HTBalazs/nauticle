@@ -42,7 +42,7 @@ namespace Nauticle {
         std::string get_arg(std::string s);
         static void print_command_list();
         static void print_header();
-        static void print_version();
+        static void print_version(bool to_file=false);
     };
 }
 
