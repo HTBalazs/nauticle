@@ -143,6 +143,7 @@ void pmParticle_merger::update(size_t const& num_threads) {
     pmKernel W;
     W.set_kernel_type(10, false);
     std::vector<size_t> delete_indices;
+    int dims = ps->get_particle_space()->get_domain().get_dimensions();
     for(int i=0; i<std::get<0>(tuples).size(); i++) {
         size_t const id0 = std::get<0>(tuples)[i];
         size_t const id1 = std::get<1>(tuples)[i];
@@ -174,7 +175,7 @@ void pmParticle_merger::update(size_t const& num_threads) {
         double dp1 = rp1.norm();
         double dp2 = rp2.norm();
         
-        W.set_kernel_type(16, false);
+        W.set_kernel_type(dims<3?16:17, false);
         double W_M0 = W.evaluate(dp0,h0);
         double W_M1 = W.evaluate(dp1,h1);
         double W_M2 = W.evaluate(dp2,h2);
@@ -212,21 +213,38 @@ void pmParticle_merger::update(size_t const& num_threads) {
         } else if(pos02.norm()>pos01.norm() && pos02.norm()>pos12.norm()) {
             direction = pos02/pos02.norm();
         } else {
-            direction = pos12/pos12.norm();   
+            direction = pos12/pos12.norm();
         }
 
         pmTensor pos_b = pos_p+direction*d;
-        pmTensor pos_a = 2*pos_p-pos_b;
+        pmTensor pos_a = pos_p-direction*d;
 
-        double G = mass0*(rp0[0]*vp0[1]-rp0[1]*vp0[0])+mass1*(rp1[0]*vp1[1]-rp1[1]*vp1[0])+mass2*(rp2[0]*vp2[1]-rp2[1]*vp2[0]);
-
-        double tangential_vel = G/2.0/d/mass_M;
-        
+        double tangential_vel = 0;
+        pmTensor vel_M{dims,1,0};
         pmTensor pos_ap = (pos_a-pos_p);
         pos_ap = pos_ap/pos_ap.norm();
-        pmTensor vel_M{2,1,0};
-        vel_M[0] = pos_ap[1];
-        vel_M[1] = -pos_ap[0];
+        pmTensor vel_1;
+        pmTensor vel_2;
+        if(dims==2){
+            double G = mass0*(rp0[0]*vp0[1]-rp0[1]*vp0[0])+mass1*(rp1[0]*vp1[1]-rp1[1]*vp1[0])+mass2*(rp2[0]*vp2[1]-rp2[1]*vp2[0]);
+            tangential_vel = G/2.0/d/mass_M;
+            vel_M[0] = pos_ap[1];
+            vel_M[1] = -pos_ap[0];
+            vel_1 = vel_p-vel_M*tangential_vel;
+            vel_2 = vel_p+vel_M*tangential_vel;
+        } else if(dims==3) {
+            pmTensor G = mass0*cross(rp0,vp0) + mass1*cross(rp1,vp1) + mass2*cross(rp2,vp2);
+            pmTensor A{3,3,0};
+            A[1] = -pos_ap[2];
+            A[2] =  pos_ap[1];
+            A[3] =  pos_ap[2];
+            A[5] = -pos_ap[0];
+            A[6] = -pos_ap[1];
+            A[7] =  pos_ap[0];
+            vel_M = A.inverse()*G/2.0;
+            vel_1 = vel_p+vel_M;
+            vel_2 = vel_p-vel_M;
+        }
 
         workspace->duplicate_particle(id1);
         workspace->duplicate_particle(id1);
@@ -237,8 +255,8 @@ void pmParticle_merger::update(size_t const& num_threads) {
         radius->set_value(hM,num_nodes-2);
         ps->set_value(pos_a,num_nodes-1);
         ps->set_value(pos_b,num_nodes-2);
-        velocity->set_value(vel_p-vel_M*tangential_vel,num_nodes-1);
-        velocity->set_value(vel_p+vel_M*tangential_vel,num_nodes-2);
+        velocity->set_value(vel_1,num_nodes-1);
+        velocity->set_value(vel_2,num_nodes-2);
         delete_indices.push_back(id0);
         delete_indices.push_back(id1);
         delete_indices.push_back(id2);
