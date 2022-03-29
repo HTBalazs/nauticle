@@ -140,10 +140,10 @@ void pmParticle_merger::update(size_t const& num_threads) {
     std::tuple<std::vector<size_t>,std::vector<size_t>,std::vector<size_t>> tuples;
     this->make_tuples(tuples, this->get_candidates());
     std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
-    pmKernel W;
-    W.set_kernel_type(10, false);
-    std::vector<size_t> delete_indices;
     int dims = ps->get_particle_space()->get_domain().get_dimensions();
+    pmKernel W;
+    W.set_kernel_type(dims==2?16:17, false);
+    std::vector<size_t> delete_indices;
     for(int i=0; i<std::get<0>(tuples).size(); i++) {
         size_t const id0 = std::get<0>(tuples)[i];
         size_t const id1 = std::get<1>(tuples)[i];
@@ -151,9 +151,6 @@ void pmParticle_merger::update(size_t const& num_threads) {
         double const mass0 = mass->evaluate(id0)[0];
         double const mass1 = mass->evaluate(id1)[0];
         double const mass2 = mass->evaluate(id2)[0];
-        double const h0 = radius->evaluate(id0)[0];
-        double const h1 = radius->evaluate(id1)[0];
-        double const h2 = radius->evaluate(id2)[0];
         pmTensor const vel0 = velocity->evaluate(id0);
         pmTensor const vel1 = velocity->evaluate(id1);
         pmTensor const vel2 = velocity->evaluate(id2);
@@ -175,23 +172,22 @@ void pmParticle_merger::update(size_t const& num_threads) {
         double dp1 = rp1.norm();
         double dp2 = rp2.norm();
         
-        W.set_kernel_type(dims<3?16:17, false);
-        double W_M0 = W.evaluate(dp0,h0);
-        double W_M1 = W.evaluate(dp1,h1);
-        double W_M2 = W.evaluate(dp2,h2);
+        double W_M0 = W.evaluate(dp0,radius->evaluate(id0)[0]);
+        double W_M1 = W.evaluate(dp1,radius->evaluate(id1)[0]);
+        double W_M2 = W.evaluate(dp2,radius->evaluate(id2)[0]);
         double Wp = (W_M0*mass0+W_M1*mass1+W_M2*mass2)/2.0/mass_M;
-        double hM = std::sqrt(1.0/std::exp(1.0)/NAUTICLE_PI/Wp);
+        double hM = dims==2?std::sqrt(1.0/std::exp(1.0)/NAUTICLE_PI/Wp) : std::cbrt(1.0/std::exp(1.0)/std::pow(NAUTICLE_PI,3.0/2)/Wp);
         double d = 0.9*(dp0+dp1+dp2)/3.0;
 
         if(d>hM) {
             d = hM;
         } else {
-            auto iterate = [](double const& r, double const& W, double const& h_init)->double {
+            auto iterate = [dims](double const& r, double const& W, double const& h_init)->double {
                 double h = h_init;
                 size_t maxit = 100;
                 for(int i=0; i<maxit; i++) {
                     double h_prev = h;
-                    h = std::sqrt(1.0/NAUTICLE_PI/W*std::exp(-r*r/h*h));
+                    h = dims==2?std::sqrt(1.0/NAUTICLE_PI/W*std::exp(-r*r/h/h)) : std::cbrt(1.0/std::pow(NAUTICLE_PI,3.0/2)/W*std::exp(-r*r/h/h));
                     if(std::abs((h-h_prev)/h)<1e-6) {
                         break;
                     }

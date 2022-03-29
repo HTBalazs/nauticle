@@ -634,4 +634,14 @@ void pmWorkspace::duplicate_particle(size_t const& i) {
 	num_nodes++;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns true if the particle number changed since the last check.
+/////////////////////////////////////////////////////////////////////////////////////////
+bool pmWorkspace::number_of_particles_changed() const {
+	static int num_particles = num_nodes;
+	if(num_particles!=num_nodes) {
+		num_particles = num_nodes;
+		return true;
+	}
+	return false;
+}

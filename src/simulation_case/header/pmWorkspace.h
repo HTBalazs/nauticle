@@ -90,6 +90,7 @@ namespace Nauticle {
 		void delete_particle(size_t const& i);
 		void delete_particle_set(std::vector<size_t> const& delete_indices);
 		void duplicate_particle(size_t const& i);
+		bool number_of_particles_changed() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
