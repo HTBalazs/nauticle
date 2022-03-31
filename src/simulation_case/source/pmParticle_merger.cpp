@@ -216,36 +216,33 @@ void pmParticle_merger::update(size_t const& num_threads) {
         pmTensor pos_a = pos_p-direction*d;
 
         double tangential_vel = 0;
-        pmTensor vel_M{dims,1,0};
         pmTensor pos_ap = (pos_a-pos_p);
         pos_ap = pos_ap/pos_ap.norm();
-        pmTensor vel_1;
-        pmTensor vel_2;
+        pmTensor vel_1 = vel_p;
+        pmTensor vel_2 = vel_p;
         if(dims==2){
             double G = mass0*(rp0[0]*vp0[1]-rp0[1]*vp0[0])+mass1*(rp1[0]*vp1[1]-rp1[1]*vp1[0])+mass2*(rp2[0]*vp2[1]-rp2[1]*vp2[0]);
             tangential_vel = G/2.0/d/mass_M;
+            pmTensor vel_M{2,1,0};
             vel_M[0] = pos_ap[1];
             vel_M[1] = -pos_ap[0];
-            vel_1 = vel_p-vel_M*tangential_vel;
-            vel_2 = vel_p+vel_M*tangential_vel;
+            vel_1 -= vel_M*tangential_vel;
+            vel_2 += vel_M*tangential_vel;
         } else if(dims==3) {
             pmTensor G = mass0*cross(rp0,vp0) + mass1*cross(rp1,vp1) + mass2*cross(rp2,vp2);
-            if(G.norm()>NAUTICLE_EPS) {
-                double phi = acos(G.transpose()*direction/G.norm()/direction.norm())[0];
-                if(phi<NAUTICLE_PI/4.0) {
-                    continue;
+            pmTensor direction3D;
+            if(G.norm()>1e-16) {
+                pmTensor normal = cross(rp1-rp0,rp2-rp0);
+                direction3D = cross(normal,G);
+                if(direction3D.norm()>NAUTICLE_EPS) {
+                    direction3D = direction3D/direction3D.norm();
+                } else {
+                    direction3D = direction;
                 }
+                tangential_vel = G.norm()/2.0/d/mass_M;
+                vel_1 -= tangential_vel*cross(G/G.norm(),direction3D);
+                vel_2 += tangential_vel*cross(G/G.norm(),direction3D);
             }
-            pmTensor A{3,3,0};
-            A[1] = -pos_ap[2];
-            A[2] =  pos_ap[1];
-            A[3] =  pos_ap[2];
-            A[5] = -pos_ap[0];
-            A[6] = -pos_ap[1];
-            A[7] =  pos_ap[0];
-            vel_M = A.inverse()*G/2.0;
-            vel_1 = vel_p+vel_M;
-            vel_2 = vel_p-vel_M;
         }
 
         workspace->duplicate_particle(id1);
