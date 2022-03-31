@@ -230,6 +230,12 @@ void pmParticle_merger::update(size_t const& num_threads) {
             vel_2 = vel_p+vel_M*tangential_vel;
         } else if(dims==3) {
             pmTensor G = mass0*cross(rp0,vp0) + mass1*cross(rp1,vp1) + mass2*cross(rp2,vp2);
+            if(G.norm()>NAUTICLE_EPS) {
+                double phi = acos(G.transpose()*direction/G.norm()/direction.norm())[0];
+                if(phi<NAUTICLE_PI/4.0) {
+                    continue;
+                }
+            }
             pmTensor A{3,3,0};
             A[1] = -pos_ap[2];
             A[2] =  pos_ap[1];
