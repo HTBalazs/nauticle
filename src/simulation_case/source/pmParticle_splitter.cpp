@@ -29,13 +29,15 @@ using namespace Nauticle;
 void pmParticle_splitter::update(size_t const& num_threads) {
     std::vector<size_t> candidates = this->get_candidates();
     std::vector<size_t> delete_indices;
+    std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
+    int dims = ps->get_particle_space()->get_domain().get_dimensions();
     for(auto const& it:candidates) {
         double alpha = smoothing_ratio->evaluate(it,0)[0];
         double epsilon = separation_parameter->evaluate(it,0)[0];
         bool generate_at_parent = (bool)parent->evaluate(it,0)[0];
-        size_t num_daughters = (size_t)daughters->evaluate(it,0)[0]-(generate_at_parent?1:0);
         double R_original = radius->evaluate(it,0)[0];
         double m_original = mass->evaluate(it,0)[0];
+        size_t num_daughters = (dims==3?8:((size_t)daughters->evaluate(it,0)[0]-(generate_at_parent?1:0)));
         if(passive.use_count()!=0) {
             if(generate_at_parent) {
                 workspace->duplicate_particle(it);
@@ -52,14 +54,20 @@ void pmParticle_splitter::update(size_t const& num_threads) {
             }
         }
         double step = 2.0*NAUTICLE_PI/num_daughters;
-        double angle = rotation->evaluate(it,0)[0];
+        pmTensor angle = rotation->evaluate(it,0);
         for(int i=0; i<num_daughters; i++) {
             workspace->duplicate_particle(it);
             size_t num_nodes = workspace->get_number_of_nodes();
             std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
             pmTensor new_pos = ps->evaluate(num_nodes-1,0);
-            new_pos[0] += R_original*epsilon*std::cos(i*step+angle);
-            new_pos[1] += R_original*epsilon*std::sin(i*step+angle);
+            if(dims==3) {
+                new_pos[0] += R_original/std::sqrt(2.0)*epsilon*std::sin(i*step+angle[0]);
+                new_pos[1] += R_original/std::sqrt(2.0)*epsilon*std::cos(i*step+angle[0]);
+                new_pos[2] += (2.0*(i%2)-1.0)*R_original/std::sqrt(2.0)*epsilon;
+            } else {
+                new_pos[1] += R_original*epsilon*std::sin(i*step+angle[0]);
+                new_pos[0] += R_original*epsilon*std::cos(i*step+angle[0]);
+            }
             ps->set_value(new_pos,num_nodes-1);
             radius->set_value(alpha*R_original,num_nodes-1);
             mass->set_value(m_original/(num_daughters+(generate_at_parent?1:0)),num_nodes-1);
@@ -96,6 +104,14 @@ void pmParticle_splitter::print() const {
     ProLog::pLogger::line_feed(1);
     ProLog::pLogger::logf<ProLog::YEL>("        rotation: "); rotation->print();
     ProLog::pLogger::line_feed(1);
+    if(passive.use_count()!=0) {
+        ProLog::pLogger::logf<ProLog::YEL>("        passive: ");
+        ProLog::pLogger::logf<ProLog::NRM>("%s\n", passive->get_name().c_str());
+    }
+    if(active.use_count()!=0) {
+        ProLog::pLogger::logf<ProLog::YEL>("        active: ");
+        ProLog::pLogger::logf<ProLog::NRM>("%s\n", active->get_name().c_str());
+    }
     ProLog::pLogger::footerf<ProLog::LBL>();
 }
 
