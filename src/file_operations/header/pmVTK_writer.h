@@ -35,6 +35,8 @@ namespace Nauticle {
     class pmVTK_writer : public pmVTK_manager {
         write_mode mode=ASCII;
         vtkSmartPointer<vtkRectilinearGrid> rectilinear_grid = vtkSmartPointer<vtkRectilinearGrid>::New();
+    public:
+        static bool write_domain;
     private:
         void fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) const;
         void push_pairs_to_polydata();

@@ -21,8 +21,11 @@
 #include <string>
 #include "nauticle.h"
 #include "pmYAML_processor.h"
+#include "pmVTK_reader.h"
+#include "pmVTK_writer.h"
 
 using namespace Nauticle;
+namespace fs = std::filesystem;
 
 int main(int argc, char* argv[]) {
 	pmCommand_parser::print_version(true);
@@ -34,7 +37,7 @@ int main(int argc, char* argv[]) {
 	std::string yaml_name = default_yaml_name;
 	std::string working_dir = default_working_dir;
 	bool exec = false;
-	size_t num_threads = std::thread::hardware_concurrency();;
+	size_t num_threads = std::thread::hardware_concurrency();
 	auto exec_fptr=[&](){
 		if(exec) {
 			std::shared_ptr<pmSimulation> simulation = std::make_shared<pmSimulation>();
@@ -57,11 +60,40 @@ int main(int argc, char* argv[]) {
 			} else if(cp.get_arg(i)=="-logfile") {
 				ProLog::pLogger::logfile = cp.get_arg(++i);
 				exec = true;
+			} else if(cp.get_arg(i)=="-convert") {
+				std::string conversion = cp.get_arg(++i);
+				exec = false;
+				std::string path(working_dir);
+			    std::string ext(".vtk");
+			    size_t count = 0;
+			    pmVTK_writer::write_domain = false;
+			    for (auto &p : fs::recursive_directory_iterator(path)) {
+			        if(p.path().extension() == ext) {
+			        	if(p.path().filename().string()=="domain.vtk") {
+			        		continue;
+			        	}
+						pmVTK_reader reader;
+						pmVTK_writer writer;
+						reader.set_file_name(p.path().filename().string());
+						writer.set_file_name(p.path().filename().string());
+						reader.update();
+						writer.set_case(reader.get_case());
+						if(conversion=="A2B") {
+							writer.set_write_mode(BINARY);
+						} else if(conversion=="B2A") {
+							writer.set_write_mode(ASCII);
+						}
+						writer.update();
+			        	std::cout << ++count << ": " <<  p.path().filename().string() << std::endl;
+			        }
+			    }
+				return 0;
 			} else if(cp.get_arg(i)=="-numthreads") {
 				num_threads = stoi(cp.get_arg(++i));
 				exec = true;
 			} else if(cp.get_arg(i)=="-version") {
 				pmCommand_parser::print_version();
+				break;
 			} else if(cp.get_arg(i)=="-wdir") {
 				if(argc>i+1) {
 					working_dir = cp.get_arg(++i);
@@ -69,6 +101,7 @@ int main(int argc, char* argv[]) {
 				}
 			} else if(cp.get_arg(i)=="-purge") {
 				system(("rm -rf "+working_dir+"/step_* "+working_dir+"/domain.vtk "+working_dir+"/sim.log "+working_dir+"/binary_case").c_str());
+				break;
 			} else if(cp.get_arg(i)=="-yamlname") {
 				if(argc>i+1) {
 					yaml_name = cp.get_arg(++i);

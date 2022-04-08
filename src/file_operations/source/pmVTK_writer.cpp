@@ -23,6 +23,8 @@
 
 using namespace Nauticle;
 
+bool pmVTK_writer::write_domain = true;
+
 void pmVTK_writer::fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) const {
 	size_t n = cas->get_workspace()->get_number_of_nodes();
 	for(int i=0;i<n;i++) {
@@ -253,7 +255,6 @@ void pmVTK_writer::update() {
 		case BINARY : writer->SetFileTypeToBinary(); break;
 	}
 	writer->Write();
-	static bool write_domain = true;
 	if(write_domain) {
 		vtkSmartPointer<vtkRectilinearGridWriter> domain_writer = vtkSmartPointer<vtkRectilinearGridWriter>::New();
 		domain_writer->SetFileName("domain.vtk");
