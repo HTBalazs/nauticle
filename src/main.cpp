@@ -55,12 +55,16 @@ int main(int argc, char* argv[]) {
 			if(cp.get_arg(i)=="-wsres") {
 				pmCommand_parser::print_header();
 				pmWorkspace::print_reserved_names();
+			} else if(cp.get_arg(i)=="-purge") {
+				ProLog::pLogger::logf<ProLog::WHT>("Deleting files...\n");
+				system(("rm -rf "+working_dir+"/step_* "+working_dir+"/domain.vtk "+working_dir+"/sim.log "+working_dir+"/binary_case").c_str());
 			} else if(cp.get_arg(i)=="-help") {
 				pmCommand_parser::print_command_list();
 			} else if(cp.get_arg(i)=="-logfile") {
 				ProLog::pLogger::logfile = cp.get_arg(++i);
 				exec = true;
 			} else if(cp.get_arg(i)=="-convert") {
+				ProLog::pLogger::logf<ProLog::WHT>("Starting file conversion...\n");
 				std::string conversion = cp.get_arg(++i);
 				exec = false;
 				std::string path(working_dir);
@@ -99,9 +103,6 @@ int main(int argc, char* argv[]) {
 					working_dir = cp.get_arg(++i);
 					exec = true;
 				}
-			} else if(cp.get_arg(i)=="-purge") {
-				system(("rm -rf "+working_dir+"/step_* "+working_dir+"/domain.vtk "+working_dir+"/sim.log "+working_dir+"/binary_case").c_str());
-				break;
 			} else if(cp.get_arg(i)=="-yamlname") {
 				if(argc>i+1) {
 					yaml_name = cp.get_arg(++i);
