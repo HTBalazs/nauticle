@@ -116,7 +116,7 @@ pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 	double rad = this->operand[2]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor num_neighbors{1,1,0};
-		pmTensor rj = ps->evaluate(j,level);
+		pmTensor rj = rel_pos+ri;
 		double distance = rel_pos.norm();
 		if(distance < rad + NAUTICLE_EPS && i!=j) {
 			pmTensor vr = rj-ri;
