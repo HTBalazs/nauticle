@@ -19,6 +19,7 @@
 */
     
 #include <string>
+#include <filesystem>
 #include "nauticle.h"
 #include "pmYAML_processor.h"
 #include "pmVTK_reader.h"
@@ -57,7 +58,7 @@ int main(int argc, char* argv[]) {
 				pmWorkspace::print_reserved_names();
 			} else if(cp.get_arg(i)=="-purge") {
 				ProLog::pLogger::logf<ProLog::WHT>("Deleting files...\n");
-				system(("rm -rf "+working_dir+"/step_* "+working_dir+"/domain.vtk "+working_dir+"/sim.log "+working_dir+"/binary_case").c_str());
+				system(("rm -rf "+working_dir+"/error.vtk "+working_dir+"/step_* "+working_dir+"/domain.vtk "+working_dir+"/sim.log "+working_dir+"/binary_case").c_str());
 			} else if(cp.get_arg(i)=="-help") {
 				pmCommand_parser::print_command_list();
 			} else if(cp.get_arg(i)=="-logfile") {
