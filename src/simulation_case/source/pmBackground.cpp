@@ -44,6 +44,8 @@ pmBackground::pmBackground(pmBackground const& other) {
 	this->psys = other.psys;
 	this->file_name = other.file_name;
 	this->import = other.import;
+	this->condition = other.condition;
+	this->particle_condition = other.particle_condition;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -55,6 +57,8 @@ pmBackground& pmBackground::operator=(pmBackground const& rhs) {
 		this->psys = rhs.psys;
 		this->file_name = rhs.file_name;
 		this->import = rhs.import;
+		this->condition = rhs.condition;
+		this->particle_condition = rhs.particle_condition;
 	}
 	return *this;
 }
@@ -67,6 +71,8 @@ pmBackground::pmBackground(pmBackground&& other) {
 	this->psys = std::move(other.psys);
 	this->file_name = std::move(other.file_name);
 	this->import = std::move(other.import);
+	this->condition = std::move(other.condition);
+	this->particle_condition = std::move(other.particle_condition);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -78,6 +84,8 @@ pmBackground& pmBackground::operator=(pmBackground&& rhs) {
 		this->psys = std::move(rhs.psys);
 		this->file_name = std::move(rhs.file_name);
 		this->import = std::move(rhs.import);
+		this->condition = std::move(rhs.condition);
+		this->particle_condition = std::move(rhs.particle_condition);
 	}
 	return *this;
 }
@@ -93,6 +101,7 @@ void pmBackground::print() const {
 	pLogger::logf<YEL>("        interpolate_to: ");
 	pLogger::logf<NRM>("%s\n", field->get_name().c_str());
 	pLogger::logf<YEL>("        condition: "); condition->print(); pLogger::line_feed(1);
+	pLogger::logf<YEL>("        particle condition: "); particle_condition->print(); pLogger::line_feed(1);
 	pLogger::footerf<LBL>();
 }
 
@@ -124,7 +133,10 @@ void pmBackground::interpolate() {
 
 	auto points = vtkSmartPointer<vtkPoints>::New();
 	for(int i=0; i<psys->get_field_size(); i++) {
-		pmTensor tensor = psys->get_value(i);
+		if(particle_condition->evaluate(i)[0]==0) {
+			continue;
+		}
+		pmTensor tensor = psys->evaluate(i);
 		size_t n = tensor.numel();
 		points->InsertNextPoint(tensor[0], n>1?tensor[1]:0.0, n>2?tensor[2]:0.0);
 	}
@@ -152,7 +164,7 @@ void pmBackground::interpolate() {
 		if(data!=NULL) {
 			vtkDoubleArray* doubleData = vtkDoubleArray::SafeDownCast(data);
 			for(int i=0; i<doubleData->GetNumberOfTuples(); i++) {
-				pmTensor tensor{field->get_value(0).numel(),1,0};
+				pmTensor tensor{field->evaluate(0).numel(),1,0.0};
 				doubleData->GetTuple(i,*tensor);
 				field->set_value(tensor,i);
 		    }
@@ -176,6 +188,10 @@ void pmBackground::set_field(std::shared_ptr<pmField> fld) {
 
 void pmBackground::set_condition(std::shared_ptr<pmExpression> cond) {
 	condition = cond;
+}
+
+void pmBackground::set_particle_condition(std::shared_ptr<pmExpression> pcond) {
+	particle_condition = pcond;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

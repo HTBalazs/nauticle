@@ -26,6 +26,7 @@
 #include <memory>
 #include "prolog/pLogger.h"
 #include "pmParticle_system.h"
+#include "pmField.h"
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 
@@ -39,6 +40,7 @@ namespace Nauticle {
 		std::shared_ptr<pmParticle_system> psys;
 		vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid;
 		std::shared_ptr<pmExpression> condition;
+		std::shared_ptr<pmExpression> particle_condition;
 		bool import = true;
 	public:
 		pmBackground() {}
@@ -54,6 +56,7 @@ namespace Nauticle {
 		void set_particle_system(std::shared_ptr<pmParticle_system> ps);
 		void set_field(std::shared_ptr<pmField> fld);
 		void set_condition(std::shared_ptr<pmExpression> cond);
+		void set_particle_condition(std::shared_ptr<pmExpression> cond);
 		void update();
 		std::shared_ptr<pmBackground> clone() const;
 	};
