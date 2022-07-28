@@ -62,7 +62,7 @@ namespace Nauticle {
 		void push_back(pmTensor const& obj);
 		bool is_double_steps() const;
 		std::shared_ptr<pmField> clone() const;
-		virtual void set_number_of_nodes(size_t const& N);
+		virtual void set_field_size(size_t const& N);
 		virtual void write_to_string(std::ostream& os) const override;
 		bool is_symmetric() const override;
 		void set_symmetry(bool const& sym);

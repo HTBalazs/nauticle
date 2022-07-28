@@ -140,7 +140,7 @@ void pmParticle_merger::update(size_t const& num_threads) {
     std::tuple<std::vector<size_t>,std::vector<size_t>,std::vector<size_t>> tuples;
     this->make_tuples(tuples, this->get_candidates());
     std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
-    int dims = ps->get_particle_space()->get_domain().get_dimensions();
+    int dims = ps->get_dimensions();
     pmKernel W;
     W.set_kernel_type(dims==2?16:17, false);
     std::vector<size_t> delete_indices;

@@ -26,7 +26,6 @@
 #include <stack>
 #include <string>
 #include "prolog/pLogger.h"
-// #include "pmField.h"
 #include "pmParticle_system.h"
 #include "pmMath_test.h"
 #include "c2c/c2CPP_declaration.h"
@@ -71,7 +70,7 @@ namespace Nauticle {
 		void delete_instance(std::string const& name);
 		pmTensor get_value(std::string const& name, int const& i=0) const;
 		std::weak_ptr<pmSymbol> get_instance(std::string const& name, bool const& safe=true) const;
-		std::weak_ptr<pmParticle_system> get_particle_system() const;
+		std::shared_ptr<pmParticle_system> get_particle_system() const;
 		template <typename T> void print_content(std::string const& title) const;
 		void print() const;
 		bool update();
@@ -91,6 +90,7 @@ namespace Nauticle {
 		void delete_particle_set(std::vector<size_t> const& delete_indices);
 		void duplicate_particle(size_t const& i);
 		bool number_of_particles_changed() const;
+		size_t get_dimensions() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

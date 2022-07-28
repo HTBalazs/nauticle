@@ -206,7 +206,7 @@ std::shared_ptr<pmField> pmField::clone() const {
 /// Resizes the field. The last element is copied to the empty places if N>current size.
 /// If N<current size, the elements above N are destroyed.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmField::set_number_of_nodes(size_t const& N) {
+void pmField::set_field_size(size_t const& N) {
 	if(N!=value[0].size()) {
 		for(auto& it:value) {
 			pmTensor ctensor = it.back();

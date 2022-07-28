@@ -106,17 +106,16 @@ void pmNbody_operator::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmNbody_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!assigned) { ProLog::pLogger::error_msgf("N-body model is not assigned to any particle system.\n"); }
-	std::shared_ptr<pmParticle_system> ps = psys.lock();
 
-	pmTensor pos_i = ps->evaluate(i,level);
+	pmTensor pos_i = psys->evaluate(i,level);
 	pmTensor mass_i = operand[0]->evaluate(i,level);
 	pmTensor coef = operand[1]->evaluate(0,level);
 
 	pmTensor force;
-	for(int j=0; j<ps->get_field_size(); j++) {
+	for(int j=0; j<psys->get_field_size(); j++) {
 		if(i==j) { continue; }
 		pmTensor mass_j = operand[0]->evaluate(j,level);
-		pmTensor pos_j = ps->evaluate(j,level);
+		pmTensor pos_j = psys->evaluate(j,level);
 		pmTensor rel_pos = pos_j-pos_i;
 		double distance = rel_pos.norm();
 		pmTensor norm = rel_pos / distance;
@@ -125,9 +124,3 @@ pmTensor pmNbody_operator::evaluate(int const& i, size_t const& level/*=0*/) con
 	return force;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the maximum size of the fields out of the operands.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmNbody_operator::get_field_size() const {
-	return psys.lock()->get_field_size();
-}

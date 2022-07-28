@@ -42,7 +42,7 @@ namespace Nauticle {
     	virtual std::string const& get_name() const;
     	virtual void set_storage_depth(size_t const& d)=0;
     	std::shared_ptr<pmExpression> clone() const;
-    	virtual void assign(std::weak_ptr<pmParticle_system> ps) {}
+    	virtual void assign(std::shared_ptr<pmParticle_system> ps) {}
     	virtual bool is_assigned() const=0;
     	virtual void write_to_string(std::ostream& os) const=0;
         virtual bool is_symmetric() const;

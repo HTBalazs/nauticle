@@ -114,7 +114,7 @@ void pmMd_operator::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmMd_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
-	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
+	size_t dimension = this->psys->get_dimensions();
 	double eps = this->operand[0]->evaluate(i,level)[0];
 	double sigma = this->operand[1]->evaluate(i,level)[0];
 	double R = this->operand[2]->evaluate(i,level)[0];

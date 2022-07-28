@@ -48,7 +48,7 @@ namespace Nauticle {
 		virtual ~pmOperator() override {};
 		virtual void set_storage_depth(size_t const& d) override;
 		virtual int get_field_size() const override;
-		void assign(std::weak_ptr<pmParticle_system> ps) override;
+		void assign(std::shared_ptr<pmParticle_system> ps) override;
 		bool is_assigned() const override;
 		void print_operands() const;
 		void write_operands_to_string(std::ostream& os) const;
@@ -135,7 +135,7 @@ namespace Nauticle {
 	/// Assigns pmParticle_system to the operands.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
-	void pmOperator<S>::assign(std::weak_ptr<pmParticle_system> ps) {
+	void pmOperator<S>::assign(std::shared_ptr<pmParticle_system> ps) {
 		for(auto const& it:operand) {
 			it->assign(ps);
 		}

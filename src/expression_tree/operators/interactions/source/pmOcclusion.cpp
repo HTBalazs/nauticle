@@ -109,8 +109,7 @@ void pmOcclusion::print() const {
 pmTensor pmOcclusion::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!assigned) { ProLog::pLogger::error_msgf("Occlusion counter is not assigned to any particle system.\n"); }
 
-	auto ps = this->psys.lock();
-	pmTensor ri = ps->evaluate(i,level);
+	pmTensor ri = psys->evaluate(i,level);
 	pmTensor dir = this->operand[0]->evaluate(i,level);
 	double ang = this->operand[1]->evaluate(i,level)[0];
 	double rad = this->operand[2]->evaluate(i,level)[0];
@@ -134,11 +133,5 @@ pmTensor pmOcclusion::evaluate(int const& i, size_t const& level/*=0*/) const {
 	return pmTensor{1,1,occlusion};
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the size of the field.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmOcclusion::get_field_size() const {
-	return psys.lock()->get_field_size();
-}
 
 

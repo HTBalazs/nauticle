@@ -145,10 +145,3 @@ pmTensor pmKuramoto_operator::evaluate(int const& i, size_t const& level/*=0*/) 
 	};
 	return this->interact(i, contribute);
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the size of the field.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmKuramoto_operator::get_field_size() const {
-	return this->psys.lock()->get_field_size();
-}

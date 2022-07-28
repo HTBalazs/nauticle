@@ -154,7 +154,7 @@ bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
 			return false;
 		}
 	}
-	if(*this->get_particle_system().lock() != *rhs.get_particle_system().lock()) {
+	if(*this->get_particle_system() != *rhs.get_particle_system()) {
 		return false;
 	}
 	
@@ -319,7 +319,7 @@ void pmWorkspace::add_field(std::string const& name, std::vector<pmTensor> const
 /// Defines the bases unit vectors for the domain.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::define_bases() {
-	double dims = this->get_particle_system().lock()->get_particle_space()->get_domain().get_dimensions();
+	double dims = this->get_particle_system()->get_dimensions();
 	std::string bases[] = {"e_i", "e_j", "e_k"};
 	for(int i=0; i<dims; i++) {
 		this->add_constant(bases[i], pmTensor::make_identity(dims).sub_tensor(0,dims-1,i,i), true);
@@ -335,7 +335,7 @@ void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, pmDom
 	if(values.size()!=num_nodes) {
 		set_number_of_nodes(values.size());
 	}
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>("r", values, domain)));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>(values, domain)));
 	define_bases();
 }
 
@@ -404,7 +404,7 @@ std::weak_ptr<pmSymbol> pmWorkspace::get_instance(std::string const& name, bool 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the particle system of the workspace object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::weak_ptr<pmParticle_system> pmWorkspace::get_particle_system() const {
+std::shared_ptr<pmParticle_system> pmWorkspace::get_particle_system() const {
 	std::shared_ptr<pmSymbol> psys = get_instance("r").lock();
 	return std::static_pointer_cast<pmParticle_system>(psys);
 }
@@ -514,7 +514,7 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 						deleted_ids.push((int)field->evaluate(i)[0]);
 					}
 				} else {
-					field->set_number_of_nodes(N);
+					field->set_field_size(N);
 					for(int i=num_nodes; i<N; i++) {
 						if(deleted_ids.empty()) {
 							field->set_value(pmTensor{1,1,(double)i},i);	
@@ -525,7 +525,7 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 					}
 				}
 			} else {
-				field->set_number_of_nodes(N);
+				field->set_field_size(N);
 			}
 		}
 	}
@@ -632,4 +632,8 @@ bool pmWorkspace::number_of_particles_changed() const {
 		return true;
 	}
 	return false;
+}
+
+size_t pmWorkspace::get_dimensions() const {
+	return this->get_particle_system()->get_dimensions();
 }

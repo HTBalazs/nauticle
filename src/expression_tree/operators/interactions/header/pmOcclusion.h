@@ -41,7 +41,6 @@ namespace Nauticle {
 		void print() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmOcclusion> clone() const;
-		int get_field_size() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

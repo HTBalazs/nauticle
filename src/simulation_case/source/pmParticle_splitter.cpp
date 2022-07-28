@@ -30,7 +30,7 @@ void pmParticle_splitter::update(size_t const& num_threads) {
     std::vector<size_t> candidates = this->get_candidates();
     std::vector<size_t> delete_indices;
     std::shared_ptr<pmParticle_system> ps = workspace->get<pmParticle_system>()[0];
-    int dims = ps->get_particle_space()->get_domain().get_dimensions();
+    int dims = ps->get_dimensions();
     for(auto const& it:candidates) {
         double alpha = smoothing_ratio->evaluate(it,0)[0];
         double epsilon = separation_parameter->evaluate(it,0)[0];

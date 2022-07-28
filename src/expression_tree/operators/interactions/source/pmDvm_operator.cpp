@@ -119,8 +119,8 @@ void pmDvm_operator::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("\"%s\" is not assigned to any particle system.\n", op_name.c_str()); }
-	size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
-	double cell_size_min = this->psys.lock()->get_particle_space()->get_domain().get_cell_size().min();
+	size_t dimension = this->psys->get_dimensions();
+	double cell_size_min = this->psys->get_cell_size().min();
 	double eps = this->operand[1]->evaluate(i,level)[0];
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 		pmTensor w_j = this->operand[0]->evaluate(j,level).reflect_perpendicular(guide);

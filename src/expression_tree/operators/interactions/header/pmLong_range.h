@@ -100,8 +100,8 @@ namespace Nauticle {
 		for(int pi=0; pi<pairs[level].size(); pi++) {
 			int i = first[pi];
 			int j = second[pi];
-			pmTensor pos_i = this->psys.lock()->get_value(i);
-			pmTensor pos_j = this->psys.lock()->get_value(j);
+			pmTensor pos_i = this->psys->get_value(i);
+			pmTensor pos_j = this->psys->get_value(j);
 			pmTensor rel_pos = pos_j-pos_i;
 			if(condition(rel_pos,i,j)) {
 				pairs[level].mark_to_delete(pi);

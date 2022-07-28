@@ -109,8 +109,7 @@ void pmNeighbors::print() const {
 pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!assigned) { ProLog::pLogger::error_msgf("Neighbor counter is not assigned to any particle system.\n"); }
 
-	auto ps = this->psys.lock();
-	pmTensor ri = ps->evaluate(i,level);
+	pmTensor ri = psys->evaluate(i,level);
 	pmTensor dir = this->operand[0]->evaluate(i,level);
 	double ang = this->operand[1]->evaluate(i,level)[0];
 	double rad = this->operand[2]->evaluate(i,level)[0];
@@ -131,11 +130,5 @@ pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 	return interact(i, contribute);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the size of the field.
-/////////////////////////////////////////////////////////////////////////////////////////
-int pmNeighbors::get_field_size() const {
-	return psys.lock()->get_field_size();
-}
 
 

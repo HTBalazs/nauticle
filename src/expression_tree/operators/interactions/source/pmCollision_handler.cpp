@@ -195,8 +195,8 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 		int j = second[pi];
 		double Ri = this->operand[0]->evaluate(i,level)[0];
 		double Rj = this->operand[0]->evaluate(j,level)[0];
-		pmTensor pos_i = this->psys.lock()->get_value(i);
-		pmTensor pos_j = this->psys.lock()->get_value(j);
+		pmTensor pos_i = this->psys->get_value(i);
+		pmTensor pos_j = this->psys->get_value(j);
 		pmTensor rel_pos = pos_j-pos_i;
 		double d_ji = rel_pos.norm();
 		double min_dist = Ri + Rj;
@@ -227,7 +227,7 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 /// Count the collisions per particles.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
-	count[level].resize(this->psys.lock()->get_field_size());
+	count[level].resize(this->psys->get_field_size());
 	std::fill(count[level].begin(), count[level].end(), 0);
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
@@ -242,9 +242,8 @@ void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
 /// Update the long range interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::update(size_t const& level/*=0*/) {
-	pmLong_range::update_numbering(psys.lock()->get_sorted_idx());
 	remove_unnecessary_pairs(level);
-	for(int i=0; i<psys.lock()->get_field_size(); i++) {
+	for(int i=0; i<psys->get_field_size(); i++) {
 		create_pairs(i, level);
 	}
 	evaluate_pairs(level);

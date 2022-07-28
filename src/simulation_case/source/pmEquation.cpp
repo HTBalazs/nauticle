@@ -168,7 +168,7 @@ void pmEquation::set_name(std::string const& n) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Assigns the given particle system to the rhs of the function. It is necessary for interactions.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmEquation::assign_particle_system(std::weak_ptr<pmParticle_system> psys) {
+void pmEquation::assign_particle_system(std::shared_ptr<pmParticle_system> psys) {
 	rhs->assign(psys);
 }
 

@@ -153,7 +153,7 @@ namespace Nauticle {
 	template <DEM_TYPE TYPE, size_t NOPS>
 	pmTensor pmDem_operator<TYPE, NOPS>::evaluate(int const& i, size_t const& level/*=0*/) const {
 		if(!this->assigned) { ProLog::pLogger::error_msgf("DEM model is not assigned to any particle system.\n"); }
-		size_t dimension = this->psys.lock()->get_particle_space()->get_domain().get_dimensions();
+		size_t dimension = this->psys->get_dimensions();
 
 		pmTensor vi = this->operand[0]->evaluate(i,level);
 		pmTensor omi = this->operand[1]->evaluate(i,level);

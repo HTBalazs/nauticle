@@ -190,7 +190,7 @@ bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 /// Assigns the particle system of the workspace to all equations.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::assign_particle_system_to_equations() {
-	std::weak_ptr<pmParticle_system> psys = std::dynamic_pointer_cast<pmParticle_system>(workspace->get_instance("r").lock());
+	std::shared_ptr<pmParticle_system> psys = workspace->get_particle_system();
 	for(auto const& it:equations) {
 		it->assign_particle_system(psys);
 	}

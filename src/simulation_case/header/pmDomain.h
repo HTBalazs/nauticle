@@ -22,6 +22,7 @@
 #define _DOMAIN_H_
 
 #include "pmTensor.h"
+#include <vector>
 
 namespace Nauticle {
 	/** This class represents the domain in which a particle system can be
@@ -29,29 +30,41 @@ namespace Nauticle {
 	//  in the Cartesian coordinate system. The domain boundaries can be periodic, symmetric or cutoff.
 	*/
 	class pmDomain {
+	public:
 		pmTensor minimum;
 		pmTensor maximum;
 		pmTensor cell_size;
 		pmTensor boundary;
+	protected:
+		std::vector<pmTensor> cell_iterator;
+		std::vector<int> cidx;
+	protected:
+		double flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const;
+		void combinations_recursive(std::vector<int> const& elems, size_t comb_len, std::vector<size_t> &pos, size_t depth);
+		void combinations(std::vector<int> const& elems, size_t comb_len);
+		int hash_key(pmTensor const& grid_pos) const;
+		void build_cell_iterator();
 	public:
-		pmDomain() {}
+		pmDomain()=default;
 		pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd);
-		bool operator==(pmDomain const& rhs) const;
-		bool operator!=(pmDomain const& rhs) const;
+		bool operator==(pmDomain const& other) const;
+		bool operator!=(pmDomain const& other) const;
 		pmTensor const& get_minimum() const;
 		pmTensor const& get_maximum() const;
 		pmTensor const& get_cell_size() const;
+		pmTensor const& get_boundary() const;
 		size_t get_num_cells() const;
 		size_t get_dimensions() const;
 		pmTensor get_physical_minimum() const;
 		pmTensor get_physical_maximum() const;
 		pmTensor get_physical_size() const;
-		pmTensor const& get_boundary() const;
+		std::vector<pmTensor> const& get_cell_iterator();
 		void set_minimum(pmTensor const& mn);
 		void set_maximum(pmTensor const& mx);
 		void set_cell_size(pmTensor const& csize);
 		void set_boundary(pmTensor const& bnd);
-		void print() const;
+		pmTensor grid_coordinates(pmTensor const& point) const;
+		virtual void printv() const;
 	};
 }
 

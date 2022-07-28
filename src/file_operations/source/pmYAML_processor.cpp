@@ -102,7 +102,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 	pmTensor boundary = tensor_parser.string_to_tensor(dm["boundary"].as<std::string>(), workspace);
 	pmDomain domain = pmDomain{minimum, maximum, cell_size, boundary};
 	// Read grids
-	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys.begin(), psys.end(), workspace, domain);
+	std::shared_ptr<pmGrid_space> grid_space = get_grid_space(psys.begin(), psys.end(), workspace, domain.get_dimensions());
 	std::shared_ptr<pmGrid> tmp = grid_space->get_merged_grid();
 	std::vector<pmTensor> particle_grid = tmp->get_grid();
 	workspace->add_particle_system(particle_grid, domain);
@@ -141,7 +141,7 @@ std::shared_ptr<pmWorkspace> pmYAML_processor::get_workspace() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the grid objects wrapped in grid space.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::iterator it, YAML::const_iterator it_end, std::shared_ptr<pmWorkspace> workspace, pmDomain const& domain) const {
+std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::iterator it, YAML::const_iterator it_end, std::shared_ptr<pmWorkspace> workspace, size_t const& dims) const {
 	std::shared_ptr<pmGrid_space> grid_space = std::make_shared<pmGrid_space>();
 	pmTensor gid{1,1,0};
 	pmTensor gpos{3,1,0};
@@ -151,7 +151,7 @@ std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::iterator it
 	for(;it!=it_end;it++) {
 		if(it->first.as<std::string>()=="grid") {
 			std::shared_ptr<pmGrid> grid = std::make_shared<pmGrid>();
-			grid->set_dimensions(domain.get_dimensions());
+			grid->set_dimensions(dims);
 			for(YAML::const_iterator grid_nodes=it->second.begin();grid_nodes!=it->second.end();grid_nodes++) {
 				pmTensor_parser tensor_parser{};
 				if(grid_nodes->first.as<std::string>()=="gid") {
@@ -341,7 +341,7 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 			background->set_field(expr_interpolate_to);
 			background->set_condition(expr_condition);
 			background->set_particle_condition(expr_condition);
-			background->set_particle_system(workspace->get_particle_system().lock());
+			background->set_particle_system(workspace->get_particle_system());
 			background_list.push_back(background);
 		}
 	}
@@ -382,7 +382,7 @@ std::vector<std::shared_ptr<pmTime_series>> pmYAML_processor::get_time_series(st
 			time_series->set_file_name(file_name);
 			time_series->set_variable(expr_interpolate_to);
 			time_series->set_condition(expr_condition);
-			time_series->set_particle_system(workspace->get_particle_system().lock());
+			time_series->set_particle_system(workspace->get_particle_system());
 			time_series_list.push_back(time_series);
 		}
 	}
@@ -615,7 +615,7 @@ std::vector<std::shared_ptr<pmParticle_emitter>> pmYAML_processor::get_particle_
 	for(YAML::iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="emitter") {
 			auto particle_emitter = std::make_shared<pmParticle_emitter>();
-			std::shared_ptr<pmGrid_space> grid_space = get_grid_space(sim_nodes->second.begin(), sim_nodes->second.end(), workspace, workspace->get_particle_system().lock()->get_particle_space()->get_domain());
+			std::shared_ptr<pmGrid_space> grid_space = get_grid_space(sim_nodes->second.begin(), sim_nodes->second.end(), workspace, workspace->get_dimensions());
 			auto expr_parser = std::make_shared<pmExpression_parser>();
 			for(YAML::const_iterator particle_emitter_nodes=sim_nodes->second.begin();particle_emitter_nodes!=sim_nodes->second.end();particle_emitter_nodes++) {
 				// read from configuration file

@@ -59,7 +59,7 @@ void pmParticle_emitter::update(size_t const& num_threads) {
 		if(condition->evaluate(0)[0]) {
 			workspace->duplicate_particle(0);
 			size_t num_particles = workspace->get_number_of_nodes();
-			workspace->get_particle_system().lock()->set_value(jt,num_particles-1);
+			workspace->get_particle_system()->set_value(jt,num_particles-1);
 			for(auto const& it:initializer) {
 				it.field->set_value(it.expression->evaluate(0),num_particles-1);
 			}
