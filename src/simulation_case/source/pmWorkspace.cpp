@@ -424,29 +424,17 @@ void pmWorkspace::print() const {
 /// Sorts all fields and particle systems in the workspace based on the positions of the 
 /// particles.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmWorkspace::sort_all_by_position() {
+bool pmWorkspace::update() {
 	std::shared_ptr<pmParticle_system> psys = this->get<pmParticle_system>()[0];
-	if(psys->is_sorted()) { return true; }
+	if(psys->is_up_to_date()) { return true; }
 	std::vector<size_t> del;
-	psys->restrict_particles(del);
+	bool success = psys->update(del);
+	if(!success) { return false; }
 	this->delete_particle_set(del);
 	if(num_nodes==0) {
 		ProLog::pLogger::error_msgf("Workspace size cannot be set to zero.\n");
 	}
-	bool success = psys->sort_field();
-	if(success) {
-		std::vector<int> sorted_idx = psys->get_sorted_idx();
-		for(auto const& it:definitions) {
-			std::shared_ptr<pmField> term = std::dynamic_pointer_cast<pmField>(it);
-			if(term.use_count()>0 && term->get_name()!="r") {
-				success &= term->sort_field(sorted_idx);
-			}
-		}
-		for(auto& it:interactions) {
-			it->update();
-		}
-	}
-	return success;
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

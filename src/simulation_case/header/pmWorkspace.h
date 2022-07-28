@@ -74,7 +74,7 @@ namespace Nauticle {
 		std::weak_ptr<pmParticle_system> get_particle_system() const;
 		template <typename T> void print_content(std::string const& title) const;
 		void print() const;
-		bool sort_all_by_position();
+		bool update();
 		std::vector<std::shared_ptr<pmSymbol>> get_definitions();
 		std::shared_ptr<pmWorkspace> clone() const;
 		size_t get_number_of_nodes() const;

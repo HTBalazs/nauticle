@@ -155,19 +155,18 @@ std::vector<std::shared_ptr<pmEquation>> pmCase::get_equations() const {
 /// Solves the equation with the given name or all equations in order if name is empty.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
-	bool success = workspace->sort_all_by_position();
+	bool success = workspace->update();
 	if(!success) {
 		return false;
 	}
 	if(name=="") {
 		for(auto const& it:equations) {
 			if(it->is_interaction()) {
-				workspace->sort_all_by_position();
-				// >>>>>>> pair_data_manipulation
+				workspace->update();
 			}
 			it->solve(num_threads);
 			if(it->get_lhs()->get_name()=="r") {
-				success = workspace->sort_all_by_position();
+				success = workspace->update();
 				if(!success) {
 					return false;
 				}
@@ -177,7 +176,7 @@ bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 		for(auto const& it:equations) {
 			if(it->get_name()==name) {
 				if(it->is_interaction() && it->get_lhs()->get_name()=="r") {
-					workspace->sort_all_by_position();
+					workspace->update();
 				}
 				it->solve(num_threads);
 			}

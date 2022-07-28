@@ -33,25 +33,22 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_system::pmParticle_system(std::string const& n, std::vector<pmTensor> const& value, pmDomain const& domain) : pmField{n,value} {
-	particle_space = std::make_shared<pmParticle_space>(value.size(), domain);
-	sorted_idx.resize(value.size());
+pmParticle_system::pmParticle_system(std::string const& n, std::vector<pmTensor> const& value, std::shared_ptr<pmDomain> const& dm) : pmField{n,value} {
+	domain = dm;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_system::pmParticle_system(pmParticle_system const& other) : pmField{other} {
-	this->particle_space = other.particle_space;
-	this->sorted_idx = other.sorted_idx;
+	this->domain = other.domain;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Move constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_system::pmParticle_system(pmParticle_system&& other) : pmField{other} {
-	this->particle_space = std::move(other.particle_space);
-	this->sorted_idx = std::move(other.sorted_idx);
+	this->domain = std::move(other.domain);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -60,8 +57,7 @@ pmParticle_system::pmParticle_system(pmParticle_system&& other) : pmField{other}
 pmParticle_system& pmParticle_system::operator=(pmParticle_system const& other) {
 	if(this!=&other) {
 		pmField::operator=(other);
-		this->particle_space = other.particle_space;
-		this->sorted_idx = other.sorted_idx;
+		this->domain = other.domain;
 	}
 	return *this;
 }
@@ -72,8 +68,7 @@ pmParticle_system& pmParticle_system::operator=(pmParticle_system const& other) 
 pmParticle_system& pmParticle_system::operator=(pmParticle_system&& other) {
 	if(this!=&other) {
 		pmField::operator=(other);
-		this->particle_space = std::move(other.particle_space);
-		this->sorted_idx = std::move(other.sorted_idx);
+		this->domain = std::move(other.domain);
 	}
 	return *this;
 }
@@ -85,7 +80,7 @@ bool pmParticle_system::operator==(pmParticle_system const& rhs) const {
 	if(!this->pmField::operator==(rhs)) {
 		return false;
 	}
-	if(this->particle_space != rhs.particle_space) {
+	if(this->domain != rhs.domain) {
 		return false;
 	}
 	return true;
@@ -103,30 +98,14 @@ bool pmParticle_system::operator!=(pmParticle_system const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::set_value(pmTensor const& value, int const& i/*=0*/) {
 	pmField::set_value(value, i);
-	particle_space->expire();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sorts the field of the particle system (position) and the given idx object.
-/// Implements a sorting based on the hash key of the particles.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::sort_field() {
-	// Check if already sorted
-	if(particle_space->is_up_to_date()) { return true; }
-	std::iota(sorted_idx.begin(), sorted_idx.end(), 0);
-	bool success = particle_space->update_neighbour_list(value[0], sorted_idx);
-	if(success) {
-		// reorder particle positions due to sorted_idx
-		success = pmField::sort_field(sorted_idx);
-	}
-	return success;
+	domain->set_expired();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the neighbour list for the particle system.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmParticle_system::pmParticle_space> pmParticle_system::get_particle_space() {
-	return particle_space;
+std::shared_ptr<pmParticle_system::pmDomain> pmParticle_system::get_domain() {
+	return domain;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +121,7 @@ void pmParticle_system::print() const {
 void pmParticle_system::printv() const {
 	pmField::printv();
 	ProLog::pLogger::line_feed(1);
-	particle_space->print();
+	domain->print();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -165,22 +144,8 @@ std::shared_ptr<pmParticle_system> pmParticle_system::clone() const {
 void pmParticle_system::set_number_of_nodes(size_t const& N) {
 	if(N!=value[0].size()) {
 		pmField::set_number_of_nodes(N);
-		particle_space->set_number_of_nodes(N);
+		domain->set_number_of_nodes(N);
 	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Checks if the particle system is ordered.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::is_sorted() const {
-	return particle_space->is_up_to_date();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the sorted index array.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::vector<int> pmParticle_system::get_sorted_idx() const {
-	return sorted_idx;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -192,95 +157,52 @@ std::vector<int> pmParticle_system::get_sorted_idx() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_system::pmParticle_space::pmParticle_space(size_t const& num_particles, pmDomain const& dom) {
-	domain = dom;
-	hash_key.resize(num_particles,0);
-	size_t num_cells = domain.get_num_cells();
-	cell_start.resize(num_cells,0);
-	cell_end.resize(num_cells,0);
-	build_cell_iterator();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_system::pmParticle_space::pmParticle_space(pmParticle_space const& other) {
-	this->domain = other.domain;
-	this->hash_key = other.hash_key;
-	this->cell_start = other.cell_start;
-	this->cell_end = other.cell_end;
-	this->cell_iterator = other.cell_iterator;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_system::pmParticle_space::pmParticle_space(pmParticle_space&& other) {
-	this->domain = std::move(other.domain);
-	this->hash_key = std::move(other.hash_key);
-	this->cell_start = std::move(other.cell_start);
-	this->cell_end = std::move(other.cell_end);
-	this->cell_iterator = std::move(other.cell_iterator);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_system::pmParticle_space& pmParticle_system::pmParticle_space::operator=(pmParticle_space const& other) {
-	if(this!=&other) {
-		this->domain = other.domain;
-		this->hash_key = other.hash_key;
-		this->cell_start = other.cell_start;
-		this->cell_end = other.cell_end;
-		this->cell_iterator = other.cell_iterator;
+pmParticle_system::pmDomain::pmDomain(pmTensor const& dmin, pmTensor const& dmax, pmTensor const& csize, pmTensor const& bnd) {
+	if(dmin.numel()!=dmax.numel() || dmax.numel()!=csize.numel() || csize.numel()!=bnd.numel()) {
+		ProLog::pLogger::error_msgf("Domain requires vectors of identical sizes.\n");
 	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmParticle_system::pmParticle_space& pmParticle_system::pmParticle_space::operator=(pmParticle_space&& other) {
-	if(this!=&other) {
-		this->domain = std::move(other.domain);
-		this->hash_key = std::move(other.hash_key);
-		this->cell_start = std::move(other.cell_start);
-		this->cell_end = std::move(other.cell_end);
-		this->cell_iterator = std::move(other.cell_iterator);	
+	if(!dmin.is_integer() || !dmax.is_integer()) {
+		ProLog::pLogger::warning_msgf("At least one of the domain sizes is not integer multiple of the cell size.\n");
 	}
-	return *this;
+	minimum = dmin;
+	maximum = dmax;
+	cell_size = csize;
+	boundary = bnd;
+	this->build_cell_iterator();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implement identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::pmParticle_space::operator==(pmParticle_space const& rhs) const {
-	return this->domain == rhs.domain;
+bool pmParticle_system::pmDomain::operator==(pmDomain const& rhs) const {
+	if( 0!=(this->minimum != rhs.minimum).productum() || 
+		0!=(this->maximum != rhs.maximum).productum() || 
+		0!=(this->cell_size != rhs.cell_size).productum() || 
+		0!=(this->boundary != rhs.boundary).productum()) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implements the non-identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::pmParticle_space::operator!=(pmParticle_space const& rhs) const {
+bool pmParticle_system::pmDomain::operator!=(pmDomain const& rhs) const {
     return !this->operator==(rhs);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Restrict particles to the domain.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const {
+void pmParticle_system::pmDomain::restrict_particles(std::vector<std::vector<pmTensor>>& value, std::vector<size_t>& del) const {
 	if(up_to_date) { return; }
-	pmTensor domain_cell_size = domain.get_cell_size();
-	pmTensor domain_cell_number = domain.get_maximum()-domain.get_minimum();
+	pmTensor cell_number = maximum-minimum;
 	for(int i=0; i<value[0].size(); i++) {
-		pmTensor g = get_grid_position(value[0][i]);
-		pmTensor shift = (g-mod(g,domain_cell_number)).multiply_term_by_term(domain_cell_size);
-		pmTensor bound_type = domain.get_boundary();
+		pmTensor g = grid_coordinates(value[0][i]);
+		pmTensor shift = (g-mod(g,cell_number)).multiply_term_by_term(cell_size);
 		for(auto& it:value) {
 			size_t deletable = 0;
 			for(int j=0; j<it[i].numel(); j++) {
-				it[i][j] = it[i][j] - shift[j]*(bound_type[j]!=2);
-				deletable += (shift[j]!=0 && bound_type[j]==2);
+				it[i][j] = it[i][j] - shift[j]*(boundary[j]!=2);
+				deletable += (shift[j]!=0 && boundary[j]==2);
 			}
 			if(deletable>0) {
 				del.push_back(i);
@@ -290,27 +212,27 @@ void pmParticle_system::pmParticle_space::restrict_particles(std::vector<std::ve
 }
 
 void pmParticle_system::restrict_particles(std::vector<size_t>& del) {
-	particle_space->restrict_particles(value, del);
+	domain->restrict_particles(value, del);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets the neighbour list expired.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::expire() {
+void pmParticle_system::pmDomain::set_expired() {
 	up_to_date = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the neighbour list validity.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::pmParticle_space::is_up_to_date() const {
+bool pmParticle_system::pmDomain::is_up_to_date() const {
 	return up_to_date;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the flatten index in the domain grid.
+/// Flattens the d-dimensional space to 1D.
 /////////////////////////////////////////////////////////////////////////////////////////
-double pmParticle_system::pmParticle_space::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const {
+double pmParticle_system::pmDomain::flatten(pmTensor const& cells, pmTensor const& grid_pos, size_t i) const {
 	if(i>=cells.numel()) { return 0.0; }
 	return std::round((cells[i])*flatten(cells, grid_pos, i+1)+grid_pos[i]);
 }
@@ -318,111 +240,70 @@ double pmParticle_system::pmParticle_space::flatten(pmTensor const& cells, pmTen
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns hash key for the given grid cell.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmParticle_system::pmParticle_space::calculate_hash_key_from_grid_position(pmTensor const& grid_pos) const {
-	pmTensor cells = domain.get_maximum()-domain.get_minimum();
-	return flatten(cells, grid_pos, 0);
+int pmParticle_system::pmDomain::hash_key(pmTensor const& grid_pos) const {
+	return flatten(maximum-minimum, grid_pos, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns hash key for particle i.
+/// Updates the whole neighbour list.
 /////////////////////////////////////////////////////////////////////////////////////////
-int pmParticle_system::pmParticle_space::calculate_hash_key_from_position(pmTensor const& position) const {
-	pmTensor grid_pos = get_grid_position(position);
-	return calculate_hash_key_from_grid_position(grid_pos);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sorts the field of the particle system (position) and the given sorted_idx vector.
-/// Implements a sorting based on the hash key of the particles.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::pmParticle_space::update_neighbour_list(std::vector<pmTensor> const& current_value, std::vector<int>& sorted_idx) {
-	// perform neighbour search only when particle positions are changed
-	if(up_to_date) { return true; }
-	for(int i=0; i<current_value.size(); ++i) {
-		hash_key[i] = calculate_hash_key_from_position(current_value[i]);
-		if(hash_key[i]<0 || hash_key[i]>=domain.get_num_cells()) { 
-			ProLog::pLogger::warning_msgf("Particle is out of domain.\n");
-			return false;
-		}
+bool pmParticle_system::pmDomain::update(std::vector<pmTensor> const& current_value, std::vector<size_t>& del) {
+	this->restrict_particles(del);
+	size_t num_particles = current_value.size();
+	pidx.resize(num_particles);
+	std::fill(pidx.begin(), pidx.end(), -1);
+	cidx.resize(std::round((maximum-minimum).productum()));
+	std::fill(cidx.begin(), cidx.end(), -1);
+	for(int i=0; i<num_particles; i++) {
+        pmTensor grid_crd = grid_coordinates(current_value[i]);
+        int hkey = hash_key(grid_crd);
+        if(hkey>cidx.size() || hkey<0) {
+        	return false;
+        }
+        if(cidx[hkey]!=-1) {
+        	pidx[i] = cidx[hkey];
+        }
+        cidx[hkey] = i;
 	}
-	pmSort::sort_by_vector(sorted_idx, hash_key, pmSort::ascending);
-	build_cell_arrays();
+	this->up_to_date = false;
 	return true;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Builds the arrays that store the particle position layout.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::build_cell_arrays() {
-	std::fill(cell_start.begin(),cell_start.end(),0xFFFFFFFF);
-	std::fill(cell_end.begin(),cell_end.end(),0xFFFFFFFF);
-    cell_start[hash_key[0]] = 0;
-    cell_end[hash_key[0]] = 0;
-    for(int i=1; i<hash_key.size(); i++){
-        if(hash_key[i] != hash_key[i-1]) {
-            cell_start[hash_key[i]] = i;
-            cell_end[hash_key[i-1]] = i-1;
-        }
-        if(hash_key.size() == i+1) {
-            cell_end[hash_key[i]] = i;
-        }
-    }
-    up_to_date = true;
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the vector of the first indices for all cells.
+/// Returns the grid coordingate of point.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::vector<unsigned int> const& pmParticle_system::pmParticle_space::get_start() const {
-	return cell_start;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the vector of the last indices for all cells.
-/////////////////////////////////////////////////////////////////////////////////////////
-std::vector<unsigned int> const& pmParticle_system::pmParticle_space::get_end() const {
-	return cell_end;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the hash key of particle i.
-/////////////////////////////////////////////////////////////////////////////////////////
-int const& pmParticle_system::pmParticle_space::get_hash_key(int const& i) const {
-	return hash_key[i];
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the grid position of of the given point.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmParticle_system::pmParticle_space::get_grid_position(pmTensor const& point) const {
-	return round(floor(point.divide_term_by_term(domain.get_cell_size()))-domain.get_minimum());
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Returns domain relating to the particle system.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmDomain pmParticle_system::pmParticle_space::get_domain() const {
-	return domain;
+pmTensor pmParticle_system::pmDomain::grid_coordinates(pmTensor const& point) const {
+	return round(floor(point.divide_term_by_term(cell_size))-minimum);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Prints particle space content.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::print() const {
-	domain.print();
+void pmParticle_system::pmDomain::print() const {
+	ProLog::pLogger::logf<ProLog::LYW>("            Domain:");
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               min: ");
+	minimum.print();
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               max: ");
+	maximum.print();
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               boundary: ");
+	boundary.print();
+	ProLog::pLogger::logf<NAUTICLE_COLOR>("\n               cell size: ");
+	cell_size.print();
 }
 
+
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the comb_len length combinations of the numbers stored in elems.
+/// Generates the component of the cell_iterator.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::combinations_recursive(std::vector<int> const& elems, size_t comb_len, std::vector<size_t> &pos, size_t depth) {
+void pmParticle_system::pmDomain::combinations_recursive(std::vector<int> const& elems, size_t comb_len, std::vector<size_t> &pos, size_t depth) {
 	if(depth>=comb_len) {
-		pmTensor tensor{domain.get_minimum()};
+		pmTensor tensor = minimum;
 		for (size_t i = 0; i < pos.size(); ++i) {
 			tensor[i] = elems[pos[i]];
 		}
 		cell_iterator.push_back(tensor);
-		return; 
+		return;
 	}
 	for(size_t i=0;i<elems.size();i++) {
 		pos[depth] = i;
@@ -431,49 +312,43 @@ void pmParticle_system::pmParticle_space::combinations_recursive(std::vector<int
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Returns the comb_len length combinations of the numbers stored in elems.
+/// Generates the cell_iterator.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::combinations(std::vector<int> const& elems, size_t comb_len) {
+void pmParticle_system::pmDomain::combinations(std::vector<int> const& elems, size_t comb_len) {
 	std::vector<size_t> positions(comb_len, 0);
 	combinations_recursive(elems, comb_len, positions, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Builds the array that iterates over the adjacent cells.
+/// Generates the cell iterator.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::build_cell_iterator() {
+void pmParticle_system::pmDomain::build_cell_iterator() {
 	if(!cell_iterator.empty()) { return; }
 	std::vector<int> elements = {-1, 0, 1};
-	combinations(elements, domain.get_dimensions());
+	combinations(elements, this->get_dimensions());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the cell iterator.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::vector<pmTensor> const& pmParticle_system::pmParticle_space::get_cell_iterator() const {
+std::vector<pmTensor> const& pmParticle_system::pmDomain::get_cell_iterator() const {
+	this->build_cell_iterator();
 	return cell_iterator;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the deep copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<pmParticle_system::pmParticle_space> pmParticle_system::pmParticle_space::clone() const {
-	return std::make_shared<pmParticle_space>(*this);
+std::shared_ptr<pmParticle_system::pmDomain> pmParticle_system::pmDomain::clone() const {
+	return std::make_shared<pmDomain>(*this);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Sets the number of nodes to the given N.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::pmParticle_space::set_number_of_nodes(size_t const& N) {
-	hash_key.resize(N,0);
-	this->expire();
+void pmParticle_system::pmDomain::set_number_of_nodes(size_t const& N) {
+	pidx.resize(N);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the number of particles managed in the neighbor search.
-/////////////////////////////////////////////////////////////////////////////////////////
-size_t pmParticle_system::pmParticle_space::get_number_of_nodes() const {
-	return hash_key.size();
+size_t pmParticle_system::pmDomain::get_number_of_nodes() const {
+	return pidx.size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -488,9 +363,7 @@ bool pmParticle_system::is_position() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::delete_member(size_t const& i) {
 	pmField::delete_member(i);
-	size_t const new_size = sorted_idx.size()-1;
-	sorted_idx.resize(new_size);
-	particle_space->set_number_of_nodes(new_size);
+	domain->set_number_of_nodes(this->get_field_size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -498,9 +371,7 @@ void pmParticle_system::delete_member(size_t const& i) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 	pmField::delete_set(indices);
-	size_t const new_size = sorted_idx.size()-indices.size();
-	particle_space->set_number_of_nodes(new_size);
-	sorted_idx.resize(new_size);
+	domain->set_number_of_nodes(this->get_field_size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -509,8 +380,7 @@ void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	pmField::add_member(v);
-	sorted_idx.push_back(0);
-	particle_space->set_number_of_nodes(sorted_idx.size());
+	domain->set_number_of_nodes(this->get_field_size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -518,7 +388,21 @@ void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmParticle_system::duplicate_member(size_t const& i) {
 	pmField::duplicate_member(i);
-	sorted_idx.push_back(0);
-	particle_space->set_number_of_nodes(sorted_idx.size());
+	particle_space->set_number_of_nodes(this->get_field_size());
 }
+
+bool pmParticle_system::is_up_to_date() const {
+	return domain->is_up_to_date();
+}
+
+bool pmParticle_system::update(std::vector<size_t>& del) {
+	return domain->update(value[0], del);
+}
+
+
+
+
+
+
+
 

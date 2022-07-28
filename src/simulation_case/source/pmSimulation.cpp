@@ -288,7 +288,7 @@ bool pmSimulation::interpreter_solve(size_t const& num_threads/*=8*/) {
 /// Updates particle splitters and mergers.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSimulation::update_particle_modifiers(size_t const& num_threads) {
-	cas->get_workspace()->sort_all_by_position();
+	cas->get_workspace()->update();
 	for(auto& it:particle_modifier) {
 		it->update(num_threads);
 	}
