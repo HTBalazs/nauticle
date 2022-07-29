@@ -19,7 +19,6 @@
 */
     
 #include "pmVTK_writer.h"
-#include "pmMesh.h"
 
 using namespace Nauticle;
 
@@ -242,8 +241,8 @@ void pmVTK_writer::update() {
 	push_constants_to_polydata();
 	push_equations_to_polydata();
 	push_nodes_to_polydata();
-	// push_pairs_to_polydata();
-	// push_pair_fields_to_polydata();
+	push_pairs_to_polydata();
+	push_pair_fields_to_polydata();
 	push_point_fields_to_polydata();
 	push_asymmetric_to_polydata();
 	// Write vtk file.

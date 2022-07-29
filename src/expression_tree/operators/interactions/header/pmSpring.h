@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _COLLISION_H_
-#define _COLLISION_H_
+#ifndef _SPRING_H_
+#define _SPRING_H_
 
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
@@ -30,29 +30,25 @@ namespace Nauticle {
 	/** This class implements the conventianal Discrete element method as 
 	//  through interactions between particles. 
 	*/
-	class pmCollision_handler : public pmLong_range<5,pmCollision_handler> {
-		mutable std::vector<int> count;
+	class pmSpring : public pmLong_range<1,pmSpring> {
+		mutable std::vector<pmTensor> force;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
-		void create_pairs(int const& i, size_t const& level=0);
-		void remove_unnecessary_pairs(size_t const& level=0);
-		void evaluate_pairs(size_t const& level=0);
-		void count_collisions(size_t const& level=0) const;
 	protected:
 		void delete_pairs(Func_delete_marker condition, size_t const& level=0) override;
 	public:
-		pmCollision_handler(std::array<std::shared_ptr<pmExpression>,5> op);
-		pmCollision_handler(pmCollision_handler const& other);
-		pmCollision_handler(pmCollision_handler&& other);
-		pmCollision_handler& operator=(pmCollision_handler const& other);
-		pmCollision_handler& operator=(pmCollision_handler&& other);
-		virtual ~pmCollision_handler() {}
-		virtual void set_storage_depth(size_t const& d) override;
-		std::shared_ptr<pmCollision_handler> clone() const;
+		pmSpring(std::array<std::shared_ptr<pmExpression>,1> op);
+		pmSpring(pmSpring const& other);
+		pmSpring(pmSpring&& other);
+		pmSpring& operator=(pmSpring const& other);
+		pmSpring& operator=(pmSpring&& other);
+		virtual ~pmSpring() {}
+		std::shared_ptr<pmSpring> clone() const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		virtual void update(size_t const& level=0) override;
 		void print() const override;
+		virtual void update(size_t const& level=0) override;
+		virtual void set_storage_depth(size_t const& d) override;
 	};
 }
 
-#endif //_COLLISION_H_
+#endif //_SPRING_H_

@@ -23,91 +23,28 @@
 
 #include <memory>
 #include "pmInteraction.h"
-#include "pmMesh.h"
 #include "prolog/pLogger.h"
 #include "pmKernel.h"
+#include "pmConnectivity.h"
 
 namespace Nauticle {
 	/** This abstract class implements the conventianal Smoothed Particle Hydrodynamics
 	//  through interactions between particles.
 	*/
-	template <size_t S>
-	class pmLong_range : public pmInteraction<S>, public pmMesh {
-	protected:
-		using Func_delete_marker = std::function<bool(pmTensor const&, int const&, int const&)>;
-		std::vector<pmMesh::pmPairs> pairs;
-		size_t depth = 1;
-	protected:
-		void delete_pairs(Func_delete_marker condition, size_t const& level=0);
+	template <size_t S, typename Derived>
+	class pmLong_range : public pmInteraction<S>, public pmConnectivity<Derived> {
 	public:
-		pmLong_range();
 		virtual ~pmLong_range() {}
 		void set_storage_depth(size_t const& d) override;
-		void update_numbering(std::vector<int> const& sorted_particle_idx);
-		virtual pmPairs const& get_pairs(size_t const& level=0) const override;
-		virtual pmPairs& get_pairs(size_t const& level=0) override;
 	};
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Constructor.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	pmLong_range<S>::pmLong_range() {
-		pairs.resize(depth);
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Return the list of pairs in the mesh.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	typename pmMesh::pmPairs const& pmLong_range<S>::get_pairs(size_t const& level/*=0*/) const {
-		return pairs[level];
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Return the list of pairs in the mesh.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	typename pmMesh::pmPairs& pmLong_range<S>::get_pairs(size_t const& level/*=0*/) {
-		return pairs[level];
-	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Set the number of former values to be stored.
 	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	void pmLong_range<S>::set_storage_depth(size_t const& d) {
+	template <size_t S, typename Derived>
+	void pmLong_range<S,Derived>::set_storage_depth(size_t const& d) {
 		pmOperator<S>::set_storage_depth(d);
-		pairs.resize(depth);
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Update the mesh according to the sorted particle list.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	void pmLong_range<S>::update_numbering(std::vector<int> const& sorted_particle_idx) {
-		for(auto& it:pairs) {
-			it.renumber_pairs(sorted_particle_idx);
-		}
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Delete marked pairs from the mesh.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	void pmLong_range<S>::delete_pairs(Func_delete_marker condition, size_t const& level/*=0*/) {
-		auto first = pairs[level].get_first();
-		auto second = pairs[level].get_second();
-		for(int pi=0; pi<pairs[level].size(); pi++) {
-			int i = first[pi];
-			int j = second[pi];
-			pmTensor pos_i = this->psys->get_value(i);
-			pmTensor pos_j = this->psys->get_value(j);
-			pmTensor rel_pos = pos_j-pos_i;
-			if(condition(rel_pos,i,j)) {
-				pairs[level].mark_to_delete(pi);
-			}
-		}
-		pairs[level].delete_marked_pairs();
+		pmConnectivity<Derived>::pairs.resize(d);
 	}
 }
 

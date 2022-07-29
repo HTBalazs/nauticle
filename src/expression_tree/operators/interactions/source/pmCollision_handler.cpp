@@ -37,8 +37,7 @@ std::ostream& operator<<(std::ostream& os, pmCollision_handler const* obj) {
 pmCollision_handler::pmCollision_handler(std::array<std::shared_ptr<pmExpression>,5> op) {
 	this->operand = std::move(op);
 	this->op_name = "collision_handler";
-	count.resize(depth);
-	pairs.resize(depth);
+	pairs.resize(1);
 	for(auto& it:pairs) {
 		it.add_data("initial_length");
 		it.add_data("alpha");
@@ -128,7 +127,7 @@ void pmCollision_handler::print() const {
 pmTensor pmCollision_handler::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-		return pmTensor{1,1,(double)(i==j ? count[level][i] : 0)};
+		return pmTensor{1,1,(double)(i==j ? count[i] : 0)};
 	};
 	return this->interact(i, contribute);
 }
@@ -190,7 +189,7 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 	std::vector<double> const& beta = this->pairs[level].get_data("beta");
 	std::vector<double>& event = this->pairs[level].get_data("event");
 	std::vector<double>& state = this->pairs[level].get_data("state");
-	for(int pi=0; pi<pairs[level].size(); pi++) {
+	for(int pi=0; pi<pairs[level].get_number_of_pairs(); pi++) {
 		int i = first[pi];
 		int j = second[pi];
 		double Ri = this->operand[0]->evaluate(i,level)[0];
@@ -227,14 +226,14 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 /// Count the collisions per particles.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
-	count[level].resize(this->psys->get_field_size());
-	std::fill(count[level].begin(), count[level].end(), 0);
+	count.resize(this->psys->get_field_size());
+	std::fill(count.begin(), count.end(), 0);
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
 	std::vector<double> const& event = this->pairs[level].get_data("event");
 	for(int i=0; i<first.size(); i++) {
-		count[level][first[i]] += event[i];
-		count[level][second[i]] += event[i];
+		count[first[i]] += event[i];
+		count[second[i]] += event[i];
 	}
 }
 
@@ -255,10 +254,24 @@ void pmCollision_handler::update(size_t const& level/*=0*/) {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::set_storage_depth(size_t const& d) {
 	pmLong_range::set_storage_depth(d);
-	count.resize(depth);
+	count.resize(d);
 }
 
-
-
-
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Delete marked pairs from the mesh.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCollision_handler::delete_pairs(Func_delete_marker condition, size_t const& level/*=0*/) {
+	auto first = pmConnectivity<pmCollision_handler>::pairs[level].get_first();
+	auto second = pmConnectivity<pmCollision_handler>::pairs[level].get_second();
+	for(int pi=0; pi<pmConnectivity<pmCollision_handler>::pairs[level].get_number_of_pairs(); pi++) {
+		int i = first[pi];
+		int j = second[pi];
+		pmTensor pos_i = this->psys->get_value(i);
+		pmTensor pos_j = this->psys->get_value(j);
+		pmTensor rel_pos = pos_j-pos_i;
+		if(condition(rel_pos,i,j)) {
+			pmConnectivity<pmCollision_handler>::pairs[level].mark_to_delete(pi);
+		}
+	}
+	pmConnectivity<pmCollision_handler>::pairs[level].delete_marked_pairs();
+}
