@@ -658,8 +658,47 @@ std::vector<pmInitializer> pmYAML_processor::get_initializers(YAML::iterator it,
 	return initializers;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Returns the grid objects wrapped in grid space.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmYAML_processor::get_springs(std::shared_ptr<pmWorkspace> workspace) const {
+	YAML::Node psys = data["simulation"]["case"]["workspace"]["particle_system"];
+	// Read domain
+	YAML::Node dm = psys["springs"];
+	std::string str_connectivity = dm["connectivity"].as<std::string>();
+	std::string str_initial_length = dm["initial_length"].as<std::string>();
+	std::string str_strength = dm["strength"].as<std::string>();
+	std::string str_damping = dm["damping"].as<std::string>();
 
+	pmData_reader data_reader;
+	data_reader.set_file_name(str_connectivity);
+	data_reader.read_file(2);
+	std::vector<pmTensor> connectivity = data_reader.get_data();
 
+	data_reader.set_file_name(str_initial_length);
+	data_reader.read_file(1);
+	std::vector<pmTensor> initial_length = data_reader.get_data();
+
+	data_reader.set_file_name(str_strength);
+	data_reader.read_file(1);
+	std::vector<pmTensor> strength = data_reader.get_data();
+
+	data_reader.set_file_name(str_damping);
+	data_reader.read_file(1);
+	std::vector<pmTensor> damping = data_reader.get_data();
+
+	std::vector<std::shared_ptr<pmExpression>> interactions = workspace->get_interactions();
+	for(auto& it:interactions) {
+		auto springs = std::dynamic_pointer_cast<pmSpring>(it);
+		if(springs) {
+			springs->update();
+			for(int i=0; i<connectivity.size(); i++) {
+				std::vector<double> pair_data{initial_length[i][0],strength[i][0],damping[i][0]};
+				springs->add_pair(connectivity[i][0],connectivity[i][1],pair_data);
+			}
+		}
+	}
+}
 
 
 

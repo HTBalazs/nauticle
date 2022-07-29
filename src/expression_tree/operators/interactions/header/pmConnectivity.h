@@ -39,6 +39,7 @@ namespace Nauticle {
 	protected:
 		using Func_delete_marker = std::function<bool(pmTensor const&, int const&, int const&)>;
 		virtual void delete_pairs(Func_delete_marker condition, size_t const& level=0)=0;
+		void set_number_of_nodes(int const& num_particles);
 	public:
 		virtual ~pmConnectivity() {}
 		pmPairs const& get_pairs(size_t const& level=0) const;
@@ -60,6 +61,13 @@ namespace Nauticle {
 	void pmConnectivity<Derived>::add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered) {
 		for(auto& it:pairs) {
 			it.add_pair(i1,i2,new_values_ordered);
+		}
+	}
+
+	template <typename Derived>
+	void pmConnectivity<Derived>::set_number_of_nodes(int const& num_particles) {
+		for(auto& it:pairs) {
+			it.set_number_of_nodes(num_particles);
 		}
 	}
 }

@@ -25,17 +25,17 @@
 
 using namespace Nauticle;
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmPairs::pmPairs(std::vector<int> const& fst, std::vector<int> const& snd, int const& num_particles) : first{fst}, second{snd} {
-	update_pair_idx(num_particles);
+void pmPairs::update_pair_idx() {
+	for(int i=0; i<first.size(); i++) {
+		pair_index[first[i]].push_back(i);
+		pair_index[second[i]].push_back(i);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Fills the list of particles with the corresponding pair indices.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmPairs::update_pair_idx(int const& num_particles) {
+void pmPairs::set_number_of_nodes(int const& num_particles) {
 	pair_index.resize(num_particles);
 	for(int i=0; i<first.size(); i++) {
 		pair_index[first[i]].push_back(i);
@@ -70,7 +70,7 @@ void pmPairs::delete_marked_pairs() {
 	}
 	delete_marker.clear();
 	std::fill(pair_index.begin(), pair_index.end(), std::vector<size_t>{});
-	update_pair_idx(pair_index.size());
+	update_pair_idx();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

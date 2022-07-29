@@ -35,10 +35,10 @@ namespace Nauticle {
 		std::vector<int> first;
 		std::vector<int> second;
 	private:
-		void update_pair_idx(int const& num_particles);
+		void update_pair_idx();
 	public:
 		pmPairs() = default;
-		pmPairs(std::vector<int> const& fst, std::vector<int> const& snd, int const& num_particles);
+		void set_number_of_nodes(int const& num_particles);
 		void add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered);
 		void delete_marked_pairs();
 		void reset();

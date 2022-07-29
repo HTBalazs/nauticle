@@ -434,8 +434,39 @@ bool pmWorkspace::update() {
 	if(num_nodes==0) {
 		ProLog::pLogger::error_msgf("Workspace size cannot be set to zero.\n");
 	}
-	return true;
+	if(success) {
+		for(auto& it:interactions) {
+			it->update();
+		}
+	}
+	return success;
 }
+
+// std::shared_ptr<pmParticle_system> psys = this->get<pmParticle_system>()[0];
+// 	if(psys->is_sorted()) { return true; }
+// 	std::vector<size_t> del;
+// 	psys->restrict_particles(del);
+// 	this->delete_particle_set(del);
+// 	if(num_nodes==0) {
+// 		ProLog::pLogger::error_msgf("Workspace size cannot be set to zero.\n");
+// 	}
+// 	bool success = psys->sort_field();
+// 	if(success) {
+// 		std::vector<int> sorted_idx = psys->get_sorted_idx();
+// 		for(auto const& it:definitions) {
+// 			std::shared_ptr<pmField> term = std::dynamic_pointer_cast<pmField>(it);
+// 			if(term.use_count()>0 && term->get_name()!="r") {
+// 				success &= term->sort_field(sorted_idx);
+// 			}
+// 		}
+// 		for(auto& it:interactions) {
+// 			it->update();
+// 		}
+// 	}
+// 	return success;
+// }
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the vector of definitions

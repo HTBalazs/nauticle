@@ -60,6 +60,7 @@ namespace Nauticle {
         std::vector<std::shared_ptr<pmParticle_emitter>> get_particle_emitter(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<std::shared_ptr<pmScript>> get_script(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<pmInitializer> get_initializers(YAML::iterator it, YAML::const_iterator it_end, std::shared_ptr<pmWorkspace> workspace) const;
+        void get_springs(std::shared_ptr<pmWorkspace> workspace) const;
     };
 }
 

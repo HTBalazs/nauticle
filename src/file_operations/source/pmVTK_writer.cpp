@@ -19,6 +19,7 @@
 */
     
 #include "pmVTK_writer.h"
+#include "pmLong_range.h"
 
 using namespace Nauticle;
 
@@ -38,27 +39,53 @@ void pmVTK_writer::fill_scalar_vertices(vtkSmartPointer<vtkDoubleArray> scalar) 
 void pmVTK_writer::push_pairs_to_polydata() {
 	auto interactions = cas->get_workspace()->get_interactions();
 	for(auto const& it:interactions) {
-		auto long_range = std::dynamic_pointer_cast<pmMesh>(it);
-		if(long_range) {
-			auto pairs = long_range->get_pairs();
-			std::vector<int> const& first = pairs.get_first();
-			std::vector<int> const& second = pairs.get_second();
-			if(first.empty()) { continue; }
-			vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
-			vtkSmartPointer<vtkDoubleArray> line_id = vtkSmartPointer<vtkDoubleArray>::New();
-			line_id->SetNumberOfComponents(1);
-			fill_scalar_vertices(line_id);
-			line_id->SetName("line_id");
-			for(int i=0; i<first.size(); i++) {
-				vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
-				line->GetPointIds()->SetId(0, first[i]);
-				line->GetPointIds()->SetId(1, second[i]);
-				lines->InsertNextCell(line);
-				double num = (double)i;
-				line_id->InsertNextTuple(&num);
+		{
+			auto connectivity = std::dynamic_pointer_cast<pmConnectivity<pmSpring>>(it);
+			if(connectivity.use_count()!=0) {
+				auto const& pairs = connectivity->get_pairs();
+				std::vector<int> const& first = pairs.get_first();
+				std::vector<int> const& second = pairs.get_second();
+				if(first.empty()) { continue; }
+				vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+				vtkSmartPointer<vtkDoubleArray> line_id = vtkSmartPointer<vtkDoubleArray>::New();
+				line_id->SetNumberOfComponents(1);
+				fill_scalar_vertices(line_id);
+				line_id->SetName("line_id");
+				for(int i=0; i<first.size(); i++) {
+					vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
+					line->GetPointIds()->SetId(0, first[i]);
+					line->GetPointIds()->SetId(1, second[i]);
+					lines->InsertNextCell(line);
+					double num = (double)i;
+					line_id->InsertNextTuple(&num);
+				}
+				polydata->SetLines(lines);
+				polydata->GetCellData()->SetScalars(line_id);
 			}
-			polydata->SetLines(lines);
-			polydata->GetCellData()->SetScalars(line_id);
+		}
+		{
+			auto connectivity = std::dynamic_pointer_cast<pmConnectivity<pmCollision_handler>>(it);
+			if(connectivity) {
+				auto pairs = connectivity->get_pairs();
+				std::vector<int> const& first = pairs.get_first();
+				std::vector<int> const& second = pairs.get_second();
+				if(first.empty()) { continue; }
+				vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+				vtkSmartPointer<vtkDoubleArray> line_id = vtkSmartPointer<vtkDoubleArray>::New();
+				line_id->SetNumberOfComponents(1);
+				fill_scalar_vertices(line_id);
+				line_id->SetName("line_id");
+				for(int i=0; i<first.size(); i++) {
+					vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
+					line->GetPointIds()->SetId(0, first[i]);
+					line->GetPointIds()->SetId(1, second[i]);
+					lines->InsertNextCell(line);
+					double num = (double)i;
+					line_id->InsertNextTuple(&num);
+				}
+				polydata->SetLines(lines);
+				polydata->GetCellData()->SetScalars(line_id);
+			}
 		}
 	}
 }
@@ -89,21 +116,42 @@ void pmVTK_writer::push_nodes_to_polydata() {
 void pmVTK_writer::push_pair_fields_to_polydata() {
 	auto interactions = cas->get_workspace()->get_interactions();
 	for(auto const& it:interactions) {
-		auto long_range = std::dynamic_pointer_cast<pmMesh>(it);
-		if(long_range) {
-			auto pairs = long_range->get_pairs();
-			size_t n = pairs.size();
-			if(n==0) { continue; }
-			for(auto const& it:pairs.get_data()) {
-				vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
-				field->SetName(it.first.c_str());
-				field->SetNumberOfComponents(1);
-				fill_scalar_vertices(field);
-				for(int i=0; i<n; i++) {
-					double data = it.second[i];
-					field->InsertNextTuple(&data);
+		{
+			auto connectivity = std::dynamic_pointer_cast<pmConnectivity<pmSpring>>(it);
+			if(connectivity) {
+				auto const& pairs = connectivity->get_pairs();
+				size_t n = pairs.get_number_of_pairs();
+				if(n==0) { continue; }
+				for(auto const& it:pairs.get_data()) {
+					vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
+					field->SetName(it.first.c_str());
+					field->SetNumberOfComponents(1);
+					fill_scalar_vertices(field);
+					for(int i=0; i<n; i++) {
+						double data = it.second[i];
+						field->InsertNextTuple(&data);
+					}
+					polydata->GetCellData()->AddArray(field);
 				}
-				polydata->GetCellData()->AddArray(field);
+			}
+		}
+		{
+			auto connectivity = std::dynamic_pointer_cast<pmConnectivity<pmCollision_handler>>(it);
+			if(connectivity) {
+				auto const& pairs = connectivity->get_pairs();
+				size_t n = pairs.get_number_of_pairs();
+				if(n==0) { continue; }
+				for(auto const& it:pairs.get_data()) {
+					vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
+					field->SetName(it.first.c_str());
+					field->SetNumberOfComponents(1);
+					fill_scalar_vertices(field);
+					for(int i=0; i<n; i++) {
+						double data = it.second[i];
+						field->InsertNextTuple(&data);
+					}
+					polydata->GetCellData()->AddArray(field);
+				}
 			}
 		}
 	}
@@ -245,6 +293,7 @@ void pmVTK_writer::update() {
 	push_pair_fields_to_polydata();
 	push_point_fields_to_polydata();
 	push_asymmetric_to_polydata();
+
 	// Write vtk file.
 	vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
 	writer->SetFileName(file_name.c_str());
@@ -257,7 +306,7 @@ void pmVTK_writer::update() {
 	if(write_domain) {
 		vtkSmartPointer<vtkRectilinearGridWriter> domain_writer = vtkSmartPointer<vtkRectilinearGridWriter>::New();
 		domain_writer->SetFileName("domain.vtk");
-		std::shared_ptr<pmParticle_system> psys = cas->get_workspace()->get_particle_system();
+		auto psys = cas->get_workspace()->get_particle_system();
 		int dimensions = psys->get_dimensions();
 		pmTensor minimum = psys->get_minimum();
 		pmTensor maximum = psys->get_maximum();

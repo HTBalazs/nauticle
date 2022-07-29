@@ -173,6 +173,7 @@ void pmCollision_handler::create_pairs(int const& i, size_t const& level/*=0*/) 
 				this->pairs[level].add_pair(i,j,data);
 			}
 		}
+
 		return pmTensor{1,1,0};
 	};
 	pmTensor tensor = this->interact(i, contribute);
@@ -241,6 +242,7 @@ void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
 /// Update the long range interaction.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::update(size_t const& level/*=0*/) {
+	pmLong_range<5,pmCollision_handler>::update(level);
 	remove_unnecessary_pairs(level);
 	for(int i=0; i<psys->get_field_size(); i++) {
 		create_pairs(i, level);

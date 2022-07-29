@@ -36,6 +36,7 @@ namespace Nauticle {
 	public:
 		virtual ~pmLong_range() {}
 		void set_storage_depth(size_t const& d) override;
+		void update(size_t const& level=0) override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +46,11 @@ namespace Nauticle {
 	void pmLong_range<S,Derived>::set_storage_depth(size_t const& d) {
 		pmOperator<S>::set_storage_depth(d);
 		pmConnectivity<Derived>::pairs.resize(d);
+	}
+
+	template <size_t S, typename Derived>
+	void pmLong_range<S,Derived>::update(size_t const& level/*=0*/) {
+		this->set_number_of_nodes(this->psys->get_field_size());
 	}
 }
 

@@ -48,6 +48,7 @@
 #include "pmArithmetic_operator.h"
 #include "pmArithmetic_function.h"
 #include "pmCollision_handler.h"
+#include "pmSpring.h"
 
 namespace Nauticle {
 	/** This class converts the given std::string formatted equation to an pmExpression object.
