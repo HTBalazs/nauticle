@@ -47,7 +47,6 @@ namespace Nauticle {
 		pmCollision_handler& operator=(pmCollision_handler const& other);
 		pmCollision_handler& operator=(pmCollision_handler&& other);
 		virtual ~pmCollision_handler() {}
-		virtual void set_storage_depth(size_t const& d) override;
 		std::shared_ptr<pmCollision_handler> clone() const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		virtual void update(size_t const& level=0) override;

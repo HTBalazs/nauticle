@@ -156,10 +156,10 @@ void pmCollision_handler::create_pairs(int const& i, size_t const& level/*=0*/) 
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
 	double Ri = this->operand[0]->evaluate(i,level)[0];
 	double condition_i = this->operand[2]->evaluate(i,level)[0];
-	std::vector<size_t> const& pair_index_i = this->pairs[level].get_pair_index(i);
+	std::vector<size_t> const& pair_index_i = pmConnectivity<pmCollision_handler>::pairs[level].get_pair_index(i);
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
 		for(auto const& it:pair_index_i) {
-			if(this->pairs[level].get_first()[it]==j || this->pairs[level].get_second()[it]==j) {
+			if(pmConnectivity<pmCollision_handler>::pairs[level].get_first()[it]==j || pmConnectivity<pmCollision_handler>::pairs[level].get_second()[it]==j) {
 				return pmTensor{1,1,0};
 			}
 		}
@@ -170,7 +170,7 @@ void pmCollision_handler::create_pairs(int const& i, size_t const& level/*=0*/) 
 			double min_dist = Ri + Rj;
 			if(d_ji < min_dist && condition_i && condition_j) {
 				std::vector<double> data = {d_ji, 0.0, min_dist/100.0, 0.0, 0.0};
-				this->pairs[level].add_pair(i,j,data);
+				pmConnectivity<pmCollision_handler>::pairs[level].add_pair(i,j,data);
 			}
 		}
 
@@ -184,12 +184,12 @@ void pmCollision_handler::create_pairs(int const& i, size_t const& level/*=0*/) 
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
-	auto first = this->pairs[level].get_first();
-	auto second = this->pairs[level].get_second();
-	std::vector<double> const& alpha = this->pairs[level].get_data("alpha");
-	std::vector<double> const& beta = this->pairs[level].get_data("beta");
-	std::vector<double>& event = this->pairs[level].get_data("event");
-	std::vector<double>& state = this->pairs[level].get_data("state");
+	auto first = pmConnectivity<pmCollision_handler>::pairs[level].get_first();
+	auto second = pmConnectivity<pmCollision_handler>::pairs[level].get_second();
+	std::vector<double> const& alpha = pmConnectivity<pmCollision_handler>::pairs[level].get_data("alpha");
+	std::vector<double> const& beta = pmConnectivity<pmCollision_handler>::pairs[level].get_data("beta");
+	std::vector<double>& event = pmConnectivity<pmCollision_handler>::pairs[level].get_data("event");
+	std::vector<double>& state = pmConnectivity<pmCollision_handler>::pairs[level].get_data("state");
 	for(int pi=0; pi<pairs[level].get_number_of_pairs(); pi++) {
 		int i = first[pi];
 		int j = second[pi];
@@ -229,9 +229,9 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 void pmCollision_handler::count_collisions(size_t const& level/*=0*/) const {
 	count.resize(this->psys->get_field_size());
 	std::fill(count.begin(), count.end(), 0);
-	auto first = this->pairs[level].get_first();
-	auto second = this->pairs[level].get_second();
-	std::vector<double> const& event = this->pairs[level].get_data("event");
+	auto first = pmConnectivity<pmCollision_handler>::pairs[level].get_first();
+	auto second = pmConnectivity<pmCollision_handler>::pairs[level].get_second();
+	std::vector<double> const& event = pmConnectivity<pmCollision_handler>::pairs[level].get_data("event");
 	for(int i=0; i<first.size(); i++) {
 		count[first[i]] += event[i];
 		count[second[i]] += event[i];
@@ -249,14 +249,6 @@ void pmCollision_handler::update(size_t const& level/*=0*/) {
 	}
 	evaluate_pairs(level);
 	count_collisions(level);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Return the list of the first particles' indices.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmCollision_handler::set_storage_depth(size_t const& d) {
-	pmLong_range::set_storage_depth(d);
-	count.resize(d);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
