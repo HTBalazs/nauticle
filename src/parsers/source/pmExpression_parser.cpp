@@ -344,6 +344,8 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 			ADD_INTERACTION(3, kuramoto, "pmKuramoto_operator")
 			using collision_handler = pmCollision_handler;
 			ADD_INTERACTION(5, collision_handler, "pmCollision_handler")
+			using spring = pmSpring;
+			ADD_INTERACTION(1, spring, "pmSpring")
 			if(it=="fmin") {
 				std::shared_ptr<pmExpression> operand = e.top(); e.pop();
 				auto interaction = std::make_shared<pmFmin>(operand);

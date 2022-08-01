@@ -93,11 +93,12 @@ void pmParticle_system::set_field_size(size_t const& N) {
 	if(N!=value[0].size()) {
 		pmField::set_field_size(N);
 		pidx.resize(N);
+		this->up_to_date = false;
 	}
 }
 
 void pmParticle_system::restrict_particles(std::vector<size_t>& del) {
-	if(up_to_date) { return; }
+	if(this->up_to_date) { return; }
 	pmTensor cell_number = maximum-minimum;
 	for(int i=0; i<value[0].size(); i++) {
 		pmTensor g = grid_coordinates(value[0][i]);
@@ -133,6 +134,9 @@ bool pmParticle_system::is_up_to_date() const {
 /// Updates the whole neighbour list.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmParticle_system::update(std::vector<size_t>& del) {
+	if(this->up_to_date) {
+		return true;
+	}
 	this->build_cell_iterator();
 	this->restrict_particles(del);
 	size_t num_particles = this->get_field_size();
@@ -151,7 +155,7 @@ bool pmParticle_system::update(std::vector<size_t>& del) {
         }
         cidx[hkey] = i;
 	}
-	this->up_to_date = false;
+	this->up_to_date = true;
 	return true;
 }
 
@@ -168,6 +172,7 @@ bool pmParticle_system::is_position() const {
 void pmParticle_system::delete_member(size_t const& i) {
 	pmField::delete_member(i);
 	pidx.resize(this->get_field_size());
+	this->up_to_date = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -176,6 +181,7 @@ void pmParticle_system::delete_member(size_t const& i) {
 void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 	pmField::delete_set(indices);
 	pidx.resize(this->get_field_size());
+	this->up_to_date = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -185,6 +191,7 @@ void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	pmField::add_member(v);
 	pidx.resize(this->get_field_size());
+	this->up_to_date = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -193,6 +200,7 @@ void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 void pmParticle_system::duplicate_member(size_t const& i) {
 	pmField::duplicate_member(i);
 	pidx.resize(this->get_field_size());
+	this->up_to_date = false;
 }
 
 std::vector<int> const& pmParticle_system::get_cell_content(pmTensor const& grid_crd, int& index) const {
