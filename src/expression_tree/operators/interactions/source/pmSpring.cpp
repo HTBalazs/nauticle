@@ -130,7 +130,7 @@ void pmSpring::print() const {
 pmTensor pmSpring::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Spring interaction is not assigned to any particle system.\n"); }
 	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-		return pmTensor{3,1,0};
+		return force[i];
 	};
 	pmTensor t = this->interact(i, contribute);
 	return t;
@@ -141,11 +141,14 @@ pmTensor pmSpring::evaluate(int const& i, size_t const& level/*=0*/) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSpring::update(size_t const& level/*=0*/) {
 	force.resize(this->psys->get_field_size(), pmTensor{(int)this->psys->get_dimensions(),1,0});
+	std::fill(force.begin(), force.end(), pmTensor{(int)this->psys->get_dimensions(),1,0});
+	this->set_number_of_nodes(this->psys->get_field_size());
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Spring interaction is not assigned to any particle system.\n"); }
 	auto first = this->pairs[level].get_first();
 	auto second = this->pairs[level].get_second();
 	std::vector<double> const& initial_length = this->pairs[level].get_data("initial_length");
 	std::vector<double> const& strength = this->pairs[level].get_data("strength");
+	std::vector<double> const& damping = this->pairs[level].get_data("damping");
 	for(int pi=0; pi<pairs[level].get_number_of_pairs(); pi++) {
 		int i = first[pi];
 		int j = second[pi];
@@ -153,7 +156,14 @@ void pmSpring::update(size_t const& level/*=0*/) {
 		pmTensor pos_j = this->psys->get_value(j);
 		pmTensor rel_pos = pos_j-pos_i;
 		double d_ji = rel_pos.norm();
-		force[pi] = rel_pos/d_ji*(d_ji-initial_length[pi])*strength[pi];
+		pmTensor vel_i = this->operand[0]->evaluate(i,level);
+		pmTensor vel_j = this->operand[0]->evaluate(j,level);
+		pmTensor rel_vel = vel_j-vel_i;
+		pmTensor dir = rel_pos/d_ji;
+		pmTensor fstr = dir*(d_ji-initial_length[pi])*strength[pi];
+		pmTensor fdmp = -dir*(rel_vel.transpose()*dir)*damping[pi];
+		force[i] += fstr-fdmp;
+		force[j] -= fstr-fdmp;
 	}
 }
 

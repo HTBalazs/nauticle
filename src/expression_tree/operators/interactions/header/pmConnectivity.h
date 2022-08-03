@@ -32,8 +32,10 @@ namespace Nauticle {
 	/** This abstract class implements the conventianal Smoothed Particle Hydrodynamics
 	//  through interactions between particles.
 	*/
+	class pmNontemplate {};
+
 	template <typename Derived>
-	class pmConnectivity {
+	class pmConnectivity : public pmNontemplate {
 	protected:
 		static inline std::vector<pmPairs> pairs;
 	protected:
@@ -42,10 +44,17 @@ namespace Nauticle {
 		void set_number_of_nodes(int const& num_particles);
 	public:
 		virtual ~pmConnectivity() {}
+		void add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered);
 		pmPairs const& get_pairs(size_t const& level=0) const;
 		pmPairs& get_pairs(size_t const& level=0);
-		void add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered);
 	};
+	
+	template <typename Derived>
+	void pmConnectivity<Derived>::add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered) {
+		for(auto& it:pairs) {
+			it.add_pair(i1,i2,new_values_ordered);
+		}
+	}
 
 	template <typename Derived>
 	pmPairs const& pmConnectivity<Derived>::get_pairs(size_t const& level/*=0*/) const {
@@ -55,13 +64,6 @@ namespace Nauticle {
 	template <typename Derived>
 	pmPairs& pmConnectivity<Derived>::get_pairs(size_t const& level/*=0*/) {
 		return pairs[level];
-	}
-
-	template <typename Derived>
-	void pmConnectivity<Derived>::add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered) {
-		for(auto& it:pairs) {
-			it.add_pair(i1,i2,new_values_ordered);
-		}
 	}
 
 	template <typename Derived>

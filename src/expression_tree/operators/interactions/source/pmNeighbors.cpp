@@ -118,7 +118,7 @@ pmTensor pmNeighbors::evaluate(int const& i, size_t const& level/*=0*/) const {
 		pmTensor rj = rel_pos+ri;
 		double distance = rel_pos.norm();
 		if(distance < rad + NAUTICLE_EPS && i!=j) {
-			pmTensor vr = rj-ri;
+			pmTensor vr = rel_pos;
 			vr /= vr.norm();
 			double phi = std::acos((dir.transpose()*vr)[0]);
 			if(std::abs(phi)<ang) {

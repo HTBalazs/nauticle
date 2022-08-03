@@ -234,6 +234,7 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 	cas->add_workspace(workspace);
 	cas->add_equation(equations);
 	cas->initialize();
+	this->get_springs(workspace);
 	ProLog::pLogger::logf<NAUTICLE_COLOR>("    Initial conditions: from YAML file.\n");
 	return cas;
 }
@@ -641,7 +642,6 @@ std::vector<pmInitializer> pmYAML_processor::get_initializers(YAML::iterator it,
 	std::vector<pmInitializer> initializers;
 	for(;it!=it_end;it++) {
 		if(it->first.as<std::string>()=="initializer") {
-				std::cout << "ok" << std::endl;
 	        for(YAML::const_iterator in = it->second.begin();in!=it->second.end();in++) {
 				auto expr_parser = std::make_shared<pmExpression_parser>();
 				pmInitializer init;
@@ -662,6 +662,16 @@ std::vector<pmInitializer> pmYAML_processor::get_initializers(YAML::iterator it,
 /// Returns the grid objects wrapped in grid space.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmYAML_processor::get_springs(std::shared_ptr<pmWorkspace> workspace) const {
+	bool is_long_range = false;
+	for(auto& it:workspace->get_interactions()) {
+		if(std::dynamic_pointer_cast<pmNontemplate>(it)) {
+			is_long_range = true;
+			break;
+		}
+	}
+	if(!is_long_range) {
+		return;
+	}
 	YAML::Node psys = data["simulation"]["case"]["workspace"]["particle_system"];
 	// Read domain
 	YAML::Node dm = psys["springs"];
