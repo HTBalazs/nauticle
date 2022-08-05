@@ -35,6 +35,7 @@ namespace Nauticle {
 	*/
 	class pmParticle_system final : public pmField, public pmDomain {
 		std::vector<int> pidx;
+		std::shared_ptr<pmField> periodic_jump;
 		bool up_to_date=false;
 	private:
 		void restrict_particles(std::vector<size_t>& del) const;
@@ -60,6 +61,7 @@ namespace Nauticle {
 		void restrict_particles(std::vector<size_t>& del);
 		bool is_up_to_date() const;
 		bool update(std::vector<size_t>& del);
+		std::shared_ptr<pmField> get_periodic_jump() const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

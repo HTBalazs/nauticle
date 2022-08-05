@@ -19,6 +19,7 @@
 */
     
 #include "pmParticle_system.h"
+#include "commonutils/Common.h"
 #include <numeric>
 #include "Color_define.h"
 
@@ -29,6 +30,8 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 pmParticle_system::pmParticle_system(std::vector<pmTensor> const& value, pmDomain const& dm) : pmField{"r",value}, pmDomain{dm} {
 	pidx.resize(value.size());
+	periodic_jump = std::make_shared<pmField>("periodic_jump", value.size(), pmTensor{(int)dm.get_dimensions(),1,0});
+	periodic_jump->set_field_size(value.size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +96,7 @@ void pmParticle_system::set_field_size(size_t const& N) {
 	if(N!=value[0].size()) {
 		pmField::set_field_size(N);
 		pidx.resize(N);
+		periodic_jump->set_field_size(N);
 		this->up_to_date = false;
 	}
 }
@@ -103,6 +107,7 @@ void pmParticle_system::restrict_particles(std::vector<size_t>& del) {
 	for(int i=0; i<value[0].size(); i++) {
 		pmTensor g = grid_coordinates(value[0][i]);
 		pmTensor shift = (g-mod(g,cell_number)).multiply_term_by_term(cell_size);
+		periodic_jump->set_value(periodic_jump->get_value(i)+shift.divide_term_by_term(this->get_physical_size()),i);
 		for(auto& it:value) {
 			size_t deletable = 0;
 			for(int j=0; j<it[i].numel(); j++) {
@@ -141,6 +146,7 @@ bool pmParticle_system::update(std::vector<size_t>& del) {
 	this->restrict_particles(del);
 	size_t num_particles = this->get_field_size();
 	pidx.resize(num_particles);
+	periodic_jump->delete_set(del);
 	std::fill(pidx.begin(), pidx.end(), -1);
 	cidx.resize(std::round((maximum-minimum).productum()));
 	std::fill(cidx.begin(), cidx.end(), -1);
@@ -172,6 +178,7 @@ bool pmParticle_system::is_position() const {
 void pmParticle_system::delete_member(size_t const& i) {
 	pmField::delete_member(i);
 	pidx.resize(this->get_field_size());
+	periodic_jump->delete_member(i);
 	this->up_to_date = false;
 }
 
@@ -181,6 +188,7 @@ void pmParticle_system::delete_member(size_t const& i) {
 void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 	pmField::delete_set(indices);
 	pidx.resize(this->get_field_size());
+	periodic_jump->delete_set(indices);
 	this->up_to_date = false;
 }
 
@@ -191,6 +199,7 @@ void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	pmField::add_member(v);
 	pidx.resize(this->get_field_size());
+	periodic_jump->add_member(pmTensor{(int)this->get_dimensions(),1,0});
 	this->up_to_date = false;
 }
 
@@ -200,6 +209,7 @@ void pmParticle_system::add_member(pmTensor const& v/*=pmTensor{}*/) {
 void pmParticle_system::duplicate_member(size_t const& i) {
 	pmField::duplicate_member(i);
 	pidx.resize(this->get_field_size());
+	periodic_jump->add_member(pmTensor{(int)this->get_dimensions(),1,0});
 	this->up_to_date = false;
 }
 
@@ -208,7 +218,9 @@ std::vector<int> const& pmParticle_system::get_cell_content(pmTensor const& grid
     return pidx;
 }
 
-
+std::shared_ptr<pmField> pmParticle_system::get_periodic_jump() const {
+	return periodic_jump;
+}
 
 
 

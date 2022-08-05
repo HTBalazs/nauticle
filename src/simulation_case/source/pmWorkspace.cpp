@@ -335,7 +335,9 @@ void pmWorkspace::add_particle_system(std::vector<pmTensor> const& values, pmDom
 	if(values.size()!=num_nodes) {
 		set_number_of_nodes(values.size());
 	}
-	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmParticle_system>(values, domain)));
+	auto psys = std::make_shared<pmParticle_system>(values, domain);
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(psys));
+	definitions.push_back(std::static_pointer_cast<pmSymbol>(psys->get_periodic_jump()));
 	define_bases();
 }
 
