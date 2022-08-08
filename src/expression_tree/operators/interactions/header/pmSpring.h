@@ -34,8 +34,6 @@ namespace Nauticle {
 		mutable std::vector<pmTensor> force;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
-	protected:
-		void delete_pairs(Func_delete_marker condition, size_t const& level=0) override;
 	public:
 		pmSpring(std::array<std::shared_ptr<pmExpression>,1> op);
 		pmSpring(pmSpring const& other);

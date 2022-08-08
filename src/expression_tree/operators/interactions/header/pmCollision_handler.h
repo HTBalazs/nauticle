@@ -38,8 +38,6 @@ namespace Nauticle {
 		void remove_unnecessary_pairs(size_t const& level=0);
 		void evaluate_pairs(size_t const& level=0);
 		void count_collisions(size_t const& level=0) const;
-	protected:
-		void delete_pairs(Func_delete_marker condition, size_t const& level=0) override;
 	public:
 		pmCollision_handler(std::array<std::shared_ptr<pmExpression>,5> op);
 		pmCollision_handler(pmCollision_handler const& other);

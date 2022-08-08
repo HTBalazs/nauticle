@@ -250,22 +250,3 @@ void pmCollision_handler::update(size_t const& level/*=0*/) {
 	evaluate_pairs(level);
 	count_collisions(level);
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Delete marked pairs from the mesh.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmCollision_handler::delete_pairs(Func_delete_marker condition, size_t const& level/*=0*/) {
-	auto first = pmConnectivity<pmCollision_handler>::pairs[level].get_first();
-	auto second = pmConnectivity<pmCollision_handler>::pairs[level].get_second();
-	for(int pi=0; pi<pmConnectivity<pmCollision_handler>::pairs[level].get_number_of_pairs(); pi++) {
-		int i = first[pi];
-		int j = second[pi];
-		pmTensor pos_i = this->psys->get_value(i);
-		pmTensor pos_j = this->psys->get_value(j);
-		pmTensor rel_pos = pos_j-pos_i;
-		if(condition(rel_pos,i,j)) {
-			pmConnectivity<pmCollision_handler>::pairs[level].mark_to_delete(pi);
-		}
-	}
-	pmConnectivity<pmCollision_handler>::pairs[level].delete_marked_pairs();
-}

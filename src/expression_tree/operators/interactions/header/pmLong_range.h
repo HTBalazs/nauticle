@@ -33,6 +33,8 @@ namespace Nauticle {
 	*/
 	template <size_t S, typename Derived>
 	class pmLong_range : public pmInteraction<S>, public pmConnectivity<Derived> {
+	protected:
+		void delete_pairs(typename pmConnectivity<Derived>::Func_delete_marker condition, size_t const& level=0) override;
 	public:
 		virtual ~pmLong_range() {}
 		void set_storage_depth(size_t const& d) override;
@@ -51,6 +53,26 @@ namespace Nauticle {
 	template <size_t S, typename Derived>
 	void pmLong_range<S,Derived>::update(size_t const& level/*=0*/) {
 		this->set_number_of_nodes(this->psys->get_field_size());
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	/// Delete marked pairs from the mesh.
+	/////////////////////////////////////////////////////////////////////////////////////////
+	template <size_t S, typename Derived>
+	void pmLong_range<S,Derived>::delete_pairs(typename pmConnectivity<Derived>::Func_delete_marker condition, size_t const& level/*=0*/) {
+		auto first = pmConnectivity<Derived>::pairs[level].get_first();
+		auto second = pmConnectivity<Derived>::pairs[level].get_second();
+		for(int pi=0; pi<pmConnectivity<Derived>::pairs[level].get_number_of_pairs(); pi++) {
+			int i = first[pi];
+			int j = second[pi];
+			pmTensor pos_i = this->psys->get_value(i);
+			pmTensor pos_j = this->psys->get_value(j);
+			pmTensor rel_pos = pos_j-pos_i;
+			if(condition(rel_pos,i,j)) {
+				pmConnectivity<Derived>::pairs[level].mark_to_delete(pi);
+			}
+		}
+		pmConnectivity<Derived>::pairs[level].delete_marked_pairs();
 	}
 }
 

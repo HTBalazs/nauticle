@@ -40,7 +40,7 @@ namespace Nauticle {
 		static inline std::vector<pmPairs> pairs;
 	protected:
 		using Func_delete_marker = std::function<bool(pmTensor const&, int const&, int const&)>;
-		virtual void delete_pairs(Func_delete_marker condition, size_t const& level=0)=0;
+		virtual void delete_pairs(Func_delete_marker condition, size_t const& level=0);
 		void set_number_of_nodes(int const& num_particles);
 	public:
 		virtual ~pmConnectivity() {}

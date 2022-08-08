@@ -168,25 +168,6 @@ void pmSpring::update(size_t const& level/*=0*/) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Delete marked pairs from the mesh.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmSpring::delete_pairs(Func_delete_marker condition, size_t const& level/*=0*/) {
-	auto first = pmConnectivity<pmSpring>::pairs[level].get_first();
-	auto second = pmConnectivity<pmSpring>::pairs[level].get_second();
-	for(int pi=0; pi<pmConnectivity<pmSpring>::pairs[level].get_number_of_pairs(); pi++) {
-		int i = first[pi];
-		int j = second[pi];
-		pmTensor pos_i = this->psys->get_value(i);
-		pmTensor pos_j = this->psys->get_value(j);
-		pmTensor rel_pos = pos_j-pos_i;
-		if(condition(rel_pos,i,j)) {
-			pmConnectivity<pmSpring>::pairs[level].mark_to_delete(pi);
-		}
-	}
-	pmConnectivity<pmSpring>::pairs[level].delete_marked_pairs();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Return the list of the first particles' indices.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSpring::set_storage_depth(size_t const& d) {
