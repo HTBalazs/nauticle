@@ -32,7 +32,6 @@ pmParticle_system::pmParticle_system(std::vector<pmTensor> const& value, pmDomai
 	pidx.resize(value.size());
 	periodic_jump = std::make_shared<pmField>("periodic_jump", value.size(), pmTensor{(int)dm.get_dimensions(),1,0});
 	periodic_jump->set_field_size(value.size());
-	periodic_jump->set_lock(true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +104,7 @@ void pmParticle_system::set_field_size(size_t const& N) {
 
 void pmParticle_system::restrict_particles(std::vector<size_t>& del) {
 	if(this->up_to_date) { return; }
+	this->build_cell_iterator();
 	pmTensor cell_number = maximum-minimum;
 	for(int i=0; i<value[0].size(); i++) {
 		pmTensor g = grid_coordinates(value[0][i]);
@@ -140,13 +140,7 @@ bool pmParticle_system::is_up_to_date() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Updates the whole neighbour list.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmParticle_system::update(std::vector<size_t>& del) {
-	if(this->up_to_date) {
-		return true;
-	}
-	this->build_cell_iterator();
-	this->restrict_particles(del);
-	this->delete_set(del);
+bool pmParticle_system::update_neighbor_list() {
 	std::fill(pidx.begin(), pidx.end(), -1);
 	cidx.resize(std::round((maximum-minimum).productum()));
 	std::fill(cidx.begin(), cidx.end(), -1);
@@ -178,7 +172,6 @@ bool pmParticle_system::is_position() const {
 void pmParticle_system::delete_member(size_t const& i) {
 	pmField::delete_member(i);
 	pidx.resize(this->get_field_size());
-	periodic_jump->delete_member(i);
 	this->up_to_date = false;
 }
 
@@ -188,7 +181,6 @@ void pmParticle_system::delete_member(size_t const& i) {
 void pmParticle_system::delete_set(std::vector<size_t> const& indices) {
 	pmField::delete_set(indices);
 	pidx.resize(this->get_field_size());
-	periodic_jump->delete_set(indices);
 	this->up_to_date = false;
 }
 

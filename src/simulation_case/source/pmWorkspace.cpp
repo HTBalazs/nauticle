@@ -430,9 +430,10 @@ bool pmWorkspace::update() {
 	std::shared_ptr<pmParticle_system> psys = this->get_particle_system();
 	if(psys->is_up_to_date()) { return true; }
 	std::vector<size_t> del;
-	bool success = psys->update(del);
-	if(!success) { return false; }
+	psys->restrict_particles(del);
 	this->delete_particle_set(del);
+	bool success = psys->update_neighbor_list();
+	if(!success) { return false; }
 	if(num_nodes==0) {
 		ProLog::pLogger::error_msgf("Workspace size cannot be set to zero.\n");
 	}

@@ -37,8 +37,6 @@ namespace Nauticle {
 		std::vector<int> pidx;
 		std::shared_ptr<pmField> periodic_jump;
 		bool up_to_date=false;
-	private:
-		void restrict_particles(std::vector<size_t>& del) const;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
@@ -46,6 +44,7 @@ namespace Nauticle {
 		bool operator==(pmParticle_system const& rhs) const;
 		bool operator!=(pmParticle_system const& rhs) const;
 		virtual ~pmParticle_system() {}
+		void restrict_particles(std::vector<size_t>& del) const;
 		std::vector<int> const& get_cell_content(pmTensor const& grid_crd, int& index) const;
 		void set_expired();
 		virtual void set_value(pmTensor const& value, int const& i=0, bool const& forced=false) override;
@@ -60,7 +59,7 @@ namespace Nauticle {
 		virtual void duplicate_member(size_t const& i) override;
 		void restrict_particles(std::vector<size_t>& del);
 		bool is_up_to_date() const;
-		bool update(std::vector<size_t>& del);
+		bool update_neighbor_list();
 		std::shared_ptr<pmField> get_periodic_jump() const;
 		pmTensor get_periodic_shift(size_t const& i) const;
 	};
