@@ -611,6 +611,9 @@ void pmWorkspace::delete_particle_set(std::vector<size_t> const& delete_indices)
 		}
 		it->delete_set(delete_indices);
 	}
+	for(auto& it:interactions) {
+		it->delete_set(delete_indices);
+	}
 	num_nodes -= delete_indices.size();
 }
 

@@ -32,6 +32,7 @@ pmParticle_system::pmParticle_system(std::vector<pmTensor> const& value, pmDomai
 	pidx.resize(value.size());
 	periodic_jump = std::make_shared<pmField>("periodic_jump", value.size(), pmTensor{(int)dm.get_dimensions(),1,0});
 	periodic_jump->set_field_size(value.size());
+	periodic_jump->set_lock(true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
