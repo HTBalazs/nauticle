@@ -37,6 +37,7 @@
 #include "pmParticle_sink.h"
 #include "pmParticle_emitter.h"
 #include "pmScript.h"
+#include "pmRigid_body_system.h"
 
 namespace Nauticle {
     /**	This class extracts data from YAML configuration file.
@@ -61,6 +62,7 @@ namespace Nauticle {
         std::vector<std::shared_ptr<pmScript>> get_script(std::shared_ptr<pmWorkspace> workspace=std::make_shared<pmWorkspace>()) const;
         std::vector<pmInitializer> get_initializers(YAML::iterator it, YAML::const_iterator it_end, std::shared_ptr<pmWorkspace> workspace) const;
         void get_springs(std::shared_ptr<pmWorkspace> workspace) const;
+        std::shared_ptr<pmRigid_body_system> get_rigid_bodies(std::shared_ptr<pmWorkspace> workspace) const;
     };
 }
 

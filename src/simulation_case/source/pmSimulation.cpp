@@ -188,6 +188,9 @@ void pmSimulation::print() const {
 	for(auto const& it:time_series) {
 		it->print();
 	}
+	if(rbsys) {
+		rbsys->print();
+	}
 	for(auto const& it:script) {
 		it->print();
 	}
@@ -243,6 +246,7 @@ void pmSimulation::read_file(std::string const& filename) {
 	particle_modifier.insert(particle_modifier.end(), particle_splitter.begin(), particle_splitter.end());
 	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
 	background = yaml_loader->get_background(cas->get_workspace());
+	rbsys = yaml_loader->get_rigid_bodies(cas->get_workspace());
 	time_series = yaml_loader->get_time_series(cas->get_workspace());
 	script = yaml_loader->get_script(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());

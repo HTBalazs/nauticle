@@ -37,11 +37,12 @@ namespace Nauticle {
 		virtual void set_storage_depth(size_t const& d) override {}
 		virtual int get_field_size() const override;
 		std::shared_ptr<pmSymbol> clone() const;
-		virtual void set_value(pmTensor const& value, int const& i=0) {}
+		virtual void set_value(pmTensor const& value, int const& i=0, bool const& forced=false) {}
 		bool is_assigned() const override;
 		virtual bool is_hidden() const;
 		virtual std::string get_type() const=0;
 		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
+		virtual void set_lock(size_t const& idx, bool const& lck=true) {}
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

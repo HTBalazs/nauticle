@@ -711,9 +711,43 @@ void pmYAML_processor::get_springs(std::shared_ptr<pmWorkspace> workspace) const
 }
 
 
-
-
-
+std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::shared_ptr<pmWorkspace> workspace) const {
+	YAML::Node sim = data["simulation"];
+	auto rigid_bodies = std::make_shared<pmRigid_body_system>();
+	if(!sim["rigid_body_system"]) {
+		return rigid_bodies;
+	}
+	// default values
+	std::string file_name = "";
+	std::string velocity_field = "v";
+	std::string force_field = "f";
+	std::string mass_field = "mass";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="rigid_body_system") {
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator rbsys_nodes=sim_nodes->second.begin();rbsys_nodes!=sim_nodes->second.end();rbsys_nodes++) {
+				// read from configuration file
+				if(rbsys_nodes->first.as<std::string>()=="file") {
+					file_name = rbsys_nodes->second.as<std::string>();
+				}
+				if(rbsys_nodes->first.as<std::string>()=="velocity") {
+					velocity_field = rbsys_nodes->second.as<std::string>();
+				}
+				if(rbsys_nodes->first.as<std::string>()=="force") {
+					force_field = rbsys_nodes->second.as<std::string>();
+				}
+				if(rbsys_nodes->first.as<std::string>()=="mass") {
+					mass_field = rbsys_nodes->second.as<std::string>();
+				}
+			}
+			auto sym_velocity_field = expr_parser->analyse_expression<pmSymbol>(velocity_field,workspace);
+			auto sym_force_field = expr_parser->analyse_expression<pmSymbol>(force_field,workspace);
+			auto sym_mass_field = expr_parser->analyse_expression<pmSymbol>(mass_field,workspace);
+			rigid_bodies->initialize(file_name, workspace->get_particle_system(), sym_force_field, sym_velocity_field, sym_mass_field);
+		}
+	}
+	return rigid_bodies;
+}
 
 
 

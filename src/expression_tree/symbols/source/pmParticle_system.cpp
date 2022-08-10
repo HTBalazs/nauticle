@@ -54,8 +54,9 @@ bool pmParticle_system::operator!=(pmParticle_system const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets the position value and makes the neighbour list expired.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmParticle_system::set_value(pmTensor const& value, int const& i/*=0*/) {
-	pmField::set_value(value, i);
+void pmParticle_system::set_value(pmTensor const& value, int const& i/*=0*/, bool const& forced/*=false*/) {
+	pmField::set_value(value, i, forced);
+	if(locked[i] && !forced) { return; }
 	up_to_date = false;
 }
 
@@ -144,13 +145,11 @@ bool pmParticle_system::update(std::vector<size_t>& del) {
 	}
 	this->build_cell_iterator();
 	this->restrict_particles(del);
-	size_t num_particles = this->get_field_size();
-	pidx.resize(num_particles);
-	periodic_jump->delete_set(del);
+	this->delete_set(del);
 	std::fill(pidx.begin(), pidx.end(), -1);
 	cidx.resize(std::round((maximum-minimum).productum()));
 	std::fill(cidx.begin(), cidx.end(), -1);
-	for(int i=0; i<num_particles; i++) {
+	for(int i=0; i<this->get_field_size(); i++) {
         pmTensor grid_crd = grid_coordinates(this->get_value(i));
         int hkey = hash_key(grid_crd);
         if(hkey>cidx.size() || hkey<0) {

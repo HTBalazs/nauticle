@@ -47,13 +47,16 @@ void pmPairs::set_number_of_nodes(int const& num_particles) {
 /// Adds a pair given by two particle indices to the mesh.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmPairs::add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered) {
-	first.push_back(i1);
-	second.push_back(i2);
+	if(i1==i2) { return; }
+	int const& p1 = i1<i2?i1:i2;
+	int const& p2 = i1>i2?i1:i2;
+	first.push_back(p1);
+	second.push_back(p2);
 	for(int i=0; i<pair_data.size(); i++) {
 		pair_data[i].second.push_back(new_values_ordered[i]);
 	}
-	pair_index[i1].push_back(first.size()-1); 
-	pair_index[i2].push_back(second.size()-1);
+	pair_index[p1].push_back(first.size()-1); 
+	pair_index[p2].push_back(second.size()-1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

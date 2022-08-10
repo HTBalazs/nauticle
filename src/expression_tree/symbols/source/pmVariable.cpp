@@ -67,7 +67,7 @@ pmTensor pmVariable::evaluate(int const& i, size_t const& level/*=0*/) const {
 /// Sets the variable value. If the two_step option is on, the current value is copied
 //  and stored in the previous value.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmVariable::set_value(pmTensor const& v, int const& i/*=0*/) {
+void pmVariable::set_value(pmTensor const& v, int const& i/*=0*/, bool const& forced/*=false*/) {
 	for(int level=0; level<depth-1; level++) {
         value[level+1] = value[level];
     }

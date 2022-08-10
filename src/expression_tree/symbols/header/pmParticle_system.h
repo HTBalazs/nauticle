@@ -48,7 +48,7 @@ namespace Nauticle {
 		virtual ~pmParticle_system() {}
 		std::vector<int> const& get_cell_content(pmTensor const& grid_crd, int& index) const;
 		void set_expired();
-		virtual void set_value(pmTensor const& value, int const& i=0) override;
+		virtual void set_value(pmTensor const& value, int const& i=0, bool const& forced=false) override;
 		void print() const override;
 		void printv() const override;
 		std::shared_ptr<pmParticle_system> clone() const;

@@ -43,7 +43,7 @@ namespace Nauticle {
 		virtual ~pmVariable() override {}
 		void set_storage_depth(size_t const& d) override;
 		pmTensor evaluate(int const&, size_t const& level=0) const override;
-		void set_value(pmTensor const& value, int const& i=0) override;
+		void set_value(pmTensor const& value, int const& i=0, bool const& forced=false) override;
 		std::shared_ptr<pmVariable> clone() const;
 		virtual void write_to_string(std::ostream& os) const override;
 	};

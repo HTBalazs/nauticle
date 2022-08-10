@@ -37,6 +37,7 @@
 #include "pmTime_series.h"
 #include "pmParticle_sink.h"
 #include "pmScript.h"
+#include "pmRigid_body_system.h"
 
 namespace Nauticle {
 	/** This class represents the problem to solve. The contructor recieves the file
@@ -45,7 +46,7 @@ namespace Nauticle {
 	//  	- cas: contains all the equations to solve
 	//		- parameter space: this object holds the general constant values relating
 	//		to the calculations but not appear up in any of the equations.
-	//		- particle system: if contains a particle cloud on which the equations and fields
+	//		- particle system: it contains a particle cloud on which the equations and fields
 	//		are interpreted.
 	*/
 	class pmSimulation {
@@ -57,6 +58,7 @@ namespace Nauticle {
 		std::vector<std::shared_ptr<pmBackground>> background;
 		std::vector<std::shared_ptr<pmTime_series>> time_series;
 		std::vector<std::shared_ptr<pmScript>> script;
+		std::shared_ptr<pmRigid_body_system> rbsys;
 		write_mode vtk_write_mode = ASCII;
 		std::shared_ptr<pmRuntime_compiler> runtime_compiler;
 		std::shared_ptr<pmInterface> binary_case;

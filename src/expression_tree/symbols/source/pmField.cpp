@@ -45,6 +45,7 @@ pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTe
 		value.push_back(std::vector<pmTensor>());
 		value[0].resize(size, v);
 	}
+	locked.resize(this->get_field_size(),false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +57,7 @@ pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool cons
 	value[0] = v;
 	symmetric = sym;
 	printable = pr;
+	locked.resize(this->get_field_size());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +68,7 @@ pmField::pmField(pmField const& other) {
 	this->value = other.value;
 	this->symmetric = other.symmetric;
 	this->printable = other.printable;
+	this->locked = other.locked;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +79,7 @@ pmField::pmField(pmField&& other) {
 	this->value = std::move(other.value);
 	this->symmetric = std::move(other.symmetric);
 	this->printable = std::move(other.printable);
+	this->locked = std::move(other.locked);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +91,7 @@ pmField& pmField::operator=(pmField const& other) {
 		this->value = other.value;
 		this->symmetric = other.symmetric;
 		this->printable = other.printable;
+		this->locked = other.locked;
 	}
 	return *this;
 }
@@ -100,6 +105,7 @@ pmField& pmField::operator=(pmField&& other) {
 		this->value = std::move(other.value);
 		this->symmetric = std::move(other.symmetric);
 		this->printable = std::move(other.printable);
+		this->locked = std::move(other.locked);
 	}
 	return *this;
 }
@@ -108,7 +114,7 @@ pmField& pmField::operator=(pmField&& other) {
 /// Implement identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmField::operator==(pmField const& rhs) const {
-	if(this->name != rhs.name || this->value != rhs.value || this->symmetric != rhs.symmetric || this->depth!=rhs.depth || this->printable!=rhs.printable) {
+	if(this->name != rhs.name || this->value != rhs.value || this->symmetric != rhs.symmetric || this->value.size()!=rhs.value.size() || this->printable!=rhs.printable) {
 		return false;
 	} else {
 		return true;
@@ -151,8 +157,7 @@ int pmField::get_field_size() const {
 /// Sets the depth of data storage.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::set_storage_depth(size_t const& d) {
-	depth = d;
-	value.resize(depth,value.back());
+	value.resize(d,value.back());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -165,8 +170,9 @@ pmTensor pmField::evaluate(int const& i, size_t const& level/*=0*/) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets the value of the ith node.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmField::set_value(pmTensor const& v, int const& i/*=0*/) {
-	for(int level=0; level<depth-1; level++) {
+void pmField::set_value(pmTensor const& v, int const& i/*=0*/, bool const& forced/*=false*/) {
+	if(locked[i] && !forced) { return; }
+	for(int level=0; level<this->value.size()-1; level++) {
 		value[level+1][i] = value[level][i];
 	}
 	value[0][i] = v;
@@ -213,6 +219,7 @@ void pmField::set_field_size(size_t const& N) {
 			it.resize(N, ctensor);	
 		}
 	}
+	locked.resize(N,false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -244,6 +251,7 @@ void pmField::delete_member(size_t const& i) {
 		level_it[i] = level_it.back();
 		level_it.pop_back();
 	}
+	locked.erase(locked.begin()+i);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +261,7 @@ void pmField::delete_set(std::vector<size_t> const& delete_indices) {
 	for(auto& level_it:value) {
 		Common::delete_indices(level_it, delete_indices);
 	}
+	Common::delete_indices(locked, delete_indices);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -266,6 +275,7 @@ void pmField::add_member(pmTensor const& v/*=pmTensor{}*/) {
 	for(auto& level_it:value) {
 		level_it.push_back(tensor);
 	}
+	locked.push_back(false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -275,6 +285,7 @@ void pmField::duplicate_member(size_t const& i) {
 	for(auto& it:value) {
 		it.push_back(it[i]);
 	}
+	locked.push_back(false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -289,4 +300,8 @@ void pmField::set_printable(bool const& p) {
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmField::is_printable() const {
 	return this->printable;
+}
+
+void pmField::set_lock(size_t const& idx, bool const& lck/*=true*/) {
+	locked[idx] = lck;
 }

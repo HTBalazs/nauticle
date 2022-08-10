@@ -37,8 +37,8 @@ namespace Nauticle {
 		bool printable = true;
 	protected:
 		std::vector<std::vector<pmTensor>> value;
+		std::vector<bool> locked;
 		bool symmetric = true;
-		size_t depth = 1;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
 	public:
@@ -54,7 +54,7 @@ namespace Nauticle {
 		virtual ~pmField() override {}
 		void printv() const override;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
-		virtual void set_value(pmTensor const& value, int const& i=0) override;
+		virtual void set_value(pmTensor const& value, int const& i=0, bool const& forced=false) override;
 		pmTensor const& get_value(int const& i) const override;
 		int get_field_size() const override;
 		std::string get_type() const override;
@@ -72,6 +72,7 @@ namespace Nauticle {
 		virtual void duplicate_member(size_t const& i);
 		void set_printable(bool const& p);
 		bool is_printable() const;
+		void set_lock(size_t const& idx, bool const& lck=true) override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
