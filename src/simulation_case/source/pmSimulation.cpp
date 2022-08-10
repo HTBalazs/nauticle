@@ -131,6 +131,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 		this->update_background_fields();
 		this->update_time_series_variables(current_time);
 		dt = cas->get_workspace()->get_value("dt")[0];
+		this->update_rigid_bodies(dt);
 		double next_dt = dt;
 		// get printing interval
 		double print_interval = parameter_space->get_parameter_value("print_interval")[0];
@@ -188,7 +189,7 @@ void pmSimulation::print() const {
 	for(auto const& it:time_series) {
 		it->print();
 	}
-	if(rbsys) {
+	if(rbsys.use_count()>0) {
 		rbsys->print();
 	}
 	for(auto const& it:script) {
@@ -307,6 +308,14 @@ void pmSimulation::update_background_fields() {
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Updates background interpolations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmSimulation::update_rigid_bodies(double const& time_step) {
+	if(rbsys.use_count()>0) {
+		rbsys->update(time_step);
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Updates time sereies interpolations.

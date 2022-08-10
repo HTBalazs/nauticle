@@ -105,12 +105,12 @@ namespace Nauticle {
 	}
 
 	template <typename T>
-	pmQuaternion<T> pmQuaternion<T>::vector2quaternion(pmTensor const& vec) {
+	/*static*/ pmQuaternion<T> pmQuaternion<T>::vector2quaternion(pmTensor const& vec) {
 		return pmQuaternion{0.0, vec[0], vec[1], vec[2]};
 	}
 
 	template <typename T>
-	pmTensor pmQuaternion<T>::quaternion2vector(pmQuaternion const& quat) {
+	/*static*/ pmTensor pmQuaternion<T>::quaternion2vector(pmQuaternion const& quat) {
 		pmTensor t{3,1,0};
 		t[0] = quat.x;
 		t[1] = quat.y;
@@ -124,7 +124,7 @@ namespace Nauticle {
 	}
 
 	template <typename T>
-	pmQuaternion<T> pmQuaternion<T>::make_rotation_quaternion(pmTensor const& axis, double const& angle) {
+	/*static*/ pmQuaternion<T> pmQuaternion<T>::make_rotation_quaternion(pmTensor const& axis, double const& angle) {
 		return pmQuaternion{std::cos(angle/2.0),axis[0]*std::sin(angle/2.0),axis[1]*std::sin(angle/2.0),axis[2]*std::sin(angle/2.0)};
 	}
 }

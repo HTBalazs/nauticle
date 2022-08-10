@@ -35,6 +35,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkSimplePointsReader.h>
 #include <vtkPolyData.h>
+#include <vtkDelimitedTextReader.h>
+#include <vtkTable.h>
+#include <vtkVariant.h>
 
 using namespace Nauticle;
 using namespace ProLog;
@@ -54,24 +57,41 @@ void pmData_reader::set_file_name(std::string const& fn) {
 /// Reads the input file.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmData_reader::read_file(size_t const& dims) {
+	vtkSmartPointer<vtkDelimitedTextReader> reader = vtkSmartPointer<vtkDelimitedTextReader>::New();
+    reader->SetFileName(file_name.c_str());
+    reader->DetectNumericColumnsOn();
+    reader->SetFieldDelimiterCharacters(" ");
+    reader->SetDefaultIntegerValue(-1);
+    reader->Update();
+    vtkTable* table = reader->GetOutput();
+    if(table->GetNumberOfColumns()!=dims) {
+    	ProLog::pLogger::error_msgf("Number of columns in %s is not equal to the given dimensions d=%d\n",file_name.c_str(),dims);
+    }
+    data.resize(table->GetNumberOfRows(),pmTensor{(int)dims,1,0});
+    for(vtkIdType i=0; i<table->GetNumberOfRows(); i++) {
+        for(vtkIdType j=0; j<table->GetNumberOfColumns(); j++) {
+            data[i][j] = (table->GetValue(i, j)).ToDouble();
+        }
+    }
+
 	// Read the file
-	vtkSmartPointer<vtkSimplePointsReader> reader = vtkSmartPointer<vtkSimplePointsReader>::New();
-	reader->SetFileName(file_name.c_str());
-	reader->Update();
-	vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
-	poly_data = reader->GetOutput();
-	size_t data_length = poly_data->GetNumberOfPoints();
-	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-	points = poly_data->GetPoints();
-	data.resize(data_length);
-	for(int i=0; i<data_length; i++) {
-		double* p = points->GetPoint(i);
-		pmTensor tensor{(int)dims,1,0.0};
-		for(int j=0; j<dims; j++) {
-			tensor[j] = p[j];
-		}
-		data[i] = tensor;
-	}
+	// vtkSmartPointer<vtkSimplePointsReader> reader = vtkSmartPointer<vtkSimplePointsReader>::New();
+	// reader->SetFileName(file_name.c_str());
+	// reader->Update();
+	// vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
+	// poly_data = reader->GetOutput();
+	// size_t data_length = poly_data->GetNumberOfPoints();
+	// vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+	// points = poly_data->GetPoints();
+	// data.resize(data_length);
+	// for(int i=0; i<data_length; i++) {
+	// 	double* p = points->GetPoint(i);
+	// 	pmTensor tensor{(int)dims,1,0.0};
+	// 	for(int j=0; j<dims; j++) {
+	// 		tensor[j] = p[j];
+	// 	}
+	// 	data[i] = tensor;
+	// }
 }
 
 std::vector<pmTensor> pmData_reader::get_data() const {

@@ -62,6 +62,7 @@ namespace Nauticle {
 		bool is_up_to_date() const;
 		bool update(std::vector<size_t>& del);
 		std::shared_ptr<pmField> get_periodic_jump() const;
+		pmTensor get_periodic_shift(size_t const& i) const;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

@@ -29,13 +29,14 @@ namespace Nauticle {
 	class pmRigid_body_system {
 		std::vector<std::shared_ptr<pmRigid_body>> rigid_body;
         std::shared_ptr<pmParticle_system> psys;
-        std::shared_ptr<pmSymbol> particle_force;
+        std::shared_ptr<pmExpression> particle_force;
         std::shared_ptr<pmSymbol> particle_velocity;
         std::shared_ptr<pmSymbol> particle_mass;
         std::string file_name;
 	public:
-		void initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmSymbol> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmSymbol> mass);
+		void initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmExpression> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmSymbol> mass);
         void print() const;
+        void update(double const& time_step);
 	};
 }
 

@@ -221,5 +221,8 @@ std::shared_ptr<pmField> pmParticle_system::get_periodic_jump() const {
 	return periodic_jump;
 }
 
+pmTensor pmParticle_system::get_periodic_shift(size_t const& i) const {
+	return periodic_jump->evaluate(i).multiply_term_by_term(this->get_physical_size());
+}
 
 

@@ -39,6 +39,8 @@ namespace Nauticle {
 		virtual ~pmLong_range() {}
 		void set_storage_depth(size_t const& d) override;
 		void update(size_t const& level=0) override;
+		virtual void delete_member(size_t const& i) override;
+		virtual void delete_set(std::vector<size_t> const& indices) override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +75,29 @@ namespace Nauticle {
 			}
 		}
 		pmConnectivity<Derived>::pairs[level].delete_marked_pairs();
+	}
+
+	template <size_t S, typename Derived>
+	void pmLong_range<S,Derived>::delete_member(size_t const& i) {
+		for(int level=0; level<pmConnectivity<Derived>::pairs.size(); level++) {
+			auto const& first = pmConnectivity<Derived>::pairs[level].get_first();
+			auto const& second = pmConnectivity<Derived>::pairs[level].get_second();
+			for(int pi=0; pi<pmConnectivity<Derived>::pairs[level].get_number_of_pairs(); pi++) {
+				int p1 = first[pi];
+				int p2 = second[pi];
+				if(p1==i || p2==i) {
+					pmConnectivity<Derived>::pairs[level].mark_to_delete(pi);
+				}
+			}
+			pmConnectivity<Derived>::pairs[level].delete_marked_pairs();
+		}
+	}
+
+	template <size_t S, typename Derived>
+	void pmLong_range<S,Derived>::delete_set(std::vector<size_t> const& indices) {
+		for(auto const& it:indices) {
+			pmLong_range<S,Derived>::delete_member(it);
+		}
 	}
 }
 

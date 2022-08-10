@@ -590,6 +590,9 @@ void pmWorkspace::delete_particle(size_t const& i) {
 		}
 		it->delete_member(i);
 	}
+	for(auto& it:interactions) {
+		it->delete_member(i);
+	}
 	num_nodes--;
 }
 

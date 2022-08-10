@@ -79,6 +79,7 @@ namespace Nauticle {
 		bool binary_solve(size_t const& num_threads=8);
 		void update_particle_modifiers(size_t const& num_threads);
 		void update_background_fields();
+		void update_rigid_bodies(double const& time_step);
 		void update_time_series_variables(double const& t);
 		void update_script();
 	};

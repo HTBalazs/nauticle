@@ -29,7 +29,7 @@
 using namespace Nauticle;
 using namespace ProLog;
 
-void pmRigid_body_system::initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmSymbol> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmSymbol> mass) {
+void pmRigid_body_system::initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmExpression> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmSymbol> mass) {
     rigid_body.clear();
     psys = ps;
     particle_force = force;
@@ -70,21 +70,18 @@ void pmRigid_body_system::print() const {
     pLogger::logf<YEL>("        velocity: ");
     pLogger::logf<NRM>("%s\n", particle_velocity->get_name().c_str());
     pLogger::logf<YEL>("        force: ");
-    pLogger::logf<NRM>("%s\n", particle_force->get_name().c_str());
+    particle_force->print();
+    pLogger::line_feed(1);
     pLogger::logf<YEL>("        mass: ");
     pLogger::logf<NRM>("%s\n", particle_mass->get_name().c_str());
     pLogger::footerf<LBL>();
-    // for(auto const& it:rigid_body) {
-    //     it->print();
-    // }
 }
 
-
-// void pmRigid_body_system::update(double const& time_step) {
-//     for(auto& it:rigid_body) {
-//         it->update();
-//     }
-// }
+void pmRigid_body_system::update(double const& time_step) {
+    for(auto& it:rigid_body) {
+        it->update(psys, particle_force, particle_velocity, particle_mass, time_step);
+    }
+}
 
 #include "Color_undefine.h"
 

@@ -713,10 +713,11 @@ void pmYAML_processor::get_springs(std::shared_ptr<pmWorkspace> workspace) const
 
 std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::shared_ptr<pmWorkspace> workspace) const {
 	YAML::Node sim = data["simulation"];
-	auto rigid_bodies = std::make_shared<pmRigid_body_system>();
+	std::shared_ptr<pmRigid_body_system> rigid_bodies;
 	if(!sim["rigid_body_system"]) {
 		return rigid_bodies;
 	}
+	rigid_bodies = std::make_shared<pmRigid_body_system>();
 	// default values
 	std::string file_name = "";
 	std::string velocity_field = "v";
@@ -741,7 +742,7 @@ std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::sha
 				}
 			}
 			auto sym_velocity_field = expr_parser->analyse_expression<pmSymbol>(velocity_field,workspace);
-			auto sym_force_field = expr_parser->analyse_expression<pmSymbol>(force_field,workspace);
+			auto sym_force_field = expr_parser->analyse_expression<pmExpression>(force_field,workspace);
 			auto sym_mass_field = expr_parser->analyse_expression<pmSymbol>(mass_field,workspace);
 			rigid_bodies->initialize(file_name, workspace->get_particle_system(), sym_force_field, sym_velocity_field, sym_mass_field);
 		}

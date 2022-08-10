@@ -1151,10 +1151,9 @@ namespace Nauticle {
 			return pmTensor{0,0};
 		}
 		if(numel()==1) { return 1/elements[0]; }
-		if(is_singular()) { 
-			return make_identity(columns);
-		}
-		pmTensor inv;
+		// if(is_singular()) { 
+		// 	return make_identity(columns);
+		// }
 		return 1.0/determinant()*adjugate();
 	}
 

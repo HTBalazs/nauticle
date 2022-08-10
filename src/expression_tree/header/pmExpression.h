@@ -50,6 +50,8 @@ namespace Nauticle {
         virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const=0;
         virtual void update(size_t const& level=0) {}
         virtual bool is_interaction() const;
+        virtual void delete_member(size_t const& i) {}
+        virtual void delete_set(std::vector<size_t> const& indices) {}
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////

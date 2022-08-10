@@ -66,8 +66,8 @@ namespace Nauticle {
 		virtual void write_to_string(std::ostream& os) const override;
 		bool is_symmetric() const override;
 		void set_symmetry(bool const& sym);
-		virtual void delete_member(size_t const& i);
-		virtual void delete_set(std::vector<size_t> const& indices);
+		virtual void delete_member(size_t const& i) override;
+		virtual void delete_set(std::vector<size_t> const& indices) override;
 		virtual void add_member(pmTensor const& v=pmTensor{});
 		virtual void duplicate_member(size_t const& i);
 		void set_printable(bool const& p);
