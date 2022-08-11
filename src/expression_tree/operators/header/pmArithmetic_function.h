@@ -30,7 +30,7 @@
 #include <cmath>
 
 namespace Nauticle {
-	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, URAND, NRAND, LNRAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V, LIMIT};
+	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, URAND, NRAND, LNRAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V, LIMIT, HYSTERON};
 	
 	/** This class implements the following operations for the expression tree: summation, subtraction,
 	//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
@@ -117,6 +117,7 @@ namespace Nauticle {
 			case VERLET_R : op_name="verlet_r"; break;
 			case VERLET_V : op_name="verlet_v"; break;
 			case LIMIT : op_name="limit"; break;
+			case HYSTERON : op_name="hysteron"; break;
 		}
 	}
 
@@ -241,6 +242,20 @@ namespace Nauticle {
 			case VERLET_R : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[3]->evaluate(i, 0) + this->operand[2]->evaluate(i, 0) * std::pow(this->operand[3]->evaluate(i, 0)[0],2) / 2.0;
 			case VERLET_V : return this->operand[0]->evaluate(i, 0)+ (this->operand[1]->evaluate(i, 0)+this->operand[1]->evaluate(i, 1))*this->operand[2]->evaluate(i, 0)/2.0;
 			case LIMIT : return limit(this->operand[0]->evaluate(i, level)[0], this->operand[1]->evaluate(i, level)[0], this->operand[2]->evaluate(i, level)[0]);
+			case HYSTERON : 
+				bool state = this->operand[0]->evaluate(i, 0)[0];
+				double alpha = this->operand[1]->evaluate(i, 0)[0];
+				double beta = this->operand[2]->evaluate(i, 0)[0];
+				double value = this->operand[3]->evaluate(i, 0)[0];
+			    if(value<alpha && state) {
+			    	std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(pmTensor{1,1,0.0},i);
+			        return pmTensor{1,1,-1};
+			    } else if(value>beta && !state) {
+			    	std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(pmTensor{1,1,1.0},i);
+			        return pmTensor{1,1,1};
+			    } else {
+			        return pmTensor{1,1,0};
+			    }
 		}
 	}
 
@@ -329,6 +344,7 @@ namespace Nauticle {
 			case VERLET_R : code = "(" +  STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(3,i,"0") + "+" + STR_ARG(2,i,"0") + "*" + "std::pow(" + STR_ARG(3,i,"0") + "[0],2) / 2.0)"; break;
 			case VERLET_V : code = "(" + STR_ARG(0,i,"0") + "+(" + STR_ARG(1,i,"0") + "+" + STR_ARG(1,i,"1") + ")*" + STR_ARG(2,i,"0") + "/2.0)"; break;
 			case LIMIT : code = "limit(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "[0]," + STR_ARG(2,i,level) + "[0])"; break;
+			case HYSTERON : code = "hysteron(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "[0]," + STR_ARG(2,i,level) + "[0])"; break;
 		}
 		return code;
 	}
