@@ -664,7 +664,7 @@ std::vector<pmInitializer> pmYAML_processor::get_initializers(YAML::iterator it,
 void pmYAML_processor::get_springs(std::shared_ptr<pmWorkspace> workspace) const {
 	bool is_long_range = false;
 	for(auto& it:workspace->get_interactions()) {
-		if(std::dynamic_pointer_cast<pmNontemplate>(it)) {
+		if(std::dynamic_pointer_cast<pmConnectivity<pmSpring>>(it)) {
 			is_long_range = true;
 			break;
 		}

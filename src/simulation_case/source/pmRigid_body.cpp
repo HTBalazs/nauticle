@@ -68,6 +68,15 @@ void pmRigid_body::initialize(std::shared_ptr<pmParticle_system> psys, std::shar
 }
 
 void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, double const& time_step) {
+	static bool first_update = true;
+	if(first_update) {
+		for(int i=0; i<particle_velocity->get_field_size(); i++) {
+			linear_velocity += particle_velocity->evaluate(i);
+		}
+		linear_velocity /= particle_velocity->get_field_size();
+		first_update = false;
+	}
+
 	this->initialize(psys, particle_mass);
 	pmTensor body_torque{3,1,0};
 	pmTensor body_force{3,1,0};
@@ -85,9 +94,9 @@ void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_p
 	for(int i=0; i<particle_idx.size(); i++) {
 		pmTensor const& local_pos_idx = psys->evaluate(particle_idx[i])+psys->get_periodic_shift(particle_idx[i])-cog;
 		pmQuaternion<double> p = pmQuaternion<double>::vector2quaternion(local_pos_idx);
-		pmTensor new_global_pos = pmQuaternion<double>::quaternion2vector((rq.inverse()*p)*rq)+cog+linear_velocity*time_step-psys->get_periodic_shift(particle_idx[i]);
-		psys->set_value(new_global_pos,particle_idx[i],true);
-		particle_velocity->set_value(linear_velocity+cross(omega,new_global_pos),particle_idx[i],true);
+		pmTensor new_local_pos = pmQuaternion<double>::quaternion2vector((rq.inverse()*p)*rq);
+		psys->set_value(new_local_pos+cog+linear_velocity*time_step-psys->get_periodic_shift(particle_idx[i]),particle_idx[i],true);
+		particle_velocity->set_value(linear_velocity-cross(omega,new_local_pos),particle_idx[i],true);
 	}
 }
 
