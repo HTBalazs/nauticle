@@ -713,16 +713,17 @@ void pmYAML_processor::get_springs(std::shared_ptr<pmWorkspace> workspace) const
 
 std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::shared_ptr<pmWorkspace> workspace) const {
 	YAML::Node sim = data["simulation"];
-	std::shared_ptr<pmRigid_body_system> rigid_bodies;
+	std::shared_ptr<pmRigid_body_system> rigid_body_system;
 	if(!sim["rigid_body_system"]) {
-		return rigid_bodies;
+		return rigid_body_system;
 	}
-	rigid_bodies = std::make_shared<pmRigid_body_system>();
+	rigid_body_system = std::make_shared<pmRigid_body_system>();
 	// default values
 	std::string file_name = "";
 	std::string velocity_field = "v";
 	std::string force_field = "f";
 	std::string mass_field = "mass";
+	std::string rotation_field = "";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="rigid_body_system") {
 			auto expr_parser = std::make_shared<pmExpression_parser>();
@@ -740,14 +741,21 @@ std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::sha
 				if(rbsys_nodes->first.as<std::string>()=="mass") {
 					mass_field = rbsys_nodes->second.as<std::string>();
 				}
+				if(rbsys_nodes->first.as<std::string>()=="rotation_matrix") {
+					rotation_field = rbsys_nodes->second.as<std::string>();
+				}
 			}
 			auto sym_velocity_field = expr_parser->analyse_expression<pmSymbol>(velocity_field,workspace);
 			auto sym_force_field = expr_parser->analyse_expression<pmExpression>(force_field,workspace);
 			auto sym_mass_field = expr_parser->analyse_expression<pmSymbol>(mass_field,workspace);
-			rigid_bodies->initialize(file_name, workspace->get_particle_system(), sym_force_field, sym_velocity_field, sym_mass_field);
+			std::shared_ptr<pmField> sym_rotation_matrix;
+			if(rotation_field!="") {
+				sym_rotation_matrix = expr_parser->analyse_expression<pmField>(rotation_field,workspace);
+			}
+			rigid_body_system->initialize(file_name, workspace->get_particle_system(), sym_force_field, sym_velocity_field, sym_rotation_matrix, sym_mass_field);
 		}
 	}
-	return rigid_bodies;
+	return rigid_body_system;
 }
 
 

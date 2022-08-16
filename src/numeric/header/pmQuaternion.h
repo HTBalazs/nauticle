@@ -42,10 +42,13 @@ namespace Nauticle {
 		pmQuaternion& operator-=(pmQuaternion const& rhs);
 		pmQuaternion& operator*=(pmQuaternion const& rhs);
 		T dot_product(pmQuaternion const& rhs) const;
-		pmQuaternion inverse() const;
+		pmQuaternion conjugate() const;
+		pmQuaternion normalize() const;
+		bool is_zero() const;
 		static pmQuaternion vector2quaternion(pmTensor const& vec);
 		static pmTensor quaternion2vector(pmQuaternion const& quat);
 		static pmQuaternion make_rotation_quaternion(pmTensor const& axis, double const& angle);
+		static pmTensor quaternion2matrix(pmQuaternion const& q);
 	};
 
 	template <typename T>
@@ -95,13 +98,29 @@ namespace Nauticle {
 
 	template <typename T>
 	pmQuaternion<T>& pmQuaternion<T>::operator*=(pmQuaternion<T> const& rhs) {
-		*this = *this * rhs;
+		*this = rhs * (*this);
 		return *this;
 	}
 
 	template <typename T>
 	T pmQuaternion<T>::dot_product(pmQuaternion const& rhs) const {
 		return (this->w * rhs.w) + (this->x * rhs.x) + (this->y * rhs.y) + (this->z * rhs.z);
+	}
+
+	template <typename T>
+	pmQuaternion<T> pmQuaternion<T>::normalize() const {
+		pmQuaternion<T> normq = *this;
+		T S = std::sqrt(x*x+y*y+z*z+w*w)+NAUTICLE_EPS;
+		normq.x /= S;
+		normq.y /= S;
+		normq.z /= S;
+		normq.w /= S;
+		return normq;
+	}
+
+	template <typename T>
+	bool pmQuaternion<T>::is_zero() const {
+		return x==0 && y==0 && z==0 & w==0;
 	}
 
 	template <typename T>
@@ -119,7 +138,7 @@ namespace Nauticle {
 	}
 
 	template <typename T>
-	pmQuaternion<T> pmQuaternion<T>::inverse() const {
+	pmQuaternion<T> pmQuaternion<T>::conjugate() const {
 		return pmQuaternion{this->w,-this->x,-this->y,-this->z};
 	}
 
@@ -127,6 +146,40 @@ namespace Nauticle {
 	/*static*/ pmQuaternion<T> pmQuaternion<T>::make_rotation_quaternion(pmTensor const& axis, double const& angle) {
 		return pmQuaternion{std::cos(angle/2.0),axis[0]*std::sin(angle/2.0),axis[1]*std::sin(angle/2.0),axis[2]*std::sin(angle/2.0)};
 	}
+
+	template <typename T>
+	/*static*/ pmTensor pmQuaternion<T>::quaternion2matrix(pmQuaternion<T> const& q) {
+		pmQuaternion<T> qt = q.normalize();
+		pmTensor rot{3,3,0};
+		rot[0] = 1 - 2*qt.y*qt.y - 2*qt.z*qt.z;
+		rot[1] = 2*qt.x*qt.y - 2*qt.w*qt.z;
+  		rot[2] = 2*qt.x*qt.z + 2*qt.w*qt.y;
+		rot[3] = 2*qt.x*qt.y + 2*qt.w*qt.z;
+		rot[4] = 1 - 2*qt.x*qt.x - 2*qt.z*qt.z;
+		rot[5] = 2*qt.y*qt.z - 2*qt.w*qt.x;
+		rot[6] = 2*qt.x*qt.z - 2*qt.w*qt.y;
+		rot[7] = 2*qt.y*qt.z + 2*qt.w*qt.x;
+		rot[8] = 1 - 2*qt.x*qt.x - 2*qt.y*qt.y;
+		return rot;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif //_QUATERNION_H_

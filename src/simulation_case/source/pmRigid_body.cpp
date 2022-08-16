@@ -23,6 +23,10 @@
 
 using namespace Nauticle;
 
+
+pmRigid_body::pmRigid_body() {
+}
+
 void pmRigid_body::add_particle(size_t const& idx) {
 	for(auto const& it:particle_idx) {
 		if(idx==it) {
@@ -41,7 +45,18 @@ void pmRigid_body::remove_particle(size_t const& idx) {
 	}
 }
 
-void pmRigid_body::initialize(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmSymbol> particle_mass) {
+void pmRigid_body::initialize(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmSymbol> particle_velocity) {
+	for(int i=0; i<particle_idx.size(); i++) {
+		linear_velocity += particle_velocity->evaluate(particle_idx[i]);
+	}
+	linear_velocity /= particle_idx.size();
+}
+
+void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmField> rmatrix, double const& time_step) {
+	if(!initialized) {
+		this->initialize(psys, particle_velocity);
+		initialized = true;
+	}
 	cog = pmTensor{3,1,0};
 	body_mass = 0.0;
 	for(int i=0; i<particle_idx.size(); i++) {
@@ -65,19 +80,6 @@ void pmRigid_body::initialize(std::shared_ptr<pmParticle_system> psys, std::shar
 		theta[7] -= mass_i*local_pos_idx[1]*local_pos_idx[2];
 		theta[8] += mass_i*(local_pos_idx[0]*local_pos_idx[0] + local_pos_idx[1]*local_pos_idx[1]);
 	}
-}
-
-void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, double const& time_step) {
-	static bool first_update = true;
-	if(first_update) {
-		for(int i=0; i<particle_velocity->get_field_size(); i++) {
-			linear_velocity += particle_velocity->evaluate(i);
-		}
-		linear_velocity /= particle_velocity->get_field_size();
-		first_update = false;
-	}
-
-	this->initialize(psys, particle_mass);
 	pmTensor body_torque{3,1,0};
 	pmTensor body_force{3,1,0};
 	for(int i=0; i<particle_idx.size(); i++) {
@@ -85,18 +87,29 @@ void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_p
 		body_torque += cross(psys->evaluate(particle_idx[i])+psys->get_periodic_shift(particle_idx[i])-cog,particle_force->evaluate(particle_idx[i]));
 	}
 	// calculate motion state
-	omega += time_step*theta.inverse()*(-body_torque/*-cross(omega,theta*omega)*/);
+	omega += time_step*theta.inverse()*body_torque;
 	linear_velocity += time_step*body_force/body_mass;
 	pmTensor dir = omega/(omega.norm()+NAUTICLE_EPS);
 	double phi = omega.norm()*time_step;
-	rq = pmQuaternion<double>::make_rotation_quaternion(dir, phi);
-	// update particle velocity; rotate and translate body according to the motion state
+	pmQuaternion<double> drq = pmQuaternion<double>::make_rotation_quaternion(dir, phi);
+	// update particle velocity; rotate and translate body according to the motion state and set the rotation matrix
 	for(int i=0; i<particle_idx.size(); i++) {
-		pmTensor const& local_pos_idx = psys->evaluate(particle_idx[i])+psys->get_periodic_shift(particle_idx[i])-cog;
-		pmQuaternion<double> p = pmQuaternion<double>::vector2quaternion(local_pos_idx);
-		pmTensor new_local_pos = pmQuaternion<double>::quaternion2vector((rq.inverse()*p)*rq);
+		pmTensor const local_pos_idx = psys->evaluate(particle_idx[i])+psys->get_periodic_shift(particle_idx[i])-cog;
+		pmQuaternion<double> const p = pmQuaternion<double>::vector2quaternion(local_pos_idx);
+		pmTensor const new_local_pos = pmQuaternion<double>::quaternion2vector((drq*p)*drq.conjugate());
 		psys->set_value(new_local_pos+cog+linear_velocity*time_step-psys->get_periodic_shift(particle_idx[i]),particle_idx[i],true);
-		particle_velocity->set_value(linear_velocity-cross(omega,new_local_pos),particle_idx[i],true);
+		particle_velocity->set_value(linear_velocity+cross(omega,new_local_pos),particle_idx[i],true);
+	}
+	if(rmatrix.use_count()>0) {
+		if(rotation_quaternion.is_zero()) {
+			rotation_quaternion = drq;
+		} else {
+			rotation_quaternion *= drq;
+		}
+		pmTensor rotation_matrix = pmQuaternion<double>::quaternion2matrix(rotation_quaternion);
+		for(int i=0; i<particle_idx.size(); i++) {
+			rmatrix->set_value(rotation_matrix,particle_idx[i],true);
+		}
 	}
 }
 
