@@ -23,10 +23,6 @@
 
 using namespace Nauticle;
 
-
-pmRigid_body::pmRigid_body() {
-}
-
 void pmRigid_body::add_particle(size_t const& idx) {
 	for(auto const& it:particle_idx) {
 		if(idx==it) {
@@ -87,10 +83,10 @@ void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_p
 		body_torque += cross(psys->evaluate(particle_idx[i])+psys->get_periodic_shift(particle_idx[i])-cog,particle_force->evaluate(particle_idx[i]));
 	}
 	// calculate motion state
-	omega += time_step*theta.inverse()*body_torque;
+	angular_velocity += time_step*theta.inverse()*body_torque;
 	linear_velocity += time_step*body_force/body_mass;
-	pmTensor dir = omega/(omega.norm()+NAUTICLE_EPS);
-	double phi = omega.norm()*time_step;
+	pmTensor dir = angular_velocity/(angular_velocity.norm()+NAUTICLE_EPS);
+	double phi = angular_velocity.norm()*time_step;
 	pmQuaternion<double> drq = pmQuaternion<double>::make_rotation_quaternion(dir, phi);
 	// update particle velocity; rotate and translate body according to the motion state and set the rotation matrix
 	for(int i=0; i<particle_idx.size(); i++) {
@@ -98,7 +94,7 @@ void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_p
 		pmQuaternion<double> const p = pmQuaternion<double>::vector2quaternion(local_pos_idx);
 		pmTensor const new_local_pos = pmQuaternion<double>::quaternion2vector((drq*p)*drq.conjugate());
 		psys->set_value(new_local_pos+cog+linear_velocity*time_step-psys->get_periodic_shift(particle_idx[i]),particle_idx[i],true);
-		particle_velocity->set_value(linear_velocity+cross(omega,new_local_pos),particle_idx[i],true);
+		particle_velocity->set_value(linear_velocity+cross(angular_velocity,new_local_pos),particle_idx[i],true);
 	}
 	if(rmatrix.use_count()>0) {
 		if(rotation_quaternion.is_zero()) {
