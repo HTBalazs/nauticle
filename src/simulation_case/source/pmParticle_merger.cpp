@@ -199,6 +199,9 @@ void pmParticle_merger::update(size_t const& num_threads) {
             };
             hM = iterate(d,Wp,hM);
         }
+        if(hM<0 || hM!=hM) {
+            return;
+        }
 
         pmTensor direction;
         pmTensor pos01 = pos0-pos1;
