@@ -9,7 +9,6 @@ set(EXECUTABLE nauticle)
 
 link_directories(~/local/lib/prolog)
 link_directories(~/local/lib/commonutils)
-link_directories(~/local/lib/c2c)
 link_directories(~/local/lib)
 
 include_directories(~/local/include)
@@ -75,7 +74,6 @@ endif()
 target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)
 target_link_libraries(${EXEC} prolog)
 target_link_libraries(${EXEC} commonutils)
-target_link_libraries(${EXEC} c2c)
 
 # Define library and include directories (do not modify the installation directories below)
 set(STATIC_LIB_DIR ~/local/lib/nauticle)

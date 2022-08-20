@@ -44,7 +44,6 @@ namespace Nauticle {
 	*/
 	class pmSimulation {
 	protected:
-		bool (pmSimulation::*solver)(double const&, size_t const&);
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
 		std::vector<std::shared_ptr<pmScript>> script;
