@@ -32,7 +32,7 @@ namespace Nauticle {
     public:
         ~pmInterface() override {}
         virtual void initialize(std::shared_ptr<pmCase> c)=0;
-    	virtual bool solve(size_t const& num_threads)=0;
+    	virtual bool solve(double const& current_time, size_t const& num_threads)=0;
     };
 }
 

@@ -228,11 +228,31 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 	workspace->add_variable("write_case", pmTensor{1,1,0});
 	workspace->add_variable("substeps", pmTensor{1,1,0});
 	workspace->add_variable("all_steps", pmTensor{1,1,0});
-	workspace->add_variable("finished", pmTensor{1,1,0});
 	std::vector<std::shared_ptr<pmEquation>> equations = this->get_equations(workspace);
 	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
 	cas->add_workspace(workspace);
 	cas->add_equation(equations);
+	auto particle_splitter = this->get_particle_splitter(workspace);
+	auto particle_merger = this->get_particle_merger(workspace);
+	auto particle_sink = this->get_particle_sink(workspace);
+	auto particle_emitter = this->get_particle_emitter(workspace);
+	std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
+	particle_modifier.insert(particle_modifier.end(), particle_sink.begin(), particle_sink.end());
+	particle_modifier.insert(particle_modifier.end(), particle_emitter.begin(), particle_emitter.end());
+	particle_modifier.insert(particle_modifier.end(), particle_splitter.begin(), particle_splitter.end());
+	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
+	for(auto const& it:particle_modifier) {
+		cas->add_particle_modifier(it);
+	}
+	auto background = this->get_background(workspace);
+	for(auto const& it:background) {
+		cas->add_background(it);
+	}
+	auto time_series = this->get_time_series(workspace);
+	for(auto const& it:time_series) {
+		cas->add_time_series(it);
+	}
+	cas->add_rigid_body_system(this->get_rigid_bodies(workspace));
 	cas->initialize();
 	this->get_springs(workspace);
 	ProLog::pLogger::logf<NAUTICLE_COLOR>("    Initial conditions: from YAML file.\n");

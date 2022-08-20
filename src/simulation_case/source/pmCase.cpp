@@ -134,6 +134,18 @@ void pmCase::print() const {
 	if(f==0) {
 		pLogger::logf<WHT>("            < empty >\n");
 	}
+	for(auto const& it:particle_modifier) {
+		it->print();
+	}
+	for(auto const& it:background) {
+		it->print();
+	}
+	for(auto const& it:time_series) {
+		it->print();
+	}
+	if(rbsys.use_count()>0) {
+		rbsys->print();
+	}
 	pLogger::footerf<LBL>();
 }
 
@@ -154,7 +166,11 @@ std::vector<std::shared_ptr<pmEquation>> pmCase::get_equations() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solves the equation with the given name or all equations in order if name is empty.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
+bool pmCase::solve(double const& current_time, size_t const& num_threads, std::string const& name/*=""*/) {
+	this->update_particle_modifiers(num_threads);
+	this->update_background_fields();
+	this->update_time_series_variables(current_time);
+	this->update_rigid_bodies(workspace->get_instance("dt").lock()->evaluate(0)[0]);
 	bool success = workspace->update();
 	if(!success) {
 		return false;
@@ -182,6 +198,7 @@ bool pmCase::solve(size_t const& num_threads, std::string const& name/*=""*/) {
 		}
 		pLogger::warning_msg("No equation found with name \"%s\"\n.", name.c_str());
 	}
+
 	return true;
 }
 
@@ -214,8 +231,61 @@ void pmCase::merge(std::shared_ptr<pmCase> const& other) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Updates particle splitters and mergers.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::update_particle_modifiers(size_t const& num_threads) {
+	workspace->update();
+	for(auto& it:particle_modifier) {
+		it->update(num_threads);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Updates background interpolations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::update_background_fields() {
+	for(auto& it:background) {
+		it->update();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Updates background interpolations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::update_rigid_bodies(double const& time_step) {
+	if(rbsys.use_count()>0) {
+		rbsys->update(time_step);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Updates time sereies interpolations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::update_time_series_variables(double const& t) {
+	for(auto& it:time_series) {
+		it->update(t);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Assigns pmParticle_system object in the pmWorkspace to all equations.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::initialize() {
 	this->assign_particle_system_to_equations();
+}
+
+void pmCase::add_particle_modifier(std::shared_ptr<pmParticle_modifier> pmod) {
+	particle_modifier.push_back(pmod);
+}
+
+void pmCase::add_background(std::shared_ptr<pmBackground> bckg) {
+	background.push_back(bckg);
+}
+
+void pmCase::add_time_series(std::shared_ptr<pmTime_series> ts) {
+	time_series.push_back(ts);
+}
+
+void pmCase::add_rigid_body_system(std::shared_ptr<pmRigid_body_system> rbs) {
+	rbsys = rbs;
 }

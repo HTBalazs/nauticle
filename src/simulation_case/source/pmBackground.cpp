@@ -37,60 +37,6 @@ using namespace Nauticle;
 using namespace ProLog;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor
-/////////////////////////////////////////////////////////////////////////////////////////
-pmBackground::pmBackground(pmBackground const& other) {
-	this->field = other.field;
-	this->psys = other.psys;
-	this->file_name = other.file_name;
-	this->import = other.import;
-	this->condition = other.condition;
-	this->particle_condition = other.particle_condition;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator
-/////////////////////////////////////////////////////////////////////////////////////////
-pmBackground& pmBackground::operator=(pmBackground const& rhs) {
-	if(this!=&rhs) {
-		this->field = rhs.field;
-		this->psys = rhs.psys;
-		this->file_name = rhs.file_name;
-		this->import = rhs.import;
-		this->condition = rhs.condition;
-		this->particle_condition = rhs.particle_condition;
-	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor
-/////////////////////////////////////////////////////////////////////////////////////////
-pmBackground::pmBackground(pmBackground&& other) {
-	this->field = std::move(other.field);
-	this->psys = std::move(other.psys);
-	this->file_name = std::move(other.file_name);
-	this->import = std::move(other.import);
-	this->condition = std::move(other.condition);
-	this->particle_condition = std::move(other.particle_condition);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator
-/////////////////////////////////////////////////////////////////////////////////////////
-pmBackground& pmBackground::operator=(pmBackground&& rhs) {
-	if(this!=&rhs) {
-		this->field = std::move(rhs.field);
-		this->psys = std::move(rhs.psys);
-		this->file_name = std::move(rhs.file_name);
-		this->import = std::move(rhs.import);
-		this->condition = std::move(rhs.condition);
-		this->particle_condition = std::move(rhs.particle_condition);
-	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Prints out the content of the pmBackground object.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmBackground::print() const {

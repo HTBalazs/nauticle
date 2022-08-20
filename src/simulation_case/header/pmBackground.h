@@ -43,12 +43,6 @@ namespace Nauticle {
 		std::shared_ptr<pmExpression> particle_condition;
 		bool import = true;
 	public:
-		pmBackground() {}
-		pmBackground(pmBackground const& other);
-		pmBackground(pmBackground&& other);
-		~pmBackground() {}
-		pmBackground& operator=(pmBackground const& rhs);
-		pmBackground& operator=(pmBackground&& rhs);
 		void print() const;
 		void set_file_name(std::string const& fn);
 		void read_file();

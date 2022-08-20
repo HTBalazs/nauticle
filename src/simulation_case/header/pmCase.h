@@ -21,12 +21,18 @@
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
-#include <iostream>
-#include <string>
-#include <memory>
 #include "prolog/pLogger.h"
 #include "pmWorkspace.h"
 #include "pmEquation.h"
+#include "pmParticle_splitter.h"
+#include "pmParticle_merger.h"
+#include "pmBackground.h"
+#include "pmTime_series.h"
+#include "pmParticle_sink.h"
+#include "pmRigid_body_system.h"
+#include <iostream>
+#include <string>
+#include <memory>
 
 namespace Nauticle {
 	/** This class represents the mathematical problem to solve. It contains two 
@@ -39,6 +45,10 @@ namespace Nauticle {
 	class pmCase {
 		std::shared_ptr<pmWorkspace> workspace;
 		std::vector<std::shared_ptr<pmEquation>> equations;
+		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
+		std::vector<std::shared_ptr<pmBackground>> background;
+		std::vector<std::shared_ptr<pmTime_series>> time_series;
+		std::shared_ptr<pmRigid_body_system> rbsys;
 	public:
 		pmCase() {}
 		pmCase(pmCase const& other);
@@ -49,7 +59,7 @@ namespace Nauticle {
 		bool operator==(pmCase const& rhs) const;
 		bool operator!=(pmCase const& rhs) const;
 		void print() const;
-		bool solve(size_t const& num_threads, std::string const& name="");
+		bool solve(double const& current_time, size_t const& num_threads, std::string const& name="");
 		void assign_particle_system_to_equations();
 		std::shared_ptr<pmCase> clone() const;
 		void merge(std::shared_ptr<pmCase> const& other);
@@ -58,6 +68,14 @@ namespace Nauticle {
 		void add_workspace(std::shared_ptr<pmWorkspace> ws);
 		void add_equation(std::shared_ptr<pmEquation> func);
 		void add_equation(std::vector<std::shared_ptr<pmEquation>> func);
+		void update_particle_modifiers(size_t const& num_threads);
+		void update_background_fields();
+		void update_rigid_bodies(double const& time_step);
+		void update_time_series_variables(double const& t);
+		void add_particle_modifier(std::shared_ptr<pmParticle_modifier> pmod);
+		void add_background(std::shared_ptr<pmBackground> bckg);
+		void add_time_series(std::shared_ptr<pmTime_series> ts);
+		void add_rigid_body_system(std::shared_ptr<pmRigid_body_system> rbs);
 		void initialize();
 	};
 }

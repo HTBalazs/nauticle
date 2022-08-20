@@ -63,60 +63,6 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("cutoff", pmTensor{1,1,2}, true);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmWorkspace::pmWorkspace(pmWorkspace const& other) {
-	this->num_nodes = other.num_nodes;
-	for(auto const& it:other.definitions) {
-		this->definitions.push_back(it->clone());
-	}
-	this->num_constants = other.num_constants;
-	this->num_variables = other.num_variables;
-	this->deleted_ids = other.deleted_ids;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmWorkspace& pmWorkspace::operator=(pmWorkspace const& other) {
-	if(this!=&other) {
-		this->num_nodes = other.num_nodes;
-		for(auto const& it:other.definitions) {
-			this->definitions.push_back(it->clone());
-		}
-		this->num_constants = other.num_constants;
-		this->num_variables = other.num_variables;
-		this->deleted_ids = other.deleted_ids;
-	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmWorkspace::pmWorkspace(pmWorkspace&& other) {
-	this->num_nodes = other.num_nodes;
-	this->definitions = std::move(other.definitions);
-	this->num_constants = other.num_constants;
-	this->num_variables = other.num_variables;
-	this->deleted_ids = std::move(other.deleted_ids);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmWorkspace& pmWorkspace::operator=(pmWorkspace&& other) {
-	if(this!=&other) {
-		this->num_nodes = other.num_nodes;
-		this->definitions = std::move(other.definitions);
-		this->num_constants = other.num_constants;
-		this->num_variables = other.num_variables;
-		this->deleted_ids = std::move(other.deleted_ids);
-	}
-	return *this;
-}
-
 bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
 	if(this->num_nodes != rhs.num_nodes) {
 		return false;

@@ -53,10 +53,6 @@ namespace Nauticle {
 		void define_bases();
 	public:
 		pmWorkspace();
-		pmWorkspace(pmWorkspace const& other);
-		pmWorkspace(pmWorkspace&& other);
-		pmWorkspace& operator=(pmWorkspace const& other);
-		pmWorkspace& operator=(pmWorkspace&& other);
 		bool operator==(pmWorkspace const& rhs) const;
 		bool operator!=(pmWorkspace const& rhs) const;
 		virtual ~pmWorkspace() override {}

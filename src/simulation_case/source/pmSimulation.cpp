@@ -34,80 +34,6 @@ pmSimulation::~pmSimulation() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Copy constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmSimulation::pmSimulation(pmSimulation const& other) {
-	this->cas = std::make_shared<pmCase>(*other.cas);
-	this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
-	for(auto const& it:other.particle_modifier) {
-		this->particle_modifier.push_back(it->clone());
-	}
-	for(auto const& it:other.background) {
-		this->background.push_back(it->clone());
-	}
-	for(auto const& it:other.time_series) {
-		this->time_series.push_back(it->clone());
-	}
-	for(auto const& it:other.script) {
-		this->script.push_back(it->clone());
-	}
-	this->vtk_write_mode = other.vtk_write_mode;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move constructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmSimulation::pmSimulation(pmSimulation&& other) {
-	this->cas = std::move(other.cas);
-	this->parameter_space = std::move(other.parameter_space);
-	this->particle_modifier = std::move(other.particle_modifier);
-	this->background = std::move(other.background);
-	this->time_series = std::move(other.time_series);
-	this->script = std::move(other.script);
-	this->vtk_write_mode = std::move(other.vtk_write_mode);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Copy assignment operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmSimulation& pmSimulation::operator=(pmSimulation const& other) {
-	if(this!=&other) {
-		this->cas = std::make_shared<pmCase>(*other.cas);
-		this->parameter_space = std::make_shared<pmParameter_space>(*other.parameter_space);
-		for(auto const& it:other.particle_modifier) {
-			this->particle_modifier.push_back(it->clone());
-		}
-		for(auto const& it:other.background) {
-			this->background.push_back(it->clone());
-		}
-		for(auto const& it:other.time_series) {
-			this->time_series.push_back(it->clone());
-		}
-		for(auto const& it:other.script) {
-			this->script.push_back(it->clone());
-		}
-		this->vtk_write_mode = other.vtk_write_mode;
-	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Move assignment operator.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmSimulation& pmSimulation::operator=(pmSimulation&& other) {
-	if(this!=&other) {
-		this->cas = std::move(other.cas);
-		this->parameter_space = std::move(other.parameter_space);
-		this->particle_modifier = std::move(other.particle_modifier);
-		this->background = std::move(other.background);
-		this->time_series = std::move(other.time_series);
-		this->script = std::move(other.script);
-		this->vtk_write_mode = std::move(other.vtk_write_mode);
-	}
-	return *this;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Runs the calculation.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSimulation::simulate(size_t const& num_threads) {
@@ -127,11 +53,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	ws_substeps->set_value(0.0);
 	write_step(true);
 	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
-		this->update_particle_modifiers(num_threads);
-		this->update_background_fields();
-		this->update_time_series_variables(current_time);
 		dt = cas->get_workspace()->get_value("dt")[0];
-		this->update_rigid_bodies(dt);
 		double next_dt = dt;
 		// get printing interval
 		double print_interval = parameter_space->get_parameter_value("print_interval")[0];
@@ -146,7 +68,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			ws_write_case->set_value(pmTensor{1,1,1});
 		}
 		// Solve equations
-		bool success = (this->*solver)(num_threads); // calls either "binary_solve(numthreads)" or "interpreter_solve(numthreads)"
+		bool success = (this->*solver)(current_time, num_threads); // calls either "binary_solve(numthreads)" or "interpreter_solve(numthreads)"
 		current_time += next_dt;
 		ws_substeps->set_value(ws_substeps->get_value()+1.0);
 		ws_all_steps->set_value(ws_all_steps->get_value()+1.0);
@@ -169,7 +91,6 @@ void pmSimulation::simulate(size_t const& num_threads) {
 		this->update_script();
 	}
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
-	cas->get_workspace()->get_instance("finished").lock()->set_value(pmTensor{1,1,1});
 	this->update_script();
 }
 
@@ -180,18 +101,6 @@ void pmSimulation::print() const {
 	ProLog::pLogger::headerf<ProLog::LGN>("Simulation");
 	if(cas!=nullptr)		cas->print();
 	if(parameter_space!=nullptr)	parameter_space->print();
-	for(auto const& it:particle_modifier) {
-		it->print();
-	}
-	for(auto const& it:background) {
-		it->print();
-	}
-	for(auto const& it:time_series) {
-		it->print();
-	}
-	if(rbsys.use_count()>0) {
-		rbsys->print();
-	}
 	for(auto const& it:script) {
 		it->print();
 	}
@@ -238,17 +147,6 @@ void pmSimulation::read_file(std::string const& filename) {
 	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
 	yaml_loader->read_file(filename);
 	cas = yaml_loader->get_case();
-	auto particle_splitter = yaml_loader->get_particle_splitter(cas->get_workspace());
-	auto particle_merger = yaml_loader->get_particle_merger(cas->get_workspace());
-	auto particle_sink = yaml_loader->get_particle_sink(cas->get_workspace());
-	auto particle_emitter = yaml_loader->get_particle_emitter(cas->get_workspace());
-	particle_modifier.insert(particle_modifier.end(), particle_sink.begin(), particle_sink.end());
-	particle_modifier.insert(particle_modifier.end(), particle_emitter.begin(), particle_emitter.end());
-	particle_modifier.insert(particle_modifier.end(), particle_splitter.begin(), particle_splitter.end());
-	particle_modifier.insert(particle_modifier.end(), particle_merger.begin(), particle_merger.end());
-	background = yaml_loader->get_background(cas->get_workspace());
-	rbsys = yaml_loader->get_rigid_bodies(cas->get_workspace());
-	time_series = yaml_loader->get_time_series(cas->get_workspace());
 	script = yaml_loader->get_script(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
@@ -278,52 +176,15 @@ void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solve the equations in binary mode.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmSimulation::binary_solve(size_t const& num_threads/*=8*/) {
-	return binary_case->solve(num_threads);
+bool pmSimulation::binary_solve(double const& current_time, size_t const& num_threads/*=8*/) {
+	return binary_case->solve(current_time, num_threads);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solve the equations in interpreter mode.
 /////////////////////////////////////////////////////////////////////////////////////////
-bool pmSimulation::interpreter_solve(size_t const& num_threads/*=8*/) {
-	return cas->solve(num_threads);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Updates particle splitters and mergers.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmSimulation::update_particle_modifiers(size_t const& num_threads) {
-	cas->get_workspace()->update();
-	for(auto& it:particle_modifier) {
-		it->update(num_threads);
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Updates background interpolations.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmSimulation::update_background_fields() {
-	for(auto& it:background) {
-		it->update();
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Updates background interpolations.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmSimulation::update_rigid_bodies(double const& time_step) {
-	if(rbsys.use_count()>0) {
-		rbsys->update(time_step);
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Updates time sereies interpolations.
-/////////////////////////////////////////////////////////////////////////////////////////
-void pmSimulation::update_time_series_variables(double const& t) {
-	for(auto& it:time_series) {
-		it->update(t);
-	}
+bool pmSimulation::interpreter_solve(double const& current_time, size_t const& num_threads/*=8*/) {
+	return cas->solve(current_time, num_threads);
 }
 
 void pmSimulation::update_script() {
