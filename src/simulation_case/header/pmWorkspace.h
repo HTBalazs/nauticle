@@ -28,7 +28,6 @@
 #include "prolog/pLogger.h"
 #include "pmParticle_system.h"
 #include "pmMath_test.h"
-#include "c2c/c2CPP_declaration.h"
 
 namespace Nauticle {
 	/** This class contains all the definitions of variables and constants. It also
@@ -79,7 +78,6 @@ namespace Nauticle {
 		static bool is_reserved(std::string const& name);
 		template <typename T> std::vector<std::shared_ptr<T>> get(bool const& forced=false) const;
 		void set_number_of_nodes(size_t const& N);
-		std::vector<c2c::c2CPP_declaration> generate_declarations(std::string& init_code) const;
 		void add_interaction(std::shared_ptr<pmExpression> ia);
 		std::vector<std::shared_ptr<pmExpression>> const& get_interactions() const;
 		void delete_particle(size_t const& i);

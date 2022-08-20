@@ -299,9 +299,6 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 				if(parameter_nodes->first.as<std::string>()=="file_start") {
 					file_start = parameter_nodes->second.as<std::string>();
 				}
-				if(parameter_nodes->first.as<std::string>()=="compile_case") {
-					compile_case = parameter_nodes->second.as<std::string>();
-				}
 			}
 			auto expr_simulated_time = expr_parser->analyse_expression<pmExpression>(simulated_time,workspace);
 			auto expr_run_simulation = expr_parser->analyse_expression<pmExpression>(run_simulation,workspace);
@@ -309,14 +306,12 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 			auto expr_confirm = expr_parser->analyse_expression<pmExpression>(confirm_on_exit,workspace);
 			auto expr_output_format = expr_parser->analyse_expression<pmExpression>(output_format,workspace);
 			auto expr_file_start = expr_parser->analyse_expression<pmExpression>(file_start,workspace);
-			auto expr_compile_case = expr_parser->analyse_expression<pmExpression>(compile_case,workspace);
 			parameter_space->add_parameter("simulated_time", expr_simulated_time);
 			parameter_space->add_parameter("run_simulation", expr_run_simulation);
 			parameter_space->add_parameter("print_interval", expr_log_time);
 			parameter_space->add_parameter("confirm_on_exit", expr_confirm);
 			parameter_space->add_parameter("output_format", expr_output_format);
 			parameter_space->add_parameter("file_start", expr_file_start);
-			parameter_space->add_parameter("compile_case", expr_compile_case);
 		}
 	}
 	return parameter_space;

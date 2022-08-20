@@ -25,15 +25,6 @@
 using namespace Nauticle;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Destructor.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmSimulation::~pmSimulation() {
-	if(this->runtime_compiler.use_count()!=0) {
-		this->runtime_compiler->clean_up();
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Runs the calculation.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmSimulation::simulate(size_t const& num_threads) {
@@ -68,7 +59,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			ws_write_case->set_value(pmTensor{1,1,1});
 		}
 		// Solve equations
-		bool success = (this->*solver)(current_time, num_threads); // calls either "binary_solve(numthreads)" or "interpreter_solve(numthreads)"
+		bool success = cas->solve(current_time, num_threads);
 		current_time += next_dt;
 		ws_substeps->set_value(ws_substeps->get_value()+1.0);
 		ws_all_steps->set_value(ws_all_steps->get_value()+1.0);
@@ -153,16 +144,6 @@ void pmSimulation::read_file(std::string const& filename) {
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
 	ProLog::pLogger::footer<ProLog::LCY>();
 	ProLog::pLogger::line_feed(1);
-	if(parameter_space->get_parameter_value("compile_case")[0] != 0) {
-		this->runtime_compiler = std::make_shared<pmRuntime_compiler>();
-		this->runtime_compiler->set_case(cas);
-		this->runtime_compiler->compile();
-		this->binary_case = std::shared_ptr<pmInterface>{runtime_compiler->create_object()};
-		this->binary_case->initialize(cas);
-		solver = &pmSimulation::binary_solve;
-	} else {
-		solver = &pmSimulation::interpreter_solve;
-	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -171,20 +152,6 @@ void pmSimulation::read_file(std::string const& filename) {
 void pmSimulation::execute(size_t const& num_threads/*=8*/) {
 	print();
 	simulate(num_threads);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Solve the equations in binary mode.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmSimulation::binary_solve(double const& current_time, size_t const& num_threads/*=8*/) {
-	return binary_case->solve(current_time, num_threads);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Solve the equations in interpreter mode.
-/////////////////////////////////////////////////////////////////////////////////////////
-bool pmSimulation::interpreter_solve(double const& current_time, size_t const& num_threads/*=8*/) {
-	return cas->solve(current_time, num_threads);
 }
 
 void pmSimulation::update_script() {
