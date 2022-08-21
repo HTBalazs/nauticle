@@ -21,8 +21,6 @@
 #ifndef _ARITHMFC_H_  
 #define _ARITHMFC_H_  
 
-#define STR_ARG(a,b,c) this->operand[a]->generate_evaluator_code(b, c)
-
 #include "pmOperator.h"
 #include "pmRandom.h"
 #include "prolog/pLogger.h"
@@ -52,7 +50,6 @@ namespace Nauticle {
 		pmTensor evaluate(int const&, size_t const& level=0) const override;
 		std::shared_ptr<pmArithmetic_function> clone() const;
 		void write_to_string(std::ostream& os) const override;
-		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -282,71 +279,6 @@ namespace Nauticle {
 	void pmArithmetic_function<ARI_TYPE,S>::write_to_string(std::ostream& os) const {
 		os<<op_name;
 		this->write_operands_to_string(os);
-	}
-
-	template <Ari_fn_type ARI_TYPE, size_t S>
-	std::string pmArithmetic_function<ARI_TYPE,S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
-		std::string code;
-		switch(ARI_TYPE) {
-			case ABS : code = "abs(" + STR_ARG(0,i,level) + ")"; break;
-			case ACOS : code = "acos(" + STR_ARG(0,i,level) + ")"; break;
-			case ACOT : code = "acoT(" + STR_ARG(0,i,level) + ")"; break;
-			case AND : code = "(" + STR_ARG(0,i,level) + "&&" + STR_ARG(1,i,level) + ")"; break;
-			case ASIN : code = "asin(" + STR_ARG(0,i,level) + ")"; break;
-			case ATAN : code = "atan(" + STR_ARG(0,i,level) + ")"; break;
-			case ATAN2 : code = "atan2(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case COS : code = "cos(" + STR_ARG(0,i,level) + ")"; break;
-			case COSH : code = "cosh(" + STR_ARG(0,i,level) + ")"; break;
-			case COT : code = "cot(" + STR_ARG(0,i,level) + ")"; break;
-			case COTH : code = "coth(" + STR_ARG(0,i,level) + ")"; break;
-			case CROSS : code = "cross(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case ELEM : code = "(" + STR_ARG(0,i,level) + ".elem(" + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + "))"; break;
-			case EXP : code = "exp(" + STR_ARG(0,i,level) + ")"; break;
-			case FLOOR : code = "floor(" + STR_ARG(0,i,level) + ")"; break;
-			case GT : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")>tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case GTE : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")>=tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case EQUAL : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")==tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case NOTEQUAL : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")!=tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case IF : code = "tensor_if(tensor_cast<bool>(" + STR_ARG(0,i,level) + ")," + STR_ARG(1,i,level) + "," + STR_ARG(2,i,level) + ")"; break;
-			case LOG : code = "log(" + STR_ARG(0,i,level) + ")"; break;
-			case LOGM : code = "logm(" + STR_ARG(0,i,level) + ")"; break;
-			case LT : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")<tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case LTE : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")<=tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case MAGNITUDE : code = STR_ARG(0,i,level) + ".norm()"; break;
-			case MAX : code = "max(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case MIN : code = "min(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case MOD : code = "mod(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case NOT : code = "!(tensor_cast<bool>(" + STR_ARG(0,i,level) + "))"; break;
-			case OR : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")||tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case URAND : code = "pmRandom::random<pmRandom::UNIFORM>(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case NRAND : code = "pmRandom::random<pmRandom::NORMAL>(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case LNRAND : code = "pmRandom::random<pmRandom::LOGNORMAL>(" + STR_ARG(0,i,level) + "," + STR_ARG(1,i,level) + ")"; break;
-			case SGN : code = "sgn(" + STR_ARG(0,i,level) + ")"; break;
-			case SIN : code = "sin(" + STR_ARG(0,i,level) + ")"; break;
-			case SINH : code = "sinh(" + STR_ARG(0,i,level) + ")"; break;
-			case SQRT : code = "sqrt(" + STR_ARG(0,i,level) + ")"; break;
-			case TAN : code = "tan(" + STR_ARG(0,i,level) + ")"; break;
-			case TANH : code = "tanh(" + STR_ARG(0,i,level) + ")"; break;
-			case TRACE : code = STR_ARG(0,i,level) + ".trace()"; break;
-			case EIGSYS : code = STR_ARG(0,i,level) + ".eigensystem()"; break;
-			case EIGVAL : code = STR_ARG(0,i,level) + ".eigenvalues()"; break;
-			case DEQ : code = STR_ARG(0,i,level) + ".deQ()"; break;
-			case DER : code = STR_ARG(0,i,level) + ".deR()"; break;
-			case TRANSPOSE : code = STR_ARG(0,i,level) + ".transpose()"; break;
-			case TRUNC : code = "trunc(" + STR_ARG(0,i,level) + ")"; break;
-			case XOR : code = "(tensor_cast<double>(" + STR_ARG(0,i,level) + ")!=tensor_cast<double>(" + STR_ARG(1,i,level) + "))"; break;
-			case DETERMINANT : code = STR_ARG(0,i,level) + ".determinant()"; break;
-			case INVERSE : code = STR_ARG(0,i,level) + ".inverse()"; break;
-			case IDENTITY : code = "pmTensor::make_identity(" + STR_ARG(0,i,level) + ")"; break;
-			case EULER : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
-			case PREDICTOR : code = "(" + STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
-			case CORRECTOR : code = "(" + STR_ARG(0,i,"1") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(2,i,"0") + ")"; break;
-			case VERLET_R : code = "(" +  STR_ARG(0,i,"0") + "+" + STR_ARG(1,i,"0") + "*" + STR_ARG(3,i,"0") + "+" + STR_ARG(2,i,"0") + "*" + "std::pow(" + STR_ARG(3,i,"0") + "[0],2) / 2.0)"; break;
-			case VERLET_V : code = "(" + STR_ARG(0,i,"0") + "+(" + STR_ARG(1,i,"0") + "+" + STR_ARG(1,i,"1") + ")*" + STR_ARG(2,i,"0") + "/2.0)"; break;
-			case LIMIT : code = "limit(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "[0]," + STR_ARG(2,i,level) + "[0])"; break;
-			case HYSTERON : code = "hysteron(" + STR_ARG(0,i,level) + "[0]," + STR_ARG(1,i,level) + "[0]," + STR_ARG(2,i,level) + "[0])"; break;
-		}
-		return code;
 	}
 
 }

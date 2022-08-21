@@ -53,7 +53,6 @@ namespace Nauticle {
 		virtual void write_to_string(std::ostream& os) const override;
 		void set_declaration_type(std::string const& decl_type);
 		std::string const& get_declaration_type() const;
-		virtual std::string generate_evaluator_code(std::string const& i, std::string const& level) const override;
 		virtual bool is_interaction() const override;
 	};
 
@@ -192,14 +191,6 @@ namespace Nauticle {
 	template <size_t S>
 	std::string const& pmInteraction<S>::get_declaration_type() const {
 		return declaration_type;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	/// Generate the c++ code for the evaluation of the interaction.
-	/////////////////////////////////////////////////////////////////////////////////////////
-	template <size_t S>
-	std::string pmInteraction<S>::generate_evaluator_code(std::string const& i, std::string const& level) const {
-		return this->name + "->evaluate(" + i + "," + level + ")";
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
