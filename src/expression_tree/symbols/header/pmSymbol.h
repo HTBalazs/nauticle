@@ -21,8 +21,9 @@
 #ifndef _TERM_H_
 #define _TERM_H_
 
-#include <string>
 #include "pmExpression.h"
+#include "pmHistory.h"
+#include <string>
 
 namespace Nauticle {
 	/** This interface forms the base for single and field expressions. It holds a name.
@@ -41,7 +42,6 @@ namespace Nauticle {
 		bool is_assigned() const override;
 		virtual bool is_hidden() const;
 		virtual std::string get_type() const=0;
-		virtual std::string generate_declaration() const {}
 		virtual void set_lock(size_t const& idx, bool const& lck=true) {}
 	};
 

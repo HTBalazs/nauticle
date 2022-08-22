@@ -27,7 +27,7 @@ using namespace Nauticle;
 /// Constructor. It creates an anonymous constant object.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmConstant::pmConstant(pmTensor const& v) {
-	value.push_back(v);
+	value = v;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ pmConstant::pmConstant(pmTensor const& v) {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmConstant::pmConstant(std::string n, pmTensor const& v, bool const& hh/*=false*/) {
 	name = n;
-	value.push_back(v);
+	value = v;
 	hidden = hh;
 }
 
