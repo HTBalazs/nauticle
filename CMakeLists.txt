@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-pthread -O3 -fPIC")
 set(CMAKE_BUILD_TYPE Release)
 
 set(VTK_DIR ~/local/VTK-7.0.0)
-set(EXECUTABLE nauticle)
+# set(EXECUTABLE nauticle)
 
 link_directories(~/local/lib/prolog)
 link_directories(~/local/lib/commonutils)
@@ -54,26 +54,24 @@ elseif(APPLE)
 endif()
 
 #Create directory for executable
-file(MAKE_DIRECTORY ${BINDIR})
+# file(MAKE_DIRECTORY ${BINDIR})
 #Set executable path
-set(EXEC ${BINDIR}/${EXECUTABLE})
+# set(EXEC ${BINDIR}/${EXECUTABLE})
 
 #add_custom_target(build-time-make-directory ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${BINDIR})
 
 #Show executable path
-message("Build dir: " ${EXEC})
-
-add_executable(${EXEC} ${SOURCES})
+# message("Build dir: " ${EXEC})
 
 #Bring dependencies
 # VTK library
-if(VTK_LIBRARIES)
-	target_link_libraries(${EXEC} ${VTK_LIBRARIES})
-endif()
+# if(VTK_LIBRARIES)
+# 	target_link_libraries(${EXEC} ${VTK_LIBRARIES})
+# endif()
 
-target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)
-target_link_libraries(${EXEC} prolog)
-target_link_libraries(${EXEC} commonutils)
+# target_link_libraries(${EXEC} /usr/local/lib/libyaml-cpp.a)
+# target_link_libraries(${EXEC} prolog)
+# target_link_libraries(${EXEC} commonutils)
 
 # Define library and include directories (do not modify the installation directories below)
 set(STATIC_LIB_DIR ~/local/lib/nauticle)
