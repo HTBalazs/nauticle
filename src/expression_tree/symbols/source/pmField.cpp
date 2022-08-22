@@ -33,7 +33,10 @@ using namespace Nauticle;
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/, std::string const& fname/*=""*/) {
-	name = n;
+	if(n.size()>20) {
+		ProLog::pLogger::warning_msgf("Field name %s is limited to 20 characters.",n.c_str());
+	}
+	name = n.substr(0,20);
 	symmetric = sym;
 	printable = pr;
 	if(fname!="") {
@@ -52,7 +55,10 @@ pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTe
 /// Constructor.
 /////////////////////////////////////////////////////////////////////////////////////////
 pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool const& sym/*=true*/, bool const& pr/*=true*/) {
-	name = n;
+	if(n.size()>20) {
+		ProLog::pLogger::warning_msgf("Field name %s is limited to 20 characters.",n.c_str());
+	}
+	name = n.substr(0,20);
 	value.push_back(std::vector<pmTensor>());
 	value[0] = v;
 	symmetric = sym;
@@ -133,7 +139,7 @@ bool pmField::operator!=(pmField const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmField::printv() const {
 	this->print();
-	for(int i=0; i<20-name.size(); i++) {
+	for(int i=0; i<25-name.size(); i++) {
 		ProLog::pLogger::logf<ProLog::LMA>(" ");
 	}
 	pmTensor tensor = this->evaluate(0);
