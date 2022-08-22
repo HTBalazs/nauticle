@@ -73,6 +73,9 @@ namespace Nauticle {
 		void set_printable(bool const& p);
 		bool is_printable() const;
 		void set_lock(size_t const& idx, bool const& lck=true) override;
+#ifdef JELLYFISH
+		static inline std::string type_name="pmField";
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
