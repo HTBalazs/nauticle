@@ -62,4 +62,8 @@ std::string pmSingle::get_type() const {
     return "TENSOR";
 }
 
+size_t pmSingle::get_storage_depth() const {
+    return value.get_storage_depth();
+}
+
 

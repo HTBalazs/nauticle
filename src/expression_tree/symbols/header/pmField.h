@@ -59,6 +59,7 @@ namespace Nauticle {
 		int get_field_size() const override;
 		std::string get_type() const override;
 		void set_storage_depth(size_t const& d) override;
+		virtual size_t get_storage_depth() const override;
 		void push_back(pmTensor const& obj);
 		bool is_double_steps() const;
 		std::shared_ptr<pmField> clone() const;

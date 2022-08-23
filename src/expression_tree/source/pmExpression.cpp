@@ -50,3 +50,7 @@ std::string const& pmExpression::get_name() const {
 bool pmExpression::is_interaction() const {
     return false;
 }
+
+size_t pmExpression::get_storage_depth() const {
+    return 1;
+}

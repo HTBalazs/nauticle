@@ -32,7 +32,7 @@ namespace Nauticle {
 		pmHistory() {}
 		pmHistory(size_t const& d) : depth{d} {}
 		void set_storage_depth(size_t const& d);
-		size_t get_storage_depth();
+		size_t get_storage_depth() const;
 		pmHistory& operator=(T const& rhs);
 		bool operator==(pmHistory const& other) const;
 		bool operator!=(pmHistory const& other) const;
@@ -49,7 +49,7 @@ namespace Nauticle {
 	}
 	
 	template <typename T>
-	size_t pmHistory<T>::get_storage_depth() {
+	size_t pmHistory<T>::get_storage_depth() const {
 		return depth;
 	}
 	

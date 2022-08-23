@@ -40,7 +40,8 @@ namespace Nauticle {
     	virtual void print() const=0;
         virtual int get_field_size() const=0;
     	virtual std::string const& get_name() const;
-    	virtual void set_storage_depth(size_t const& d)=0;
+        virtual void set_storage_depth(size_t const& d)=0;
+    	virtual size_t get_storage_depth() const;
     	std::shared_ptr<pmExpression> clone() const;
     	virtual void assign(std::shared_ptr<pmParticle_system> ps) {}
     	virtual bool is_assigned() const=0;
