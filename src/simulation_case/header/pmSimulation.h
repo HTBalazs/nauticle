@@ -56,6 +56,7 @@ namespace Nauticle {
 		void read_file(std::string const& filename);
 		void execute(size_t const& num_threads=8);
 		void update_script();
+		std::shared_ptr<pmCase> get_case() const;
 	};
 }
 

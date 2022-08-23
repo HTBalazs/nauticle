@@ -159,3 +159,7 @@ void pmSimulation::update_script() {
 		it->update();
 	}
 }
+
+std::shared_ptr<pmCase> pmSimulation::get_case() const {
+	return cas;
+}
