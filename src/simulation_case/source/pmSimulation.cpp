@@ -59,7 +59,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			ws_write_case->set_value(pmTensor{1,1,1});
 		}
 		// Solve equations
-		bool success = cas->solve(current_time, num_threads);
+		bool success = (this->*solver)(current_time, num_threads); //solver->solve(current_time, num_threads);
 		current_time += next_dt;
 		ws_substeps->set_value(ws_substeps->get_value()+1.0);
 		ws_all_steps->set_value(ws_all_steps->get_value()+1.0);
@@ -144,6 +144,7 @@ void pmSimulation::read_file(std::string const& filename) {
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
 	ProLog::pLogger::footer<ProLog::LCY>();
 	ProLog::pLogger::line_feed(1);
+	solver = &pmSimulation::interpreter_solve;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -162,4 +163,13 @@ void pmSimulation::update_script() {
 
 std::shared_ptr<pmCase> pmSimulation::get_case() const {
 	return cas;
+}
+
+bool pmSimulation::interpreter_solve(double const& current_time, size_t const& num_threads/*=8*/) {
+	return cas->solve(current_time, num_threads);
+}
+
+bool pmSimulation::binary_solve(double const& current_time, size_t const& num_threads/*=8*/) {
+	ProLog::pLogger::logf<ProLog::RED>("Seahorse do not support runtime compilation and binary execution. Use Jellyfish instead, or run the simulation in interpreter mode.\n");
+	return false;
 }

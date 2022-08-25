@@ -44,6 +44,8 @@ namespace Nauticle {
 	*/
 	class pmSimulation {
 	protected:
+		bool (pmSimulation::*solver)(double const&, size_t const&);
+		// std::function<bool(double const&, size_t const&)> solver;
 		std::shared_ptr<pmCase> cas;
 		std::shared_ptr<pmParameter_space> parameter_space;
 		std::vector<std::shared_ptr<pmScript>> script;
@@ -53,10 +55,12 @@ namespace Nauticle {
 		void write_step(bool success) const;
 	public:
 		void set_working_directory(std::string const& working_dir) const;
-		void read_file(std::string const& filename);
+		virtual void read_file(std::string const& filename);
 		void execute(size_t const& num_threads=8);
 		void update_script();
 		std::shared_ptr<pmCase> get_case() const;
+		bool interpreter_solve(double const& current_time, size_t const& num_threads=8);
+		virtual bool binary_solve(double const& current_time, size_t const& num_threads=8);
 	};
 }
 
