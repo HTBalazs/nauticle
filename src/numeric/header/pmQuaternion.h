@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _QUATERNION_H_
-#define _QUATERNION_H_
+#ifndef _PM_QUATERNION_H_
+#define _PM_QUATERNION_H_
 
 #include "pmTensor.h"
 
@@ -182,4 +182,4 @@ namespace Nauticle {
 
 
 
-#endif //_QUATERNION_H_
+#endif //_PM_QUATERNION_H_

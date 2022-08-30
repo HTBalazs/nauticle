@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _HISTORY_H_
-#define _HISTORY_H_
+#ifndef _PM_HISTORY_H_
+#define _PM_HISTORY_H_
 
 #include <deque>
 
@@ -103,4 +103,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_HISTORY_H_
+#endif //_PM_HISTORY_H_

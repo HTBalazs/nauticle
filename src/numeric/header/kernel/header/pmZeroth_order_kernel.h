@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _ZEROTH_ORDER_KERNEL_H_
-#define _ZEROTH_ORDER_KERNEL_H_
+#ifndef _PM_ZEROTH_ORDER_KERNEL_H_
+#define _PM_ZEROTH_ORDER_KERNEL_H_
 
 #include "pmKernel_function.h"
 #include "nauticle_constants.h"
@@ -77,4 +77,4 @@ namespace Nauticle {
 	}
 }
 
-#endif // _ZEROTH_ORDER_KERNEL_H_
+#endif //_PM_ZEROTH_ORDER_KERNEL_H_

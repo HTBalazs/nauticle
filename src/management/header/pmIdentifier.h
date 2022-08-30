@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _IDENTIFIER_H_
-#define _IDENTIFIER_H_
+#ifndef _PM_IDENTIFIER_H_
+#define _PM_IDENTIFIER_H_
 
 #include "pmID_manager.h"
 #include "pmSort.h"
@@ -194,4 +194,4 @@ namespace Nauticle {
     }
 }
 
-#endif //_IDENTIFIER_H_
+#endif //_PM_IDENTIFIER_H_

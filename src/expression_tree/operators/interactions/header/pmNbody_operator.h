@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _NBODY_H_
-#define _NBODY_H_
+#ifndef _PM_NBODY_H_
+#define _PM_NBODY_H_
 
 #include <iostream>
 #include <memory>
@@ -57,4 +57,4 @@ namespace Nauticle {
 	}
 }
 
-#endif // _NBODY_H_
+#endif //_PM_NBODY_H_

@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _MATH_PARSER_H_
-#define _MATH_PARSER_H_
+#ifndef _PM_MATH_PARSER_H_
+#define _PM_MATH_PARSER_H_
 
 #include <string>
 #include <vector>
@@ -41,4 +41,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_MATH_PARSER_H_
+#endif //_PM_MATH_PARSER_H_

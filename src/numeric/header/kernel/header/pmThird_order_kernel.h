@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _THIRD_ORDER_KERNEL_H_
-#define _THIRD_ORDER_KERNEL_H_
+#ifndef _PM_THIRD_ORDER_KERNEL_H_
+#define _PM_THIRD_ORDER_KERNEL_H_
 
 #include "pmKernel_function.h"
 #include "nauticle_constants.h"
@@ -84,4 +84,4 @@ namespace Nauticle {
     }
 }
 
-#endif // _THIRD_ORDER_KERNEL_H_
+#endif //_PM_THIRD_ORDER_KERNEL_H_

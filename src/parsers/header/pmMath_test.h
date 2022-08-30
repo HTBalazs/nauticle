@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _MATH_TEST_H_
-#define _MATH_TEST_H_
+#ifndef _PM_MATH_TEST_H_
+#define _PM_MATH_TEST_H_
 
 #include <string>
 
@@ -53,4 +53,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_MATH_TEST_H_
+#endif //_PM_MATH_TEST_H_

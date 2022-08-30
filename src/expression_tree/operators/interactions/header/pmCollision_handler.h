@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _COLLISION_H_
-#define _COLLISION_H_
+#ifndef _PM_COLLISION_H_
+#define _PM_COLLISION_H_
 
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
@@ -52,4 +52,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_COLLISION_H_
+#endif //_PM_COLLISION_H_

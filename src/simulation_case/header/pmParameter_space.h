@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _PARAMETERS_H_
-#define _PARAMETERS_H_
+#ifndef _PM_PARAMETERS_H_
+#define _PM_PARAMETERS_H_
 
 #include "pmTensor.h"
 #include "pmExpression.h"
@@ -61,4 +61,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_PARAMETERS_H_
+#endif //_PM_PARAMETERS_H_

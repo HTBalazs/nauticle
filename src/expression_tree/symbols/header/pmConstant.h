@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _CONSTANT_H_
-#define _CONSTANT_H_
+#ifndef _PM_CONSTANT_H_
+#define _PM_CONSTANT_H_
 
 #include <string>
 #include "pmSingle.h"
@@ -58,4 +58,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_CONSTANT_H_
+#endif //_PM_CONSTANT_H_

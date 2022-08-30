@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _GRID_H_
-#define _GRID_H_
+#ifndef _PM_GRID_H_
+#define _PM_GRID_H_
 
 #include <vector>
 #include <memory>
@@ -68,4 +68,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _GRID_H_
+#endif //_PM_GRID_H_

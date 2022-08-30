@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _ARITHMFC_H_  
-#define _ARITHMFC_H_  
+#ifndef _PM_ARITHMFC_H_  
+#define _PM_ARITHMFC_H_  
 
 #include "pmOperator.h"
 #include "pmRandom.h"
@@ -285,4 +285,4 @@ namespace Nauticle {
 
 #include "Color_undefine.h"
 
-#endif //_ARITHMFC_H_
+#endif //_PM_ARITHMFC_H_

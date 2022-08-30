@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _SMALLEST_H_
-#define _SMALLEST_H_
+#ifndef _PM_SMALLEST_H_
+#define _PM_SMALLEST_H_
 
 #include <vector>
 
@@ -95,4 +95,4 @@ namespace Nauticle {
 
 }
 
-#endif //_SMALLEST_H_
+#endif //_PM_SMALLEST_H_

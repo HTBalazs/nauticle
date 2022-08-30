@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _ID_MANAGER_H_
-#define _ID_MANAGER_H_
+#ifndef _PM_ID_MANAGER_H_
+#define _PM_ID_MANAGER_H_
 
 #include <stack>
 
@@ -35,4 +35,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_ID_MANAGER_H_
+#endif //_PM_ID_MANAGER_H_

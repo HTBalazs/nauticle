@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _BACKGROUND_H_
-#define _BACKGROUND_H_
+#ifndef _PM_BACKGROUND_H_
+#define _PM_BACKGROUND_H_
 
 #include <iostream>
 #include <string>
@@ -56,4 +56,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_BACKGROUND_H_
+#endif //_PM_BACKGROUND_H_

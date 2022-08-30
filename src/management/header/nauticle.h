@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _NAUTICLE_H_
-#define _NAUTICLE_H_
+#ifndef _PM_NAUTICLE_H_
+#define _PM_NAUTICLE_H_
 
 /** This file collects the necessary files to include Nauticle.
 */
@@ -27,4 +27,4 @@
 #include "pmSimulation.h"
 #include "pmCommand_parser.h"
 
-#endif //_NAUTICLE_H_
+#endif //_PM_NAUTICLE_H_

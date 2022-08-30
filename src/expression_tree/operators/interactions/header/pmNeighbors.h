@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _NEIGHBORS_H_
-#define _NEIGHBORS_H_
+#ifndef _PM_NEIGHBORS_H_
+#define _PM_NEIGHBORS_H_
 
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
@@ -52,4 +52,4 @@ namespace Nauticle {
 	}
 }
 
-#endif // _NEIGHBORS_H_
+#endif //_PM_NEIGHBORS_H_

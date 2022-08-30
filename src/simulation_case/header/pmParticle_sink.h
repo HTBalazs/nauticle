@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _PARTICLE_SINK_H_
-#define _PARTICLE_SINK_H_
+#ifndef _PM_PARTICLE_SINK_H_
+#define _PM_PARTICLE_SINK_H_
 
 #include "prolog/pLogger.h"
 #include "pmParticle_modifier.h"
@@ -40,4 +40,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_PARTICLE_SINK_H_
+#endif //_PM_PARTICLE_SINK_H_

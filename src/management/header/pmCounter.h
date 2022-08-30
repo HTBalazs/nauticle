@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _COUNTER_H_
-#define _COUNTER_H_
+#ifndef _PM_COUNTER_H_
+#define _PM_COUNTER_H_
 
 namespace Nauticle {
 	template <typename T>
@@ -41,4 +41,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_COUNTER_H_
+#endif //_PM_COUNTER_H_

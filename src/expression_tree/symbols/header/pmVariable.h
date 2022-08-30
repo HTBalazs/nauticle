@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _VARIABLE_H_
-#define _VARIABLE_H_
+#ifndef _PM_VARIABLE_H_
+#define _PM_VARIABLE_H_
 
 #include <string>
 #include "pmSingle.h"
@@ -59,4 +59,4 @@ namespace Nauticle {
 }
 
 
-#endif //_VARIABLE_H_
+#endif //_PM_VARIABLE_H_

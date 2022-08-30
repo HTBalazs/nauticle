@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _OCCLUSION_H_
-#define _OCCLUSION_H_
+#ifndef _PM_OCCLUSION_H_
+#define _PM_OCCLUSION_H_
 
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
@@ -52,4 +52,4 @@ namespace Nauticle {
 	}
 }
 
-#endif // _OCCLUSION_H_
+#endif //_PM_OCCLUSION_H_

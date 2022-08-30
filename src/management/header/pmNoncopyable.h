@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _NONCOPYABLE_H_
-#define _NONCOPYABLE_H_
+#ifndef _PM_NONCOPYABLE_H_
+#define _PM_NONCOPYABLE_H_
 
 namespace Nauticle {
     /** This class has all its copy functions (constructor and assignment)
@@ -34,4 +34,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_NONCOPYABLE_H_
+#endif //_PM_NONCOPYABLE_H_

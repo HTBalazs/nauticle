@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _KERNEL_INCLUDES_H_
-#define _KERNEL_INCLUDES_H_
+#ifndef _PM_KERNEL_INCLUDES_H_
+#define _PM_KERNEL_INCLUDES_H_
 
 #include "pmZeroth_order_kernel.h"
 #include "pmFirst_order_kernel.h"
@@ -28,4 +28,4 @@
 #include "pmFifth_order_kernel.h"
 #include "pmGaussian_kernel.h"
 
-#endif //_KERNEL_INCLUDES_H_
+#endif //_PM_KERNEL_INCLUDES_H_

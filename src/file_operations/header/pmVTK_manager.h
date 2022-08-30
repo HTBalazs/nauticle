@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _VTK_PARSER_H_
-#define _VTK_PARSER_H_
+#ifndef _PM_VTK_PARSER_H_
+#define _PM_VTK_PARSER_H_
 
 #include <memory>
 #include <string>
@@ -61,4 +61,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_VTK_PARSER_H_
+#endif //_PM_VTK_PARSER_H_

@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _VTK_READER_H_
-#define _VTK_READER_H_
+#ifndef _PM_VTK_READER_H_
+#define _PM_VTK_READER_H_
 
 #include "pmVTK_manager.h"
 #include "prolog/pLogger.h"
@@ -44,4 +44,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_VTK_READER_H_
+#endif //_PM_VTK_READER_H_

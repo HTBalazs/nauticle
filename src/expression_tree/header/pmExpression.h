@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _EXPRESSION_H_
-#define _EXPRESSION_H_
+#ifndef _PM_EXPRESSION_H_
+#define _PM_EXPRESSION_H_
 
 #include <memory>
 #include <cmath>
@@ -64,4 +64,4 @@ namespace Nauticle {
 }
 
 
-#endif // _EXPRESSION_H_
+#endif //_PM_EXPRESSION_H_

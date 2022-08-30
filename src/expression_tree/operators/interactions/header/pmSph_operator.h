@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _SPH_OPERATOR_H_
-#define _SPH_OPERATOR_H_
+#ifndef _PM_SPH_OPERATOR_H_
+#define _PM_SPH_OPERATOR_H_
 
 #include <cstdlib>
 #include <array>
@@ -427,4 +427,4 @@ namespace Nauticle {
 
 #include "Color_undefine.h"
 
-#endif // _SPH_OPERATOR_H_
+#endif //_PM_SPH_OPERATOR_H_

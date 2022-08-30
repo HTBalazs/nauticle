@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _SORT_H_
-#define _SORT_H_
+#ifndef _PM_SORT_H_
+#define _PM_SORT_H_
 
 #include <vector>
 #include <algorithm>
@@ -88,4 +88,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _SORT_H_
+#endif //_PM_SORT_H_

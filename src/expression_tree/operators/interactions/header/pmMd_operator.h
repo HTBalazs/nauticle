@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _MOLECULAR_DYNMAICS_OPERATOR_H_
-#define _MOLECULAR_DYNMAICS_OPERATOR_H_
+#ifndef _PM_MOLECULAR_DYNMAICS_OPERATOR_H_
+#define _PM_MOLECULAR_DYNMAICS_OPERATOR_H_
 
 #include <cstdlib>
 #include <array>
@@ -50,4 +50,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _MOLECULAR_DYNMAICS_OPERATOR_H_
+#endif //_PM_MOLECULAR_DYNMAICS_OPERATOR_H_

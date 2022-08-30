@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _SOCIAL_FORCE_MODEL_OPERATOR_H_
-#define _SOCIAL_FORCE_MODEL_OPERATOR_H_
+#ifndef _PM_SOCIAL_FORCE_MODEL_OPERATOR_H_
+#define _PM_SOCIAL_FORCE_MODEL_OPERATOR_H_
 
 #include <cstdlib>
 #include <array>
@@ -50,4 +50,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _SOCIAL_FORCE_MODEL_OPERATOR_H_
+#endif //_PM_SOCIAL_FORCE_MODEL_OPERATOR_H_

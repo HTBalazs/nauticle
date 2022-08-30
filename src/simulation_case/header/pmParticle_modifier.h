@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _PARTICLE_MODIFIER_H_
-#define _PARTICLE_MODIFIER_H_
+#ifndef _PM_PARTICLE_MODIFIER_H_
+#define _PM_PARTICLE_MODIFIER_H_
 
 #include "pmWorkspace.h"
 #include "pmExpression.h"
@@ -46,4 +46,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _PARTICLE_MODIFIER_H_
+#endif //_PM_PARTICLE_MODIFIER_H_

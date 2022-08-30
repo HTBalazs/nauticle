@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _RIGID_BODY_SOLVER_H_
-#define _RIGID_BODY_SOLVER_H_
+#ifndef _PM_RIGID_BODY_SOLVER_H_
+#define _PM_RIGID_BODY_SOLVER_H_
 
 #include "pmRigid_body.h"
 
@@ -31,4 +31,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_RIGID_BODY_SOLVER_H_
+#endif //_PM_RIGID_BODY_SOLVER_H_

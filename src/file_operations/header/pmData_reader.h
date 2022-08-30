@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _DATA_READER_H_
-#define _DATA_READER_H_
+#ifndef _PM_DATA_READER_H_
+#define _PM_DATA_READER_H_
 
 #include "prolog/pLogger.h"
 #include "pmTensor.h"
@@ -46,4 +46,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_DATA_READER_H_
+#endif //_PM_DATA_READER_H_

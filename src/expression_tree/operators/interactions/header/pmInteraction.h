@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _INTERACTION_H_
-#define _INTERACTION_H_
+#ifndef _PM_INTERACTION_H_
+#define _PM_INTERACTION_H_
 
 #include <memory>
 #include <mutex>
@@ -202,4 +202,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_INTERACTION_H_
+#endif //_PM_INTERACTION_H_

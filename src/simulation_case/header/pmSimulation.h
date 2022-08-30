@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _CASE_H_
-#define _CASE_H_
+#ifndef _PM_SIMULATION_H_
+#define _PM_SIMULATION_H_
 
 #include <unistd.h>
 #include <iostream>
@@ -64,4 +64,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_CASE_H_
+#endif //_PM_SIMULATION_H_

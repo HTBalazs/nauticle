@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _LOG_STREAM_H_
-#define _LOG_STREAM_H_
+#ifndef _PM_LOG_STREAM_H_
+#define _PM_LOG_STREAM_H_
 
 #include "prolog/pLogger.h"
 
@@ -40,4 +40,4 @@ namespace Nauticle {
     };
 }
 
-#endif // _LOG_STREAM_H_
+#endif //_PM_LOG_STREAM_H_

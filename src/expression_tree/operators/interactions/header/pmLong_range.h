@@ -18,8 +18,8 @@
 	For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _LONG_RANGE_H_
-#define _LONG_RANGE_H_
+#ifndef _PM_LONG_RANGE_H_
+#define _PM_LONG_RANGE_H_
 
 #include <memory>
 #include "pmInteraction.h"
@@ -103,4 +103,4 @@ namespace Nauticle {
 
 #include "Color_undefine.h"
 
-#endif //_LONG_RANGE_H_
+#endif //_PM_LONG_RANGE_H_

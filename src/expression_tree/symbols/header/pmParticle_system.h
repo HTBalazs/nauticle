@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _PARTICLE_SYSTEM_H_
-#define _PARTICLE_SYSTEM_H_
+#ifndef _PM_PARTICLE_SYSTEM_H_
+#define _PM_PARTICLE_SYSTEM_H_
 
 #include <string>
 #include "pmSort.h"
@@ -73,4 +73,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_PARTICLE_SYSTEM_H_
+#endif //_PM_PARTICLE_SYSTEM_H_

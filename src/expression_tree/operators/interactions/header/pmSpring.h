@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _SPRING_H_
-#define _SPRING_H_
+#ifndef _PM_SPRING_H_
+#define _PM_SPRING_H_
 
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
@@ -49,4 +49,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_SPRING_H_
+#endif //_PM_SPRING_H_

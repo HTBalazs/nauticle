@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _TENSOR_PARSER_H_
-#define _TENSOR_PARSER_H_
+#ifndef _PM_TENSOR_PARSER_H_
+#define _PM_TENSOR_PARSER_H_
 
 #include <string>
 #include "prolog/pLogger.h"
@@ -52,4 +52,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_TENSOR_PARSER_H_
+#endif //_PM_TENSOR_PARSER_H_

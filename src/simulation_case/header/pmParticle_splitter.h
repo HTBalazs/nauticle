@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _PARTICLE_SPLITTER_H_
-#define _PARTICLE_SPLITTER_H_
+#ifndef _PM_PARTICLE_SPLITTER_H_
+#define _PM_PARTICLE_SPLITTER_H_
 
 #include "pmParticle_resolve.h"
 #include <memory>
@@ -52,4 +52,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _PARTICLE_SPLITTER_H_
+#endif //_PM_PARTICLE_SPLITTER_H_

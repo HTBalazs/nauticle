@@ -21,7 +21,7 @@
 /** Defines the log color.
 */
 
-#ifndef _COLOR_DEFINE_H_
-#define _COLOR_DEFINE_H_
+#ifndef _PM_COLOR_DEFINE_H_
+#define _PM_COLOR_DEFINE_H_
 #define NAUTICLE_COLOR ProLog::WHT
-#endif //_COLOR_DEFINE_H_
+#endif //_PM_COLOR_DEFINE_H_

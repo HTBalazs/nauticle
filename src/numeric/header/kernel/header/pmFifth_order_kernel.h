@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _FIFTH_ORDER_KERNEL_H_
-#define _FIFTH_ORDER_KERNEL_H_
+#ifndef _PM_FIFTH_ORDER_KERNEL_H_
+#define _PM_FIFTH_ORDER_KERNEL_H_
 
 #include "pmKernel_function.h"
 #include "nauticle_constants.h"
@@ -85,4 +85,4 @@ namespace Nauticle {
 	}
 }
 
-#endif // _FIFTH_ORDER_KERNEL_H_
+#endif //_PM_FIFTH_ORDER_KERNEL_H_

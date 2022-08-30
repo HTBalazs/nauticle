@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _FSUM_H_
-#define _FSUM_H_
+#ifndef _PM_FSUM_H_
+#define _PM_FSUM_H_
 
 #include "pmFsearch.h"
 
@@ -50,4 +50,4 @@ namespace Nauticle {
     }
 }
 
-#endif //_FSUM_H_
+#endif //_PM_FSUM_H_

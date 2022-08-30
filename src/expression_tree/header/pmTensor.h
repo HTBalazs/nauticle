@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _TENSOR_H_
-#define _TENSOR_H_
+#ifndef _PM_TENSOR_H_
+#define _PM_TENSOR_H_
 
 #include <iostream>
 #include <cmath>
@@ -1496,4 +1496,4 @@ namespace Nauticle {
 }
 
 
-#endif //_TENSOR_H_
+#endif //_PM_TENSOR_H_

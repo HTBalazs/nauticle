@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _SOLVER_H_
-#define _SOLVER_H_
+#ifndef _PM_CASE_H_
+#define _PM_CASE_H_
 
 #include "prolog/pLogger.h"
 #include "pmWorkspace.h"
@@ -80,4 +80,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_SOLVER_H_
+#endif //_PM_CASE_H_

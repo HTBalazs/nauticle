@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _VTK_WRITER_H_
-#define _VTK_WRITER_H_
+#ifndef _PM_VTK_WRITER_H_
+#define _PM_VTK_WRITER_H_
 
 #include <string>
 #include "pmVTK_manager.h"
@@ -56,4 +56,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_VTK_WRITER_H_
+#endif //_PM_VTK_WRITER_H_

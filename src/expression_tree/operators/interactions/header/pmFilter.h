@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _FILTER_H_
-#define _FILTER_H_
+#ifndef _PM_FILTER_H_
+#define _PM_FILTER_H_
 
 #include <memory>
 #include "pmInteraction.h"
@@ -40,4 +40,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_FILTER_H_
+#endif //_PM_FILTER_H_

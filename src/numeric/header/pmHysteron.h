@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _HYSTERON_H_
-#define _HYSTERON_H_
+#ifndef _PM_HYSTERON_H_
+#define _PM_HYSTERON_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,4 +43,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _HYSTERON_H_
+#endif //_PM_HYSTERON_H_

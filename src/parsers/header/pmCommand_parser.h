@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _COMMAND_PARSER_H_
-#define _COMMAND_PARSER_H_
+#ifndef _PM_COMMAND_PARSER_H_
+#define _PM_COMMAND_PARSER_H_
 
 #include <map>
 #include <vector>
@@ -46,4 +46,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_COMMAND_PARSER_H_
+#endif //_PM_COMMAND_PARSER_H_

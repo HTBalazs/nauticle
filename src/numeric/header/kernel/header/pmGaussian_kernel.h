@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _GAUSSIAN_KERNEL_H_
-#define _GAUSSIAN_KERNEL_H_
+#ifndef _PM_GAUSSIAN_KERNEL_H_
+#define _PM_GAUSSIAN_KERNEL_H_
 
 #include "pmKernel_function.h"
 #include "nauticle_constants.h"
@@ -71,4 +71,4 @@ namespace Nauticle {
     }
 }
 
-#endif // _GAUSSIAN_KERNEL_H_
+#endif //_PM_GAUSSIAN_KERNEL_H_

@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _KERNEL_H_
-#define _KERNEL_H_
+#ifndef _PM_KERNEL_H_
+#define _PM_KERNEL_H_
 
 #include "pmKernel_includes.h"
 #include "pmNoncopyable.h"
@@ -57,4 +57,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_KERNEL_H_
+#endif //_PM_KERNEL_H_

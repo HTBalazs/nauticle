@@ -18,11 +18,11 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _VERSION_H_
-#define _VERSION_H_
+#ifndef _PM_VERSION_H_
+#define _PM_VERSION_H_
 
 #define MAJOR_VERSION 1
 #define MINOR_VERSION 1
 #define RELEASE_DATE "master"
 
-#endif //_VERSION_H_
+#endif //_PM_VERSION_H_

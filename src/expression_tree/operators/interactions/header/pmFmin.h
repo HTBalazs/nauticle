@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _FMIN_H_
-#define _FMIN_H_
+#ifndef _PM_FMIN_H_
+#define _PM_FMIN_H_
 
 #include "pmFsearch.h"
 
@@ -50,4 +50,4 @@ namespace Nauticle {
     }
 }
 
-#endif //_FMIN_H_
+#endif //_PM_FMIN_H_

@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _FSEARCH_H_
-#define _FSEARCH_H_
+#ifndef _PM_FSEARCH_H_
+#define _PM_FSEARCH_H_
 
 #include "pmInteraction.h"
 
@@ -37,4 +37,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_FSEARCH_H_
+#endif //_PM_FSEARCH_H_

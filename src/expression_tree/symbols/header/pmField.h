@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _FIELD_H_
-#define _FIELD_H_
+#ifndef _PM_FIELD_H_
+#define _PM_FIELD_H_
 
 #include <string>
 #include "pmSymbol.h"
@@ -86,4 +86,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_FIELD_H_
+#endif //_PM_FIELD_H_

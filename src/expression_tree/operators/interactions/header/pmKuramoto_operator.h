@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _KURAMOTO_H_
-#define _KURAMOTO_H_
+#ifndef _PM_KURAMOTO_H_
+#define _PM_KURAMOTO_H_
 
 #include "pmFilter.h"
 #include "prolog/pLogger.h"
@@ -46,4 +46,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _KURAMOTO_H_
+#endif //_PM_KURAMOTO_H_

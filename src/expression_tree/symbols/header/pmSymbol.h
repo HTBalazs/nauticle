@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _TERM_H_
-#define _TERM_H_
+#ifndef _PM_TERM_H_
+#define _PM_TERM_H_
 
 #include "pmExpression.h"
 #include "pmHistory.h"
@@ -54,4 +54,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_TERM_H_
+#endif //_PM_TERM_H_

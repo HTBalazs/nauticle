@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _DOMAIN_H_
-#define _DOMAIN_H_
+#ifndef _PM_DOMAIN_H_
+#define _PM_DOMAIN_H_
 
 #include "pmTensor.h"
 #include <vector>
@@ -68,4 +68,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_DOMAIN_H_
+#endif //_PM_DOMAIN_H_

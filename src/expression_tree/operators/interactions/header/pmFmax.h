@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _FMAX_H_
-#define _FMAX_H_
+#ifndef _PM_FMAX_H_
+#define _PM_FMAX_H_
 
 #include "pmFsearch.h"
 
@@ -50,4 +50,4 @@ namespace Nauticle {
     }
 }
 
-#endif //_FMAX_H_
+#endif //_PM_FMAX_H_

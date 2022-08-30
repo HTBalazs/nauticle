@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _RANDOM_H_
-#define _RANDOM_H_
+#ifndef _PM_RANDOM_H_
+#define _PM_RANDOM_H_
 
 #include "prolog/pLogger.h"
 #include "pmTensor.h"
@@ -76,4 +76,4 @@ namespace Nauticle {
     }
 }
 
-#endif //_RANDOM_H_
+#endif //_PM_RANDOM_H_

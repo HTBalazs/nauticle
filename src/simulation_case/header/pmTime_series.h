@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _TIME_SERIES_H_
-#define _TIME_SERIES_H_
+#ifndef _PM_TIME_SERIES_H_
+#define _PM_TIME_SERIES_H_
 
 #include <iostream>
 #include <string>
@@ -55,4 +55,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_TIME_SERIES_H_
+#endif //_PM_TIME_SERIES_H_

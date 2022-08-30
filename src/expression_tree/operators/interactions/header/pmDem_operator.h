@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _DEM_H_
-#define _DEM_H_
+#ifndef _PM_DEM_H_
+#define _PM_DEM_H_
 
 #include "pmInteraction.h"
 #include "prolog/pLogger.h"
@@ -321,4 +321,4 @@ namespace Nauticle {
 #include "Color_undefine.h"
 
 
-#endif //_DEM_H_
+#endif //_PM_DEM_H_

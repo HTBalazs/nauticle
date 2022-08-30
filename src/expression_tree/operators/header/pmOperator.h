@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _OPERATOR_H_
-#define _OPERATOR_H_
+#ifndef _PM_OPERATOR_H_
+#define _PM_OPERATOR_H_
 
 #include <array>
 #include <memory>
@@ -195,4 +195,4 @@ namespace Nauticle {
 	}
 }
  
-#endif //_OPERATOR_H_
+#endif //_PM_OPERATOR_H_

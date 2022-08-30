@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _ARITHMOP_H_
-#define _ARITHMOP_H_
+#ifndef _PM_ARITHMOP_H_
+#define _PM_ARITHMOP_H_
     
 #include "pmOperator.h"
 #include "prolog/pLogger.h"
@@ -172,4 +172,4 @@ namespace Nauticle {
 
 #include "Color_undefine.h"
 
-#endif // _ARITHMOP_H_
+#endif //_PM_ARITHMOP_H_

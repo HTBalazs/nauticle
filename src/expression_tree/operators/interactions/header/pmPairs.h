@@ -18,8 +18,8 @@
 	For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _PAIRS_H_
-#define _PAIRS_H_
+#ifndef _PM_PAIRS_H_
+#define _PM_PAIRS_H_
 
 #include "Color_define.h"
 #include <memory>
@@ -58,4 +58,4 @@ namespace Nauticle {
 
 #include "Color_undefine.h"
 
-#endif //_PAIRS_H_
+#endif //_PM_PAIRS_H_

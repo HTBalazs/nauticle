@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _WORKSPACE_H_
-#define _WORKSPACE_H_
+#ifndef _PM_WORKSPACE_H_
+#define _PM_WORKSPACE_H_
 
 #include <iomanip>
 #include <memory>
@@ -121,4 +121,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_WORKSPACE_H_
+#endif //_PM_WORKSPACE_H_

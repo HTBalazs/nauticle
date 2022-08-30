@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _PARTICLE_MERGER_H_
-#define _PARTICLE_MERGER_H_
+#ifndef _PM_PARTICLE_MERGER_H_
+#define _PM_PARTICLE_MERGER_H_
 
 #include "pmWorkspace.h"
 #include "pmParticle_resolve.h"
@@ -69,4 +69,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _PARTICLE_MERGER_H_
+#endif //_PM_PARTICLE_MERGER_H_

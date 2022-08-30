@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _RIGID_BODY_H_
-#define _RIGID_BODY_H_
+#ifndef _PM_RIGID_BODY_H_
+#define _PM_RIGID_BODY_H_
 
 #include "pmTensor.h"
 #include "pmParticle_system.h"
@@ -49,4 +49,4 @@ namespace Nauticle {
 	};
 }
 
-#endif //_RIGID_BODY_H_
+#endif //_PM_RIGID_BODY_H_

@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _VORTEX_METHOD_OPERATOR_H_
-#define _VORTEX_METHOD_OPERATOR_H_
+#ifndef _PM_VORTEX_METHOD_OPERATOR_H_
+#define _PM_VORTEX_METHOD_OPERATOR_H_
 
 #include <cstdlib>
 #include <array>
@@ -50,4 +50,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _VORTEX_METHOD_OPERATOR_H_
+#endif //_PM_VORTEX_METHOD_OPERATOR_H_

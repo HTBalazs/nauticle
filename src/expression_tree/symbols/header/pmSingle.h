@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
     
-#ifndef _SINGLE_H_
-#define _SINGLE_H_
+#ifndef _PM_SINGLE_H_
+#define _PM_SINGLE_H_
 
 #include "pmSymbol.h"
 #include <vector>
@@ -50,4 +50,4 @@ namespace Nauticle {
     }
 }
 
-#endif //_SINGLE_H_
+#endif //_PM_SINGLE_H_

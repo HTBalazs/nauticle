@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _YAML_PROCESSOR_H_
-#define _YAML_PROCESSOR_H_
+#ifndef _PM_YAML_PROCESSOR_H_
+#define _PM_YAML_PROCESSOR_H_
 
 #include <string>
 #include <vector>
@@ -66,4 +66,4 @@ namespace Nauticle {
     };
 }
 
-#endif //_YAML_PROCESSOR_H_
+#endif //_PM_YAML_PROCESSOR_H_

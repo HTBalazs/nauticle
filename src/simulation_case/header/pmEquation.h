@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _EQUATION_H_
-#define _EQUATION_H_
+#ifndef _PM_EQUATION_H_
+#define _PM_EQUATION_H_
 
 #include <string>
 #include <iostream>
@@ -82,5 +82,5 @@ namespace Nauticle {
 	}
 }
 
-#endif //_EQUATION_H_
+#endif //_PM_EQUATION_H_
 

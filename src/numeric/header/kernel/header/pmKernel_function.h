@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _KERNEL_FUNCTION_H_
-#define _KERNEL_FUNCTION_H_
+#ifndef _PM_KERNEL_FUNCTION_H_
+#define _PM_KERNEL_FUNCTION_H_
 
 #include <string>
 
@@ -41,4 +41,4 @@ namespace Nauticle {
 	}
 }
 
-#endif //_KERNEL_FUNCTION_H_
+#endif //_PM_KERNEL_FUNCTION_H_

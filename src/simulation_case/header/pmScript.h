@@ -18,8 +18,8 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#ifndef _SCRIPT_H_
-#define _SCRIPT_H_
+#ifndef _PM_SCRIPT_H_
+#define _PM_SCRIPT_H_
 
 #include "pmExpression.h"
 #include "prolog/pLogger.h"
@@ -39,4 +39,4 @@ namespace Nauticle {
 	};
 }
 
-#endif // _SCRIPT_H_
+#endif //_PM_SCRIPT_H_
