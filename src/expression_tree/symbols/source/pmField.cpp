@@ -34,9 +34,9 @@ using namespace Nauticle;
 /////////////////////////////////////////////////////////////////////////////////////////
 pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTensor{0}*/, bool const& sym/*=true*/, bool const& pr/*=true*/, std::string const& fname/*=""*/) {
 	if(n.size()>20) {
-		ProLog::pLogger::warning_msgf("Field name %s is limited to 20 characters.",n.c_str());
+		ProLog::pLogger::error_msgf("Field name %s is limited to 20 characters.",n.c_str());
 	}
-	name = n.substr(0,20);
+	name = n;
 	symmetric = sym;
 	printable = pr;
 	if(fname!="") {
@@ -56,9 +56,9 @@ pmField::pmField(std::string const& n, int const& size, pmTensor const& v/*=pmTe
 /////////////////////////////////////////////////////////////////////////////////////////
 pmField::pmField(std::string const& n, std::vector<pmTensor> const& v, bool const& sym/*=true*/, bool const& pr/*=true*/) {
 	if(n.size()>20) {
-		ProLog::pLogger::warning_msgf("Field name %s is limited to 20 characters.",n.c_str());
+		ProLog::pLogger::error_msgf("Field name %s is limited to 20 characters.",n.c_str());
 	}
-	name = n.substr(0,20);
+	name = n;
 	value.push_back(std::vector<pmTensor>());
 	value[0] = v;
 	symmetric = sym;
