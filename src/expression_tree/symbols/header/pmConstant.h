@@ -29,7 +29,7 @@ namespace Nauticle {
 	//  A constant can be named or anonymous. The value of a constant cannot be changed
 	//  after definition so the set_value function does not do anything.
 	*/
-	class pmConstant final : public pmSingle {
+	class pmConstant : public pmSingle {
 		bool hidden=false;
 	protected:
 		virtual std::shared_ptr<pmExpression> clone_impl() const override;
@@ -46,7 +46,7 @@ namespace Nauticle {
 		std::shared_ptr<pmConstant> clone() const;
 		bool is_hidden() const override;
 		virtual void write_to_string(std::ostream& os) const override;
-		static inline std::string type_name="pmConstant";
+		static std::string const type_name;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

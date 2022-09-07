@@ -37,7 +37,7 @@ namespace Nauticle {
 	template <typename Derived>
 	class pmConnectivity : public pmNontemplate {
 	protected:
-		static inline std::vector<pmPairs> pairs;
+		static std::vector<pmPairs> pairs;
 	protected:
 		using Func_delete_marker = std::function<bool(pmTensor const&, int const&, int const&)>;
 		virtual void delete_pairs(Func_delete_marker condition, size_t const& level=0);
@@ -48,6 +48,8 @@ namespace Nauticle {
 		pmPairs const& get_pairs(size_t const& level=0) const;
 		pmPairs& get_pairs(size_t const& level=0);
 	};
+
+	template <typename Derived> std::vector<pmPairs> pmConnectivity<Derived>::pairs;
 	
 	template <typename Derived>
 	void pmConnectivity<Derived>::add_pair(int const& i1, int const& i2, std::vector<double> const& new_values_ordered) {

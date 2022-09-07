@@ -21,9 +21,10 @@
 #ifndef _PM_EXPRESSION_H_
 #define _PM_EXPRESSION_H_
 
+#include "pmTensor.h"
 #include <memory>
 #include <cmath>
-#include "pmTensor.h"
+#include <vector>
 
 namespace Nauticle {
     class pmParticle_system;
