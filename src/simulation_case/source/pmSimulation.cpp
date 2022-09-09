@@ -174,7 +174,7 @@ bool pmSimulation::interpreter_solve(double const& current_time, size_t const& n
 }
 
 bool pmSimulation::binary_solve(double const& current_time, size_t const& num_threads/*=8*/) {
-	ProLog::pLogger::logf<ProLog::WHT>("Note: Seahorse does not support runtime compilation and binary execution. Simulation has been started in interpreter mode. For runtime compilation, use Jellyfish instead.\n");
+	ProLog::pLogger::logf<ProLog::WHT>("Note: Nauticle does not support runtime compilation and binary execution. Simulation has been started in interpreter mode. For runtime compilation, use Jellyfish instead.\n");
 	solver = &pmSimulation::interpreter_solve;
 	return cas->solve(current_time, num_threads);
 }
