@@ -44,7 +44,6 @@ namespace Nauticle {
 		bool operator==(pmParticle_system const& rhs) const;
 		bool operator!=(pmParticle_system const& rhs) const;
 		virtual ~pmParticle_system() {}
-		void restrict_particles(std::vector<size_t>& del) const;
 		std::vector<int> const& get_cell_content(pmTensor const& grid_crd, int& index) const;
 		void set_expired();
 		virtual void set_value(pmTensor const& value, int const& i=0, bool const& forced=false) override;
