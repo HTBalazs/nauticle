@@ -37,7 +37,7 @@ void pmParticle_splitter::update(size_t const& num_threads) {
         bool generate_at_parent = (bool)parent->evaluate(it,0)[0];
         double R_original = radius->evaluate(it,0)[0];
         double m_original = mass->evaluate(it,0)[0];
-        size_t num_daughters = (dims==3?8:((size_t)daughters->evaluate(it,0)[0]-(generate_at_parent?1:0)));
+        size_t num_daughters = (dims==3?(size_t)daughters->evaluate(it,0)[0]:((size_t)daughters->evaluate(it,0)[0]-(generate_at_parent?1:0)));
         if(passive.use_count()!=0) {
             if(generate_at_parent) {
                 workspace->duplicate_particle(it);
