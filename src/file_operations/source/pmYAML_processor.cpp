@@ -218,20 +218,22 @@ std::vector<std::shared_ptr<pmEquation>> pmYAML_processor::get_equations(std::sh
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 	// Read initial conditions
-	std::shared_ptr<pmCase> ic_case = get_initial_condition_case();
-	if(ic_case.use_count()>0) {
+	std::shared_ptr<pmCase> cas = get_initial_condition_case();
+	std::shared_ptr<pmWorkspace> workspace;
+	if(cas.use_count()>0) {
 		ProLog::pLogger::logf<NAUTICLE_COLOR>("    Initial conditions: from VTK file.\n");
-		return ic_case;
+		workspace = cas->get_workspace();
+	} else {
+		cas = std::make_shared<pmCase>();
+		// Read YAML case if initial condition not found.
+		workspace = get_workspace();
+		workspace->add_variable("write_case", pmTensor{1,1,0});
+		workspace->add_variable("substeps", pmTensor{1,1,0});
+		workspace->add_variable("all_steps", pmTensor{1,1,0});
+		std::vector<std::shared_ptr<pmEquation>> equations = this->get_equations(workspace);
+		cas->add_workspace(workspace);
+		cas->add_equation(equations);
 	}
-	// Read YAML case if initial condition not found.
-	std::shared_ptr<pmWorkspace> workspace = get_workspace();
-	workspace->add_variable("write_case", pmTensor{1,1,0});
-	workspace->add_variable("substeps", pmTensor{1,1,0});
-	workspace->add_variable("all_steps", pmTensor{1,1,0});
-	std::vector<std::shared_ptr<pmEquation>> equations = this->get_equations(workspace);
-	std::shared_ptr<pmCase> cas = std::make_shared<pmCase>();
-	cas->add_workspace(workspace);
-	cas->add_equation(equations);
 	auto particle_splitter = this->get_particle_splitter(workspace);
 	auto particle_merger = this->get_particle_merger(workspace);
 	auto particle_sink = this->get_particle_sink(workspace);
