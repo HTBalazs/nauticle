@@ -200,7 +200,7 @@ void pmParticle_merger::update(size_t const& num_threads) {
             hM = iterate(d,Wp,hM);
         }
         if(hM<0 || hM!=hM) {
-            return;
+            break;
         }
 
         pmTensor direction;
@@ -247,7 +247,6 @@ void pmParticle_merger::update(size_t const& num_threads) {
                 vel_2 += tangential_vel*cross(G/G.norm(),direction3D);
             }
         }
-
         workspace->duplicate_particle(id1);
         workspace->duplicate_particle(id1);
         size_t num_nodes = workspace->get_number_of_nodes();
