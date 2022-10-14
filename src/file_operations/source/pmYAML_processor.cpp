@@ -278,6 +278,7 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 	std::string output_format = "ASCII";
 	std::string file_start = "0";
 	std::string compile_case = "false";
+	std::string file_name_digits = "4";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="parameter_space") {
 			auto expr_parser = std::make_shared<pmExpression_parser>();
@@ -304,6 +305,9 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 				if(parameter_nodes->first.as<std::string>()=="compile_case") {
 					compile_case = parameter_nodes->second.as<std::string>();
 				}
+				if(parameter_nodes->first.as<std::string>()=="file_name_digits") {
+					file_name_digits = parameter_nodes->second.as<std::string>();
+				}
 			}
 			auto expr_simulated_time = expr_parser->analyse_expression<pmExpression>(simulated_time,workspace);
 			auto expr_run_simulation = expr_parser->analyse_expression<pmExpression>(run_simulation,workspace);
@@ -312,6 +316,7 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 			auto expr_output_format = expr_parser->analyse_expression<pmExpression>(output_format,workspace);
 			auto expr_file_start = expr_parser->analyse_expression<pmExpression>(file_start,workspace);
 			auto expr_compile_case = expr_parser->analyse_expression<pmExpression>(compile_case,workspace);
+			auto expr_file_digits = expr_parser->analyse_expression<pmExpression>(file_name_digits,workspace);
 			parameter_space->add_parameter("simulated_time", expr_simulated_time);
 			parameter_space->add_parameter("run_simulation", expr_run_simulation);
 			parameter_space->add_parameter("print_interval", expr_log_time);
@@ -319,6 +324,7 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 			parameter_space->add_parameter("output_format", expr_output_format);
 			parameter_space->add_parameter("file_start", expr_file_start);
 			parameter_space->add_parameter("compile_case", expr_compile_case);
+			parameter_space->add_parameter("file_name_digits", expr_file_digits);
 		}
 	}
 	return parameter_space;

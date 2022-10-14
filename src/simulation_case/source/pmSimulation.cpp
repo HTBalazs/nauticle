@@ -107,11 +107,9 @@ void pmSimulation::write_step(bool success) const {
 	if(!success) {
 		file_name = "error.vtk";
 	} else {
-	    char ch[5];
-	    sprintf(&ch[0], "%04i", counter);
-		file_name = "step_";
-	    file_name += ch;
-	    file_name += ".vtk";
+	    std::stringstream ss;
+	    ss << std::setw(parameter_space->get_parameter_value("file_name_digits")[0]) << std::setfill('0') << counter;
+		file_name = "step_"+ss.str()+".vtk";
 	}
     std::unique_ptr<pmVTK_writer> vtk_writer{new pmVTK_writer{}};
     vtk_writer->set_write_mode(vtk_write_mode);
