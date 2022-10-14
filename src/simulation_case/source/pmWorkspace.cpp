@@ -61,6 +61,8 @@ pmWorkspace::pmWorkspace() {
 	this->add_constant("periodic", pmTensor{1,1,0}, true);
 	this->add_constant("symmetric", pmTensor{1,1,1}, true);
 	this->add_constant("cutoff", pmTensor{1,1,2}, true);
+	this->add_variable("numparticles", pmTensor{1,1,0});
+	num_particles = std::dynamic_pointer_cast<pmVariable>(this->get_instance("numparticles").lock());
 }
 
 bool pmWorkspace::operator==(pmWorkspace const& rhs) const {
@@ -484,6 +486,7 @@ void pmWorkspace::set_number_of_nodes(size_t const& N) {
 		}
 	}
 	num_nodes = N;
+	num_particles->set_value(pmTensor{1,1,(double)num_nodes});
 }
 
 void pmWorkspace::add_interaction(std::shared_ptr<pmExpression> ia) {
@@ -511,6 +514,7 @@ void pmWorkspace::delete_particle(size_t const& i) {
 		it->delete_member(i);
 	}
 	num_nodes--;
+	num_particles->set_value(pmTensor{1,1,(double)num_nodes});
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -532,6 +536,7 @@ void pmWorkspace::delete_particle_set(std::vector<size_t> const& delete_indices)
 		it->delete_set(delete_indices);
 	}
 	num_nodes -= delete_indices.size();
+	num_particles->set_value(pmTensor{1,1,(double)num_nodes});
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -550,6 +555,7 @@ void pmWorkspace::duplicate_particle(size_t const& i) {
 		}
 	}
 	num_nodes++;
+	num_particles->set_value(pmTensor{1,1,(double)num_nodes});
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

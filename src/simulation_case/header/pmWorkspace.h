@@ -27,6 +27,7 @@
 #include <string>
 #include "prolog/pLogger.h"
 #include "pmParticle_system.h"
+#include "pmVariable.h"
 #include "pmMath_test.h"
 
 namespace Nauticle {
@@ -44,6 +45,7 @@ namespace Nauticle {
 		size_t num_constants;
 		size_t num_variables;
 		std::vector<std::shared_ptr<pmExpression>> interactions;
+		std::shared_ptr<pmVariable> num_particles;
 	private:
 		bool verify_name(std::string const& name) const;
 		bool is_constant(std::shared_ptr<pmSymbol> term) const;
