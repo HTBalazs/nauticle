@@ -29,13 +29,15 @@
 using namespace Nauticle;
 using namespace ProLog;
 
-void pmRigid_body_system::initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmExpression> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmSymbol> mass) {
+void pmRigid_body_system::initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmExpression> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmSymbol> mass, std::shared_ptr<pmExpression> ptheta, std::shared_ptr<pmField> rid) {
     rigid_body.clear();
     psys = ps;
     particle_force = force;
     particle_velocity = velocity;
     particle_mass = mass;
     rotation_matrix = rmatrix;
+    particle_theta = ptheta;
+    rigid_body_id = rid;
     file_name = fn;
     vtkSmartPointer<vtkDelimitedTextReader> reader = vtkSmartPointer<vtkDelimitedTextReader>::New();
     reader->SetFileName(file_name.c_str());
@@ -79,12 +81,16 @@ void pmRigid_body_system::print() const {
         pLogger::logf<YEL>("        rotation matrix: ");
         pLogger::logf<NRM>("%s\n", rotation_matrix->get_name().c_str());
     }
+    if(particle_theta.use_count()>0) {
+        particle_theta->print();
+    }
+    pLogger::line_feed(1);
     pLogger::footerf<LBL>();
 }
 
 void pmRigid_body_system::update(double const& time_step) {
     for(auto& it:rigid_body) {
-        it->update(psys, particle_force, particle_velocity, particle_mass, rotation_matrix, time_step);
+        it->update(psys, particle_force, particle_velocity, particle_mass, particle_theta, rotation_matrix, rigid_body_id, time_step);
     }
 }
 

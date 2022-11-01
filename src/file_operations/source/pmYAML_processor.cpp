@@ -751,6 +751,7 @@ std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::sha
 	std::string velocity_field = "v";
 	std::string force_field = "f";
 	std::string mass_field = "mass";
+	std::string particle_theta_field = "0";
 	std::string rotation_field = "";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="rigid_body_system") {
@@ -769,6 +770,9 @@ std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::sha
 				if(rbsys_nodes->first.as<std::string>()=="mass") {
 					mass_field = rbsys_nodes->second.as<std::string>();
 				}
+				if(rbsys_nodes->first.as<std::string>()=="particle_theta") {
+					particle_theta_field = rbsys_nodes->second.as<std::string>();
+				}
 				if(rbsys_nodes->first.as<std::string>()=="rotation_matrix") {
 					rotation_field = rbsys_nodes->second.as<std::string>();
 				}
@@ -776,11 +780,13 @@ std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::sha
 			auto sym_velocity_field = expr_parser->analyse_expression<pmSymbol>(velocity_field,workspace);
 			auto sym_force_field = expr_parser->analyse_expression<pmExpression>(force_field,workspace);
 			auto sym_mass_field = expr_parser->analyse_expression<pmSymbol>(mass_field,workspace);
+			auto sym_particle_theta_field = expr_parser->analyse_expression<pmExpression>(particle_theta_field,workspace);
 			std::shared_ptr<pmField> sym_rotation_matrix;
 			if(rotation_field!="") {
 				sym_rotation_matrix = expr_parser->analyse_expression<pmField>(rotation_field,workspace);
 			}
-			rigid_body_system->initialize(file_name, workspace->get_particle_system(), sym_force_field, sym_velocity_field, sym_rotation_matrix, sym_mass_field);
+			workspace->add_field("rigid_body_id",0);
+			rigid_body_system->initialize(file_name, workspace->get_particle_system(), sym_force_field, sym_velocity_field, sym_rotation_matrix, sym_mass_field, sym_particle_theta_field,std::dynamic_pointer_cast<pmField>(workspace->get_instance("rigid_body_id").lock()));
 		}
 	}
 	return rigid_body_system;

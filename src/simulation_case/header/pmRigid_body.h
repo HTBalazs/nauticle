@@ -24,11 +24,12 @@
 #include "pmTensor.h"
 #include "pmParticle_system.h"
 #include "pmQuaternion.h"
+#include "pmCounter.h"
 #include <vector>
 #include <memory>
 
 namespace Nauticle {
-	class pmRigid_body {
+	class pmRigid_body : public pmCounter<size_t> {
 		std::vector<size_t> particle_idx;
 		pmTensor theta{3,3,0};
 		pmTensor angular_velocity{3,1,0};
@@ -37,13 +38,15 @@ namespace Nauticle {
 		double body_mass=0;
 		pmQuaternion<double> rotation_quaternion;
 		bool initialized = false;
+		size_t identifier;
 	protected:
-		void initialize(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmSymbol> particle_mass);
+		void initialize(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmField> rid);
 		void calculate_motion_state(pmTensor const& body_force, pmTensor const& body_torque, double const& time_step);
 	public:
+		pmRigid_body() : identifier{counter} {}
 		void add_particle(size_t const& idx);
 		void remove_particle(size_t const& idx);
-		void update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmField> rmatrix, double const& time_step_size);
+		void update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmExpression> particle_theta, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmField> rid, double const& time_step_size);
 		std::vector<size_t> const& get_index();
 		void print();
 	};

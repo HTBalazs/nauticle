@@ -41,16 +41,17 @@ void pmRigid_body::remove_particle(size_t const& idx) {
 	}
 }
 
-void pmRigid_body::initialize(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmSymbol> particle_velocity) {
+void pmRigid_body::initialize(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmField> rid) {
 	for(int i=0; i<particle_idx.size(); i++) {
 		linear_velocity += particle_velocity->evaluate(particle_idx[i]);
+		rid->set_value(pmTensor{1,1,(double)identifier},particle_idx[i]);
 	}
 	linear_velocity /= particle_idx.size();
 }
 
-void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmField> rmatrix, double const& time_step) {
+void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmExpression> particle_theta, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmField> rid, double const& time_step) {
 	if(!initialized) {
-		this->initialize(psys, particle_velocity);
+		this->initialize(psys, particle_velocity, rid);
 		initialized = true;
 	}
 	cog = pmTensor{3,1,0};
@@ -65,16 +66,17 @@ void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_p
 	theta = pmTensor{3,3,0};
 	for(int i=0; i<particle_idx.size(); i++) {
 		pmTensor local_pos_idx = psys->evaluate(particle_idx[i])+psys->get_periodic_shift(particle_idx[i]) - cog;
+		pmTensor ptheta = particle_theta->evaluate(particle_idx[i]);
 		double mass_i = particle_mass->evaluate(particle_idx[i])[0];
-		theta[0] += mass_i*(local_pos_idx[1]*local_pos_idx[1] + local_pos_idx[2]*local_pos_idx[2]);
-		theta[1] -= mass_i*local_pos_idx[0]*local_pos_idx[1];
-		theta[2] -= mass_i*local_pos_idx[0]*local_pos_idx[2];
-		theta[3] -= mass_i*local_pos_idx[0]*local_pos_idx[1];
-		theta[4] += mass_i*(local_pos_idx[0]*local_pos_idx[0] + local_pos_idx[2]*local_pos_idx[2]);
-		theta[5] -= mass_i*local_pos_idx[1]*local_pos_idx[2];
-		theta[6] -= mass_i*local_pos_idx[0]*local_pos_idx[2];
-		theta[7] -= mass_i*local_pos_idx[1]*local_pos_idx[2];
-		theta[8] += mass_i*(local_pos_idx[0]*local_pos_idx[0] + local_pos_idx[1]*local_pos_idx[1]);
+		theta[0] += ptheta[0] + mass_i*(local_pos_idx[1]*local_pos_idx[1] + local_pos_idx[2]*local_pos_idx[2]);
+		theta[1] += ptheta[1] - mass_i*local_pos_idx[0]*local_pos_idx[1];
+		theta[2] += ptheta[2] - mass_i*local_pos_idx[0]*local_pos_idx[2];
+		theta[3] += ptheta[3] - mass_i*local_pos_idx[0]*local_pos_idx[1];
+		theta[4] += ptheta[4] + mass_i*(local_pos_idx[0]*local_pos_idx[0] + local_pos_idx[2]*local_pos_idx[2]);
+		theta[5] += ptheta[5] - mass_i*local_pos_idx[1]*local_pos_idx[2];
+		theta[6] += ptheta[6] - mass_i*local_pos_idx[0]*local_pos_idx[2];
+		theta[7] += ptheta[7] - mass_i*local_pos_idx[1]*local_pos_idx[2];
+		theta[8] += ptheta[8] + mass_i*(local_pos_idx[0]*local_pos_idx[0] + local_pos_idx[1]*local_pos_idx[1]);
 	}
 	pmTensor body_torque{3,1,0};
 	pmTensor body_force{3,1,0};

@@ -33,9 +33,11 @@ namespace Nauticle {
         std::shared_ptr<pmSymbol> particle_velocity;
         std::shared_ptr<pmSymbol> particle_mass;
         std::shared_ptr<pmField> rotation_matrix;
+        std::shared_ptr<pmExpression> particle_theta;
         std::string file_name;
+        std::shared_ptr<pmField> rigid_body_id;
 	public:
-		void initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmExpression> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmSymbol> mass);
+		void initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmExpression> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmSymbol> mass, std::shared_ptr<pmExpression> ptheta, std::shared_ptr<pmField> rid);
         void print() const;
         void update(double const& time_step);
 	};

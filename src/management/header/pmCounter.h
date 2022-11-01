@@ -25,12 +25,9 @@ namespace Nauticle {
 	template <typename T>
 	class pmCounter {
 	protected:
-		static T counter;
+		static inline T counter = T{0};
 		pmCounter();
 	};
-
-	template <typename T>
-	T pmCounter<T>::counter = T{0};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	/// Constructor
