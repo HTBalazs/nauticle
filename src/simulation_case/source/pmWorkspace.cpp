@@ -237,6 +237,7 @@ void pmWorkspace::add_constant(std::string const& name, pmTensor const& value, b
 /// instance is already existing with the same name it does nothing.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmWorkspace::add_variable(std::string const& name, pmTensor const& value/*=pmTensor{0}*/) {
+	if(name=="numparticles" && is_existing("numparticles")) return;
 	if(!verify_name(name)) return;
 	definitions.push_back(std::static_pointer_cast<pmSymbol>(std::make_shared<pmVariable>(name, value)));
 	num_variables++;
