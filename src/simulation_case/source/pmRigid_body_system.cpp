@@ -76,12 +76,14 @@ void pmRigid_body_system::print() const {
     particle_force->print();
     pLogger::line_feed(1);
     pLogger::logf<YEL>("        mass: ");
-    pLogger::logf<NRM>("%s\n", particle_mass->get_name().c_str());
+    particle_mass->print();
+    pLogger::line_feed(1);
     if(rotation_matrix.use_count()>0) {
         pLogger::logf<YEL>("        rotation matrix: ");
         pLogger::logf<NRM>("%s\n", rotation_matrix->get_name().c_str());
     }
     if(particle_theta.use_count()>0) {
+        pLogger::logf<YEL>("        particle theta: ");
         particle_theta->print();
     }
     pLogger::line_feed(1);

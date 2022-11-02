@@ -751,7 +751,7 @@ std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::sha
 	std::string velocity_field = "v";
 	std::string force_field = "f";
 	std::string mass_field = "mass";
-	std::string particle_theta_field = "0";
+	std::string particle_theta_field = "identity(3)*0";
 	std::string rotation_field = "";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="rigid_body_system") {
