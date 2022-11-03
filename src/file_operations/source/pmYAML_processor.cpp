@@ -344,6 +344,7 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 	std::string interpolate_to = "";
 	std::string condition = "true";
 	std::string particle_condition = "true";
+	std::string position_field = "r";
 	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
 		if(sim_nodes->first.as<std::string>()=="background") {
 			auto background = std::make_shared<pmBackground>();
@@ -352,6 +353,9 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 				// read from configuration file
 				if(background_nodes->first.as<std::string>()=="interpolate_to") {
 					interpolate_to = background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="position_field") {
+					position_field = background_nodes->second.as<std::string>();
 				}
 				if(background_nodes->first.as<std::string>()=="file") {
 					file_name = background_nodes->second.as<std::string>();
@@ -364,13 +368,14 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 				}
 			}
 			auto expr_interpolate_to = expr_parser->analyse_expression<pmField>(interpolate_to,workspace);
+			auto expr_position_field = expr_parser->analyse_expression<pmExpression>(position_field,workspace);
 			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
 			auto expr_particle_condition = expr_parser->analyse_expression<pmExpression>(particle_condition,workspace);
 			background->set_file_name(file_name);
 			background->set_field(expr_interpolate_to);
 			background->set_condition(expr_condition);
 			background->set_particle_condition(expr_condition);
-			background->set_particle_system(workspace->get_particle_system());
+			background->set_position_field(expr_position_field);
 			background_list.push_back(background);
 		}
 	}

@@ -54,8 +54,8 @@ void pmRigid_body_system::initialize(std::string const& fn, std::shared_ptr<pmPa
                 continue;
             }
             rigid_body[i]->add_particle(particle_idx);
-            particle_velocity->set_lock(particle_idx);
-            psys->set_lock(particle_idx);
+            // particle_velocity->set_lock(particle_idx);
+            // psys->set_lock(particle_idx);
         }
     }
 }

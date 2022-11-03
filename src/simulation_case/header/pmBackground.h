@@ -37,7 +37,7 @@ namespace Nauticle {
 	class pmBackground {
 		std::string file_name;
 		std::shared_ptr<pmField> field;
-		std::shared_ptr<pmParticle_system> psys;
+		std::shared_ptr<pmExpression> position_field;
 		vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid;
 		std::shared_ptr<pmExpression> condition;
 		std::shared_ptr<pmExpression> particle_condition;
@@ -47,7 +47,7 @@ namespace Nauticle {
 		void set_file_name(std::string const& fn);
 		void read_file();
 		void interpolate();
-		void set_particle_system(std::shared_ptr<pmParticle_system> ps);
+		void set_position_field(std::shared_ptr<pmExpression> ps);
 		void set_field(std::shared_ptr<pmField> fld);
 		void set_condition(std::shared_ptr<pmExpression> cond);
 		void set_particle_condition(std::shared_ptr<pmExpression> cond);

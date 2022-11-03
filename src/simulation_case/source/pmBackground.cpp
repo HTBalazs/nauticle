@@ -73,16 +73,16 @@ void pmBackground::read_file() {
 /// Performs interpolation using the given field and particle system.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmBackground::interpolate() {
-	if(psys.use_count()==0 || field.use_count()==0 || unstructured_grid==NULL || condition->evaluate(0)[0]==0) {
+	if(position_field.use_count()==0 || field.use_count()==0 || unstructured_grid==NULL || condition->evaluate(0)[0]==0) {
 		return;
 	}
 
 	auto points = vtkSmartPointer<vtkPoints>::New();
-	for(int i=0; i<psys->get_field_size(); i++) {
+	for(int i=0; i<position_field->get_field_size(); i++) {
 		if(particle_condition->evaluate(i)[0]==0) {
 			continue;
 		}
-		pmTensor tensor = psys->evaluate(i);
+		pmTensor tensor = position_field->evaluate(i);
 		size_t n = tensor.numel();
 		points->InsertNextPoint(tensor[0], n>1?tensor[1]:0.0, n>2?tensor[2]:0.0);
 	}
@@ -121,8 +121,8 @@ void pmBackground::interpolate() {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Sets particle system for interpolation.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmBackground::set_particle_system(std::shared_ptr<pmParticle_system> ps) {
-	psys = ps;
+void pmBackground::set_position_field(std::shared_ptr<pmExpression> ps) {
+	position_field = ps;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

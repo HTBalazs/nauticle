@@ -63,7 +63,7 @@ namespace Nauticle {
 	pmInteraction<S>::pmInteraction() {
 		this->name = "INTERACTION_";
 	    char ch[5];
-	    sprintf(&ch[0], "%04i", counter);
+	    snprintf(&ch[0], 4, "%04i", counter);
 	    this->name += ch;
 	}
 
