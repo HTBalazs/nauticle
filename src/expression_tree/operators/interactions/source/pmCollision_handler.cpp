@@ -217,8 +217,8 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 			double c = this->operand[4]->evaluate(0,level)[0];
 			double Ri_new = Ri-c*(std::pow(Ri,1.0+r)*std::pow(Rj,1.0-r))/(Ri+Rj);
 			double Rj_new = Rj-c*(std::pow(Ri,1.0-r)*std::pow(Rj,1.0+r))/(Ri+Rj);
-			std::dynamic_pointer_cast<pmField>(this->operand[0])->set_value(Ri_new,i);
-			std::dynamic_pointer_cast<pmField>(this->operand[0])->set_value(Rj_new,j);
+			std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(Ri_new,i);
+			std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(Rj_new,j);
 		}
 	}
 }
