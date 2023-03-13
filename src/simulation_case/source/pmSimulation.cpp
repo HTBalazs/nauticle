@@ -74,12 +74,14 @@ void pmSimulation::simulate(size_t const& num_threads) {
 			}
 			ws_substeps->set_value(pmTensor{1,1,0});
 			previous_printing_time = current_time;
-			ws_write_case->set_value(pmTensor{1,1,0});
 		}
 		if(!success) {
 			ProLog::pLogger::error_msgf("Simulation failed. Please refer to \"error.vtk\"\n");
 		}
 		this->update_script();
+		if(printing) {
+			ws_write_case->set_value(pmTensor{1,1,0});
+		}
 	}
 	log_stream.print_finish((bool)parameter_space->get_parameter_value("confirm_on_exit")[0]);
 	this->update_script();
