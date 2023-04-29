@@ -126,10 +126,11 @@ void pmCollision_handler::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmCollision_handler::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-		return pmTensor{1,1,(double)(i==j ? count[i] : 0)};
-	};
-	return this->interact(i, contribute);
+	// auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+	// 	return pmTensor{1,1,(double)(i==j ? count[i] : 0)};
+	// };
+	// return this->interact(i, contribute);
+	return force[i];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
