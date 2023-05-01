@@ -129,11 +129,12 @@ void pmSpring::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmSpring::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Spring interaction is not assigned to any particle system.\n"); }
-	auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
-		return force[i];
-	};
-	pmTensor t = this->interact(i, contribute);
-	return t;
+	// auto contribute = [&](pmTensor const& rel_pos, int const& i, int const& j, pmTensor const& cell_size, pmTensor const& guide)->pmTensor{
+	// 	return force[i];
+	// };
+	// pmTensor t = this->interact(i, contribute);
+	// return t;
+	return force[i];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
