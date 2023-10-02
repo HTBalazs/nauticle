@@ -30,6 +30,7 @@
 #include "pmTime_series.h"
 #include "pmParticle_sink.h"
 #include "pmRigid_body_system.h"
+#include "pmOutput.h"
 #include <iostream>
 #include <string>
 #include <memory>
@@ -49,6 +50,7 @@ namespace Nauticle {
 		std::vector<std::shared_ptr<pmBackground>> background;
 		std::vector<std::shared_ptr<pmTime_series>> time_series;
 		std::shared_ptr<pmRigid_body_system> rbsys;
+		std::vector<std::shared_ptr<pmOutput>> output;
 	public:
 		pmCase() {}
 		pmCase(pmCase const& other);
@@ -72,10 +74,12 @@ namespace Nauticle {
 		void update_background_fields();
 		void update_rigid_bodies(double const& time_step);
 		void update_time_series_variables(double const& t);
+		void update_output();
 		void add_particle_modifier(std::shared_ptr<pmParticle_modifier> pmod);
 		void add_background(std::shared_ptr<pmBackground> bckg);
 		void add_time_series(std::shared_ptr<pmTime_series> ts);
 		void add_rigid_body_system(std::shared_ptr<pmRigid_body_system> rbs);
+		void add_output(std::shared_ptr<pmOutput> outp);
 		void initialize();
 	};
 }

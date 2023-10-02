@@ -143,6 +143,9 @@ void pmCase::print() const {
 	for(auto const& it:time_series) {
 		it->print();
 	}
+	for(auto const& it:output) {
+		it->print();
+	}
 	if(rbsys.use_count()>0) {
 		rbsys->print();
 	}
@@ -198,7 +201,7 @@ bool pmCase::solve(double const& current_time, size_t const& num_threads, std::s
 		}
 		pLogger::warning_msg("No equation found with name \"%s\"\n.", name.c_str());
 	}
-
+	this->update_output();
 	return true;
 }
 
@@ -259,12 +262,25 @@ void pmCase::update_rigid_bodies(double const& time_step) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Updates background interpolations.
+/////////////////////////////////////////////////////////////////////////////////////////
+void pmCase::update_output() {
+	for(auto const& it:output) {
+		it->update();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// Updates time sereies interpolations.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmCase::update_time_series_variables(double const& t) {
 	for(auto& it:time_series) {
 		it->update(t);
 	}
+}
+
+void pmCase::add_output(std::shared_ptr<pmOutput> outp) {
+	output.push_back(outp);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -254,6 +254,10 @@ std::shared_ptr<pmCase> pmYAML_processor::get_case() const {
 	for(auto const& it:time_series) {
 		cas->add_time_series(it);
 	}
+	auto output = this->get_output(workspace);
+	for(auto const& it:output) {
+		cas->add_output(it);
+	}
 	cas->add_rigid_body_system(this->get_rigid_bodies(workspace));
 	cas->initialize();
 	this->get_springs(workspace);
@@ -689,6 +693,49 @@ std::vector<pmInitializer> pmYAML_processor::get_initializers(YAML::iterator it,
 		}
 	}
 	return initializers;
+}
+
+std::vector<std::shared_ptr<pmOutput>> pmYAML_processor::get_output(std::shared_ptr<pmWorkspace> workspace) const {
+	YAML::Node sim = data["simulation"];
+	std::vector<std::shared_ptr<pmOutput>> output_list;
+	if(!sim["output"]) {
+		return output_list;
+	}
+	// default values
+	std::string file_name = "output.txt";
+	std::string condition = "true";
+	std::string expressions = "r";
+	std::string ctime = "T";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="output") {
+			auto output = std::make_shared<pmOutput>();
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator output_nodes=sim_nodes->second.begin();output_nodes!=sim_nodes->second.end();output_nodes++) {
+				// read from configuration file
+				if(output_nodes->first.as<std::string>()=="data") {
+					expressions = output_nodes->second.as<std::string>();
+				}
+				if(output_nodes->first.as<std::string>()=="time") {
+					ctime = output_nodes->second.as<std::string>();
+				}
+				if(output_nodes->first.as<std::string>()=="file") {
+					file_name = output_nodes->second.as<std::string>();
+				}
+				if(output_nodes->first.as<std::string>()=="condition") {
+					condition = output_nodes->second.as<std::string>();
+				}
+			}
+			auto expr_data = expr_parser->analyse_expression<pmExpression>(expressions,workspace);
+			auto expr_time = expr_parser->analyse_expression<pmExpression>(ctime,workspace);
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			output->set_file_name(file_name);
+			output->add_data(expr_data);
+			output->add_time(expr_time);
+			output->set_condition(expr_condition);
+			output_list.push_back(output);
+		}
+	}
+	return output_list;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
