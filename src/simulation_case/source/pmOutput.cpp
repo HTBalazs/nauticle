@@ -64,9 +64,11 @@ void pmOutput::update() {
 	datafile.open(file_name.c_str(), std::ios::app);
 	for(auto const& it:data) {
 		datafile << current_time->evaluate(0)[0] << ' ';
-		pmTensor d = it->evaluate(0);
-		for(int i=0; i<d.numel(); i++) {
-			datafile << d[i] << " ";
+		for(int i=0; i<it->get_field_size(); i++) {
+			pmTensor d = it->evaluate(i);
+			for(int i=0; i<d.numel(); i++) {
+				datafile << d[i] << " ";
+			}
 		}
 	}
 	datafile << std::endl;
