@@ -60,19 +60,21 @@ void pmOutput::set_condition(std::shared_ptr<pmExpression> cond) {
 /// Reads input if not read yet, and performs interpolation.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmOutput::update() {
-	std::ofstream datafile;
-	datafile.open(file_name.c_str(), std::ios::app);
-	for(auto const& it:data) {
-		datafile << current_time->evaluate(0)[0] << ' ';
-		for(int i=0; i<it->get_field_size(); i++) {
-			pmTensor d = it->evaluate(i);
-			for(int i=0; i<d.numel(); i++) {
-				datafile << d[i] << " ";
+	if(this->condition->evaluate(0)[0]) {
+		std::ofstream datafile;
+		datafile.open(file_name.c_str(), std::ios::app);
+		for(auto const& it:data) {
+			datafile << current_time->evaluate(0)[0] << ' ';
+			for(int i=0; i<it->get_field_size(); i++) {
+				pmTensor d = it->evaluate(i);
+				for(int i=0; i<d.numel(); i++) {
+					datafile << d[i] << " ";
+				}
 			}
 		}
+		datafile << std::endl;
+		datafile.close();
 	}
-	datafile << std::endl;
-	datafile.close();
 }
 
 
