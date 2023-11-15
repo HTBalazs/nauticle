@@ -29,13 +29,14 @@
 using namespace Nauticle;
 using namespace ProLog;
 
-void pmRigid_body_system::initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmExpression> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmSymbol> mass, std::shared_ptr<pmExpression> ptheta, std::shared_ptr<pmField> rid) {
+void pmRigid_body_system::initialize(std::string const& fn, std::shared_ptr<pmParticle_system> ps, std::shared_ptr<pmExpression> force, std::shared_ptr<pmSymbol> velocity, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmField> imatrix, std::shared_ptr<pmSymbol> mass, std::shared_ptr<pmExpression> ptheta, std::shared_ptr<pmField> rid) {
     rigid_body.clear();
     psys = ps;
     particle_force = force;
     particle_velocity = velocity;
     particle_mass = mass;
     rotation_matrix = rmatrix;
+    inertia_matrix = imatrix;
     particle_theta = ptheta;
     rigid_body_id = rid;
     file_name = fn;
@@ -82,6 +83,10 @@ void pmRigid_body_system::print() const {
         pLogger::logf<YEL>("        rotation matrix: ");
         pLogger::logf<NRM>("%s\n", rotation_matrix->get_name().c_str());
     }
+    if(inertia_matrix.use_count()>0) {
+        pLogger::logf<YEL>("        inertia matrix: ");
+        pLogger::logf<NRM>("%s\n", inertia_matrix->get_name().c_str());
+    }
     if(particle_theta.use_count()>0) {
         pLogger::logf<YEL>("        particle theta: ");
         particle_theta->print();
@@ -92,7 +97,7 @@ void pmRigid_body_system::print() const {
 
 void pmRigid_body_system::update(double const& time_step) {
     for(auto& it:rigid_body) {
-        it->update(psys, particle_force, particle_velocity, particle_mass, particle_theta, rotation_matrix, rigid_body_id, time_step);
+        it->update(psys, particle_force, particle_velocity, particle_mass, particle_theta, rotation_matrix, inertia_matrix, rigid_body_id, time_step);
     }
 }
 

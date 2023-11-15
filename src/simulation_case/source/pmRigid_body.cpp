@@ -49,7 +49,7 @@ void pmRigid_body::initialize(std::shared_ptr<pmParticle_system> psys, std::shar
 	linear_velocity /= particle_idx.size();
 }
 
-void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmExpression> particle_theta, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmField> rid, double const& time_step) {
+void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmExpression> particle_theta, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmField> imatrix, std::shared_ptr<pmField> rid, double const& time_step) {
 	if(!initialized) {
 		this->initialize(psys, particle_velocity, rid);
 		initialized = true;
@@ -98,15 +98,22 @@ void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_p
 		psys->set_value(new_local_pos+cog+linear_velocity*time_step-psys->get_periodic_shift(particle_idx[i]),particle_idx[i],true);
 		particle_velocity->set_value(linear_velocity+cross(angular_velocity,new_local_pos),particle_idx[i],true);
 	}
-	if(rmatrix.use_count()>0) {
+	if(rmatrix.use_count()>0 || imatrix.use_count()>0) {
 		if(rotation_quaternion.is_zero()) {
 			rotation_quaternion = drq;
 		} else {
 			rotation_quaternion *= drq;
 		}
 		pmTensor rotation_matrix = pmQuaternion<double>::quaternion2matrix(rotation_quaternion);
-		for(int i=0; i<particle_idx.size(); i++) {
-			rmatrix->set_value(rotation_matrix,particle_idx[i],true);
+		if(rmatrix.use_count()>0) {
+			for(int i=0; i<particle_idx.size(); i++) {
+				rmatrix->set_value(rotation_matrix,particle_idx[i],true);
+			}
+		}
+		if(imatrix.use_count()>0) {
+			for(int i=0; i<particle_idx.size(); i++) {
+				imatrix->set_value(rotation_matrix*theta,particle_idx[i],true);
+			}
 		}
 	}
 }

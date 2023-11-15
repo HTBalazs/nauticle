@@ -46,7 +46,7 @@ namespace Nauticle {
 		pmRigid_body() : identifier{counter} {}
 		void add_particle(size_t const& idx);
 		void remove_particle(size_t const& idx);
-		void update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmExpression> particle_theta, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmField> rid, double const& time_step_size);
+		void update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmExpression> particle_theta, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmField> imatrix, std::shared_ptr<pmField> rid, double const& time_step_size);
 		std::vector<size_t> const& get_index();
 		void print();
 	};
