@@ -45,6 +45,7 @@ namespace Nauticle {
 		pmTensor evaluate(int const&, size_t const& level=0) const override;
 		std::shared_ptr<pmArithmetic_operator> clone() const;
 		void write_to_string(std::ostream& os) const override;
+		virtual int get_precedence() const override;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -166,6 +167,19 @@ namespace Nauticle {
 			}
 		} else {
 			os << "(" << this->operand[0] << ARI_TYPE << this->operand[1] << ")";
+		}
+	}
+
+	template <char ARI_TYPE, size_t S>
+	int pmArithmetic_operator<ARI_TYPE,S>::get_precedence() const {
+		switch(ARI_TYPE) {
+			case '+' : return 3; break;
+			case '-' : return 3; break;
+			case '*' : return 2; break;
+			case '/' : return 2; break;
+			case ':' : return 2; break;
+			case '^' : return 1; break;
+			case '%' : return 2; break;
 		}
 	}
 }

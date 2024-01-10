@@ -43,6 +43,7 @@ namespace Nauticle {
 		virtual bool is_hidden() const;
 		virtual std::string get_type() const=0;
 		virtual void set_lock(size_t const& idx, bool const& lck=true) {}
+		virtual int get_precedence() const { return 0; }
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

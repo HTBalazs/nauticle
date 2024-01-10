@@ -54,6 +54,7 @@ namespace Nauticle {
 		void set_declaration_type(std::string const& decl_type);
 		std::string const& get_declaration_type() const;
 		virtual bool is_interaction() const override;
+		virtual int get_precedence() const { return 0; }
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

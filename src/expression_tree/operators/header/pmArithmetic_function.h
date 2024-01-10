@@ -50,6 +50,7 @@ namespace Nauticle {
 		pmTensor evaluate(int const&, size_t const& level=0) const override;
 		std::shared_ptr<pmArithmetic_function> clone() const;
 		void write_to_string(std::ostream& os) const override;
+		virtual int get_precedence() const { return 0; }
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

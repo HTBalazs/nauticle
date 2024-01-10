@@ -53,6 +53,7 @@ namespace Nauticle {
         virtual bool is_interaction() const;
         virtual void delete_member(size_t const& i) {}
         virtual void delete_set(std::vector<size_t> const& indices) {}
+        virtual int get_precedence() const=0;
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////
