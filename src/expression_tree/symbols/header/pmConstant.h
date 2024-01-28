@@ -42,10 +42,16 @@ namespace Nauticle {
 		bool operator==(pmConstant const& rhs) const;
 		bool operator!=(pmConstant const& rhs) const;
 		virtual ~pmConstant() override {}
+		virtual pmTensor evaluate(int const&, size_t const& level=0) const override;
 		void print() const override;
 		std::shared_ptr<pmConstant> clone() const;
 		bool is_hidden() const override;
 		virtual void write_to_string(std::ostream& os) const override;
+#ifdef JELLYFISH
+        std::string get_cpp_name() const override;
+        c2c::c2CPP_type get_cpp_type() const override;
+        std::string get_cpp_evaluation(std::string const& idx, size_t const& level=0) const override;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

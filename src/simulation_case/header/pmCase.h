@@ -31,6 +31,10 @@
 #include "pmParticle_sink.h"
 #include "pmRigid_body_system.h"
 #include "pmOutput.h"
+#ifdef JELLYFISH
+#include "c2c/c2CPP_header_file.h"
+#include "c2c/c2Cmake_generator.h"
+#endif // JELLYFISH
 #include <iostream>
 #include <string>
 #include <memory>
@@ -44,6 +48,7 @@ namespace Nauticle {
 	//  either.
 	*/
 	class pmCase {
+		static std::string const session_name;
 		std::shared_ptr<pmWorkspace> workspace;
 		std::vector<std::shared_ptr<pmEquation>> equations;
 		std::vector<std::shared_ptr<pmParticle_modifier>> particle_modifier;
@@ -51,6 +56,7 @@ namespace Nauticle {
 		std::vector<std::shared_ptr<pmTime_series>> time_series;
 		std::shared_ptr<pmRigid_body_system> rbsys;
 		std::vector<std::shared_ptr<pmOutput>> output;
+
 	public:
 		pmCase() {}
 		pmCase(pmCase const& other);
@@ -82,6 +88,13 @@ namespace Nauticle {
 		void add_rigid_body_system(std::shared_ptr<pmRigid_body_system> rbs);
 		void add_output(std::shared_ptr<pmOutput> outp);
 		void initialize();
+#ifdef JELLYFISH
+	private:
+		c2c::c2CPP_header_file generate_header(std::string const& hname) const;
+		c2c::c2Cmake_generator generate_cmake_file(std::string const& session_name) const;
+	public:
+		void generate_binary_case() const;
+#endif // JELLYFISH
 	};
 }
 

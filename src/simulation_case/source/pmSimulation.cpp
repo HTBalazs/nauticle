@@ -41,7 +41,7 @@ void pmSimulation::simulate(size_t const& num_threads) {
 	std::shared_ptr<pmVariable> ws_substeps = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("substeps").lock());
 	std::shared_ptr<pmVariable> ws_all_steps = std::dynamic_pointer_cast<pmVariable>(cas->get_workspace()->get_instance("all_steps").lock());
 	log_stream.print_step_info(dt, (int)ws_substeps->get_value()[0], (int)ws_all_steps->get_value()[0], current_time, simulated_time);
-	ws_substeps->set_value(0.0);
+	ws_substeps->set_value(pmTensor{0.0});
 	write_step(true);
 	while(current_time < simulated_time && (bool)parameter_space->get_parameter_value("run_simulation")[0]) {
 		dt = cas->get_workspace()->get_value("dt")[0];
@@ -61,8 +61,8 @@ void pmSimulation::simulate(size_t const& num_threads) {
 		// Solve equations
 		bool success = (this->*solver)(current_time, num_threads); //solver->solve(current_time, num_threads);
 		current_time += next_dt;
-		ws_substeps->set_value(ws_substeps->get_value()+1.0);
-		ws_all_steps->set_value(ws_all_steps->get_value()+1.0);
+		ws_substeps->set_value(ws_substeps->get_value()+pmTensor{1.0});
+		ws_all_steps->set_value(ws_all_steps->get_value()+pmTensor{1.0});
 		if(printing || !success) {
 			if(cas->get_workspace()->get_value("dt")[0]==next_dt) {
 				cas->get_workspace()->get_instance("dt").lock()->set_value(pmTensor{1,1,dt});
@@ -138,6 +138,10 @@ void pmSimulation::read_file(std::string const& filename) {
 	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
 	yaml_loader->read_file(filename);
 	cas = yaml_loader->get_case();
+#ifdef JELLYFISH
+	cas->generate_binary_case();
+#endif // JELLYFISH
+	exit(0);
 	script = yaml_loader->get_script(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;

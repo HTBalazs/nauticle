@@ -197,10 +197,10 @@ namespace Nauticle {
 							pmTensor flip = pmTensor::make_tensor(guide, 1);
 							for(int i=0; i<guide.numel(); i++) {
 								if(guide[i]!=0) {
-									flip = -1;
+									flip = pmTensor{-1};
 								}
 							}
-							omj *= flip.productum();
+							omj *= pmTensor{flip.productum()};
 						}
 
 						pmTensor rel_vel = vj-vi;
@@ -260,10 +260,10 @@ namespace Nauticle {
 							pmTensor flip = pmTensor::make_tensor(guide, 1);
 							for(int i=0; i<guide.numel(); i++) {
 								if(guide[i]!=0) {
-									flip = -1;
+									flip = pmTensor{-1};
 								}
 							}
-							omj *= flip.productum();
+							omj *= pmTensor{flip.productum()};
 						}
 						pmTensor rel_vel = vj-vi;
 

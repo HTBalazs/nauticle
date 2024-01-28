@@ -118,7 +118,7 @@ pmTensor pmOcclusion::evaluate(int const& i, size_t const& level/*=0*/) const {
 		double distance = rel_pos.norm();
 		if(distance < rad + NAUTICLE_EPS && i!=j) {
 			pmTensor vr = rel_pos;
-			vr /= vr.norm();
+			vr /= pmTensor{vr.norm()};
 			double phi = std::acos((dir.transpose()*vr)[0]);
 			if(std::abs(phi)<ang) {
 				double occl_ij = (dir.transpose()*vr)[0];
@@ -127,7 +127,7 @@ pmTensor pmOcclusion::evaluate(int const& i, size_t const& level/*=0*/) const {
 				}
 			}
 		}
-		return 0;
+		return pmTensor{0};
 	};
 	interact(i, contribute);
 	return pmTensor{1,1,occlusion};

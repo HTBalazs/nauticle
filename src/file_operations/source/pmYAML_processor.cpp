@@ -932,7 +932,7 @@ std::shared_ptr<pmRigid_body_system> pmYAML_processor::get_rigid_bodies(std::sha
 			if(inertia_field!="") {
 				sym_inertia_matrix = expr_parser->analyse_expression<pmField>(inertia_field,workspace);
 			}
-			workspace->add_field("rigid_body_id",0);
+			workspace->add_field("rigid_body_id",pmTensor{0});
 			rigid_body_system->initialize(file_name, workspace->get_particle_system(), sym_force_field, sym_velocity_field, sym_rotation_matrix, sym_inertia_matrix, sym_mass_field, sym_particle_theta_field,std::dynamic_pointer_cast<pmField>(workspace->get_instance("rigid_body_id").lock()));
 		}
 	}

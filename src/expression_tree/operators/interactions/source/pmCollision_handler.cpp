@@ -126,7 +126,7 @@ void pmCollision_handler::print() const {
 /////////////////////////////////////////////////////////////////////////////////////////
 pmTensor pmCollision_handler::evaluate(int const& i, size_t const& level/*=0*/) const {
 	if(!this->assigned) { ProLog::pLogger::error_msgf("Collision counter is not assigned to any particle system.\n"); }
-	return count[i];
+	return pmTensor{(double)count[i]};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +170,7 @@ void pmCollision_handler::create_pairs(int const& i, size_t const& level/*=0*/) 
 				pmConnectivity<pmCollision_handler>::pairs[level].add_pair(i,j,data);
 			}
 		}
+		return pmTensor{0.0};
 	};
 	this->interact(i, contribute);
 }
@@ -212,8 +213,8 @@ void pmCollision_handler::evaluate_pairs(size_t const& level/*=0*/) {
 			double c = this->operand[4]->evaluate(0,level)[0];
 			double Ri_new = Ri-c*(std::pow(Ri,1.0+r)*std::pow(Rj,1.0-r))/(Ri+Rj);
 			double Rj_new = Rj-c*(std::pow(Ri,1.0-r)*std::pow(Rj,1.0+r))/(Ri+Rj);
-			std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(Ri_new,i);
-			std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(Rj_new,j);
+			std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(pmTensor{Ri_new},i);
+			std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(pmTensor{Rj_new},j);
 		}
 	}
 }

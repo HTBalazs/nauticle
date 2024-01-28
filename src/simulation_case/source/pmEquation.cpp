@@ -19,10 +19,13 @@
 */
     
 #include "pmEquation.h"
+#include "pmConstant.h"
+#include "c2c/c2CPP_declaration.h"
 #include <thread>
 #include <algorithm>
 
 using namespace Nauticle;
+using namespace c2c;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
@@ -232,6 +235,52 @@ void pmEquation::set_condition(std::shared_ptr<pmExpression> cond) {
 bool const& pmEquation::is_interaction() const {
 	return rhs_interaction;
 }
+
+#ifdef JELLYFISH
+std::string pmEquation::get_cpp_evaluation() const {
+	return "EQ_"+this->get_name();
+}
+
+c2CPP_class_member_function pmEquation::generate_cpp_function() const {
+	std::vector<c2CPP_declaration> args{};
+	std::stringstream ss;
+	ss << "\t// Generated from -> " + this->get_name() + ": ";
+	this->write_to_string(static_cast<std::ostream&>(ss));
+	ss << "\n";
+	std::string content = ss.str();
+	if(std::dynamic_pointer_cast<pmField>(lhs)) {
+		args.push_back(c2CPP_declaration{"int", "start"});
+		args.push_back(c2CPP_declaration{"int", "end"});
+		content += "\tend = (int)"+pmSymbol::prefix+"v_numparticles<end?(int)"+pmSymbol::prefix+"v_numparticles:end;\n";
+		content += "\tfor(int i=start; i<end; i++) {\n";
+		auto constant_condition = std::dynamic_pointer_cast<pmConstant>(condition);
+		if(constant_condition.use_count()>0) {
+			if(condition->evaluate(0)[0]<std::abs(NAUTICLE_EPS)) {
+				content += "\t\tif(!("+condition->get_cpp_evaluation("i")+")) { continue; }\n";
+			}
+		} else {
+			content += "\t\tif(!("+condition->get_cpp_evaluation("i")+")) { continue; }\n";
+		}
+		content += "\t\t"+lhs->get_cpp_evaluation("i") + " = " + rhs->get_cpp_evaluation("i")+";\n";
+		content += "\t}";
+	} else if(std::dynamic_pointer_cast<pmSingle>(lhs)) {		
+		content += "\t"+lhs->get_cpp_evaluation("i") + " = " + rhs->get_cpp_evaluation("i") + ";\n";		
+	}
+	return c2CPP_class_member_function{"void",get_cpp_evaluation(),false,"",args,PRIVATE,content};
+}
+
+std::string pmEquation::generate_cpp_caller(std::string const& session_name) const {
+	bool fld = std::dynamic_pointer_cast<pmField>(lhs).use_count()>0;
+	std::string caller = "";
+	if(fld) {
+		caller += "\tparallel(std::bind(&"+session_name+"::"+this->get_cpp_evaluation()+", this, std::placeholders::_1, std::placeholders::_2), num_threads);\n";
+	} else {
+		caller += "\tthis->" + get_cpp_evaluation() + "();\n";
+	}
+	return caller;
+}
+
+#endif // JELLYFISH 
 
 
 

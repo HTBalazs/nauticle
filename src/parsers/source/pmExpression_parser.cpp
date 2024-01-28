@@ -664,11 +664,6 @@ std::shared_ptr<pmExpression> pmExpression_parser::build_expression_tree(std::ve
 				stack_extract(e, operands);
 				e.push(std::make_shared<pmArithmetic_function<INVERSE,1>>(operands));
 			}
-			if(it=="hysteron") {
-				std::array<std::shared_ptr<pmExpression>,4> operands;
-				stack_extract(e, operands);
-				e.push(std::make_shared<pmArithmetic_function<HYSTERON,4>>(operands));
-			}
 		} else if(is_number(it)) {
 			e.push(std::make_shared<pmConstant>(pmTensor{stof(it)}));
 		}

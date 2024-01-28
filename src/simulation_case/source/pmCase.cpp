@@ -19,9 +19,24 @@
 */
 
 #include "pmCase.h"
+#include "pmSph_operator.h"
+#ifdef JELLYFISH
+#include "pmConstant.h"
+#include "pmRuntime_interface.h"
+#include "pmDirectives.h"
+#include "c2c/c2CPP_source_file.h"
+#include "c2c/c2CPP_class.h"
+#include "c2c/c2Compiler.h"
+#include "c2c/c2Loader.h"
+#include "c2c/c2CPP_declaration.h"
+#include <Eigen/Eigen>
+#endif // JELLYFISH
 
 using namespace Nauticle;
 using namespace ProLog;
+using namespace c2c;
+
+/*static*/ std::string const pmCase::session_name = "Binary_case";
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Copy constructor
@@ -309,3 +324,168 @@ void pmCase::add_time_series(std::shared_ptr<pmTime_series> ts) {
 void pmCase::add_rigid_body_system(std::shared_ptr<pmRigid_body_system> rbs) {
 	rbsys = rbs;
 }
+
+#ifdef JELLYFISH
+c2CPP_header_file pmCase::generate_header(std::string const& hname) const {
+	c2CPP_header_file header{hname};
+	header.add_namespace("Nauticle");
+	header.add_include("nauticle/pmRuntime_interface.h",false);
+	header.add_include("nauticle/pmWorkspace.h",false);
+	header.add_include("nauticle/pmKernel_includes.h",false);
+	header.add_include("nauticle/pmHistory.h",false);
+	header.add_include("nauticle/pmDirectives.h",false);
+	header.add_include("nauticle/pmHelper_functions.h",false);
+	header.add_include("nauticle/pmRandom.h",false);
+	header.add_include("Eigen/Eigen",true);
+	header.add_include("string",true);
+	header.add_include("vector",true);
+	header.add_include("memory",true);
+	header.add_include("cmath",true);
+	header.add_include("utility",true);
+	header.add_include("numeric",true);
+	header.add_include("algorithm",true);
+	header.add_include("thread",true);
+	header.add_include("type_traits",true);
+	header.add_include("functional",true);
+	return header;
+}
+
+c2Cmake_generator pmCase::generate_cmake_file(std::string const& session_name) const {
+	c2Cmake_generator cmakegen;
+	cmakegen.set_directory(session_name+"/");
+    cmakegen.set_project_name(session_name);
+    cmakegen.set_cxx_standard("17");
+    cmakegen.set_cxx_flags("-pthread -O3 -fPIC");
+    cmakegen.add_link_dir("~/local/lib/c2c/");
+    cmakegen.add_link_dir("~/local/lib/prolog/");
+    cmakegen.add_link_dir("~/local/lib/commonutils/");
+    cmakegen.add_link_dir("~/local/lib/nauticle/");
+    cmakegen.add_include_dir("~/local/include/");
+    cmakegen.add_dependency("c2c");
+    cmakegen.add_dependency("prolog");
+    cmakegen.add_dependency("commonutils");
+    cmakegen.add_dependency("nauticle");
+    cmakegen.add_definitions("-DJELLYFISH=1");
+    cmakegen.generate_cmake_file();
+    return cmakegen;
+}
+
+void pmCase::generate_binary_case() const {
+	std::shared_ptr<pmParticle_system> psys = this->workspace->get_particle_system();
+	size_t dimensions = psys->get_dimensions();
+
+	c2CPP_header_file header = generate_header(session_name);
+	header.get_namespace("Nauticle").add_definition(c2CPP_declaration{"using", "Scalar", false, "", "double;"});
+	header.get_namespace("Nauticle").add_definition(c2CPP_declaration{"using", "Vector", false, "", dimensions>1?"Eigen::Vector"+std::to_string(dimensions)+"d;":"double;"});
+	header.get_namespace("Nauticle").add_definition(c2CPP_declaration{"using", "Matrix", false, "", dimensions>1?"Eigen::Matrix"+std::to_string(dimensions)+"d;":"double;"});
+
+	c2CPP_class binary_case{session_name};
+	binary_case.add_interface("pmRuntime_interface");
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::vector<size_t>", "del", false, "", ""},PRIVATE});
+	for(auto const& it:this->workspace->get_definitions()) {
+		binary_case.add_member_type(c2CPP_class_member_type{it->generate_cpp_declaration(),PRIVATE});
+	}
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::shared_ptr<pmWorkspace>", "workspace", false, "", "std::make_shared<pmWorkspace>()"},PRIVATE});
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"Vector", "minimum", false, "", psys->get_minimum().get_cpp_initialization()},PRIVATE});
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"Vector", "maximum", false, "", psys->get_maximum().get_cpp_initialization()},PRIVATE});
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"Vector", "cell_size", false, "", psys->get_cell_size().get_cpp_initialization()},PRIVATE});
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"Vector", "boundary", false, "", psys->get_boundary().get_cpp_initialization()},PRIVATE});
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"bool", "up_to_date", false, "", "false"},PRIVATE});
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::vector<int>", "pidx", false, "", ""},PRIVATE});
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::vector<int>", "cidx", false, "", ""},PRIVATE});
+	switch(dimensions) {
+		case 1: binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::vector<int>", "cell_iterator", false, "", "{-1,0,1}"},PRIVATE}); break;
+		case 2: binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::vector<Vector>", "cell_iterator", false, "", "{Vector{-1,-1},Vector{0,-1},Vector{1,-1},Vector{-1,0},Vector{0,0},Vector{1,0},Vector{-1,1},Vector{0,1},Vector{1,1}}"},PRIVATE}); break;
+		default:
+		case 3: binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::vector<Vector>", "cell_iterator", false, "", "{Vector{-1,-1,-1},Vector{-1,-1,0},Vector{-1,-1,1},Vector{-1,0,-1},Vector{-1,0,0},Vector{-1,0,1},Vector{-1,1,-1},Vector{-1,1,0},Vector{-1,1,1},Vector{0,-1,-1},Vector{0,-1,0},Vector{0,-1,1},Vector{0,0,-1},Vector{0,0,0},Vector{0,0,1},Vector{0,1,-1},Vector{0,1,0},Vector{0,1,1},Vector{1,-1,-1},Vector{1,-1,0},Vector{1,-1,1},Vector{1,0,-1},Vector{1,0,0},Vector{1,0,1},Vector{1,1,-1},Vector{1,1,0},Vector{1,1,1}}"},PRIVATE}); break;
+	}
+
+	std::string initializations = "";
+	initializations += "\tpidx.resize(this->workspace->get_number_of_nodes(),-1);\n";
+	initializations += "\tcidx.resize(this->workspace->get_particle_system()->get_num_cells(),-1);\n";
+	for(auto const& it:this->workspace->get<pmField>()) {
+		initializations += "\t"+it->get_cpp_name()+" = std::dynamic_pointer_cast<pmField>(this->workspace->get_instance(\""+it->get_name()+"\").lock())->get_cpp_data<"+it->get_cpp_type().get_type()+">();\n";
+	}
+	initializations.pop_back();
+
+	binary_case.add_member_function("void", "set_workspace", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::shared_ptr<pmWorkspace>","ws"}}, PUBLIC, "\tworkspace=ws;", false, true);
+	binary_case.add_member_function("void", "initialize", false, "", std::vector<c2CPP_declaration>{}, PUBLIC, initializations, false, true);
+	std::string solver_content = "";
+	solver_content += "\trestrict_particles();\n\tupdate_neighbors();\n";
+	for(auto const& it:equations) {
+		solver_content += it->generate_cpp_caller(session_name);
+	}
+	solver_content += "\tdump();";
+	solver_content += "\n\treturn false;";
+
+	binary_case.add_member_function("bool", "solve", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"double", "current_time", true, "&", ""},c2CPP_declaration{"size_t", "num_threads", true, "&", ""},c2CPP_declaration{"std::string", "name", true, "&", "\"\""}}, PUBLIC, solver_content, false, true);
+	binary_case.add_member_function("void", "parallel", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::function<void(int, int)>","process"},c2CPP_declaration{"int", "num_threads",true,"&",""}}, PRIVATE, PARALLEL, false, false);
+	binary_case.add_member_function("int", "flatten", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"Vector","cells",true,"&",""},c2CPP_declaration{"Vector", "grid_pos",true,"&",""},c2CPP_declaration{"size_t", "i"}}, PRIVATE, FLATTEN, true, false);
+	binary_case.add_member_function("int", "hash_key", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"Vector","grid_pos",true,"&",""}}, PRIVATE, HASH_KEY, true, false);
+	binary_case.add_member_function("Vector", "grid_coordinates", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"Vector","point",true,"&",""}}, PRIVATE, GRID_COORDINATES, true, false);
+	binary_case.add_member_function("bool", "update_neighbors", false, "", std::vector<c2CPP_declaration>{}, PRIVATE, UPDATE_NEIGHBORS, false, false);
+	binary_case.add_member_function("T", "interaction", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"int","i"},c2CPP_declaration{"std::function<T(Vector const&, int, int)>","contribute"}}, PRIVATE, INTERACTION, false, false, true);
+	binary_case.get_member_function("interaction").add_template_argument(c2CPP_declaration{"class","T"});
+	binary_case.add_member_function("void", "restrict_particles", false, "", std::vector<c2CPP_declaration>{},PRIVATE,RESTRICT_PARTICLES,false,false,false);
+
+	for(auto const& it:this->equations) {
+		binary_case.add_member_function(it->generate_cpp_function());
+	}
+
+
+	std::array<std::shared_ptr<pmExpression>,5> ops;
+	ops[0] = std::dynamic_pointer_cast<pmExpression>(std::make_shared<pmConstant>(pmTensor{1}));
+	ops[1] = std::dynamic_pointer_cast<pmExpression>(std::make_shared<pmConstant>(pmTensor{1}));
+	ops[2] = std::dynamic_pointer_cast<pmExpression>(std::make_shared<pmConstant>(pmTensor{1}));
+	ops[3] = std::dynamic_pointer_cast<pmExpression>(std::make_shared<pmConstant>(pmTensor{13}));
+	ops[4] = std::dynamic_pointer_cast<pmExpression>(std::make_shared<pmConstant>(pmTensor{0.01}));
+
+	for(auto const& it:this->workspace->get_interactions()) {
+		binary_case.add_member_function(it->generate_cpp_evaluator_function());
+	}
+
+	binary_case.add_member_function("void","dump",false,"",std::vector<c2CPP_declaration>{},PRIVATE,"\tFILE* file;\n\tfile = fopen(\"data.txt\",\"w\");\n\tfor(int i=0; i<SYM_psys_r.size(); i++) {\n\t\tfprintf(file, \"%1.6e %1.6e %1.6e %1.6e\\n\", SYM_psys_r[i][0][0], SYM_psys_r[i][0][1], SYM_psys_r[i][0][2], SYM_f_rho[i][0]);\n\t}\n\tfclose(file);\n",false,false,false);
+
+	header.get_namespace("Nauticle").add_class(binary_case);
+	c2CPP_source_file source{header};
+
+	c2Cmake_generator cmakegen = generate_cmake_file(session_name);
+
+	c2Compiler compiler{session_name};
+	compiler.set_directory(session_name+"/");
+	compiler.add_header(std::make_shared<c2CPP_header_file>(header));
+	compiler.add_source(std::make_shared<c2CPP_source_file>(source));
+	compiler.set_cmake_generator(std::make_shared<c2Cmake_generator>(cmakegen));
+
+	
+	compiler.compile();
+std::cout << 1 << std::endl;
+	c2Loader loader{"./"+session_name,session_name};
+std::cout << 2 << std::endl;
+	pmRuntime_interface* binary_case_interface = dynamic_cast<pmRuntime_interface*>(loader.create_object());
+std::cout << 3 << std::endl;
+	binary_case_interface->set_workspace(workspace);
+std::cout << 4 << std::endl;
+	binary_case_interface->initialize();
+std::cout << 5 << std::endl;
+	binary_case_interface->solve(1,8,"");
+std::cout << 6 << std::endl;
+
+	loader.destroy_object(binary_case_interface);
+}
+#endif // JELLYFISH
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

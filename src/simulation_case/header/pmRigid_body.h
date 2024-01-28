@@ -29,7 +29,7 @@
 #include <memory>
 
 namespace Nauticle {
-	class pmRigid_body : public pmCounter<size_t> {
+	class pmRigid_body : public pmCounter<pmRigid_body> {
 		std::vector<size_t> particle_idx;
 		pmTensor theta{3,3,0};
 		pmTensor angular_velocity{3,1,0};

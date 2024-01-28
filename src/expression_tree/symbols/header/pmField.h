@@ -74,6 +74,13 @@ namespace Nauticle {
 		void set_printable(bool const& p);
 		bool is_printable() const;
 		void set_lock(size_t const& idx, bool const& lck=true) override;
+#ifdef JELLYFISH
+        virtual std::string get_cpp_name() const override;
+        virtual c2c::c2CPP_type get_cpp_type() const override;
+        virtual std::string get_cpp_evaluation(std::string const& idx, size_t const& level=0) const override;
+		virtual c2c::c2CPP_declaration generate_cpp_declaration() const override;
+		template<class T> T get_cpp_data() const;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
