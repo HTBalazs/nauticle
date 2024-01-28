@@ -325,7 +325,7 @@ std::string pmField::get_cpp_name() const {
 }
 
 c2c::c2CPP_type pmField::get_cpp_type() const {
-	return "std::vector<pmHistory<"+(value[0][0].is_scalar()?"double":(value[0][0].is_vector()?"Vector":"Matrix"))+">";
+	return std::string{"std::vector<pmHistory<"}+(value[0][0].is_scalar()?"double":(value[0][0].is_vector()?"Vector":"Matrix"))+">>";
 }
 
 std::string pmField::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
