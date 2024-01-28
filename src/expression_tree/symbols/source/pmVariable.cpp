@@ -34,7 +34,7 @@ pmVariable::pmVariable(std::string const& n, pmTensor const& v/*=pmTensor{0}*/) 
 /// Implement identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmVariable::operator==(pmVariable const& rhs) const {
-    if(this->name != rhs.name || this->value != rhs.value || this->depth != rhs.depth) {
+    if((this->name != rhs.name) || (this->value[0][0] != rhs.value[0][0]) || (this->depth != rhs.depth)) {
         return false;
     } else {
         return true;
@@ -91,3 +91,17 @@ std::shared_ptr<pmVariable> pmVariable::clone() const {
 void pmVariable::write_to_string(std::ostream& os) const {
 	os << name;
 }
+
+#ifdef JELLYFISH
+std::string pmVariable::get_cpp_name() const {
+    return this->prefix + "v_" + this->name;
+}
+
+c2c::c2CPP_type pmVariable::get_cpp_type() const {
+    return c2c::c2CPP_type{"pmHistory<"+value[0].get_cpp_type().get_type()+">"};
+}
+
+std::string pmVariable::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
+    return this->get_cpp_name()+"["+std::to_string(level)+"]";
+}
+#endif // JELLYFISH

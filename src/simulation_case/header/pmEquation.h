@@ -21,6 +21,10 @@
 #ifndef _PM_EQUATION_H_
 #define _PM_EQUATION_H_
 
+#include "prolog/pLogger.h"
+#include "pmExpression.h"
+#include "pmWorkspace.h"
+#include "c2c/c2CPP_class_member_function.h"
 #include <string>
 #include <iostream>
 #include <vector>
@@ -28,9 +32,6 @@
 #include <thread>
 #include <cmath>
 #include <sstream>
-#include "prolog/pLogger.h"
-#include "pmExpression.h"
-#include "pmWorkspace.h"
 
 namespace Nauticle {
 	/** This class represents an algebraic or differential equation with pmExpression-s
@@ -71,6 +72,11 @@ namespace Nauticle {
 		void set_rhs(std::shared_ptr<pmExpression> right);
 		void set_condition(std::shared_ptr<pmExpression> cond);
 		bool const& is_interaction() const;
+#ifdef JELLYFISH
+		std::string get_cpp_evaluation() const;
+		c2c::c2CPP_class_member_function generate_cpp_function() const;
+		std::string generate_cpp_caller(std::string const& session_name) const;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

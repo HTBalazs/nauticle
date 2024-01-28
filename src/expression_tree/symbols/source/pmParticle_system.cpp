@@ -218,4 +218,8 @@ pmTensor pmParticle_system::get_periodic_shift(size_t const& i) const {
 	return periodic_jump->evaluate(i).multiply_term_by_term(this->get_physical_size());
 }
 
-
+#ifdef JELLYFISH
+std::string pmParticle_system::get_cpp_name() const {
+	return this->prefix + "psys_" + this->name;
+}
+#endif // JELLYFISH

@@ -25,6 +25,7 @@
 #include "pmNoncopyable.h"
 #include <memory>
 #include <cstdio>
+#include <string>
 
 namespace Nauticle {
 
@@ -54,6 +55,9 @@ namespace Nauticle {
 		pmKernel& operator=(pmKernel const& other);
 		void set_kernel_type(size_t const& i, bool const& derivative);
 		double evaluate(double const& distance, double const& cell_size) const;
+#ifdef JELLYFISH
+		static std::string get_kernel_cpp_type(size_t const& kernel_id, bool const& derivative);
+#endif // JELLYFISH
 	};
 }
 

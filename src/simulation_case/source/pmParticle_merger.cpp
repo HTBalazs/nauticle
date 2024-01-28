@@ -18,7 +18,6 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmRandom.h"
 #include "pmParticle_merger.h"
 #include "pmKernel.h"
 #include "pmSmallest.h"
@@ -250,10 +249,10 @@ void pmParticle_merger::update(size_t const& num_threads) {
         workspace->duplicate_particle(id1);
         workspace->duplicate_particle(id1);
         size_t num_nodes = workspace->get_number_of_nodes();
-        mass->set_value(mass_M,num_nodes-1);
-        mass->set_value(mass_M,num_nodes-2);
-        radius->set_value(hM,num_nodes-1);
-        radius->set_value(hM,num_nodes-2);
+        mass->set_value(pmTensor{mass_M},num_nodes-1);
+        mass->set_value(pmTensor{mass_M},num_nodes-2);
+        radius->set_value(pmTensor{hM},num_nodes-1);
+        radius->set_value(pmTensor{hM},num_nodes-2);
         ps->set_value(pos_a,num_nodes-1);
         ps->set_value(pos_b,num_nodes-2);
         velocity->set_value(vel_1,num_nodes-1);

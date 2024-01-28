@@ -21,8 +21,8 @@
 #ifndef _PM_VARIABLE_H_
 #define _PM_VARIABLE_H_
 
-#include <string>
 #include "pmSingle.h"
+#include <string>
 
 namespace Nauticle {
 	/** This class represents a single-valued variable.
@@ -46,6 +46,11 @@ namespace Nauticle {
 		void set_value(pmTensor const& value, int const& i=0, bool const& forced=false) override;
 		std::shared_ptr<pmVariable> clone() const;
 		virtual void write_to_string(std::ostream& os) const override;
+#ifdef JELLYFISH
+		std::string get_cpp_name() const override;
+		c2c::c2CPP_type get_cpp_type() const override;
+		std::string get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const override;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

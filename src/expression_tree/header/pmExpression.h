@@ -22,6 +22,8 @@
 #define _PM_EXPRESSION_H_
 
 #include "pmTensor.h"
+#include "c2c/c2CPP_type.h"
+#include "c2c/c2CPP_class_member_function.h"
 #include <memory>
 #include <cmath>
 #include <vector>
@@ -53,7 +55,12 @@ namespace Nauticle {
         virtual bool is_interaction() const;
         virtual void delete_member(size_t const& i) {}
         virtual void delete_set(std::vector<size_t> const& indices) {}
-        virtual int get_precedence() const=0;
+        virtual int get_precedence() const { return 0; };
+#ifdef JELLYFISH
+        virtual c2c::c2CPP_type get_cpp_type() const { return c2c::c2CPP_type{"double"}; };
+        virtual std::string get_cpp_evaluation(std::string const& idx, size_t const& level=0) const { return ""; };
+        virtual c2c::c2CPP_class_member_function generate_cpp_evaluator_function() const { return c2c::c2CPP_class_member_function{"T","U",false,""}; }
+#endif // JELLYFISH
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////

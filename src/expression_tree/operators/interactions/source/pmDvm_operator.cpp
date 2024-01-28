@@ -129,10 +129,10 @@ pmTensor pmDvm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 			pmTensor flip = pmTensor::make_tensor(guide, 1);
 			for(int i=0; i<guide.numel(); i++) {
 				if(guide[i]!=0) {
-					flip = -1;
+					flip = pmTensor{-1};
 				}
 			}
-			w_j *= flip.productum();
+			w_j *= pmTensor{flip.productum()};
 		}
 		pmTensor contribution{(int)dimension,1,0.0};
 		if(w_j.norm() == 0) { return contribution; }

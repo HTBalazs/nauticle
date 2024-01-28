@@ -143,6 +143,6 @@ pmTensor pmSfm_operator::evaluate(int const& i, size_t const& level/*=0*/) const
 		return contribution;
 	};
 	pmTensor e0 = (p0-posi);
-	e0 /= e0.norm();
+	e0 /= pmTensor{e0.norm()};
 	return (v0*e0-vi)/taui + this->interact(i, contribute);
 }

@@ -21,12 +21,17 @@
 #ifndef _PM_TENSOR_H_
 #define _PM_TENSOR_H_
 
+#include "nauticle_constants.h"
+#include "pmHelper_functions.h"
+#include "c2c/c2CPP_type.h"
+#include "prolog/pLogger.h"
 #include <iostream>
 #include <cmath>
 #include <functional>
 #include <cstdlib>
-#include "prolog/pLogger.h"
-#include "nauticle_constants.h"
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 namespace Nauticle {
 	/** This class represents a 0th, 1st or 2nd order tensor of arbitrary shape.
@@ -39,7 +44,7 @@ namespace Nauticle {
 		double elements[9];
 	public:
 		pmTensor();
-		pmTensor(double s);
+		explicit pmTensor(double s);
 		pmTensor(int r, int c, double init=0);
 		pmTensor(pmTensor const& other)=default;
 		pmTensor(pmTensor&& other)=default;
@@ -111,6 +116,10 @@ namespace Nauticle {
 		double min() const;
 		double max() const;
 		pmTensor elem(size_t const& r, size_t const& c) const;
+#ifdef JELLYFISH
+		c2c::c2CPP_type get_cpp_type() const;
+		std::string get_cpp_initialization() const;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -133,8 +142,8 @@ namespace Nauticle {
 	/// Implementation of + operator for pmTensor.
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor operator+(pmTensor const& lhs, pmTensor const& rhs) {
-		if(lhs.numel()==0) { return rhs; }
-		if(rhs.numel()==0) { return lhs; }
+		if(lhs.numel()==0) { return pmTensor{rhs}; }
+		if(rhs.numel()==0) { return pmTensor{lhs}; }
 		if(lhs.get_numrows()!=rhs.get_numrows() || lhs.get_numcols()!=rhs.get_numcols()) {
 			ProLog::pLogger::error_msgf("Unable to add tensors of different sizes or types.\n");
 		}
@@ -1114,8 +1123,8 @@ namespace Nauticle {
 			ProLog::pLogger::error_msgf("Matrix is not square, determinant does not exist.\n");
 			return pmTensor{0,0};
 		}
-		if(numel()==1) { return elements[0]; }
-		if(numel()==4) { return elements[0]*elements[3]-elements[1]*elements[2]; }
+		if(numel()==1) { return pmTensor{elements[0]}; }
+		if(numel()==4) { return pmTensor{elements[0]*elements[3]-elements[1]*elements[2]}; }
 		pmTensor det{1,1,0};
 		int sign = 1;
 		for(int i=0; i<rows; i++) {
@@ -1150,11 +1159,11 @@ namespace Nauticle {
 			ProLog::pLogger::error_msgf("Matrix is not square, inverse does not exist.\n");
 			return pmTensor{0,0};
 		}
-		if(numel()==1) { return 1/elements[0]; }
+		if(numel()==1) { return pmTensor{1/elements[0]}; }
 		// if(is_singular()) { 
 		// 	return make_identity(columns);
 		// }
-		return 1.0/determinant()*adjugate();
+		return pmTensor{1.0}/determinant()*adjugate();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1322,7 +1331,7 @@ namespace Nauticle {
 		if(columns!=rows) {
 			ProLog::pLogger::error_msgf("Orthonormal tensor cannot be calculated to non-square matrix.");
 		} else if(this->numel()==1) {
-			return elements[0];
+			return pmTensor{elements[0]};
 		} else if(this->numel()==4) {
 			pmTensor x1 = this->sub_tensor(0,1,0,0);
 			pmTensor x2 = this->sub_tensor(0,1,1,1);
@@ -1477,7 +1486,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	inline pmTensor pmTensor::elem(size_t const& r, size_t const& c) const {
 		if(r>rows || c>columns) { ProLog::pLogger::error_msgf("Element indices out of bounds.\n"); }
-		return elements[r*columns+c];
+		return pmTensor{elements[r*columns+c]};
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1493,7 +1502,55 @@ namespace Nauticle {
 	template <typename T> T tensor_cast(pmTensor const& tensor) {
 		return (T)tensor[0];
 	}
+
+#ifdef JELLYFISH
+	inline c2c::c2CPP_type pmTensor::get_cpp_type() const {
+		if(is_scalar()) {
+			return c2c::c2CPP_type{"double"};
+		}
+		if(is_vector()) {
+			return c2c::c2CPP_type{"Vector"};
+		}
+		return c2c::c2CPP_type{"Matrix"};
+	}
+	inline std::string pmTensor::get_cpp_initialization() const {
+		if(is_scalar()) {
+			return num2str(elements[0]);
+		} else if(is_vector()) {
+			size_t n = numel();
+			if(n==2) {
+				std::string cpp_init = "Vector{";
+				cpp_init += num2str(elements[0])+","+num2str(elements[1]);
+				cpp_init += "}";
+				return cpp_init;
+			} else if(n==3) {
+				std::string cpp_init = "Vector{";
+				cpp_init += num2str(elements[0])+","+num2str(elements[1])+","+num2str(elements[2]);
+				cpp_init += "}";
+				return cpp_init;
+			}
+		} else {
+			size_t n = numel();
+			if(n==4) {
+				std::string cpp_init = "Matrix{";
+				cpp_init += "{"+num2str(elements[0])+","+num2str(elements[1])+"},";
+				cpp_init += "{"+num2str(elements[2])+","+num2str(elements[3])+"}";
+				cpp_init += "}";
+				return cpp_init;
+			} else if(n==9) {
+				std::string cpp_init = "Matrix{";
+				cpp_init += "{"+num2str(elements[0])+","+num2str(elements[1])+","+num2str(elements[2])+"},";
+				cpp_init += "{"+num2str(elements[3])+","+num2str(elements[4])+","+num2str(elements[5])+"},";
+				cpp_init += "{"+num2str(elements[6])+","+num2str(elements[7])+","+num2str(elements[8])+"}";
+				cpp_init += "}";
+				return cpp_init;
+			}
+		}
+		return "";
+	}
 }
+
+#endif // JELLYFISH
 
 
 #endif //_PM_TENSOR_H_

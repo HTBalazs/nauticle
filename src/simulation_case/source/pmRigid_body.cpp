@@ -46,7 +46,7 @@ void pmRigid_body::initialize(std::shared_ptr<pmParticle_system> psys, std::shar
 		linear_velocity += particle_velocity->evaluate(particle_idx[i]);
 		rid->set_value(pmTensor{1,1,(double)identifier},particle_idx[i]);
 	}
-	linear_velocity /= particle_idx.size();
+	linear_velocity /= pmTensor{(double)particle_idx.size()};
 }
 
 void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_ptr<pmExpression> particle_force, std::shared_ptr<pmSymbol> particle_velocity, std::shared_ptr<pmSymbol> particle_mass, std::shared_ptr<pmExpression> particle_theta, std::shared_ptr<pmField> rmatrix, std::shared_ptr<pmField> imatrix, std::shared_ptr<pmField> rid, double const& time_step) {
@@ -62,7 +62,7 @@ void pmRigid_body::update(std::shared_ptr<pmParticle_system> psys, std::shared_p
 		cog += global_pos_idx*mass_i;
 		body_mass += mass_i;
 	}
-	cog /= body_mass;
+	cog /= pmTensor{body_mass};
 	theta = pmTensor{3,3,0};
 	for(int i=0; i<particle_idx.size(); i++) {
 		pmTensor local_pos_idx = psys->evaluate(particle_idx[i])+psys->get_periodic_shift(particle_idx[i]) - cog;

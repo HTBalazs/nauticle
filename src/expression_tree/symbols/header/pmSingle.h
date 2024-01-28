@@ -34,11 +34,13 @@ namespace Nauticle {
     public:
     	virtual ~pmSingle() override {}
     	pmTensor const& get_value(int const& i=0) const override;
-    	virtual pmTensor evaluate(int const&, size_t const& level=0) const override;
     	void printv() const override;
     	std::shared_ptr<pmSingle> clone() const;
     	std::string get_type() const override;
         virtual size_t get_storage_depth() const override;
+#ifdef JELLYFISH
+        virtual c2c::c2CPP_declaration generate_cpp_declaration() const override;
+#endif // JELLYFISH
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////

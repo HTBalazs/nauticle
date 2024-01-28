@@ -21,12 +21,16 @@
 #ifndef _PM_INTERACTION_H_
 #define _PM_INTERACTION_H_
 
-#include <memory>
-#include <mutex>
-#include <functional>
 #include "pmOperator.h"
 #include "pmParticle_system.h"
 #include "pmCounter.h"
+#ifdef JELLYFISH
+#include "c2c/c2CPP_class_member_function.h"
+#endif // JELLYFISH
+#include <memory>
+#include <mutex>
+#include <functional>
+
 
 namespace Nauticle {
 	/** This interface forms the base for the interaction models. Since interactions
@@ -34,7 +38,7 @@ namespace Nauticle {
 	//  to the interaction model. The assignment is stored inside this interface.
 	*/
 	template <size_t S>
-	class pmInteraction : public pmOperator<S>, public pmCounter<uint> {
+	class pmInteraction : public pmOperator<S>, public pmCounter<pmInteraction<0>> {
 		std::string declaration_type;
 		using Func_ith = std::function<pmTensor(pmTensor const&, int const&, int const&, pmTensor const&, pmTensor const& guide)>;
 	protected:
@@ -64,7 +68,7 @@ namespace Nauticle {
 	pmInteraction<S>::pmInteraction() {
 		this->name = "INTERACTION_";
 	    char ch[5];
-	    snprintf(&ch[0], 4, "%04i", counter);
+	    snprintf(ch, 5, "%04i", counter);
 	    this->name += ch;
 	}
 

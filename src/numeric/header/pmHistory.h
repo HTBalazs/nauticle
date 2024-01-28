@@ -30,22 +30,21 @@ namespace Nauticle {
 		size_t depth = 1;
 	public:
 		pmHistory() {}
-		pmHistory(size_t const& d) : depth{d} {}
 		pmHistory(T const& t);
 		void set_storage_depth(size_t const& d);
 		size_t get_storage_depth() const;
 		pmHistory& operator=(T const& rhs);
+		pmHistory& operator=(pmHistory const& rhs);
 		bool operator==(pmHistory const& other) const;
-		bool operator!=(pmHistory const& other) const;
 		T const& operator[](size_t const& level) const;
 		T& operator[](size_t const& level);
+		operator const T&() const;
 	};
 
 	template <typename T>
 	pmHistory<T>::pmHistory(T const& t) {
 		value.push_front(t);
 	}
-
 	
 	template <typename T>
 	void pmHistory<T>::set_storage_depth(size_t const& d) {
@@ -68,6 +67,11 @@ namespace Nauticle {
 		}
 		return *this;
 	}
+
+	template <typename T>
+	pmHistory<T>& pmHistory<T>::operator=(pmHistory<T> const& rhs) {
+		return this->operator=(rhs[0]);
+	}
 	
 	template <typename T>
 	bool pmHistory<T>::operator==(pmHistory<T> const& other) const {
@@ -79,12 +83,6 @@ namespace Nauticle {
 		}
 		return this->value==other.value;
 	}
-	
-	template <typename T>
-	bool pmHistory<T>::operator!=(pmHistory<T> const& other) const {
-		return !((*this)==other);
-	}
-
 	
 	template <typename T>
 	T const& pmHistory<T>::operator[](size_t const& level) const {
@@ -101,6 +99,34 @@ namespace Nauticle {
 		}
 		return value[level];
 	}
+
+	template <typename T>
+	pmHistory<T>::operator const T&() const {
+		return value[0];
+	}
+
 }
 
 #endif //_PM_HISTORY_H_
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

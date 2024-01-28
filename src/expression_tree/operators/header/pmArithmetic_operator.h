@@ -46,6 +46,9 @@ namespace Nauticle {
 		std::shared_ptr<pmArithmetic_operator> clone() const;
 		void write_to_string(std::ostream& os) const override;
 		virtual int get_precedence() const override;
+#ifdef JELLYFISH
+		std::string get_cpp_evaluation(std::string const& idx, size_t const& level=0) const override;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +177,7 @@ namespace Nauticle {
 	int pmArithmetic_operator<ARI_TYPE,S>::get_precedence() const {
 		switch(ARI_TYPE) {
 			case '+' : return 3; break;
-			case '-' : return 3; break;
+			case '-' : return S==1?0:3; break;
 			case '*' : return 2; break;
 			case '/' : return 2; break;
 			case ':' : return 2; break;
@@ -182,6 +185,40 @@ namespace Nauticle {
 			case '%' : return 2; break;
 		}
 	}
+
+#ifdef JELLYFISH
+	template <char ARI_TYPE, size_t S>
+	std::string pmArithmetic_operator<ARI_TYPE,S>::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
+		auto bracket = [](std::string const& str, bool const& br)->std::string {
+			return (br?"(":"")+str+(br?")":"");
+		};
+		if(S==1) {
+			if(ARI_TYPE=='+') {
+				return this->operand[0]->get_cpp_evaluation(idx,level);
+			} else if(ARI_TYPE=='-') {
+				return "-"+this->operand[0]->get_cpp_evaluation(idx,level);
+			}
+		}
+		bool lbracket = this->operand[0]->get_precedence()>this->get_precedence();
+		bool rbracket = this->operand[1]->get_precedence()>this->get_precedence();
+		std::string eval = "";
+		switch(ARI_TYPE) {
+			case '+' : return this->operand[0]->get_cpp_evaluation(idx,level) + " + " + this->operand[1]->get_cpp_evaluation(idx,level); break;
+			case '-' : return this->operand[0]->get_cpp_evaluation(idx,level) + " - " + this->operand[1]->get_cpp_evaluation(idx,level); break;
+			case '*' :
+				eval = bracket(this->operand[0]->get_cpp_evaluation(idx,level),lbracket) + " * " + bracket(this->operand[1]->get_cpp_evaluation(idx,level),rbracket);
+				return eval; break;
+			case '/' : 
+				eval = bracket(this->operand[0]->get_cpp_evaluation(idx,level),lbracket) + " / " + bracket(this->operand[1]->get_cpp_evaluation(idx,level),rbracket);
+				return eval; break;
+			case ':' : 
+				eval = bracket(this->operand[0]->get_cpp_evaluation(idx,level),lbracket) + " : " + bracket(this->operand[1]->get_cpp_evaluation(idx,level),rbracket);
+				return eval; break;
+			case '^' : return "std::pow("+this->operand[0]->get_cpp_evaluation(idx,level) + " , " + this->operand[1]->get_cpp_evaluation(idx,level)+")"; break;
+			case '%' : return this->operand[0]->get_cpp_evaluation(idx,level) + " % " + this->operand[1]->get_cpp_evaluation(idx,level); break;
+		}
+	}
+#endif // JELLYFISH
 }
 
 #include "Color_undefine.h"
