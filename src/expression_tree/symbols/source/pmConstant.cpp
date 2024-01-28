@@ -43,7 +43,7 @@ pmConstant::pmConstant(std::string n, pmTensor const& v, bool const& hh/*=false*
 /// Implement identity check.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmConstant::operator==(pmConstant const& rhs) const {
-	if(this->name != rhs.name || this->value != rhs.value || this->hidden != rhs.hidden) {
+	if((this->name != rhs.name) || (this->value[0][0] != rhs.value[0][0]) || (this->hidden != rhs.hidden)) {
 		return false;
 	} else {
 		return true;
@@ -55,6 +55,13 @@ bool pmConstant::operator==(pmConstant const& rhs) const {
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmConstant::operator!=(pmConstant const& rhs) const {
 	return !this->operator==(rhs);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Evaluates the single-valued constant or variable.
+/////////////////////////////////////////////////////////////////////////////////////////
+pmTensor pmConstant::evaluate(int const& i, size_t const& level/*=0*/) const {
+	return value[0];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +97,7 @@ bool pmConstant::is_hidden() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Writes pmConstant to string. If pmConstant id named, the name is written.
+/// Writes pmConstant to string. If pmConstant is named, the name is written.
 /////////////////////////////////////////////////////////////////////////////////////////
 void pmConstant::write_to_string(std::ostream& os) const {
 	if(name=="") {
@@ -100,3 +107,22 @@ void pmConstant::write_to_string(std::ostream& os) const {
 	}
 }
 
+#ifdef JELLYFISH
+std::string pmConstant::get_cpp_name() const {
+	if(this->name=="") {
+		return value[0].get_cpp_initialization();
+	}
+	return (this->hidden?"h":"")+this->prefix + "c_" + this->name;
+}
+
+c2c::c2CPP_type pmConstant::get_cpp_type() const {
+	c2c::c2CPP_type type = value[0].get_cpp_type();
+	type.set_constant(true);
+	return type;
+}
+
+std::string pmConstant::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
+    return this->get_cpp_name();
+}
+
+#endif // JELLYFISH

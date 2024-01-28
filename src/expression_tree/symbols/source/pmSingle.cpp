@@ -1,21 +1,21 @@
 /*
-    Copyright 2016-2020 Balazs Havasi-Toth
-    This file is part of Nauticle.
+	Copyright 2016-2020 Balazs Havasi-Toth
+	This file is part of Nauticle.
 
-    Nauticle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Nauticle is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Lesser General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Nauticle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+	Nauticle is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Lesser General Public License
+	along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/nauticleproject/
+	For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 #include "pmSingle.h"
@@ -40,13 +40,6 @@ void pmSingle::printv() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// Evaluates the single-valued constant or variable.
-/////////////////////////////////////////////////////////////////////////////////////////
-pmTensor pmSingle::evaluate(int const& i, size_t const& level/*=0*/) const {
-	return value[0];
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 /// Returns the copy of the object.
 /////////////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<pmSingle> pmSingle::clone() const {
@@ -57,13 +50,18 @@ std::shared_ptr<pmSingle> pmSingle::clone() const {
 /// Returns the type in pmSingle format. It returns on of the followings: SCALAR, VECTOR, TENSOR. 
 /////////////////////////////////////////////////////////////////////////////////////////
 std::string pmSingle::get_type() const {
-    if(value[0].is_scalar()) { return "SCALAR"; }
-    if(value[0].is_vector()) { return "VECTOR"; }
-    return "TENSOR";
+	if(value[0].is_scalar()) { return "SCALAR"; }
+	if(value[0].is_vector()) { return "VECTOR"; }
+	return "TENSOR";
 }
 
 size_t pmSingle::get_storage_depth() const {
-    return value.get_storage_depth();
+	return value.get_storage_depth();
 }
 
+#ifdef JELLYFISH
+c2c::c2CPP_declaration pmSingle::generate_cpp_declaration() const {
+	return c2c::c2CPP_declaration{this->get_cpp_type(), this->get_cpp_name(), value[0].get_cpp_initialization()};
+}
+#endif // JELLYFISH
 

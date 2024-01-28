@@ -23,12 +23,17 @@
 
 #include "pmExpression.h"
 #include "pmHistory.h"
+#include "c2c/c2CPP_declaration.h"
 #include <string>
 
 namespace Nauticle {
 	/** This interface forms the base for single and field expressions. It holds a name.
 	*/
 	class pmSymbol : public pmExpression {
+	public:
+#ifdef JELLYFISH
+        static std::string const prefix;
+#endif // JELLYFISH
 	public:
 		virtual ~pmSymbol() {}
 		virtual std::string const& get_name() const override;
@@ -43,7 +48,10 @@ namespace Nauticle {
 		virtual bool is_hidden() const;
 		virtual std::string get_type() const=0;
 		virtual void set_lock(size_t const& idx, bool const& lck=true) {}
-		virtual int get_precedence() const { return 0; }
+#ifdef JELLYFISH
+		virtual std::string get_cpp_name() const=0;
+		virtual c2c::c2CPP_declaration generate_cpp_declaration() const=0;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

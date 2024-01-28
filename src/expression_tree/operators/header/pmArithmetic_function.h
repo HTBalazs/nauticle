@@ -28,7 +28,7 @@
 #include <cmath>
 
 namespace Nauticle {
-	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, URAND, NRAND, LNRAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V, LIMIT, HYSTERON};
+	enum Ari_fn_type {ABS, ACOS, ACOT, AND, ASIN, ATAN, ATAN2, COS, COSH, COT, COTH, CROSS, ELEM, EXP, FLOOR, GT, GTE, IF, LOG, LOGM, LT, LTE, MAGNITUDE, MAX, MIN, MOD, NOT, OR, URAND, NRAND, LNRAND, SGN, SIN, SINH, SQRT, TAN, TANH, TRACE, DEQ, DER, TRANSPOSE, TRUNC, XOR, IDENTITY, DETERMINANT, INVERSE, EIGSYS, EIGVAL, EQUAL, NOTEQUAL, EULER, PREDICTOR, CORRECTOR, VERLET_R, VERLET_V, LIMIT};
 	
 	/** This class implements the following operations for the expression tree: summation, subtraction,
 	//  multiplication, division, power, term-by-term product for two operands furthermore addition and 
@@ -51,6 +51,9 @@ namespace Nauticle {
 		std::shared_ptr<pmArithmetic_function> clone() const;
 		void write_to_string(std::ostream& os) const override;
 		virtual int get_precedence() const { return 0; }
+#ifdef JELLYFISH
+		std::string get_cpp_evaluation(std::string const& idx, size_t const& level=0) const override;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +118,6 @@ namespace Nauticle {
 			case VERLET_R : op_name="verlet_r"; break;
 			case VERLET_V : op_name="verlet_v"; break;
 			case LIMIT : op_name="limit"; break;
-			case HYSTERON : op_name="hysteron"; break;
 		}
 	}
 
@@ -199,24 +201,24 @@ namespace Nauticle {
 			case ELEM : return this->operand[0]->evaluate(i, level).elem(this->operand[1]->evaluate(i, level)[0],this->operand[2]->evaluate(i, level)[0]);
 			case EXP : return exp(this->operand[0]->evaluate(i, level));
 			case FLOOR : return floor(this->operand[0]->evaluate(i, level));
-			case GT : return (tensor_cast<double>(this->operand[0]->evaluate(i, level)) > tensor_cast<double>(this->operand[1]->evaluate(i, level)));
-			case GTE : return (tensor_cast<double>(this->operand[0]->evaluate(i, level)) >= tensor_cast<double>(this->operand[1]->evaluate(i, level)));
-			case EQUAL : return (tensor_cast<double>(this->operand[0]->evaluate(i, level)) == tensor_cast<double>(this->operand[1]->evaluate(i, level)));
-			case NOTEQUAL : return !(tensor_cast<double>(this->operand[0]->evaluate(i, level)) == tensor_cast<double>(this->operand[1]->evaluate(i, level)));
+			case GT : return pmTensor{(double)((tensor_cast<bool>(this->operand[0]->evaluate(i, level)) > tensor_cast<bool>(this->operand[1]->evaluate(i, level))))};
+			case GTE : return pmTensor{(double)((tensor_cast<bool>(this->operand[0]->evaluate(i, level)) >= tensor_cast<bool>(this->operand[1]->evaluate(i, level))))};
+			case EQUAL : return pmTensor{(double)((tensor_cast<bool>(this->operand[0]->evaluate(i, level)) == tensor_cast<bool>(this->operand[1]->evaluate(i, level))))};
+			case NOTEQUAL : return !pmTensor{(double)((tensor_cast<bool>(this->operand[0]->evaluate(i, level)) == tensor_cast<bool>(this->operand[1]->evaluate(i, level))))};
 			case IF : return tensor_if(tensor_cast<bool>(this->operand[0]->evaluate(i, level)), this->operand[1]->evaluate(i, level), this->operand[2]->evaluate(i, level));
 			case LOG : return log(this->operand[0]->evaluate(i, level));
 			case LOGM : return logm(this->operand[0]->evaluate(i, level));
-			case LT : return (tensor_cast<double>(this->operand[0]->evaluate(i, level)) < tensor_cast<double>(this->operand[1]->evaluate(i, level)));
-			case LTE : return (tensor_cast<double>(this->operand[0]->evaluate(i, level)) <= tensor_cast<double>(this->operand[1]->evaluate(i, level)));
-			case MAGNITUDE : return this->operand[0]->evaluate(i, level).norm();
+			case LT : return pmTensor{(double)((tensor_cast<bool>(this->operand[0]->evaluate(i, level)) < tensor_cast<bool>(this->operand[1]->evaluate(i, level))))};
+			case LTE : return pmTensor{(double)((tensor_cast<bool>(this->operand[0]->evaluate(i, level)) <= tensor_cast<bool>(this->operand[1]->evaluate(i, level))))};
+			case MAGNITUDE : return pmTensor{this->operand[0]->evaluate(i, level).norm()};
 			case MAX : return max(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
 			case MIN : return min(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
 			case MOD : return mod(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
-			case NOT : return !tensor_cast<bool>(this->operand[0]->evaluate(i, level));
-			case OR : return (tensor_cast<double>(this->operand[0]->evaluate(i, level)) || tensor_cast<double>(this->operand[1]->evaluate(i, level)));
-			case URAND : return pmRandom::random<pmRandom::UNIFORM>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
-			case NRAND : return pmRandom::random<pmRandom::NORMAL>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
-			case LNRAND : return pmRandom::random<pmRandom::LOGNORMAL>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+			case NOT : return pmTensor{(double)(!tensor_cast<bool>(this->operand[0]->evaluate(i, level)))};
+			case OR : return pmTensor{(double)((tensor_cast<bool>(this->operand[0]->evaluate(i, level)) || tensor_cast<bool>(this->operand[1]->evaluate(i, level))))};
+			case URAND : return random<UNIFORM>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+			case NRAND : return random<NORMAL>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
+			case LNRAND : return random<LOGNORMAL>(this->operand[0]->evaluate(i, level), this->operand[1]->evaluate(i, level));
 			case SGN : return sgn(this->operand[0]->evaluate(i, level));
 			case SIN : return sin(this->operand[0]->evaluate(i, level));
 			case SINH : return sinh(this->operand[0]->evaluate(i, level));
@@ -230,7 +232,7 @@ namespace Nauticle {
 			case DER : return this->operand[0]->evaluate(i, level).deR();
 			case TRANSPOSE : return this->operand[0]->evaluate(i, level).transpose();
 			case TRUNC : return trunc(this->operand[0]->evaluate(i, level));
-			case XOR : return (tensor_cast<double>(this->operand[0]->evaluate(i, level)) != tensor_cast<double>(this->operand[1]->evaluate(i, level)));
+			case XOR : return pmTensor{(double)((tensor_cast<bool>(this->operand[0]->evaluate(i, level)) != tensor_cast<bool>(this->operand[1]->evaluate(i, level))))};
 			case DETERMINANT : return this->operand[0]->evaluate(i, level).determinant();
 			case INVERSE : return this->operand[0]->evaluate(i, level).inverse();
 			case IDENTITY : return pmTensor::make_identity((int)this->operand[0]->evaluate(i, level)[0]);
@@ -240,20 +242,6 @@ namespace Nauticle {
 			case VERLET_R : return this->operand[0]->evaluate(i, 0)+this->operand[1]->evaluate(i, 0) * this->operand[3]->evaluate(i, 0) + this->operand[2]->evaluate(i, 0) * std::pow(this->operand[3]->evaluate(i, 0)[0],2) / 2.0;
 			case VERLET_V : return this->operand[0]->evaluate(i, 0)+ (this->operand[1]->evaluate(i, 0)+this->operand[1]->evaluate(i, 1))*this->operand[2]->evaluate(i, 0)/2.0;
 			case LIMIT : return limit(this->operand[0]->evaluate(i, level)[0], this->operand[1]->evaluate(i, level)[0], this->operand[2]->evaluate(i, level)[0]);
-			case HYSTERON : 
-				bool state = this->operand[0]->evaluate(i, 0)[0];
-				double alpha = this->operand[1]->evaluate(i, 0)[0];
-				double beta = this->operand[2]->evaluate(i, 0)[0];
-				double value = this->operand[3]->evaluate(i, 0)[0];
-			    if(value<alpha && state) {
-			    	std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(pmTensor{1,1,0.0},i);
-			        return pmTensor{1,1,-1};
-			    } else if(value>beta && !state) {
-			    	std::dynamic_pointer_cast<pmSymbol>(this->operand[0])->set_value(pmTensor{1,1,1.0},i);
-			        return pmTensor{1,1,1};
-			    } else {
-			        return pmTensor{1,1,0};
-			    }
 		}
 	}
 
@@ -281,6 +269,378 @@ namespace Nauticle {
 		os<<op_name;
 		this->write_operands_to_string(os);
 	}
+
+#ifdef JELLYFISH
+	template <Ari_fn_type ARI_TYPE, size_t S>
+	std::string pmArithmetic_function<ARI_TYPE,S>::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
+		auto bracket = [](std::string const& str, bool const& br)->std::string {
+			return (br?"(":"")+str+(br?")":"");
+		};
+		bool lbracket = false;
+		bool rbracket = false;
+		switch(ARI_TYPE) {
+			case ABS :
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::abs("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").cwiseAbs()";
+				}
+			case ACOS : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::acos("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").acos()";
+				}
+			case ACOT : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "(1/std::atan("+this->operand[0]->get_cpp_evaluation(idx, level)+"))";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").atan().cwiseInverse()";
+				}
+			case AND :
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " && " + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: AND operator does not work on non-scalars. */";
+				}
+			case ASIN : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::asin("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").asin()";
+				}
+			case ATAN :
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::atan("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").atan()";
+				}
+			case ATAN2 : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::atan2("+this->operand[0]->get_cpp_evaluation(idx, level)+" , "+this->operand[1]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "cwise_operation("+this->operand[0]->get_cpp_evaluation(idx, level)+" , "+this->operand[1]->get_cpp_evaluation(idx, level)+",[](double lhs, double rhs)->double{ return std::atan2(lhs,rhs); })";
+				}
+			case COS : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::cos("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").cos()";
+				}
+			case COSH : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::cosh("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").cosh()";
+				}
+			case COT : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "(1/std::tan("+this->operand[0]->get_cpp_evaluation(idx, level)+"))";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").tan().cwiseInverse()";
+				}
+			case COTH : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "1(std::tanh("+this->operand[0]->get_cpp_evaluation(idx, level)+"))";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").tanh().cwiseInverse()";
+				}
+			case CROSS :
+				lbracket = this->operand[0]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "/* ERROR: CROSS operator does not work on scalars */ ";
+				} else {
+					return bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket)+".cross("+this->operand[1]->get_cpp_evaluation(idx, level)+")";
+				}
+			case ELEM :
+				lbracket = this->operand[0]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "/* ERROR: ELEM operator does not work on scalars */ ";
+				} else {
+					return bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket)+"("+this->operand[1]->get_cpp_evaluation(idx, level)+","+this->operand[2]->get_cpp_evaluation(idx, level)+")";
+				}
+			case EXP : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::exp("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").exp()";
+				}
+			case FLOOR : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::floor("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").floor()";
+				}
+			case GT : 
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " > " + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: CROSS operator does not work on non-scalars */ ";
+				}
+			case GTE : 
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " >= " + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: CROSS operator does not work on non-scalars */ ";
+				}
+			case EQUAL : 
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " == " + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: CROSS operator does not work on non-scalars */ ";
+				}
+			case NOTEQUAL :
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " != " + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: CROSS operator does not work on non-scalars */ ";
+				}
+			case IF :
+				{
+					bool bracket1 = this->operand[0]->get_precedence()>0;
+					bool bracket2 = this->operand[1]->get_precedence()>0;
+					bool bracket3 = this->operand[2]->get_precedence()>0;
+					if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+						return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),bracket1)+"?"+bracket(this->operand[1]->get_cpp_evaluation(idx, level),bracket2)+":"+bracket(this->operand[2]->get_cpp_evaluation(idx, level),bracket3)+")";
+					} else {
+						return "/* ERROR: IF operator does not work on non-scalars */ ";
+					}
+				}
+			case LOG : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::log("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").log()";
+				}
+			case LOGM : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::log("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "/* ERROR: Logm is not implemented yet :( */ ";
+				}
+			case LT : 
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " < " + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: CROSS operator does not work on non-scalars */ ";
+				}
+			case LTE : 
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " <= " + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: CROSS operator does not work on non-scalars */ ";
+				}
+			case MAGNITUDE :
+				lbracket = this->operand[0]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::abs("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket)+".norm()";
+				}
+			case MAX : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::max("+this->operand[0]->get_cpp_evaluation(idx, level) + " , " + this->operand[1]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "/* ERROR: MAX operator does not work on non-scalars */ ";
+				}
+			case MIN : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::min("+this->operand[0]->get_cpp_evaluation(idx, level) + " , " + this->operand[1]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "/* ERROR: MIN operator does not work on non-scalars */ ";
+				}
+			case MOD : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::fmod("+this->operand[0]->get_cpp_evaluation(idx, level)+" , "+this->operand[1]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "cwise_operation("+this->operand[0]->get_cpp_evaluation(idx, level)+" , "+this->operand[1]->get_cpp_evaluation(idx, level)+",[](double lhs, double rhs)->double{ return std::fmod(lhs,rhs); })";
+				}
+			case NOT : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "!("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "/* ERROR: NOT operator does not work on non-scalars */ ";
+				}
+			case OR : 
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " || " + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: OR operator does not work on non-scalars. */";
+				}
+			case URAND : return "random<UNIFORM>("+this->operand[0]->get_cpp_evaluation(idx, level)+","+this->operand[1]->get_cpp_evaluation(idx, level)+")";
+			case NRAND : return "random<NORMAL>("+this->operand[0]->get_cpp_evaluation(idx, level)+","+this->operand[1]->get_cpp_evaluation(idx, level)+")";
+			case LNRAND : return "random<LOGNORMAL>("+this->operand[0]->get_cpp_evaluation(idx, level)+","+this->operand[1]->get_cpp_evaluation(idx, level)+")";
+			case SGN :
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "sign("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "cwise_operation("+this->operand[0]->get_cpp_evaluation(idx, level)+" ,[](double val)->double{ return sign(val); })";
+				}
+			case SIN : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::sin("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").sin()";
+				}
+			case SINH : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::sinh("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").sinh()";
+				}
+			case SQRT : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::sqrt("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").cwiseSqrt()";
+				}
+			case TAN : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::tan("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").tan()";
+				}
+			case TANH : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::tanh("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").tanh()";
+				}
+			case TRACE : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return this->operand[0]->get_cpp_evaluation(idx, level);
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").trace()";
+				}
+			case EIGSYS : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()!="Matrix") {
+					return "ERROR: eigenvectors require a matrix.";
+				} else {
+					return "eigenvectors("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				}
+			case EIGVAL :
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()!="Matrix") {
+					return "ERROR: eigenvalues require a matrix.";
+				} else {
+					return "eigenvalues<"+std::to_string(this->operand[0]->evaluate(0).get_numrows())+">("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				}
+			case DEQ :
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()!="Matrix") {
+					return "ERROR: QR decomposition requires a matrix.";
+				} else {
+					return "deQ("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				}
+			case DER :
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()!="Matrix") {
+					return "ERROR: QR decomposition requires a matrix.";
+				} else {
+					return "deR("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				}
+			case TRANSPOSE : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return this->operand[0]->get_cpp_evaluation(idx, level);
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").transpose()";
+				}
+			case TRUNC : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "std::trunc("+this->operand[0]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "cwise_operation("+this->operand[0]->get_cpp_evaluation(idx, level)+" ,[](double val)->double{ return std::trunc(val); })";
+				}
+			case XOR : 
+				lbracket = this->operand[0]->get_precedence()>0;
+				rbracket = this->operand[1]->get_precedence()>0;
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "(!"+bracket(this->operand[0]->get_cpp_evaluation(idx, level),lbracket) + " != !" + bracket(this->operand[1]->get_cpp_evaluation(idx, level),rbracket)+")";
+				} else {
+					return "/* ERROR: XOR operator does not work on non-scalars. */";
+				}
+			case DETERMINANT : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return this->operand[0]->get_cpp_evaluation(idx, level);
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").determinant()";
+				}
+			case INVERSE : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return this->operand[0]->get_cpp_evaluation(idx, level);
+				} else {
+					return "("+this->operand[0]->get_cpp_evaluation(idx, level)+").inverse()";
+				}
+			case IDENTITY : 
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					if(this->operand[0]->evaluate(0)[0]==1) {
+						return "1.0";
+					} else if(this->operand[0]->evaluate(0)[0]==2) {
+						return "Eigen::Matrix2d::Identity()";
+					} else if(this->operand[0]->evaluate(0)[0]==3) {
+						return "Eigen::Matrix3d::Identity()";
+					}
+				} else {
+					return "IDENTITY requires scalar parameter (1..3)";
+				}
+			case EULER : 
+				{
+					bool bracket1 = this->operand[0]->get_precedence()>0;
+					bool bracket2 = this->operand[1]->get_precedence()>0;
+					bool bracket3 = this->operand[2]->get_precedence()>0;
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),bracket1)+"+"+bracket(this->operand[1]->get_cpp_evaluation(idx, level),bracket2)+"*"+bracket(this->operand[2]->get_cpp_evaluation(idx, level),bracket3)+")";
+				}
+			case PREDICTOR : 
+				{
+					bool bracket1 = this->operand[0]->get_precedence()>0;
+					bool bracket2 = this->operand[1]->get_precedence()>0;
+					bool bracket3 = this->operand[2]->get_precedence()>0;
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),bracket1)+"+"+bracket(this->operand[1]->get_cpp_evaluation(idx, level),bracket2)+"*"+bracket(this->operand[2]->get_cpp_evaluation(idx, level),bracket3)+")";
+				}
+			case CORRECTOR : 
+				{
+					bool bracket1 = this->operand[0]->get_precedence()>0;
+					bool bracket2 = this->operand[1]->get_precedence()>0;
+					bool bracket3 = this->operand[2]->get_precedence()>0;
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx,level+1),bracket1)+"+"+bracket(this->operand[1]->get_cpp_evaluation(idx, level),bracket2)+"*"+bracket(this->operand[2]->get_cpp_evaluation(idx, level),bracket3)+")";
+				}
+			case VERLET_R : 
+				{
+					bool bracket1 = this->operand[0]->get_precedence()>0;
+					bool bracket2 = this->operand[1]->get_precedence()>0;
+					bool bracket3 = this->operand[2]->get_precedence()>0;
+					bool bracket4 = this->operand[3]->get_precedence()>0;
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),bracket1)+"+"+bracket(this->operand[1]->get_cpp_evaluation(idx, level),bracket2)+"*"+bracket(this->operand[3]->get_cpp_evaluation(idx, level),bracket4)+"+"+bracket(this->operand[2]->get_cpp_evaluation(idx, level),bracket3)+"+std::pow("+bracket(this->operand[3]->get_cpp_evaluation(idx, level),bracket4)+",2)/2.0)";
+				}
+			case VERLET_V : 
+				{
+					bool bracket1 = this->operand[0]->get_precedence()>0;
+					bool bracket2 = this->operand[1]->get_precedence()>0;
+					bool bracket3 = this->operand[2]->get_precedence()>0;
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),bracket1)+"+("+bracket(this->operand[1]->get_cpp_evaluation(idx, level),bracket2)+"+"+bracket(this->operand[1]->get_cpp_evaluation(idx,level+1),bracket2)+")*"+bracket(this->operand[2]->get_cpp_evaluation(idx, level),bracket3)+"/2.0)";
+				}
+			case LIMIT :
+				if(this->operand[0]->evaluate(0).get_cpp_type().get_type()=="double") {
+					return "value_limiter("+this->operand[0]->get_cpp_evaluation(idx, level) + " , " + this->operand[1]->get_cpp_evaluation(idx, level) + " , " + this->operand[2]->get_cpp_evaluation(idx, level)+")";
+				} else {
+					return "/* ERROR: LIMIT operator does not work on non-scalars. */";
+				}
+		}
+	}
+#endif // JELLYFISH
 
 }
 

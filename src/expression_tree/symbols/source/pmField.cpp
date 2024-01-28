@@ -26,6 +26,9 @@
 #include <vtkPolyData.h>
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
+#ifdef JELLYFISH
+#include <Eigen/Eigen>
+#endif // JELLYFISH
 
 using namespace Nauticle;
 
@@ -315,3 +318,92 @@ bool pmField::is_printable() const {
 void pmField::set_lock(size_t const& idx, bool const& lck/*=true*/) {
 	locked[idx] = lck;
 }
+
+#ifdef JELLYFISH
+std::string pmField::get_cpp_name() const {
+	return this->prefix + "f_" + this->name;
+}
+
+c2c::c2CPP_type pmField::get_cpp_type() const {
+	return "std::vector<pmHistory<"+(value[0][0].is_scalar()?"double":(value[0][0].is_vector()?"Vector":"Matrix"))+">";
+}
+
+std::string pmField::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
+	return this->get_cpp_name() + "["+idx+"]" + "["+std::to_string(level)+"]";
+}
+
+c2c::c2CPP_declaration pmField::generate_cpp_declaration() const {
+	return c2c::c2CPP_declaration{this->get_cpp_type(), this->get_cpp_name()};
+}
+
+template<>
+std::vector<pmHistory<double>> pmField::get_cpp_data() const {
+	std::vector<pmHistory<double>> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		pmHistory<double> hst{it[0]};
+		hst.set_storage_depth(value.size());
+		data.push_back(hst);
+	}
+	return data;
+}
+
+template<>
+std::vector<pmHistory<Eigen::Vector2d>> pmField::get_cpp_data() const {
+	std::vector<pmHistory<Eigen::Vector2d>> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		pmHistory<Eigen::Vector2d> hst{Eigen::Vector2d{it[0],it[1]}};
+		hst.set_storage_depth(value.size());
+		data.push_back(hst);
+	}
+	return data;
+}
+
+template<>
+std::vector<pmHistory<Eigen::Vector3d>> pmField::get_cpp_data() const {
+	std::vector<pmHistory<Eigen::Vector3d>> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		pmHistory<Eigen::Vector3d> hst{Eigen::Vector3d{it[0],it[1],it[2]}};
+		hst.set_storage_depth(value.size());
+		data.push_back(hst);
+	}
+	return data;
+}
+
+template<>
+std::vector<pmHistory<Eigen::Matrix2d>> pmField::get_cpp_data() const {
+	std::vector<pmHistory<Eigen::Matrix2d>> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		Eigen::Matrix2d tmp;
+		tmp << it[0],it[1],it[2],it[3];
+		pmHistory<Eigen::Matrix2d> hst{tmp};
+		hst.set_storage_depth(value.size());
+		data.push_back(hst);
+	}
+	return data;
+}
+
+template<>
+std::vector<pmHistory<Eigen::Matrix3d>> pmField::get_cpp_data() const {
+	std::vector<pmHistory<Eigen::Matrix3d>> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		Eigen::Matrix3d tmp;
+		tmp << it[0],it[1],it[2],it[3],it[4],it[5],it[6],it[7],it[8];
+		pmHistory<Eigen::Matrix3d> hst{tmp};
+		hst.set_storage_depth(value.size());
+		data.push_back(hst);
+	}
+	return data;
+}
+
+#endif // JELLYFISH
+
+
+
+
+
+

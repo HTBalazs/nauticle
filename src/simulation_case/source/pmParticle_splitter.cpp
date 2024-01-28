@@ -18,7 +18,6 @@
     For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
-#include "pmRandom.h"
 #include "pmParticle_splitter.h"
 
 using namespace Nauticle;
@@ -42,13 +41,13 @@ void pmParticle_splitter::update(size_t const& num_threads) {
             if(generate_at_parent) {
                 workspace->duplicate_particle(it);
                 size_t num_nodes = workspace->get_number_of_nodes();
-                radius->set_value(alpha*R_original,num_nodes-1);
-                mass->set_value(m_original/(num_daughters+1),num_nodes-1);
+                radius->set_value(pmTensor{alpha*R_original},num_nodes-1);
+                mass->set_value(pmTensor{m_original/(num_daughters+1)},num_nodes-1);
             }
         } else {
             if(generate_at_parent) {
-                radius->set_value(alpha*R_original,it);
-                mass->set_value(m_original/(num_daughters+1),it);
+                radius->set_value(pmTensor{alpha*R_original},it);
+                mass->set_value(pmTensor{m_original/(num_daughters+1)},it);
             } else {
                 delete_indices.push_back(it);
             }
@@ -69,14 +68,14 @@ void pmParticle_splitter::update(size_t const& num_threads) {
                 new_pos[0] += R_original*epsilon*std::cos(i*step+angle[0]);
             }
             ps->set_value(new_pos,num_nodes-1);
-            radius->set_value(alpha*R_original,num_nodes-1);
-            mass->set_value(m_original/(num_daughters+(generate_at_parent?1:0)),num_nodes-1);
+            radius->set_value(pmTensor{alpha*R_original},num_nodes-1);
+            mass->set_value(pmTensor{m_original/(num_daughters+(generate_at_parent?1:0))},num_nodes-1);
             if(active.use_count()!=0) {
-                active->set_value(1,num_nodes-1);
+                active->set_value(pmTensor{1.0},num_nodes-1);
             }
         }
         if(passive.use_count()!=0) {
-            passive->set_value(1.0,it);
+            passive->set_value(pmTensor{1.0},it);
         }
     }
     workspace->delete_particle_set(delete_indices);

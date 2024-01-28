@@ -21,14 +21,14 @@
 #ifndef _PM_SPH_OPERATOR_H_
 #define _PM_SPH_OPERATOR_H_
 
-#include <cstdlib>
-#include <array>
-#include <string>
 #include "pmFilter.h"
 #include "prolog/pLogger.h"
 #include "commonutils/Common.h"
 #include "nauticle_constants.h"
 #include "Color_define.h"
+#include <cstdlib>
+#include <array>
+#include <string>
 
 namespace Nauticle {
 	enum OPERATOR_TYPE { XSAMPLE, SAMPLE, INERTIA, GRADIENT, DIVERGENCE, LAPLACE, TENSILE, AVISC };
@@ -52,6 +52,10 @@ namespace Nauticle {
 		pmTensor process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmSph_operator> clone() const;
+		#ifdef JELLYFISH
+		c2c::c2CPP_class_member_function generate_cpp_evaluator_function() const override;
+		std::string get_cpp_evaluation(std::string const& idx, size_t const& level=0) const override;
+		#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +215,7 @@ namespace Nauticle {
 								flip *= -1;
 							}
 						}
-						A_j *= (double)flip;
+						A_j *= pmTensor{(double)flip};
 					}
 					double m_j = this->operand[1+sh]->evaluate(j,level)[0];
 					double rho_j = this->operand[2+sh]->evaluate(j,level)[0];
@@ -386,7 +390,7 @@ namespace Nauticle {
 			} else {
 				double R_i = A_i[0]<0?std::abs(A_i[0])/rho_i/rho_i:0.0;
 				double R_j = A_j[0]<0?std::abs(A_j[0])/rho_j/rho_j:0.0;
-				R = 0.2*(R_i+R_j);
+				R = pmTensor{0.2*(R_i+R_j)};
 			}
 		} else {
 			for(int idx=0;idx<A_i.numel();idx++) {
@@ -423,6 +427,25 @@ namespace Nauticle {
 		}
 		return r_ji*0.0;
 	}
+
+#ifdef JELLYFISH
+	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
+	inline c2c::c2CPP_class_member_function pmSph_operator<OP_TYPE,VAR,K,NOPS>::generate_cpp_evaluator_function() const {
+		std::string kernel_name = pmKernel::get_kernel_cpp_type(this->operand[3-(NOPS-5)]->evaluate(0)[0],false);
+		std::string output_type = this->operand[0]->get_cpp_type().get_type();
+		std::string field_type =this->operand[0]->evaluate(0).get_cpp_type().get_type();
+		std::string mass_type = this->operand[1]->get_cpp_type().get_type();
+		std::string density_type = this->operand[2]->get_cpp_type().get_type();
+		std::string content = "\t"+kernel_name+" kernel{};\n\tauto contribute = [kernel,this](Vector const& rel_pos, int i, int j)->"+field_type+" {\n\t\t"+field_type+" contribution = "+this->operand[0]->evaluate(0).get_cpp_initialization()+";\n\t\tdouble d_ji = normal(rel_pos);\n\t\tdouble radius_i = "+this->operand[4]->get_cpp_evaluation("i")+";\n\t\tdouble radius_j = "+this->operand[4]->get_cpp_evaluation("j")+";\n\t\tdouble radius = (radius_i+radius_j)/2;\n\t\tif(d_ji<radius) {\n\t\t\tdouble Wij = kernel.evaluate(d_ji,radius);\n\t\t\tcontribution += "+this->operand[0]->get_cpp_evaluation("j")+"*"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation("j")+"*Wij;\n\t\t}\n\t\treturn contribution;\n\t};\n\treturn interaction<"+field_type+">(i, contribute);";
+		c2c::c2CPP_class_member_function cpp_eval{field_type, this->get_name(), false, "", std::vector<c2c::c2CPP_declaration>{c2c::c2CPP_declaration{"int", "i"}}, c2c::PRIVATE, content};
+		return cpp_eval;
+	}
+
+	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
+	std::string pmSph_operator<OP_TYPE,VAR,K,NOPS>::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
+		return this->get_name()+"("+idx+")";//this->name+"()";
+	}
+#endif // JELLYFISH
 }
 
 #include "Color_undefine.h"

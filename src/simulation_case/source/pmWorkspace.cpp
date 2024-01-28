@@ -548,9 +548,9 @@ void pmWorkspace::duplicate_particle(size_t const& i) {
 		it->duplicate_member(i);
 		if(it->get_name()=="id") {
 			if(deleted_ids.empty()) {
-				it->set_value(num_nodes,num_nodes);
+				it->set_value(pmTensor{(double)num_nodes},num_nodes);
 			} else {
-				it->set_value(deleted_ids.top(),num_nodes);
+				it->set_value(pmTensor{(double)deleted_ids.top()},num_nodes);
 				deleted_ids.pop();
 			}
 		}

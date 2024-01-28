@@ -61,6 +61,9 @@ namespace Nauticle {
 		bool update_neighbor_list();
 		std::shared_ptr<pmField> get_periodic_jump() const;
 		pmTensor get_periodic_shift(size_t const& i) const;
+#ifdef JELLYFISH
+		virtual std::string get_cpp_name() const override;
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////

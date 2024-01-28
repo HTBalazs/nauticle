@@ -139,7 +139,7 @@ pmTensor pmKuramoto_operator::evaluate(int const& i, size_t const& level/*=0*/) 
 		if(d_ji < rad + NAUTICLE_EPS) {
 			double W_ij = this->kernel->evaluate(d_ji, rad);
 			double theta_j = this->operand[0]->evaluate(j,level)[0];
-			contribution = sin(theta_j-theta_i)*W_ij;
+			contribution = sin(pmTensor{theta_j}-pmTensor{theta_i})*W_ij;
 		}
 		return contribution;
 	};

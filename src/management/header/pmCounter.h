@@ -25,7 +25,7 @@ namespace Nauticle {
 	template <typename T>
 	class pmCounter {
 	protected:
-		static inline T counter = T{0};
+		static inline unsigned int counter = 0;
 		pmCounter();
 	};
 

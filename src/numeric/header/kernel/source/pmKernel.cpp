@@ -1,21 +1,21 @@
 /*
-    Copyright 2016-2020 Balazs Havasi-Toth
-    This file is part of Nauticle.
+	Copyright 2016-2020 Balazs Havasi-Toth
+	This file is part of Nauticle.
 
-    Nauticle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Nauticle is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Lesser General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Nauticle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+	Nauticle is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Lesser General Public License
+	along with Nauticle.  If not, see <http://www.gnu.org/licenses/>.
 
-    For more information please visit: https://bitbucket.org/nauticleproject/
+	For more information please visit: https://bitbucket.org/nauticleproject/
 */
 
 #include "pmKernel.h"
@@ -90,4 +90,39 @@ double pmKernel::evaluate(double const& distance, double const& cell_size) const
 	return kernel->evaluate(distance, cell_size);
 }
 
+#ifdef JELLYFISH
+/*static*/ std::string pmKernel::get_kernel_cpp_type(size_t const& kernel_id, bool const& derivative) {
+	std::string kernel_name;
+	switch(kernel_id) {
+	default:
+		case 0: kernel_name = "pmZeroth_order_kernel<1,"+std::string{derivative?"true>":"false>"}; break; // Wp01110
+		case 1: kernel_name = "pmZeroth_order_kernel<2,"+std::string{derivative?"true>":"false>"}; break; // Wp01120
+		case 2: kernel_name = "pmZeroth_order_kernel<3,"+std::string{derivative?"true>":"false>"}; break; // Wp01130
+		case 3: kernel_name = "pmFirst_order_kernel<1,"+std::string{derivative?"true>":"false>"}; break; // Wp11110
+		case 4: kernel_name = "pmFirst_order_kernel<2,"+std::string{derivative?"true>":"false>"}; break; // Wp11120
+		case 5: kernel_name = "pmFirst_order_kernel<3,"+std::string{derivative?"true>":"false>"}; break; // Wp11130
+		case 6: kernel_name = "pmSecond_order_kernel<1,"+std::string{derivative?"true>":"false>"}; break; // Wp22210
+		case 7: kernel_name = "pmSecond_order_kernel<2,"+std::string{derivative?"true>":"false>"}; break; // Wp22220
+		case 8: kernel_name = "pmSecond_order_kernel<3,"+std::string{derivative?"true>":"false>"}; break; // Wp22230
+		case 9: kernel_name = "pmThird_order_kernel<1,"+std::string{derivative?"true>":"false>"}; break; // Wp32210
+		case 10: kernel_name = "pmThird_order_kernel<2,"+std::string{derivative?"true>":"false>"}; break; // Wp32220
+		case 11: kernel_name = "pmThird_order_kernel<3,"+std::string{derivative?"true>":"false>"}; break; // Wp32230
+		case 12: kernel_name = "pmFifth_order_kernel<1,"+std::string{derivative?"true>":"false>"}; break; // Wp52210
+		case 13: kernel_name = "pmFifth_order_kernel<2,"+std::string{derivative?"true>":"false>"}; break; // Wp52220
+		case 14: kernel_name = "pmFifth_order_kernel<3,"+std::string{derivative?"true>":"false>"}; break; // Wp52230
+		case 15: kernel_name = "pmGaussian_kernel<1,"+std::string{derivative?"true>":"false>"}; break; // We21010
+		case 16: kernel_name = "pmGaussian_kernel<2,"+std::string{derivative?"true>":"false>"}; break; // We21020
+		case 17: kernel_name = "pmGaussian_kernel<3,"+std::string{derivative?"true>":"false>"}; break; // We21030
+	}
+	return kernel_name;
+}
+#endif // JELLYFISH
+
 #undef NAUTICLE_PI
+
+
+
+
+
+
+
