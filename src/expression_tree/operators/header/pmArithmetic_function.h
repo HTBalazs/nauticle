@@ -623,7 +623,7 @@ namespace Nauticle {
 					bool bracket2 = this->operand[1]->get_precedence()>0;
 					bool bracket3 = this->operand[2]->get_precedence()>0;
 					bool bracket4 = this->operand[3]->get_precedence()>0;
-					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),bracket1)+"+"+bracket(this->operand[1]->get_cpp_evaluation(idx, level),bracket2)+"*"+bracket(this->operand[3]->get_cpp_evaluation(idx, level),bracket4)+"+"+bracket(this->operand[2]->get_cpp_evaluation(idx, level),bracket3)+"+std::pow("+bracket(this->operand[3]->get_cpp_evaluation(idx, level),bracket4)+",2)/2.0)";
+					return "("+bracket(this->operand[0]->get_cpp_evaluation(idx, level),bracket1)+"+"+bracket(this->operand[1]->get_cpp_evaluation(idx, level),bracket2)+"*"+bracket(this->operand[3]->get_cpp_evaluation(idx, level),bracket4)+"+"+bracket(this->operand[2]->get_cpp_evaluation(idx, level),bracket3)+"*std::pow("+bracket(this->operand[3]->get_cpp_evaluation(idx, level),bracket4)+",2)/2.0)";
 				}
 			case VERLET_V : 
 				{
