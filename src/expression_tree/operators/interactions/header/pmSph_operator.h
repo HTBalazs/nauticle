@@ -38,10 +38,18 @@ namespace Nauticle {
 	*/
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	class pmSph_operator : public pmFilter<NOPS> {
+		std::string input_type;
 	private:
 		std::shared_ptr<pmExpression> clone_impl() const override;
+#ifdef JELLYFISH
+	protected:
+		c2c::c2CPP_type get_cpp_input_type() const;
+		c2c::c2CPP_type get_cpp_return_type() const override;
+		std::string generate_cpp_contributor() const;
+		std::string generate_cpp_evaluator_function_content() const override;
+#endif // JELLYFISH
 	public:
-		pmSph_operator() {}
+		//pmSph_operator() {}
 		pmSph_operator(std::array<std::shared_ptr<pmExpression>,NOPS> op);
 		pmSph_operator(pmSph_operator const& other);
 		pmSph_operator(pmSph_operator&& other);
@@ -52,10 +60,10 @@ namespace Nauticle {
 		pmTensor process(pmTensor const& A_i, pmTensor const& A_j, double const& rho_i, double const& rho_j, double const& m_i, double const& m_j, pmTensor const& r_ji, double const& d_ji, double const& W_ij) const;
 		pmTensor evaluate(int const& i, size_t const& level=0) const override;
 		std::shared_ptr<pmSph_operator> clone() const;
-		#ifdef JELLYFISH
+#ifdef JELLYFISH
 		c2c::c2CPP_class_member_function generate_cpp_evaluator_function() const override;
 		std::string get_cpp_evaluation(std::string const& idx, size_t const& level=0) const override;
-		#endif // JELLYFISH
+#endif // JELLYFISH
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -90,6 +98,7 @@ namespace Nauticle {
 		if((OP_TYPE==GRADIENT || OP_TYPE==DIVERGENCE) && VAR!=2) {
 			this->op_name+=Common::to_string(VAR)+Common::to_string(K);
 		}
+		this->input_type = this->get_cpp_input_type().get_type();
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -103,6 +112,8 @@ namespace Nauticle {
 			this->operand[i] = other.operand[i]->clone();
 		}
 		this->op_name = other.op_name;
+		this->return_type = other.return_type;
+		this->input_type = other.input_type;
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +126,8 @@ namespace Nauticle {
 		this->assigned = std::move(other.assigned);
 		this->operand = std::move(other.operand);
 		this->op_name = std::move(other.op_name);
+		this->return_type = std::move(other.return_type);
+		this->input_type = std::move(other.input_type);
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -129,6 +142,8 @@ namespace Nauticle {
 				this->operand[i] = other.operand[i]->clone();
 			}
 			this->op_name = other.op_name;
+			this->return_type = other.return_type;
+			this->input_type = other.input_type;
 		}
 		return *this;
 	}
@@ -144,6 +159,8 @@ namespace Nauticle {
 			this->assigned = std::move(other.assigned);
 			this->operand = std::move(other.operand);
 			this->op_name = std::move(other.op_name);
+			this->return_type = std::move(other.return_type);
+			this->input_type = std::move(other.input_type);
 		}
 		return *this;
 	}
@@ -430,20 +447,135 @@ namespace Nauticle {
 
 #ifdef JELLYFISH
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
+	c2c::c2CPP_type pmSph_operator<OP_TYPE,VAR,K,NOPS>::get_cpp_return_type() const {
+		if(OP_TYPE==SAMPLE || OP_TYPE==XSAMPLE || OP_TYPE==LAPLACE || OP_TYPE==AVISC) {
+			return this->operand[0]->evaluate(0).get_cpp_type();
+		} else if(OP_TYPE==GRADIENT) {
+			if(this->input_type=="double") {
+				return c2c::c2CPP_type{"Vector"};
+			} else if(this->input_type=="Vector") {
+				return c2c::c2CPP_type{"Matrix"};
+			} else {
+				return c2c::c2CPP_type{"unknown"};
+			}
+		} else if(OP_TYPE==DIVERGENCE) {
+			if(this->input_type=="double") {
+				return c2c::c2CPP_type{"unknown"};
+			} else if(this->input_type=="Vector") {
+				return c2c::c2CPP_type{"double"};
+			} else {
+				return c2c::c2CPP_type{"Vector"};
+			}
+		} else if(OP_TYPE==INERTIA) {
+			if(this->input_type=="double") {
+				return c2c::c2CPP_type{"double"};
+			} else if(this->input_type=="Vector") {
+				return c2c::c2CPP_type{"Matrix"};
+			} else {
+				return c2c::c2CPP_type{"Matrix"};
+			}
+		} else { // TENSILE
+			return c2c::c2CPP_type{"Vector"};
+		}
+		return c2c::c2CPP_type{"double"};
+	}
+
+	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
+	c2c::c2CPP_type pmSph_operator<OP_TYPE,VAR,K,NOPS>::get_cpp_input_type() const {
+		return this->operand[NOPS-5]->evaluate(0).get_cpp_type().get_type();
+	}
+
+	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
+	std::string pmSph_operator<OP_TYPE,VAR,K,NOPS>::generate_cpp_contributor() const {
+		if(OP_TYPE==SAMPLE) {
+			return "contribution += ("+this->operand[0]->get_cpp_evaluation("j")+")*"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation("j")+"*Wij;\n";
+		}
+		if(OP_TYPE==XSAMPLE) {
+			return "contribution += ("+this->operand[0]->get_cpp_evaluation("j")+"-"+this->operand[0]->get_cpp_evaluation("i")+")*"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation("j")+"*Wij;\n";
+		}
+		if(OP_TYPE==GRADIENT) {
+			if(this->input_type=="double") {
+				return "contribution += -("+this->operand[0]->get_cpp_evaluation("j")+(K==1&&VAR==1?"/std::pow("+this->operand[2]->get_cpp_evaluation("j")+",2)*std::pow("+this->operand[2]->get_cpp_evaluation("i")+",2)":"")+(VAR==2?"":((VAR==0?"-":"+")+this->operand[0]->get_cpp_evaluation("i")))+")*rel_pos*"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation(K==0?"j":"i")+"*Wij/d_ji;\n";
+			} else if(this->input_type=="Vector") {
+				return "contribution += -(("+this->operand[0]->get_cpp_evaluation("j")+(K==1&&VAR==1?"/std::pow("+this->operand[2]->get_cpp_evaluation("j")+",2)*std::pow("+this->operand[2]->get_cpp_evaluation("i")+",2)":"")+(VAR==2?"":((VAR==0?"-":"+")+this->operand[0]->get_cpp_evaluation("i")))+")*transpose(rel_pos)).transpose()*"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation(K==0?"j":"i")+"*Wij/d_ji;\n";
+			} else {
+				return "contribution += /* ERROR: Cannot compute gradient of a matrix field. */";
+			}
+		}
+		if(OP_TYPE==DIVERGENCE) {
+			if(this->input_type=="Vector") {
+				return "contribution += -("+this->operand[0]->get_cpp_evaluation("j")+(K==1&&VAR==1?"/std::pow("+this->operand[2]->get_cpp_evaluation("j")+",2)*std::pow("+this->operand[2]->get_cpp_evaluation("i")+",2)":"")+(VAR==2?"":((VAR==0?"-":"+")+this->operand[0]->get_cpp_evaluation("i")))+").dot(rel_pos)*"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation(K==0?"j":"i")+"*Wij/d_ji;\n";
+			} else if(this->input_type=="Matrix") {
+				return "contribution += -(("+this->operand[0]->get_cpp_evaluation("j")+(K==1&&VAR==1?"/std::pow("+this->operand[2]->get_cpp_evaluation("j")+",2)*std::pow("+this->operand[2]->get_cpp_evaluation("i")+",2)":"")+(VAR==2?"":((VAR==0?"-":"+")+this->operand[0]->get_cpp_evaluation("i")))+")*rel_pos)*"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation(K==0?"j":"i")+"*Wij/d_ji;\n";
+			} else {
+				return "contribution += /* ERROR: Cannot compute divergence of a scalar field. */";
+			}
+		}
+		if(OP_TYPE==AVISC) {
+			size_t idxshift = NOPS-5;
+			if(this->input_type=="double") {
+				return "contribution += (("+this->operand[idxshift+0]->get_cpp_evaluation("j")+"-"+this->operand[idxshift+0]->get_cpp_evaluation("i")+")*rel_pos)>0?(-rel_pos*(("+this->operand[idxshift+0]->get_cpp_evaluation("j")+"-"+this->operand[idxshift+0]->get_cpp_evaluation("i")+")*rel_pos)*"+this->operand[idxshift+1]->get_cpp_evaluation("j")+"/"+this->operand[idxshift+2]->get_cpp_evaluation("j")+"/std::pow(d_ji,3)*Wij):0.0;\n";
+			} else if(this->input_type=="Vector") {
+				return "contribution += (("+this->operand[idxshift+0]->get_cpp_evaluation("j")+"-"+this->operand[idxshift+0]->get_cpp_evaluation("i")+").dot(rel_pos))>0?(-rel_pos*(("+this->operand[idxshift+0]->get_cpp_evaluation("j")+"-"+this->operand[idxshift+0]->get_cpp_evaluation("i")+").dot(rel_pos))*"+this->operand[idxshift+1]->get_cpp_evaluation("j")+"/"+this->operand[idxshift+2]->get_cpp_evaluation("j")+"/std::pow(d_ji,3)*Wij):create<Vector>();\n";
+			} else {
+				return "contribution += (("+this->operand[idxshift+0]->get_cpp_evaluation("j")+"-"+this->operand[idxshift+0]->get_cpp_evaluation("i")+")*rel_pos)>0?(-rel_pos*(("+this->operand[idxshift+0]->get_cpp_evaluation("j")+"-"+this->operand[idxshift+0]->get_cpp_evaluation("i")+")*rel_pos)*"+this->operand[idxshift+1]->get_cpp_evaluation("j")+"/"+this->operand[idxshift+2]->get_cpp_evaluation("j")+"/std::pow(d_ji,3)*Wij):create<Matrix>();\n";
+			}
+		}
+		if(OP_TYPE==LAPLACE) {
+			size_t idxshift = NOPS-5;
+			if(this->input_type=="double") {
+				return "contribution += ("+(VAR==2?"":this->operand[idxshift+0]->get_cpp_evaluation("i")+"-")+this->operand[idxshift+0]->get_cpp_evaluation("j")+")*2.0*"+this->operand[idxshift+1]->get_cpp_evaluation("j")+"/"+this->operand[idxshift+2]->get_cpp_evaluation("j")+"/d_ji*Wij;\n";
+			} else {
+				return "contribution += rel_pos.dot(rel_pos)/d_ji/dji*("+(VAR==2?"+":this->operand[idxshift+0]->get_cpp_evaluation("i")+"-")+this->operand[idxshift+0]->get_cpp_evaluation("j")+")*2.0*"+this->operand[idxshift+1]->get_cpp_evaluation("j")+"/"+this->operand[idxshift+2]->get_cpp_evaluation("j")+"/d_ji*Wij;\n";
+			}
+		}
+		if(OP_TYPE==INERTIA) {
+			std::string dyad = "\t\t\tdouble dyad = "+this->operand[0]->get_cpp_evaluation("j")+"-"+this->operand[0]->get_cpp_evaluation("i")+";\n";
+			return "\t\t\tcontribution += tranpsose(dyad)*dyad"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation("j")+"*Wij;\n";
+		}
+		return "";
+	}
+
+	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
+	std::string pmSph_operator<OP_TYPE,VAR,K,NOPS>::generate_cpp_evaluator_function_content() const {
+		std::stringstream ss;
+		ss << this;
+		bool derivative = false;
+		if(OP_TYPE==GRADIENT || OP_TYPE==DIVERGENCE || OP_TYPE==LAPLACE || OP_TYPE==TENSILE || OP_TYPE==AVISC) {
+			derivative = true;
+		}
+		std::string contrib = this->generate_cpp_contributor();
+		std::string content = "\t//  Operator: "+ss.str()+"\n";
+		std::string radius_value = "";
+		if(std::dynamic_pointer_cast<pmSingle>(this->operand[4]).use_count()>0) {
+			radius_value += "\t\tdouble radius = " + this->operand[4]->get_cpp_evaluation("0")+";\n";
+		} else {
+			radius_value += "\t\tdouble radius_i = " + this->operand[4]->get_cpp_evaluation("i")+";\n";
+			radius_value += "\t\tdouble radius_j = " + this->operand[4]->get_cpp_evaluation("j")+";\n";
+			radius_value += "\t\tdouble radius = (radius_i+radius_j)/2;\n";
+		}
+		return content+\
+	"\tstatic "+pmKernel::get_kernel_cpp_type(this->operand[3-(NOPS-5)]->evaluate(0)[0],derivative)+" kernel{};\n\
+	auto contribute = [this](Vector const& rel_pos, int i, int j)->"+this->return_type+" {\n\
+		"+this->return_type+" contribution = create<"+this->return_type+">();\n\
+		double d_ji = normal(rel_pos);\n"+radius_value+"\
+		if(d_ji<radius"+std::string{OP_TYPE==SAMPLE?"":" && d_ji>NAUTICLE_EPS"}+") {\n\
+			double Wij = kernel.evaluate(d_ji,radius);\n\
+			"+contrib+ \
+		"\t\t}\n\
+		return contribution;\n\
+	};\n\
+	return interaction<"+this->return_type+">(i, contribute);";
+	}
+
+	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	inline c2c::c2CPP_class_member_function pmSph_operator<OP_TYPE,VAR,K,NOPS>::generate_cpp_evaluator_function() const {
-		std::string kernel_name = pmKernel::get_kernel_cpp_type(this->operand[3-(NOPS-5)]->evaluate(0)[0],false);
-		std::string output_type = this->operand[0]->get_cpp_type().get_type();
-		std::string field_type =this->operand[0]->evaluate(0).get_cpp_type().get_type();
-		std::string mass_type = this->operand[1]->get_cpp_type().get_type();
-		std::string density_type = this->operand[2]->get_cpp_type().get_type();
-		std::string content = "\t"+kernel_name+" kernel{};\n\tauto contribute = [kernel,this](Vector const& rel_pos, int i, int j)->"+field_type+" {\n\t\t"+field_type+" contribution = "+this->operand[0]->evaluate(0).get_cpp_initialization()+";\n\t\tdouble d_ji = normal(rel_pos);\n\t\tdouble radius_i = "+this->operand[4]->get_cpp_evaluation("i")+";\n\t\tdouble radius_j = "+this->operand[4]->get_cpp_evaluation("j")+";\n\t\tdouble radius = (radius_i+radius_j)/2;\n\t\tif(d_ji<radius) {\n\t\t\tdouble Wij = kernel.evaluate(d_ji,radius);\n\t\t\tcontribution += "+this->operand[0]->get_cpp_evaluation("j")+"*"+this->operand[1]->get_cpp_evaluation("j")+"/"+this->operand[2]->get_cpp_evaluation("j")+"*Wij;\n\t\t}\n\t\treturn contribution;\n\t};\n\treturn interaction<"+field_type+">(i, contribute);";
-		c2c::c2CPP_class_member_function cpp_eval{field_type, this->get_name(), false, "", std::vector<c2c::c2CPP_declaration>{c2c::c2CPP_declaration{"int", "i"}}, c2c::PRIVATE, content};
-		return cpp_eval;
+		return c2c::c2CPP_class_member_function{this->return_type, this->get_name()+"_"+this->op_name, false, "", std::vector<c2c::c2CPP_declaration>{c2c::c2CPP_declaration{"int", "i"}}, c2c::PRIVATE, this->generate_cpp_evaluator_function_content()};
 	}
 
 	template <OPERATOR_TYPE OP_TYPE, size_t VAR, size_t K, size_t NOPS>
 	std::string pmSph_operator<OP_TYPE,VAR,K,NOPS>::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
-		return this->get_name()+"("+idx+")";//this->name+"()";
+		return this->get_name()+"_"+this->op_name+"("+idx+")";
 	}
 #endif // JELLYFISH
 }

@@ -20,16 +20,19 @@
 
 #include "pmCase.h"
 #include "pmSph_operator.h"
+#include "pmFsum.h"
 #ifdef JELLYFISH
 #include "pmConstant.h"
 #include "pmRuntime_interface.h"
 #include "pmDirectives.h"
+#include "Profiler/Profiler.h"
 #include "c2c/c2CPP_source_file.h"
 #include "c2c/c2CPP_class.h"
 #include "c2c/c2Compiler.h"
 #include "c2c/c2Loader.h"
 #include "c2c/c2CPP_declaration.h"
 #include <Eigen/Eigen>
+#include <chrono>
 #endif // JELLYFISH
 
 using namespace Nauticle;
@@ -336,6 +339,7 @@ c2CPP_header_file pmCase::generate_header(std::string const& hname) const {
 	header.add_include("nauticle/pmDirectives.h",false);
 	header.add_include("nauticle/pmHelper_functions.h",false);
 	header.add_include("nauticle/pmRandom.h",false);
+	header.add_include("Profiler/Profiler.h",false);
 	header.add_include("Eigen/Eigen",true);
 	header.add_include("string",true);
 	header.add_include("vector",true);
@@ -347,6 +351,7 @@ c2CPP_header_file pmCase::generate_header(std::string const& hname) const {
 	header.add_include("thread",true);
 	header.add_include("type_traits",true);
 	header.add_include("functional",true);
+	header.add_include("mutex",true);
 	return header;
 }
 
@@ -387,6 +392,7 @@ void pmCase::generate_binary_case() const {
 	}
 	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::shared_ptr<pmWorkspace>", "workspace", false, "", "std::make_shared<pmWorkspace>()"},PRIVATE});
 	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"Vector", "minimum", false, "", psys->get_minimum().get_cpp_initialization()},PRIVATE});
+	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"std::mutex", "nb_mutex", false, "", ""},PRIVATE});
 	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"Vector", "maximum", false, "", psys->get_maximum().get_cpp_initialization()},PRIVATE});
 	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"Vector", "cell_size", false, "", psys->get_cell_size().get_cpp_initialization()},PRIVATE});
 	binary_case.add_member_type(c2CPP_class_member_type{c2CPP_declaration{"Vector", "boundary", false, "", psys->get_boundary().get_cpp_initialization()},PRIVATE});
@@ -406,20 +412,22 @@ void pmCase::generate_binary_case() const {
 	for(auto const& it:this->workspace->get<pmField>()) {
 		initializations += "\t"+it->get_cpp_name()+" = std::dynamic_pointer_cast<pmField>(this->workspace->get_instance(\""+it->get_name()+"\").lock())->get_cpp_data<"+it->get_cpp_type().get_type()+">();\n";
 	}
-	initializations.pop_back();
+	initializations += "\tupdate_neighbors();";
 
 	binary_case.add_member_function("void", "set_workspace", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::shared_ptr<pmWorkspace>","ws"}}, PUBLIC, "\tworkspace=ws;", false, true);
 	binary_case.add_member_function("void", "initialize", false, "", std::vector<c2CPP_declaration>{}, PUBLIC, initializations, false, true);
 	std::string solver_content = "";
-	solver_content += "\trestrict_particles();\n\tupdate_neighbors();\n";
 	for(auto const& it:equations) {
 		solver_content += it->generate_cpp_caller(session_name);
+		if(it->get_lhs()->is_position()) {
+			solver_content += "\tupdate_neighbors();\n";
+		}
 	}
 	solver_content += "\tdump();";
 	solver_content += "\n\treturn false;";
 
 	binary_case.add_member_function("bool", "solve", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"double", "current_time", true, "&", ""},c2CPP_declaration{"size_t", "num_threads", true, "&", ""},c2CPP_declaration{"std::string", "name", true, "&", "\"\""}}, PUBLIC, solver_content, false, true);
-	binary_case.add_member_function("void", "parallel", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::function<void(int, int)>","process"},c2CPP_declaration{"int", "num_threads",true,"&",""}}, PRIVATE, PARALLEL, false, false);
+	binary_case.add_member_function("void", "parallel", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"std::function<void(int)>","process_i"},c2CPP_declaration{"int", "num_threads",true,"&",""}}, PRIVATE, PARALLEL, false, false);
 	binary_case.add_member_function("int", "flatten", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"Vector","cells",true,"&",""},c2CPP_declaration{"Vector", "grid_pos",true,"&",""},c2CPP_declaration{"size_t", "i"}}, PRIVATE, FLATTEN, true, false);
 	binary_case.add_member_function("int", "hash_key", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"Vector","grid_pos",true,"&",""}}, PRIVATE, HASH_KEY, true, false);
 	binary_case.add_member_function("Vector", "grid_coordinates", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"Vector","point",true,"&",""}}, PRIVATE, GRID_COORDINATES, true, false);
@@ -427,10 +435,6 @@ void pmCase::generate_binary_case() const {
 	binary_case.add_member_function("T", "interaction", false, "", std::vector<c2CPP_declaration>{c2CPP_declaration{"int","i"},c2CPP_declaration{"std::function<T(Vector const&, int, int)>","contribute"}}, PRIVATE, INTERACTION, false, false, true);
 	binary_case.get_member_function("interaction").add_template_argument(c2CPP_declaration{"class","T"});
 	binary_case.add_member_function("void", "restrict_particles", false, "", std::vector<c2CPP_declaration>{},PRIVATE,RESTRICT_PARTICLES,false,false,false);
-
-	for(auto const& it:this->equations) {
-		binary_case.add_member_function(it->generate_cpp_function());
-	}
 
 
 	std::array<std::shared_ptr<pmExpression>,5> ops;
@@ -444,9 +448,11 @@ void pmCase::generate_binary_case() const {
 		binary_case.add_member_function(it->generate_cpp_evaluator_function());
 	}
 
-	binary_case.add_member_function("void","dump",false,"",std::vector<c2CPP_declaration>{},PRIVATE,"\tFILE* file;\n\tfile = fopen(\"data.txt\",\"w\");\n\tfor(int i=0; i<SYM_psys_r.size(); i++) {\n\t\tfprintf(file, \"%1.6e %1.6e %1.6e %1.6e\\n\", SYM_psys_r[i][0][0], SYM_psys_r[i][0][1], SYM_psys_r[i][0][2], SYM_f_rho[i][0]);\n\t}\n\tfclose(file);\n",false,false,false);
+	std::string dump_content = "\tstatic int count = 0;\n\tif((count++)%200==0) {\n\t\tstatic int step = 0;\n\t\tstd::cout << count << std::endl;\n\t\tFILE* file;\n\t\tfile = fopen((\"data_\"+std::to_string(step++)+\".txt\").c_str(),\"w\");\n\t\tfor(int i=0; i<SYM_psys_r.size(); i++) {\n\t\t\tfprintf(file, \"%1.6e %1.6e %1.6e %1.6e %1.6e %1.6e\\n\", SYM_psys_r[i][0], SYM_psys_r[i][1], SYM_f_v[i][0], SYM_f_v[i][1], SYM_f_rho[i], SYM_f_p[i]);\n\t\t}\n\t\tfclose(file);\n\t}\n";
+	binary_case.add_member_function("void","dump",false,"",std::vector<c2CPP_declaration>{},PRIVATE,dump_content,false,false,false);
 
 	header.get_namespace("Nauticle").add_class(binary_case);
+	//*
 	c2CPP_source_file source{header};
 
 	c2Cmake_generator cmakegen = generate_cmake_file(session_name);
@@ -458,7 +464,7 @@ void pmCase::generate_binary_case() const {
 	compiler.set_cmake_generator(std::make_shared<c2Cmake_generator>(cmakegen));
 
 	
-	compiler.compile();
+	compiler.compile();//*/
 std::cout << 1 << std::endl;
 	c2Loader loader{"./"+session_name,session_name};
 std::cout << 2 << std::endl;
@@ -468,7 +474,14 @@ std::cout << 3 << std::endl;
 std::cout << 4 << std::endl;
 	binary_case_interface->initialize();
 std::cout << 5 << std::endl;
-	binary_case_interface->solve(1,8,"");
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint = std::chrono::high_resolution_clock::now();
+	for(int i=0; i<10000; i++) {
+		binary_case_interface->solve(1,8,"");
+	}
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_EndTimepoint = std::chrono::high_resolution_clock::now();
+	long long start = std::chrono::time_point_cast<std::chrono::milliseconds>(m_StartTimepoint).time_since_epoch().count();
+    long long end = std::chrono::time_point_cast<std::chrono::milliseconds>(m_EndTimepoint).time_since_epoch().count();
+    std::cout << "Framerate: " << 1000.0/(end - start)*1000.0 << "fps" << std::endl;
 std::cout << 6 << std::endl;
 
 	loader.destroy_object(binary_case_interface);

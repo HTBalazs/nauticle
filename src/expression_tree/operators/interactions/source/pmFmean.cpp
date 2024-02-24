@@ -107,3 +107,16 @@ void pmFmean::write_to_string(std::ostream& os) const {
 	os << "fmean(" << operand[0] << ")";
 }
 
+#ifdef JELLYFISH
+std::string pmFmean::generate_cpp_evaluator_function_content() const {
+	std::string content = "\t//  Operator name: "+this->op_name+"\n";
+	content += "\t" + return_type + " result = create<" + this->operand[0]->evaluate(0).get_cpp_type().get_type() + ">();\n";
+	content += "\tsize_t count = 0;\n";
+	content += "\tfor(size_t i=0; i<" + pmSymbol::prefix + "v_numparticles; i++){\n;";
+	content += "\t\tresult += " + this->operand[0]->get_cpp_evaluation("i");
+	content += "\t\tcount++;\n";
+	content += "\t}";
+	content += "\treturn result/count;";
+	return content;
+}
+#endif // JELLYFISH
