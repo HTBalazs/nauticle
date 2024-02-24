@@ -325,15 +325,69 @@ std::string pmField::get_cpp_name() const {
 }
 
 c2c::c2CPP_type pmField::get_cpp_type() const {
-	return std::string{"std::vector<pmHistory<"}+(value[0][0].is_scalar()?"double":(value[0][0].is_vector()?"Vector":"Matrix"))+">>";
+	return "std::vector<"+std::string{value.size()<2?"":"pmHistory<"}+(value[0][0].is_scalar()?"double":(value[0][0].is_vector()?"Vector":"Matrix"))+">"+std::string{value.size()<2?"":">"};
 }
 
 std::string pmField::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
-	return this->get_cpp_name() + "["+idx+"]" + "["+std::to_string(level)+"]";
+	return this->get_cpp_name() + "["+idx+"]" + (value.size()<2?std::string{""}:("["+std::to_string(level)+"]"));
 }
 
 c2c::c2CPP_declaration pmField::generate_cpp_declaration() const {
 	return c2c::c2CPP_declaration{this->get_cpp_type(), this->get_cpp_name()};
+}
+
+template<>
+std::vector<double> pmField::get_cpp_data() const {
+	std::vector<double> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		data.push_back(it[0]);
+	}
+	return data;
+}
+
+template<>
+std::vector<Eigen::Vector2d> pmField::get_cpp_data() const {
+	std::vector<Eigen::Vector2d> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		data.push_back(Eigen::Vector2d{it[0],it[1]});
+	}
+	return data;
+}
+
+template<>
+std::vector<Eigen::Vector3d> pmField::get_cpp_data() const {
+	std::vector<Eigen::Vector3d> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		data.push_back(Eigen::Vector3d{it[0],it[1],it[2]});
+	}
+	return data;
+}
+
+template<>
+std::vector<Eigen::Matrix2d> pmField::get_cpp_data() const {
+	std::vector<Eigen::Matrix2d> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		Eigen::Matrix2d tmp;
+		tmp << it[0],it[1],it[2],it[3];
+		data.push_back(tmp);
+	}
+	return data;
+}
+
+template<>
+std::vector<Eigen::Matrix3d> pmField::get_cpp_data() const {
+	std::vector<Eigen::Matrix3d> data;
+	data.reserve(this->get_field_size());
+	for(auto const& it:value[0]) {
+		Eigen::Matrix3d tmp;
+		tmp << it[0],it[1],it[2],it[3],it[4],it[5],it[6],it[7],it[8];
+		data.push_back(tmp);
+	}
+	return data;
 }
 
 template<>

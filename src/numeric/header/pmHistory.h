@@ -86,17 +86,11 @@ namespace Nauticle {
 	
 	template <typename T>
 	T const& pmHistory<T>::operator[](size_t const& level) const {
-		if(level>=value.size()) {
-			return value.back();
-		}
 		return value[level];
 	}
 	
 	template <typename T>
 	T& pmHistory<T>::operator[](size_t const& level) {
-		if(level>=value.size()) {
-			return value.back();
-		}
 		return value[level];
 	}
 

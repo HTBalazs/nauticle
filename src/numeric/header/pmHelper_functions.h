@@ -169,6 +169,46 @@ namespace Nauticle {
 		return (value>maximum?maximum:(value<minimum?minimum:value));
 	}
 
+	template <int R, int C>
+	inline Eigen::Matrix<double,R,C> transpose(Eigen::Matrix<double,C,R> const& mat) {
+		return mat.transpose();
+	}
+
+	inline double transpose(double const& mat) {
+		return mat;
+	}
+
+	template <class T>
+	inline T create(double const& v=0);
+
+	template <>
+	inline double create<double>(double const& v/*=0*/) {
+		return v;
+	}
+
+	template <>
+	inline Eigen::Vector2d create<Eigen::Vector2d>(double const& v/*=0*/) {
+		return Eigen::Vector2d{v,v};
+	}
+
+	template <>
+	inline Eigen::Vector3d create<Eigen::Vector3d>(double const& v/*=0*/) {
+		return Eigen::Vector3d{v,v,v};
+	}
+
+	template <>
+	inline Eigen::Matrix2d create<Eigen::Matrix2d>(double const& v/*=0*/) {
+		Eigen::Matrix2d mat{};
+		mat << v,v,v,v;
+		return mat;
+	}
+
+	template <>
+	inline Eigen::Matrix3d create<Eigen::Matrix3d>(double const& v/*=0*/) {
+		Eigen::Matrix3d mat{};
+		mat << v,v,v,v,v,v,v,v,v;
+		return mat;
+	}
 }
 
 #endif // _PM_HELPER_H_

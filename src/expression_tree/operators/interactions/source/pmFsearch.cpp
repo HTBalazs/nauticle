@@ -46,3 +46,19 @@ int pmFsearch::get_field_size() const {
 bool pmFsearch::is_assigned() const {
 	return true;
 }
+
+#ifdef JELLYFISH
+c2c::c2CPP_type pmFsearch::get_cpp_return_type() const {
+    return this->operand[0]->evaluate(0).get_cpp_type().get_type();
+}
+
+c2c::c2CPP_class_member_function pmFsearch::generate_cpp_evaluator_function() const {
+    std::string content = generate_cpp_evaluator_function_content();
+    c2c::c2CPP_class_member_function cmf = c2c::c2CPP_class_member_function{this->return_type, this->get_name(), false, "", std::vector<c2c::c2CPP_declaration>{}, c2c::PRIVATE, content};
+    return cmf;
+}
+
+std::string pmFsearch::get_cpp_evaluation(std::string const& idx, size_t const& level/*=0*/) const {
+    return this->get_name()+"()";
+}
+#endif // JELLYFISH
