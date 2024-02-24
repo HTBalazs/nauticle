@@ -25,6 +25,7 @@
 #include "pmParticle_system.h"
 #include "pmCounter.h"
 #ifdef JELLYFISH
+#include "c2c/c2CPP_type.h"
 #include "c2c/c2CPP_class_member_function.h"
 #endif // JELLYFISH
 #include <memory>
@@ -45,6 +46,9 @@ namespace Nauticle {
 		std::string op_name;
 		std::shared_ptr<pmParticle_system> psys;
 		bool assigned=false;
+#ifdef JELLYFISH
+		std::string return_type = "unknown";
+#endif // JELLYFISH
 	protected:
 		pmInteraction();
 		virtual ~pmInteraction() {}
@@ -52,6 +56,11 @@ namespace Nauticle {
 		int get_field_size() const override;
 		bool cutoff_cell(pmTensor const& beta, pmTensor const& delta, size_t const& dimensions) const;
 		pmTensor interact(int const& i, Func_ith contribute) const;
+#ifdef JELLYFISH
+	protected:
+		virtual c2c::c2CPP_type get_cpp_return_type() const;
+		virtual std::string generate_cpp_evaluator_function_content() const { return ""; };
+#endif // JELLYFISH
 	public:
 		void assign(std::shared_ptr<pmParticle_system> ps) override;
 		virtual void write_to_string(std::ostream& os) const override;
@@ -66,7 +75,7 @@ namespace Nauticle {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	template <size_t S>
 	pmInteraction<S>::pmInteraction() {
-		this->name = "INTERACTION_";
+		this->name = "IA_";
 	    char ch[5];
 	    snprintf(ch, 5, "%04i", counter);
 	    this->name += ch;
@@ -82,6 +91,7 @@ namespace Nauticle {
 			this->assigned = true;
 		}
 		pmOperator<S>::assign(ps);
+	    this->return_type = get_cpp_return_type().get_type();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +215,18 @@ namespace Nauticle {
 	bool pmInteraction<S>::is_interaction() const {
 		return true;
 	}
+
+#ifdef JELLYFISH
+	template <size_t S>
+	c2c::c2CPP_type pmInteraction<S>::get_cpp_return_type() const {
+		std::string cpp_type = "double";
+		if(this->psys->get_dimensions()>1) {
+			return "Eigen::Vector"+std::to_string(this->psys->get_dimensions())+"d";
+		}
+		return c2c::c2CPP_type{cpp_type};
+	}
+#endif // JELLYFISH
+
 }
 
 #endif //_PM_INTERACTION_H_

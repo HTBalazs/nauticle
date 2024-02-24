@@ -25,6 +25,7 @@
 #include "prolog/pLogger.h"
 #include "nauticle_constants.h"
 #include "pmLong_range.h"
+#include "c2c/c2CPP_type.h"
 
 namespace Nauticle {
 	/** This class implements the conventianal Discrete element method as 
@@ -38,6 +39,10 @@ namespace Nauticle {
 		void remove_unnecessary_pairs(size_t const& level=0);
 		void evaluate_pairs(size_t const& level=0);
 		void count_collisions(size_t const& level=0) const;
+#ifdef JELLYFISH
+	protected:
+		c2c::c2CPP_type get_cpp_return_type() const override;
+#endif // JELLYFISH
 	public:
 		pmCollision_handler(std::array<std::shared_ptr<pmExpression>,5> op);
 		pmCollision_handler(pmCollision_handler const& other);

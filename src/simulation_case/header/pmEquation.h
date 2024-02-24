@@ -73,8 +73,6 @@ namespace Nauticle {
 		void set_condition(std::shared_ptr<pmExpression> cond);
 		bool const& is_interaction() const;
 #ifdef JELLYFISH
-		std::string get_cpp_evaluation() const;
-		c2c::c2CPP_class_member_function generate_cpp_function() const;
 		std::string generate_cpp_caller(std::string const& session_name) const;
 #endif // JELLYFISH
 	};

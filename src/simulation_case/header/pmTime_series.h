@@ -21,22 +21,24 @@
 #ifndef _PM_TIME_SERIES_H_
 #define _PM_TIME_SERIES_H_
 
-#include <iostream>
-#include <string>
-#include <memory>
 #include "prolog/pLogger.h"
 #include "pmVariable.h"
 #include "pmParticle_system.h"
 #include "pmData_reader.h"
+#include "pmCounter.h"
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
+#include <iostream>
+#include <string>
+#include <memory>
 
 namespace Nauticle {
 	/** This class represents the background function, which can be used to 
 	//  interpolate data to the particle system.
 	*/
-	class pmTime_series : public pmData_reader {
+	class pmTime_series : public pmData_reader, public pmCounter<pmTime_series> {
 	protected:
+		std::string name;
 		std::shared_ptr<pmVariable> variable;
 		std::shared_ptr<pmParticle_system> psys;
 		std::shared_ptr<pmExpression> condition;
@@ -44,6 +46,7 @@ namespace Nauticle {
 		bool import = true;
 		std::shared_ptr<pmData_reader> clone_impl() const override;
 	public:
+		pmTime_series();
 		void print() const;
 		void read_file(size_t const& dims) override;
 		void interpolate(double const& t);

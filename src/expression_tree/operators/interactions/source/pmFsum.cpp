@@ -107,3 +107,14 @@ void pmFsum::write_to_string(std::ostream& os) const {
 	os << "fsum(" << operand[0] << ")";
 }
 
+#ifdef JELLYFISH
+std::string pmFsum::generate_cpp_evaluator_function_content() const {
+	std::string content = "\t//  Operator name: "+this->op_name+"\n";
+	content += "\t" + return_type + " result = create<" + this->operand[0]->evaluate(0).get_cpp_type().get_type() + ">();\n";
+	content += "\tfor(size_t i=0; i<" + pmSymbol::prefix + "v_numparticles; i++){\n;";
+	content += "\t\tresult += " + this->operand[0]->get_cpp_evaluation("i") + ";\n";
+	content += "\t}\n";
+	content += "\treturn result;";
+	return content;
+}
+#endif // JELLYFISH

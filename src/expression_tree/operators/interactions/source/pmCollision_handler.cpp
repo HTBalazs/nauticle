@@ -246,3 +246,9 @@ void pmCollision_handler::update(size_t const& level/*=0*/) {
 	evaluate_pairs(level);
 	count_collisions(level);
 }
+
+#ifdef JELLYFISH
+	c2c::c2CPP_type pmCollision_handler::get_cpp_return_type() const {
+		return c2c::c2CPP_type{"double"};
+	}
+#endif // JELLYFISH

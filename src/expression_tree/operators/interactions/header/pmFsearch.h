@@ -29,11 +29,19 @@ namespace Nauticle {
     class pmFsearch : public pmInteraction<1> {
     private:
     	virtual void process(pmTensor& value, size_t const& level=0) const=0;
+#ifdef JELLYFISH
+    protected:
+        c2c::c2CPP_type get_cpp_return_type() const override;
+#endif // JELLYFISH
     public:
     	virtual ~pmFsearch() {}
     	virtual int get_field_size() const override;
     	bool is_assigned() const override;
     	pmTensor evaluate(int const& i, size_t const& level=0) const override;
+#ifdef JELLYFISH
+        c2c::c2CPP_class_member_function generate_cpp_evaluator_function() const override;
+        std::string get_cpp_evaluation(std::string const& idx, size_t const& level=0) const override;
+#endif // JELLYFISH
     };
 }
 

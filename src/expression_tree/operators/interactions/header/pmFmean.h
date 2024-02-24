@@ -30,6 +30,10 @@ namespace Nauticle {
     	std::shared_ptr<pmExpression> clone_impl() const override;
     private:
     	void process(pmTensor& value, size_t const& level=0) const override;
+#ifdef JELLYFISH
+    protected:
+        std::string generate_cpp_evaluator_function_content() const override;
+#endif // JELLYFISH
     public:
     	pmFmean(std::shared_ptr<pmExpression>);
     	pmFmean(pmFmean const& other);

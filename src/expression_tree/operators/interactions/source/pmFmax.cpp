@@ -112,3 +112,21 @@ void pmFmax::write_to_string(std::ostream& os) const {
 	os << "fmax(" << operand[0] << ")";
 }
 
+
+#ifdef JELLYFISH
+std::string pmFmax::generate_cpp_evaluator_function_content() const { 
+	std::string content = "\t//  Operator name: "+this->op_name+"\n";
+	content += "\t"+return_type+" result = 0;\n";
+	content += "\tfor(size_t i=0; i<"+pmSymbol::prefix+"v_numparticles; i++) {\n";
+	content += "\t\tdouble eval_i = "+this->operand[0]->get_cpp_evaluation("i")+";\n";
+	content += "\t\tif(result<eval_i) {\n";
+	content += "\t\t\tresult = eval_i;\n";
+	content += "\t\t}\n";
+	content += "\t}\n";
+	content += "\treturn result;";
+	return content;
+}
+#endif // JELLYFISH
+
+
+
