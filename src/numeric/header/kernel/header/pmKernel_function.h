@@ -34,10 +34,15 @@ namespace Nauticle {
 	public:
 		std::string get_name() const;
 		virtual double evaluate(double const& r, double const& influence_radius) const=0;
+		double operator()(double const& r, double const& influence_radius) const;
 	};
 
 	inline std::string pmKernel_function::get_name() const {
 		return name;
+	}
+
+	inline double pmKernel_function::operator()(double const& r, double const& influence_radius) const {
+		return evaluate(r, influence_radius);
 	}
 }
 
