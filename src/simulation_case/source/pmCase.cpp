@@ -25,7 +25,6 @@
 #include "pmConstant.h"
 #include "pmRuntime_interface.h"
 #include "pmDirectives.h"
-#include "Profiler/Profiler.h"
 #include "c2c/c2CPP_source_file.h"
 #include "c2c/c2CPP_class.h"
 #include "c2c/c2Compiler.h"
@@ -339,7 +338,6 @@ c2CPP_header_file pmCase::generate_header(std::string const& hname) const {
 	header.add_include("nauticle/pmDirectives.h",false);
 	header.add_include("nauticle/pmHelper_functions.h",false);
 	header.add_include("nauticle/pmRandom.h",false);
-	header.add_include("Profiler/Profiler.h",false);
 	header.add_include("Eigen/Eigen",true);
 	header.add_include("string",true);
 	header.add_include("vector",true);
@@ -448,7 +446,7 @@ void pmCase::generate_binary_case() const {
 		binary_case.add_member_function(it->generate_cpp_evaluator_function());
 	}
 
-	std::string dump_content = "\tstatic int count = 0;\n\tif((count++)%200==0) {\n\t\tstatic int step = 0;\n\t\tstd::cout << count << std::endl;\n\t\tFILE* file;\n\t\tfile = fopen((\"data_\"+std::to_string(step++)+\".txt\").c_str(),\"w\");\n\t\tfor(int i=0; i<SYM_psys_r.size(); i++) {\n\t\t\tfprintf(file, \"%1.6e %1.6e %1.6e %1.6e %1.6e %1.6e\\n\", SYM_psys_r[i][0], SYM_psys_r[i][1], SYM_f_v[i][0], SYM_f_v[i][1], SYM_f_rho[i], SYM_f_p[i]);\n\t\t}\n\t\tfclose(file);\n\t}\n";
+	std::string dump_content = "\tstatic int count = 0;\n\tif((count++)%100==0) {\n\t\tstatic int step = 0;\n\t\tstd::cout << count << std::endl;\n\t\tFILE* file;\n\t\tfile = fopen((\"data_\"+std::to_string(step++)+\".txt\").c_str(),\"w\");\n\t\tfor(int i=0; i<SYM_psys_r.size(); i++) {\n\t\t\tfprintf(file, \"%1.6e %1.6e %1.6e %1.6e %1.6e %1.6e\\n\", SYM_psys_r[i][0], SYM_psys_r[i][1], SYM_f_v[i][0], SYM_f_v[i][1], SYM_f_rho[i], SYM_f_p[i]);\n\t\t}\n\t\tfclose(file);\n\t}\n";
 	binary_case.add_member_function("void","dump",false,"",std::vector<c2CPP_declaration>{},PRIVATE,dump_content,false,false,false);
 
 	header.get_namespace("Nauticle").add_class(binary_case);
@@ -476,7 +474,7 @@ std::cout << 4 << std::endl;
 std::cout << 5 << std::endl;
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint = std::chrono::high_resolution_clock::now();
 	for(int i=0; i<10000; i++) {
-		binary_case_interface->solve(1,8,"");
+		binary_case_interface->solve(1,12,"");
 	}
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_EndTimepoint = std::chrono::high_resolution_clock::now();
 	long long start = std::chrono::time_point_cast<std::chrono::milliseconds>(m_StartTimepoint).time_since_epoch().count();
