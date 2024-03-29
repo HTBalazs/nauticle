@@ -138,12 +138,13 @@ void pmSimulation::read_file(std::string const& filename) {
 	std::unique_ptr<pmYAML_processor> yaml_loader{new pmYAML_processor};
 	yaml_loader->read_file(filename);
 	cas = yaml_loader->get_case();
-#ifdef JELLYFISH
-	cas->generate_binary_case();
-#endif // JELLYFISH
-	exit(0);
 	script = yaml_loader->get_script(cas->get_workspace());
 	parameter_space = yaml_loader->get_parameter_space(cas->get_workspace());
+#ifdef JELLYFISH
+	if(parameter_space->get_parameter_value("compile_case")[0]) {
+		cas->generate_binary_case();
+	}
+#endif // JELLYFISH
 	vtk_write_mode = parameter_space->get_parameter_value("output_format")[0] ? BINARY : ASCII;
 	ProLog::pLogger::log<ProLog::LCY>("  Case initialization is completed.\n");
 	ProLog::pLogger::footer<ProLog::LCY>();
