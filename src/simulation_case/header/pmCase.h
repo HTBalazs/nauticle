@@ -67,11 +67,12 @@ namespace Nauticle {
 		void merge(std::shared_ptr<pmCase> const& other);
 		std::shared_ptr<pmWorkspace> get_workspace() const;
 		std::vector<std::shared_ptr<pmEquation>> get_equations() const;
+		std::vector<std::shared_ptr<pmBackground>> const& get_background() const;
 		void add_workspace(std::shared_ptr<pmWorkspace> ws);
 		void add_equation(std::shared_ptr<pmEquation> func);
 		void add_equation(std::vector<std::shared_ptr<pmEquation>> func);
 		void update_particle_modifiers(size_t const& num_threads);
-		void update_background_fields();
+		void update_background_fields(double const& dt);
 		void update_rigid_bodies(double const& time_step);
 		void update_time_series_variables(double const& t);
 		void update_output();

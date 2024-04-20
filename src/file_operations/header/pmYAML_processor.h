@@ -33,6 +33,7 @@
 #include "pmParticle_splitter.h"
 #include "pmParticle_merger.h"
 #include "pmBackground.h"
+#include "pmSolid.h"
 #include "pmTime_series.h"
 #include "pmParticle_sink.h"
 #include "pmParticle_emitter.h"

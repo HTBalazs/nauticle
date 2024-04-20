@@ -139,6 +139,10 @@ void pmGrid::set_grid_id(pmTensor const& t) {
 	grid_id = t;
 }
 
+void pmGrid::set_surface(std::shared_ptr<pmSurface> srf) {
+	surface = srf;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Implements n level nested loops recursively, n is the size of indexes and end_per_index vectors.
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +202,10 @@ void pmGrid::generate() {
 			grid.push_back(node);
 		};
 		n_level_loop(indexes,end_per_index,0, process);
+		if(surface.use_count()>0) {
+			surface->update();
+			surface->cut(grid);
+		}
 	} else {
 		pmData_reader data_reader;
 		data_reader.set_file_name(file_name);

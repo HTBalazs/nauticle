@@ -21,11 +21,12 @@
 #ifndef _PM_GRID_H_
 #define _PM_GRID_H_
 
+#include "pmTensor.h"
+#include "prolog/pLogger.h"
+#include "pmSurface.h"
 #include <vector>
 #include <memory>
 #include <functional>
-#include "pmTensor.h"
-#include "prolog/pLogger.h"
 
 namespace Nauticle {
 	/** This class implements the particle generation over a uniform spatial grid.
@@ -39,6 +40,7 @@ namespace Nauticle {
 		pmTensor distance;
 		pmTensor grid_id;
 		std::vector<pmTensor> grid;
+		std::shared_ptr<pmSurface> surface;
 		using Func = std::function<void(std::vector<int>&)>;
 	private:
 		void n_level_loop(std::vector<int>& indexes, const std::vector<int>& endPerIndex, int idx, Func process);
@@ -58,6 +60,7 @@ namespace Nauticle {
 		void set_offset(pmTensor const& o);
 		void set_distance(pmTensor const& d);
 		void set_grid_id(pmTensor const& t);
+		void set_surface(std::shared_ptr<pmSurface> srf);
 		void generate();
 		void merge(std::shared_ptr<pmGrid> other);
 		void print() const;

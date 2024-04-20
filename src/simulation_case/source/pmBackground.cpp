@@ -140,14 +140,14 @@ void pmBackground::set_particle_condition(std::shared_ptr<pmExpression> pcond) {
 	particle_condition = pcond;
 }
 
+void pmBackground::initialize() {
+	this->read_file();
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Reads input if not read yet, and performs interpolation.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmBackground::update() {
-	if(import) {
-		this->read_file();
-		import = false;
-	}
+void pmBackground::update(double const& dt) {
 	interpolate();
 }
 

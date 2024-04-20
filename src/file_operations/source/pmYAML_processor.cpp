@@ -148,6 +148,7 @@ std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::iterator it
 	pmTensor gsize{3,1,1};
 	pmTensor goffset{3,1,0};
 	pmTensor gip_dist{3,1,0.1};
+	std::shared_ptr<pmSurface> surface;
 	for(;it!=it_end;it++) {
 		if(it->first.as<std::string>()=="grid") {
 			std::shared_ptr<pmGrid> grid = std::make_shared<pmGrid>();
@@ -177,7 +178,12 @@ std::shared_ptr<pmGrid_space> pmYAML_processor::get_grid_space(YAML::iterator it
 					gip_dist = tensor_parser.string_to_tensor(grid_nodes->second.as<std::string>(),workspace);
 					grid->set_distance(gip_dist);
 				}
+				if(grid_nodes->first.as<std::string>()=="fill") {
+					surface = std::make_shared<pmSurface>();
+					surface->add_file_name(grid_nodes->second.as<std::string>());
+				}
 			}
+			grid->set_surface(surface);
 			grid->generate();
 			grid_space->add_grid(grid);
 		}
@@ -340,7 +346,7 @@ std::shared_ptr<pmParameter_space> pmYAML_processor::get_parameter_space(std::sh
 std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std::shared_ptr<pmWorkspace> workspace/*=std::make_shared<pmWorkspace>()*/) const {
 	YAML::Node sim = data["simulation"];
 	std::vector<std::shared_ptr<pmBackground>> background_list;
-	if(!sim["background"]) {
+	if(!sim["background"] && !sim["solid"]) {
 		return background_list;
 	}
 	// default values
@@ -380,7 +386,88 @@ std::vector<std::shared_ptr<pmBackground>> pmYAML_processor::get_background(std:
 			background->set_condition(expr_condition);
 			background->set_particle_condition(expr_condition);
 			background->set_position_field(expr_position_field);
+			background->initialize();
 			background_list.push_back(background);
+		}
+	}
+
+	// default values
+	file_name = "solid.stl";
+	std::string normal_field = "";
+	std::string potential_field = "";
+	std::string wall_velocity = "";
+	std::string center = "";
+	std::string rotation = "";
+	condition = "true";
+	particle_condition = "true";
+	position_field = "r";
+	std::string thickness = "0.01";
+	for(YAML::const_iterator sim_nodes=sim.begin();sim_nodes!=sim.end();sim_nodes++) {
+		if(sim_nodes->first.as<std::string>()=="solid") {
+			auto solid = std::make_shared<pmSolid>();
+			auto expr_parser = std::make_shared<pmExpression_parser>();
+			for(YAML::const_iterator background_nodes=sim_nodes->second.begin();background_nodes!=sim_nodes->second.end();background_nodes++) {
+				// read from configuration file
+				if(background_nodes->first.as<std::string>()=="normal_field") {
+					normal_field = background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="potential_field") {
+					potential_field = background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="position_field") {
+					position_field = background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="wall_velocity") {
+					wall_velocity =background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="center") {
+					center =background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="rotation") {
+					rotation =background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="file") {
+					file_name = background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="condition") {
+					condition = background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="prticle_condition") {
+					particle_condition =background_nodes->second.as<std::string>();
+				}
+				if(background_nodes->first.as<std::string>()=="thickness") {
+					thickness =background_nodes->second.as<std::string>();
+				}
+			}
+			auto expr_normal_field = expr_parser->analyse_expression<pmField>(normal_field,workspace);
+			auto expr_potential_field = expr_parser->analyse_expression<pmField>(potential_field,workspace);
+			auto expr_position_field = expr_parser->analyse_expression<pmExpression>(position_field,workspace);
+			auto expr_condition = expr_parser->analyse_expression<pmExpression>(condition,workspace);
+			auto expr_particle_condition = expr_parser->analyse_expression<pmExpression>(particle_condition,workspace);
+			auto expr_thickness = expr_parser->analyse_expression<pmExpression>(thickness,workspace);
+
+			if(wall_velocity!="") {
+				auto expr_wall_velocity = expr_parser->analyse_expression<pmField>(wall_velocity,workspace);
+				solid->set_wall_velocity(expr_wall_velocity);
+			}
+			if(center!="") {
+				auto expr_center = expr_parser->analyse_expression<pmExpression>(center,workspace);
+				solid->set_center(expr_center);
+			}
+			if(rotation!="") {
+				auto expr_rotation = expr_parser->analyse_expression<pmExpression>(rotation,workspace);
+				solid->set_rotation(expr_rotation);
+			}
+
+			solid->set_file_name(file_name);
+			solid->set_normal_field(expr_normal_field);
+			solid->set_potential_field(expr_potential_field);
+			solid->set_condition(expr_condition);
+			solid->set_particle_condition(expr_condition);
+			solid->set_position_field(expr_position_field);
+			solid->set_thickness(expr_thickness);
+			solid->initialize();
+			background_list.push_back(std::dynamic_pointer_cast<pmBackground>(solid));
 		}
 	}
 	return background_list;

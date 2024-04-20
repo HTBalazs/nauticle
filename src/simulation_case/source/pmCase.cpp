@@ -166,12 +166,16 @@ std::vector<std::shared_ptr<pmEquation>> pmCase::get_equations() const {
 	return equations;
 }
 
+std::vector<std::shared_ptr<pmBackground>> const& pmCase::get_background() const {
+	return background;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Solves the equation with the given name or all equations in order if name is empty.
 /////////////////////////////////////////////////////////////////////////////////////////
 bool pmCase::solve(double const& current_time, size_t const& num_threads, std::string const& name/*=""*/) {
 	this->update_particle_modifiers(num_threads);
-	this->update_background_fields();
+	this->update_background_fields(workspace->get_instance("dt").lock()->evaluate(0)[0]);
 	this->update_time_series_variables(current_time);
 	this->update_rigid_bodies(workspace->get_instance("dt").lock()->evaluate(0)[0]);
 	bool success = workspace->update();
@@ -246,9 +250,9 @@ void pmCase::update_particle_modifiers(size_t const& num_threads) {
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Updates background interpolations.
 /////////////////////////////////////////////////////////////////////////////////////////
-void pmCase::update_background_fields() {
+void pmCase::update_background_fields(double const& dt) {
 	for(auto& it:background) {
-		it->update();
+		it->update(dt);
 	}
 }
 

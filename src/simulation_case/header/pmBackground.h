@@ -35,24 +35,28 @@ namespace Nauticle {
 	//  interpolate data to the particle system.
 	*/
 	class pmBackground {
-		std::string file_name;
+	private:
 		std::shared_ptr<pmField> field;
+	protected:
+		std::string file_name;
 		std::shared_ptr<pmExpression> position_field;
 		vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid;
 		std::shared_ptr<pmExpression> condition;
 		std::shared_ptr<pmExpression> particle_condition;
-		bool import = true;
+	protected:
+		virtual void read_file();
 	public:
-		void print() const;
+		virtual void initialize();
+		virtual void print() const;
 		void set_file_name(std::string const& fn);
-		void read_file();
-		void interpolate();
+		virtual void interpolate();
 		void set_position_field(std::shared_ptr<pmExpression> ps);
-		void set_field(std::shared_ptr<pmField> fld);
+		virtual void set_field(std::shared_ptr<pmField> fld);
 		void set_condition(std::shared_ptr<pmExpression> cond);
 		void set_particle_condition(std::shared_ptr<pmExpression> cond);
-		void update();
+		virtual void update(double const& dt);
 		std::shared_ptr<pmBackground> clone() const;
+		virtual void write_geometry(std::string const& fn) const {}
 	};
 }
 

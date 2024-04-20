@@ -294,6 +294,10 @@ void pmVTK_writer::update() {
 	push_point_fields_to_polydata();
 	push_asymmetric_to_polydata();
 
+	for(auto const& it:cas->get_background()) {
+		it->write_geometry(file_name);
+	}
+
 	// Write vtk file.
 	vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
 	writer->SetFileName(file_name.c_str());
