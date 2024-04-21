@@ -44,7 +44,7 @@ namespace Nauticle {
 		double elements[9];
 	public:
 		pmTensor();
-		pmTensor(double s);
+		explicit pmTensor(double s);
 		pmTensor(int r, int c, double init=0);
 		pmTensor(pmTensor const& other)=default;
 		pmTensor(pmTensor&& other)=default;
