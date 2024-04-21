@@ -37,6 +37,8 @@ namespace Nauticle {
 		void solidify();
 		void read_file() override;
 		void transform(double const& dt);
+		template<class T> void remove_duplicates(std::vector<T>& normals) const;
+		pmTensor get_vertex_normal(pmTensor const& vertex, std::vector<pmTensor> const& normals, int i1, int i2, int i3) const;
 	public:
 		pmSolid() { counter++; }
 		void print() const override;

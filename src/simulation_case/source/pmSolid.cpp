@@ -2,6 +2,9 @@
 #include <vtkTransformFilter.h>
 #include <vtkTransform.h>
 #include <vtkProbeFilter.h>
+#include <vtkPointSet.h>
+#include <Eigen/Eigen>
+#include <set>
 
 using namespace Nauticle;
 using namespace ProLog;
@@ -63,51 +66,108 @@ void pmSolid::set_rotation(std::shared_ptr<pmExpression> rot) {
 	rotation = rot;
 }
 
+template<class T>
+void pmSolid::remove_duplicates(std::vector<T>& values) const {
+	auto b = values.begin();
+	auto e = values.end();
+	std::vector<T> seen{};
+	e = std::remove_if(b, e, [&seen](T x)->bool {
+		for(auto const& it:seen) {
+			if(it==x) {
+				return true;
+			}
+		}
+		seen.push_back(x);
+		return false;
+	});
+	values.erase(e, values.end());
+}
+
+pmTensor pmSolid::get_vertex_normal(pmTensor const& vertex, std::vector<pmTensor> const& normals, int i1, int i2, int i3) const {
+	std::vector<pmTensor> new_vertex{vertex+normals[i1],vertex+normals[i2],vertex+normals[i3]};
+	/*
+	Eigen::Matrix3d A;
+	Eigen::Vector3d b;
+	A << normals[i1][0], normals[i1][1], normals[i1][2], normals[i2][0], normals[i2][1], normals[i2][2], normals[i3][0], normals[i3][1], normals[i3][2];
+	b << (new_vertex[0].transpose()*normals[i1])[0], (new_vertex[1].transpose()*normals[i2])[0], (new_vertex[2].transpose()*normals[i3])[0];
+	Eigen::Vector3d x = A.colPivHouseholderQr().solve(b);
+	pmTensor result{3,1,0};
+	result[0] = x(0);
+	result[1] = x(1);
+	result[2] = x(2);
+	result -= vertex;
+	return -result/result.norm();
+	/*/
+	pmTensor A{3,3,0};
+	A[0] = normals[i1][0];
+	A[1] = normals[i1][1];
+	A[2] = normals[i1][2];
+	A[3] = normals[i2][0];
+	A[4] = normals[i2][1];
+	A[5] = normals[i2][2];
+	A[6] = normals[i3][0];
+	A[7] = normals[i3][1];
+	A[8] = normals[i3][2];
+	pmTensor b{3,1,0};
+	b[0] = (new_vertex[0].transpose()*normals[i1])[0];
+	b[1] = (new_vertex[1].transpose()*normals[i2])[0];
+	b[2] = (new_vertex[2].transpose()*normals[i3])[0];
+	pmTensor result{3,1,0};
+	result = A.inverse()*b - vertex;
+	return -result/result.norm();//*/
+}
+
 void pmSolid::solidify() {
 	vtkSmartPointer<vtkPolyData> surface = vtkSmartPointer<vtkPolyData>(reader->GetOutput());
 	int num_points = surface->GetNumberOfPoints();
 	int num_cells = surface->GetNumberOfCells();
 
-	std::vector<std::array<double,3>> normal{num_points,std::array<double,3>{0,0,0}};
+	std::vector<pmTensor> normal;
+	normal.resize(num_points,pmTensor{3,1,0});
 
-	for(int cid=0; cid<num_cells; cid++) {
-		vtkIdList* point_ids = vtkIdList::New();
-		surface->GetCellPoints(cid, point_ids);
-		double v0[3];
-		double v1[3];
-		double v2[3];
-		int idx0 = point_ids->GetId(0);
-		int idx1 = point_ids->GetId(1);
-		int idx2 = point_ids->GetId(2);
-		surface->GetPoint(idx0, v0);
-		surface->GetPoint(idx1, v1);
-		surface->GetPoint(idx2, v2);
-
-		double n[3];
-		n[0] = ((v0[1]-v1[1])*(v2[2]-v1[2]))-((v0[2]-v1[2])*(v2[1]-v1[1]));
-		n[1] = ((v0[2]-v1[2])*(v2[0]-v1[0]))-((v0[0]-v1[0])*(v2[2]-v1[2]));
-		n[2] = ((v0[0]-v1[0])*(v2[1]-v1[1]))-((v0[1]-v1[1])*(v2[0]-v1[0]));
-
-		double magnitude = std::sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]);
-
-		normal[idx0][0] += n[0]/magnitude;
-		normal[idx0][1] += n[1]/magnitude;
-		normal[idx0][2] += n[2]/magnitude;
-
-		normal[idx1][0] += n[0]/magnitude;
-		normal[idx1][1] += n[1]/magnitude;
-		normal[idx1][2] += n[2]/magnitude;
-
-		normal[idx2][0] += n[0]/magnitude;
-		normal[idx2][1] += n[1]/magnitude;
-		normal[idx2][2] += n[2]/magnitude;
-	}
-	// Normalize normals
-	for(auto& it:normal) {
-		double magnitude = std::sqrt(it[0]*it[0]+it[1]*it[1]+it[2]*it[2]);
-		it[0] /= magnitude;
-		it[1] /= magnitude;
-		it[2] /= magnitude;
+	// Pointwise for
+	for(int pid=0; pid<num_points; pid++) {
+		vtkIdList* face_ids = vtkIdList::New();
+		// Get cells of the ith vertex
+		surface->GetPointCells(pid, face_ids);
+		std::vector<pmTensor> normals;
+		size_t num_local_cells = face_ids->GetNumberOfIds();
+		// Cellwise for
+		for(int cid=0; cid<num_local_cells; cid++) {
+			vtkIdList* point_ids = vtkIdList::New();
+			// Get points of the cidth cell
+			surface->GetCellPoints(face_ids->GetId(cid), point_ids);
+			double v0[3];
+			double v1[3];
+			double v2[3];
+			surface->GetPoint(point_ids->GetId(0), v0);
+			surface->GetPoint(point_ids->GetId(1), v1);
+			surface->GetPoint(point_ids->GetId(2), v2);
+			// Compute normal for the cidth cell
+			pmTensor n{3,1,0};
+			n[0] = ((v0[1]-v1[1])*(v2[2]-v1[2]))-((v0[2]-v1[2])*(v2[1]-v1[1]));
+			n[1] = ((v0[2]-v1[2])*(v2[0]-v1[0]))-((v0[0]-v1[0])*(v2[2]-v1[2]));
+			n[2] = ((v0[0]-v1[0])*(v2[1]-v1[1]))-((v0[1]-v1[1])*(v2[0]-v1[0]));
+			n /= n.norm();
+			normals.push_back(n);
+		}
+		remove_duplicates(normals);
+		int num_normals = normals.size();
+		double* p = surface->GetPoint(pid);
+		pmTensor vertex{3,1,0};
+		vertex[0] = p[0];
+		vertex[1] = p[1];
+		vertex[2] = p[2];
+		if(num_normals==3) {
+			normal[pid] = get_vertex_normal(vertex, normals, 0, 1, 2);
+		} else if(num_normals==1) {
+			normal[pid] = normals[0];
+		} else {
+			for(int i=0; i<num_normals; i++) {
+				pmTensor next_normal = get_vertex_normal(vertex, normals, i, (i+1)%num_normals, (i+2)%num_normals);
+				normal[pid] += next_normal/num_normals;
+			}
+		}
 	}
 
 	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -215,9 +275,10 @@ void pmSolid::interpolate() {
 		size_t n = tensor.numel();
 		points->InsertNextPoint(tensor[0], n>1?tensor[1]:0.0, n>2?tensor[2]:0.0);
 	}
-  	auto probe_unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  	auto probe_unstructured_grid = vtkSmartPointer<vtkPolyData>::New();
   	probe_unstructured_grid->SetPoints(points);
 	auto probe = vtkSmartPointer<vtkProbeFilter>::New();
+	probe->SetTolerance(1e-12f);
 	probe->SetSourceData(unstructured_grid);
 	probe->SetInputData(probe_unstructured_grid);
 	probe->Update();
