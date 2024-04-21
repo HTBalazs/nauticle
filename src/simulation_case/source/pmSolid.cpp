@@ -148,8 +148,7 @@ void pmSolid::solidify() {
 			n[0] = ((v0[1]-v1[1])*(v2[2]-v1[2]))-((v0[2]-v1[2])*(v2[1]-v1[1]));
 			n[1] = ((v0[2]-v1[2])*(v2[0]-v1[0]))-((v0[0]-v1[0])*(v2[2]-v1[2]));
 			n[2] = ((v0[0]-v1[0])*(v2[1]-v1[1]))-((v0[1]-v1[1])*(v2[0]-v1[0]));
-			n /= n.norm();
-			normals.push_back(n);
+			normals.push_back(n/n.norm());
 		}
 		remove_duplicates(normals);
 		int num_normals = normals.size();
