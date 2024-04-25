@@ -33,6 +33,8 @@ namespace Nauticle {
 		double previous_thickness;
 		size_t export_counter = 0;
 		mutable bool exprt = true;
+		pmTensor current_position;
+		pmTensor current_velocity;
 	protected:
 		void solidify();
 		void read_file() override;

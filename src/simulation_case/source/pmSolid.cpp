@@ -60,6 +60,7 @@ void pmSolid::set_wall_velocity(std::shared_ptr<pmField> wall_vel) {
 
 void pmSolid::set_center(std::shared_ptr<pmExpression> ctr) {
 	center = ctr;
+	current_position = center->evaluate(0);
 }
 
 void pmSolid::set_rotation(std::shared_ptr<pmExpression> rot) {
@@ -148,8 +149,7 @@ void pmSolid::solidify() {
 			n[0] = ((v0[1]-v1[1])*(v2[2]-v1[2]))-((v0[2]-v1[2])*(v2[1]-v1[1]));
 			n[1] = ((v0[2]-v1[2])*(v2[0]-v1[0]))-((v0[0]-v1[0])*(v2[2]-v1[2]));
 			n[2] = ((v0[0]-v1[0])*(v2[1]-v1[1]))-((v0[1]-v1[1])*(v2[0]-v1[0]));
-			n /= n.norm();
-			normals.push_back(n);
+			normals.push_back(n/n.norm());
 		}
 		remove_duplicates(normals);
 		int num_normals = normals.size();
@@ -248,10 +248,15 @@ void pmSolid::update(double const& dt) {
 
 void pmSolid::transform(double const& dt) {
 	if(!rotation.use_count() || !center.use_count() || !wall_velocity.use_count()) { return; }
+	pmTensor previous_position = current_position;
+	current_position = center->evaluate(0);
+	pmTensor displacement = current_position-previous_position;
+	current_velocity = displacement/dt;
 	vtkSmartPointer<vtkTransformFilter> transform = vtkSmartPointer<vtkTransformFilter>::New();
 	vtkSmartPointer<vtkTransform> tr = vtkSmartPointer<vtkTransform>::New();
+	tr->Translate(displacement[0],displacement[1],displacement[2]);
 	tr->Translate(center->evaluate(0)[0],center->evaluate(0)[1],center->evaluate(0)[2]);
-	tr->RotateWXYZ(rotation->evaluate(0).norm(), rotation->evaluate(0)[0], rotation->evaluate(0)[1], rotation->evaluate(0)[2]);
+	tr->RotateWXYZ(rotation->evaluate(0).norm()*dt, rotation->evaluate(0)[0], rotation->evaluate(0)[1], rotation->evaluate(0)[2]);
 	tr->Translate(-center->evaluate(0)[0],-center->evaluate(0)[1],-center->evaluate(0)[2]);
 	transform->SetTransform(tr);
 	transform->SetInputData(unstructured_grid);
@@ -309,9 +314,8 @@ void pmSolid::interpolate() {
 			vtkFloatArray* doubleData = vtkFloatArray::SafeDownCast(data);
 			for(int i=0; i<doubleData->GetNumberOfTuples(); i++) {
 				double potential = doubleData->GetValue(i);
-				potential_field->set_value(pmTensor{1,1,potential},i);
 				if(wall_velocity.use_count()>0 && potential>0) {
-					pmTensor vel = cross(rotation->evaluate(0),position_field->evaluate(i)-center->evaluate(0));
+					pmTensor vel = current_velocity+cross(rotation->evaluate(0),position_field->evaluate(i)-center->evaluate(0));
 					wall_velocity->set_value(vel,i);
 				} else {
 					wall_velocity->set_value(pmTensor{3,1,0},i);
